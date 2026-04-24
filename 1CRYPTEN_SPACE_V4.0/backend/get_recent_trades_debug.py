@@ -1,17 +1,17 @@
 import asyncio
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 import platform
 
 if platform.system() == 'Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 async def run():
-    await firebase_service.initialize()
-    if not firebase_service.db:
+    await sovereign_service.initialize()
+    if not sovereign_service.db:
         print("Erro db")
         return
     
-    trades_ref = firebase_service.db.collection('trade_history')
+    trades_ref = sovereign_service.db.collection('trade_history')
     
     print("\n--- Recent Trades (Last 10) ---")
     query = trades_ref.order_by('timestamp', direction='DESCENDING').limit(10)

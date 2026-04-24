@@ -8,7 +8,7 @@ import logging
 # Adicionar path do backend
 sys.path.append(os.getcwd())
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 from services.bankroll import bankroll_manager
 
@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("RescueIPUSDT-Final")
 
 async def rescue():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     print("🚑 [RESCUE-IPUSDT-FINAL] Iniciando operação de resgate...")
 
     # 1. Dados da Ordem (Baseado no log do Almirante)
@@ -53,7 +53,7 @@ async def rescue():
 
     # 3. Forçar Promoção no Firebase
     # Sincroniza o slot primeiro para garantir que o opened_at esteja lá
-    await firebase_service.update_slot(slot_id, {
+    await sovereign_service.update_slot(slot_id, {
         "symbol": f"{symbol}.P",
         "side": side,
         "entry_price": entry_price,
@@ -63,7 +63,7 @@ async def rescue():
     })
     
     # Promove
-    moon_uuid = await firebase_service.promote_to_moonbag(slot_id)
+    moon_uuid = await sovereign_service.promote_to_moonbag(slot_id)
     if moon_uuid:
         # 110% ROI Stop
         new_stop = entry_price * (1 + (110.0 / (leverage * 100)))
@@ -77,7 +77,7 @@ async def rescue():
             "pnl_percent": 132.6,
             "timestamp_last_update": time.time()
         }
-        await asyncio.to_thread(firebase_service.db.collection("moonbags").document(moon_uuid).set, update_data, merge=True)
+        await asyncio.to_thread(sovereign_service.db.collection("moonbags").document(moon_uuid).set, update_data, merge=True)
         
         # Mover na memória de moonbags
         pos_obj["status"] = "EMANCIPATED"

@@ -6,21 +6,21 @@ import json
 
 sys.path.append(os.getcwd())
 try:
-    from services.firebase_service import firebase_service
+    from services.sovereign_service import sovereign_service
 except Exception as e:
-    print(f"Error importing firebase_service: {e}")
+    print(f"Error importing sovereign_service: {e}")
     sys.exit(1)
 
 async def analyze():
     print("Initialize Firebase...")
-    await firebase_service.initialize()
-    if not firebase_service.is_active:
+    await sovereign_service.initialize()
+    if not sovereign_service.is_active:
         print("❌ Firebase not active. Check credentials.")
         return
 
     print("Fetching trade history...")
     # Get last 100 trades for a meaningful analysis
-    docs = firebase_service.db.collection("trade_history").order_by("timestamp", direction="DESCENDING").limit(100).stream()
+    docs = sovereign_service.db.collection("trade_history").order_by("timestamp", direction="DESCENDING").limit(100).stream()
     
     stats = {
         "total": 0,

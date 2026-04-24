@@ -12,15 +12,15 @@ async def surgical_reset():
     print("[V110.45] Iniciando Reset Cirurgico de Banca e Historico...")
     
     # Importa serviços após ajuste de path
-    from services.firebase_service import firebase_service
-    await firebase_service.initialize()
+    from services.sovereign_service import sovereign_service
+    await sovereign_service.initialize()
     
-    if not firebase_service.is_active:
+    if not sovereign_service.is_active:
         print("ERROR: Firebase nao pode ser inicializado. Abortando.")
         return
 
-    db = firebase_service.db
-    rtdb = firebase_service.rtdb
+    db = sovereign_service.db
+    rtdb = sovereign_service.rtdb
 
     try:
         # 1. LIMPEZA DE COLEÇÕES (Histórico)
@@ -92,7 +92,7 @@ async def surgical_reset():
             print(f"OK: 'paper_storage.json' atualizado. Saldo: ${data['balance']}. Posicoes preservadas: {len(data.get('positions', []))}")
 
         # 5. VERIFICAÇÃO DE SLOTS (Segurança)
-        slots = await firebase_service.get_active_slots(force_refresh=True)
+        slots = await sovereign_service.get_active_slots(force_refresh=True)
         active_symbols = [s.get('symbol') for s in slots if s.get('symbol')]
         print(f"STATUS FINAL DOS SLOTS: {active_symbols}")
         if len(active_symbols) >= 3:

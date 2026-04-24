@@ -1,16 +1,16 @@
 import asyncio
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 import time
 
 async def check_signals():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     print("Checking for recent Blitz signals in Firestore...")
     
     # Busca sinais dos últimos 5 minutos
     now_ms = int(time.time() * 1000)
     five_mins_ago = now_ms - (5 * 60 * 1000)
     
-    signals_ref = firebase_service.db.collection("journey_signals")
+    signals_ref = sovereign_service.db.collection("journey_signals")
     query = signals_ref.where("timestamp", ">=", five_mins_ago).order_by("timestamp", direction="DESCENDING").limit(10)
     
     docs = query.stream()

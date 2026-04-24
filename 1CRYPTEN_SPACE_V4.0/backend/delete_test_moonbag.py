@@ -1,11 +1,11 @@
 
 import asyncio
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def delete_test():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     try:
-        firebase_service.db.collection("moonbags").document("test_moonbag_1").delete()
+        sovereign_service.db.collection("moonbags").document("test_moonbag_1").delete()
         print("✅ Moonbag de teste (test_moonbag_1) deletada com sucesso!")
     except Exception as e:
         print(f"❌ Erro ao deletar: {e}")

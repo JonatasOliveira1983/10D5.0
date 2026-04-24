@@ -4,11 +4,11 @@ import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def reset_slots():
     print("Iniciando limpeza dos Slots 1 a 4...")
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
     empty_slot = {
         "symbol": None, "entry_price": 0, "current_stop": 0, "entry_margin": 0,
@@ -18,7 +18,7 @@ async def reset_slots():
     
     for i in range(1, 5):
         try:
-            await firebase_service.update_slot(i, empty_slot)
+            await sovereign_service.update_slot(i, empty_slot)
             print(f" Slot {i} resetado para IDLE.")
         except Exception as e:
             print(f" Erro ao resetar slot {i}: {e}")

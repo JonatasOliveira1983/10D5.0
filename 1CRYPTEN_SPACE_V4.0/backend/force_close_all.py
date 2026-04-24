@@ -5,12 +5,12 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from services.bybit_rest import bybit_rest_service
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from config import settings
 
 async def kill_all_positions():
     print(f"Iniciando Expurgo de Posições na Bybit... Modo: {settings.BYBIT_EXECUTION_MODE}")
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
     try:
         if settings.BYBIT_EXECUTION_MODE == "PAPER":
@@ -44,7 +44,7 @@ async def kill_all_positions():
     }
     for i in range(1, 5):
         try:
-            await firebase_service.update_slot(i, empty_slot)
+            await sovereign_service.update_slot(i, empty_slot)
             print(f"Slot {i} resetado para IDLE.")
         except Exception as e:
             print(f"Erro ao resetar slot {i}: {e}")

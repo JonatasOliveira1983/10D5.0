@@ -6,12 +6,12 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config import settings
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def wipe_all_history_and_genesis():
     print("Iniciando limpeza total do Historico (Trade, Banca e Genesis)...")
-    await firebase_service.initialize()
-    db = firebase_service.db
+    await sovereign_service.initialize()
+    db = sovereign_service.db
     if db:
         collections_to_wipe = ["trade_history", "banca_history", "orders_genesis"]
         

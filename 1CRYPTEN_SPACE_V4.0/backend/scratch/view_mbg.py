@@ -4,11 +4,11 @@ import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import settings
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def view_moonbags():
-    await firebase_service.initialize()
-    moonbags = await firebase_service.get_moonbags()
+    await sovereign_service.initialize()
+    moonbags = await sovereign_service.get_moonbags()
     
     print("--- FIRESTORE ---")
     for m in moonbags:
@@ -17,8 +17,8 @@ async def view_moonbags():
             print("Full HYPE:", m)
             
     print("--- RTDB ---")
-    if firebase_service.rtdb:
-        rtdb_snaps = firebase_service.rtdb.child("moonbag_vault").get()
+    if sovereign_service.rtdb:
+        rtdb_snaps = sovereign_service.rtdb.child("moonbag_vault").get()
         if rtdb_snaps and rtdb_snaps.val():
             for key, val in rtdb_snaps.val().items():
                 print(f"RTDB Key: {key} -> {val.get('symbol')} | {val.get('pnl_percent')}%")

@@ -1,5 +1,5 @@
 import asyncio
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 import os
 import sys
 import json
@@ -8,10 +8,10 @@ backend_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(backend_dir)
 
 async def purge_btc():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
     # 1. Encontrar em qual slot o BTCUSDT esta e limpar
-    slots = await firebase_service.get_active_slots(force_refresh=True)
+    slots = await sovereign_service.get_active_slots(force_refresh=True)
     slot_id_to_clear = None
     for s in slots:
         if s.get("symbol") == "BTCUSDT":
@@ -20,7 +20,7 @@ async def purge_btc():
             
     if slot_id_to_clear:
         print(f"[PURGE] Removendo BTCUSDT do Slot {slot_id_to_clear}...")
-        await firebase_service.free_slot(slot_id_to_clear, reason="REMOVIDO: Blue Chip Blocklist V110.168")
+        await sovereign_service.free_slot(slot_id_to_clear, reason="REMOVIDO: Blue Chip Blocklist V110.168")
     else:
         print("[PURGE] BTCUSDT nao encontrado em nenhum slot do RTDB.")
     
@@ -39,7 +39,7 @@ async def purge_btc():
         print(f"FILE paper_storage.json atualizado: {original_count} -> {new_count} posicoes.")
         
         # 3. Sincroniza com Firestore paper_state
-        await firebase_service.update_paper_state(data)
+        await sovereign_service.update_paper_state(data)
 
     print("OK BTCUSDT purgado com sucesso.")
 

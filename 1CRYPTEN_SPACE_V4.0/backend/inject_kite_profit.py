@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 # Adicionar path do backend
 sys.path.append(os.getcwd())
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bankroll import bankroll_manager
 from services.time_utils import get_br_iso_str
 
@@ -57,11 +57,11 @@ async def inject_profit():
     
     # 3. Registrar no Histórico do Firestore
     print(f"📝 Injetando trade no histórico (Vault)...")
-    await firebase_service.log_trade(trade_data)
+    await sovereign_service.log_trade(trade_data)
     
     # 4. Atualizar a Banca no Firestore e RTDB
     print(f"🏦 Atualizando saldo da banca (+$11.00)...")
-    status = await firebase_service.get_banca_status()
+    status = await sovereign_service.get_banca_status()
     old_balance = status.get("saldo_total", 100.0)
     new_balance = old_balance + pnl
     
@@ -72,10 +72,10 @@ async def inject_profit():
     }
     
     # Update Firestore
-    await asyncio.to_thread(firebase_service.db.collection("banca_status").document("status").update, new_status)
+    await asyncio.to_thread(sovereign_service.db.collection("banca_status").document("status").update, new_status)
     # Update RTDB
-    if firebase_service.rtdb:
-        await asyncio.to_thread(firebase_service.rtdb.child("banca_status/status").update, new_status)
+    if sovereign_service.rtdb:
+        await asyncio.to_thread(sovereign_service.rtdb.child("banca_status/status").update, new_status)
         
     print(f"✅ [KITE-INJECTION] Lucro de $11.00 injetado com sucesso!")
     print(f"💰 Saldo Atualizado: ${new_balance:.2f} (Almirante, o lucro está em casa!)")

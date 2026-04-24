@@ -10,24 +10,24 @@ load_dotenv()
 # Garante que o diretório atual está no path para importar imports locais
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def analyze():
     print("Iniciando análise do histórico de trades (Foco em Stop Loss e Slots)...")
     
     # Inicializa o serviço Firebase
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
     # Aguarda inicialização do Firebase
     await asyncio.sleep(2)
     
-    if not firebase_service.db:
+    if not sovereign_service.db:
         print("Erro: Banco de dados não conectado.")
         return
 
     try:
         # Busca os últimos 500 trades para ter uma amostra boa
-        docs = list(firebase_service.db.collection("trade_history").order_by("timestamp", direction="DESCENDING").limit(200).stream())
+        docs = list(sovereign_service.db.collection("trade_history").order_by("timestamp", direction="DESCENDING").limit(200).stream())
         
         scalp_trades = [] # Slots 1 e 2
         trend_trades = [] # Slots 3 e 4

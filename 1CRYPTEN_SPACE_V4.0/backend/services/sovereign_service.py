@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # 1CRYPTEN_SPACE_V4.0 - V110.175 Railway Sovereign Service
-# EXPURGO TOTAL DO FIREBASE: Este serviço opera exclusivamente via WebSocket e Postgres local.
+# Este serviço opera exclusivamente via WebSocket e Postgres local.
 import asyncio
 import logging
 import datetime
@@ -12,7 +12,7 @@ from services.database_service import database_service
 
 logger = logging.getLogger("SovereignService")
 
-class FirebaseService: # Mantendo o nome para compatibilidade com outros agentes
+class SovereignService: # Nome atualizado para refletir a soberania Railway
     def __init__(self):
         self.is_active = True # Railway Sovereign Mode
         self.log_buffer = deque(maxlen=100) 
@@ -21,7 +21,7 @@ class FirebaseService: # Mantendo o nome para compatibilidade com outros agentes
         self.radar_pulse_cache = {"signals": [], "decisions": [], "updated_at": 0}
 
     async def initialize(self):
-        logger.info("🚂 [RAILWAY-SOVEREIGN] Sovereign Service initialized. Firebase bypass ACTIVE.")
+        logger.info("🚂 [RAILWAY-SOVEREIGN] Sovereign Service initialized. Native Stack ACTIVE.")
         return True
 
     def _make_json_safe(self, data):
@@ -99,7 +99,7 @@ class FirebaseService: # Mantendo o nome para compatibilidade com outros agentes
         await self.update_slot(slot_id, {"symbol": None, "status_risco": "LIVRE", "pnl_percent": 0, "timestamp_last_update": time.time(), "pensamento": f"🔄 {reason}"})
         return True
 
-    # Stubs
+    # Stubs para compatibilidade
     async def register_order_genesis(self, order_id: str, tactical_data: dict): return order_id
     async def get_order_genesis(self, order_id: str): return None
     async def promote_to_moonbag(self, slot_id: int): return None
@@ -111,3 +111,16 @@ class FirebaseService: # Mantendo o nome para compatibilidade com outros agentes
     async def update_bankroll(self, balance: float): await self.update_banca_status({"saldo_total": balance})
     async def log_banca_snapshot(self, data: dict): pass
     async def get_banca_history(self, limit: int = 50): return []
+
+    async def update_radar_pulse(self, signals: list, decisions: list, market_context: dict):
+        """Atualiza e transmite o pulso do Radar."""
+        self.radar_pulse_cache = {
+            "signals": signals,
+            "decisions": decisions,
+            "updated_at": time.time()
+        }
+        await websocket_service.update_radar_pulse(signals, decisions, market_context)
+        return True
+
+# Singleton instance - O NOVO SOBERANO
+sovereign_service = SovereignService()

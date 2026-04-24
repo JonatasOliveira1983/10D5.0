@@ -7,7 +7,7 @@ import logging
 # Adicionar path do backend
 sys.path.append(os.getcwd())
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 from services.execution_protocol import execution_protocol
 
@@ -15,12 +15,12 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("AuditIPUSDT")
 
 async def audit():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
     print("🔍 [AUDIT-IPUSDT] Verificando estado atual...")
     
     # 1. Procurar nos Slots Ativos
-    slots = await firebase_service.get_active_slots()
+    slots = await sovereign_service.get_active_slots()
     ip_slot = next((s for s in slots if s.get("symbol") == "IPUSDT.P" or s.get("symbol") == "IPUSDT"), None)
     
     if ip_slot:

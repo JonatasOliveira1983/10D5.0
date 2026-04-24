@@ -2,7 +2,7 @@ import logging
 import time
 from datetime import datetime
 from typing import List, Dict, Any, Optional
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 logger = logging.getLogger("CalendarService")
 
@@ -27,7 +27,7 @@ class CalendarService:
         }
         try:
             # Firestore persist
-            await firebase_service.db.collection(self.db_collection).add(event)
+            await sovereign_service.db.collection(self.db_collection).add(event)
             logger.info(f"📅 [AGENDA] Evento adicionado: {title} p/ {datetime.fromtimestamp(scheduled_at)}")
             return True
         except Exception as e:
@@ -38,7 +38,7 @@ class CalendarService:
         """Recupera os próximos compromissos."""
         try:
             now = time.time()
-            query = firebase_service.db.collection(self.db_collection)\
+            query = sovereign_service.db.collection(self.db_collection)\
                 .where("scheduled_at", ">=", now)\
                 .where("status", "==", "PENDING")\
                 .order_by("scheduled_at")\

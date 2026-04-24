@@ -1,4 +1,4 @@
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 import asyncio
 import json
 import time
@@ -14,7 +14,7 @@ async def test_serialization():
     signals = []
     decisions = []
     
-    data = firebase_service._clean_mojibake(firebase_service._make_json_safe({
+    data = sovereign_service._clean_mojibake(sovereign_service._make_json_safe({
         "signals": signals,
         "decisions": decisions,
         "market_context": market_context,

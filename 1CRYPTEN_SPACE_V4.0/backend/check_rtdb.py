@@ -6,16 +6,16 @@ import sys
 sys.path.append(os.getcwd())
 
 async def check():
-    from services.firebase_service import firebase_service
-    if not firebase_service.is_active:
-        await firebase_service.initialize()
+    from services.sovereign_service import sovereign_service
+    if not sovereign_service.is_active:
+        await sovereign_service.initialize()
         
-    print(f"Firebase Active: {firebase_service.is_active}")
+    print(f"Firebase Active: {sovereign_service.is_active}")
     
     print("Checking RTDB vault_status...")
     try:
         def _get_val(path):
-            return firebase_service.rtdb.child(path).get()
+            return sovereign_service.rtdb.child(path).get()
         
         vault_status = await asyncio.to_thread(_get_val, "vault_status")
         print(f"Vault Status: {vault_status}")

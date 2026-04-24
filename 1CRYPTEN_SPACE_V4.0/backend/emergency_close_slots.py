@@ -9,14 +9,14 @@ import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from services.bybit_rest import bybit_rest_service
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from config import settings
 
 async def emergency_close():
     print(f"\n[EMERGENCY CLOSE] - Modo: {settings.BYBIT_EXECUTION_MODE}")
     print("=" * 50)
     
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     await bybit_rest_service.initialize()
 
     # 1. Busca posicoes abertas na Bybit (Real ou Paper)
@@ -72,7 +72,7 @@ async def emergency_close():
     }
     for i in range(1, 5):
         try:
-            await firebase_service.update_slot(i, empty_slot)
+            await sovereign_service.update_slot(i, empty_slot)
             print(f"   [OK] Slot {i} -> IDLE")
         except Exception as e:
             print(f"   [ERRO] Slot {i}: {e}")

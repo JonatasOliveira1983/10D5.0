@@ -37,8 +37,8 @@ async def verify_api_key(x_api_key: str = Header(None)):
 def get_services():
     from services.agents.ai_service import ai_service
     from services.agents.jarvis_brain import jarvis_brain
-    from services.firebase_service import firebase_service
-    return ai_service, jarvis_brain, firebase_service
+    from services.sovereign_service import sovereign_service
+    return ai_service, jarvis_brain, sovereign_service
 
 @router.post("/chat", dependencies=[Depends(rate_limit)])
 async def chat_with_captain(payload: dict):
@@ -61,9 +61,9 @@ async def chat_manual(payload: dict):
 
 @router.post("/chat/reset", dependencies=[Depends(verify_api_key)])
 async def reset_chat_history():
-    _, _, firebase_service = get_services()
+    _, _, sovereign_service = get_services()
     try:
-        await firebase_service.clear_chat_history()
+        await sovereign_service.clear_chat_history()
         return {"status": "success"}
     except Exception as e:
         logger.error(f"Error resetting chat: {e}")
@@ -90,8 +90,8 @@ async def get_tts_voices():
 
 @router.get("/logs")
 async def get_logs(limit: int = 50):
-    _, _, firebase_service = get_services()
-    try: return await firebase_service.get_recent_logs(limit=limit)
+    _, _, sovereign_service = get_services()
+    try: return await sovereign_service.get_recent_logs(limit=limit)
     except Exception as e:
         logger.error(f"Error fetching logs: {e}")
         return []

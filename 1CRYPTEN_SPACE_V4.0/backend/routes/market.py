@@ -17,8 +17,8 @@ def get_services():
         services[0] = bybit_rest_service
         from services.bybit_ws import bybit_ws_service
         services[1] = bybit_ws_service
-        from services.firebase_service import firebase_service
-        services[2] = firebase_service
+        from services.sovereign_service import sovereign_service
+        services[2] = sovereign_service
         from services.signal_generator import signal_generator
         services[3] = signal_generator
         from services.agents.captain import captain_agent
@@ -49,9 +49,9 @@ async def get_btc_regime():
 @router.get("/radar/pulse")
 async def get_radar_pulse():
     try:
-        _, _, firebase_service, _, _, _ = get_services()
-        if not firebase_service: return {"signals": [], "decisions": [], "updated_at": 0}
-        return await firebase_service.get_radar_pulse()
+        _, _, sovereign_service, _, _, _ = get_services()
+        if not sovereign_service: return {"signals": [], "decisions": [], "updated_at": 0}
+        return await sovereign_service.get_radar_pulse()
     except Exception as e:
         logger.error(f"Error in /radar/pulse: {e}")
         return {"signals": [], "decisions": [], "updated_at": 0}
@@ -60,9 +60,9 @@ async def get_radar_pulse():
 @router.get("/radar/grid")
 async def get_radar_grid():
     try:
-        _, _, firebase_service, _, _, _ = get_services()
-        if not firebase_service or not firebase_service.rtdb: return {}
-        grid_data = await asyncio.to_thread(firebase_service.rtdb.child("market_radar").get)
+        _, _, sovereign_service, _, _, _ = get_services()
+        if not sovereign_service or not sovereign_service.rtdb: return {}
+        grid_data = await asyncio.to_thread(sovereign_service.rtdb.child("market_radar").get)
         return grid_data if grid_data else {}
     except Exception as e:
         logger.error(f"Error fetching radar grid: {e}")
@@ -72,9 +72,9 @@ async def get_radar_grid():
 async def get_radar_librarian():
     """V110.100: Rota REST para o Quartel General UI buscar o Historiador"""
     try:
-        _, _, firebase_service, _, _, _ = get_services()
-        if not firebase_service or not firebase_service.rtdb: return {"status": "error", "message": "Firebase Offline"}
-        lib_data = await asyncio.to_thread(firebase_service.rtdb.child("librarian_intelligence").get)
+        _, _, sovereign_service, _, _, _ = get_services()
+        if not sovereign_service or not sovereign_service.rtdb: return {"status": "error", "message": "Firebase Offline"}
+        lib_data = await asyncio.to_thread(sovereign_service.rtdb.child("librarian_intelligence").get)
         if not lib_data: return {"status": "success", "rankings": []}
         
         # Converte o dicionário de rankings em uma lista ordenada por win_rate
@@ -153,7 +153,7 @@ async def get_system_state():
     try:
         # [V20.0] Safe Access to main variables to avoid circular imports during startup
         from main import sig_gen as main_sig_gen
-        bybit_rest_service, bybit_ws_service, firebase_service, signal_generator, captain_agent, oracle_agent = get_services()
+        bybit_rest_service, bybit_ws_service, sovereign_service, signal_generator, captain_agent, oracle_agent = get_services()
         
         target_sig_gen = main_sig_gen if main_sig_gen is not None else signal_generator
         
@@ -189,11 +189,11 @@ async def get_system_state():
                 logger.warning(f"Error fetching Oracle context: {orc_err}")
 
         is_thinking = False
-        if firebase_service and firebase_service.rtdb:
+        if sovereign_service and sovereign_service.rtdb:
             try:
                 # [V110.117] Proteção 504: Timeout de 2s para resposta do RTDB
                 chat_status = await asyncio.wait_for(
-                    asyncio.to_thread(firebase_service.rtdb.child("chat_status").get),
+                    asyncio.to_thread(sovereign_service.rtdb.child("chat_status").get),
                     timeout=2.0
                 )
                 if chat_status: is_thinking = chat_status.get("is_thinking", False)

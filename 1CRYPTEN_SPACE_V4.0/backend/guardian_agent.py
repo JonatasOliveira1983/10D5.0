@@ -3,7 +3,7 @@ import os
 import sys
 import time
 from datetime import datetime
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 import logging
 
@@ -36,7 +36,7 @@ class GuardianAgent:
     async def initialize(self):
         from services.redis_service import redis_service
         await redis_service.connect()
-        await firebase_service.initialize()
+        await sovereign_service.initialize()
         await bybit_rest_service.initialize()
         logger.info("Guardian Agent Inicializado: Olhos 3D no BTC (Price, ADX, Dominância)!")
 
@@ -177,7 +177,7 @@ class GuardianAgent:
             logger.info(f"Tentou matar {symbol}, mas ordem já não existe na base da Bybit.")
             if slot_id:
                  logger.warning(f"🛡️ GUARDIÃO [GHOST BUSTER]: Purgando fantasma {symbol} direto do Firebase Slot {slot_id}.")
-                 await firebase_service.hard_reset_slot(slot_id, reason="GUARDIAN_GHOST_PURGE")
+                 await sovereign_service.hard_reset_slot(slot_id, reason="GUARDIAN_GHOST_PURGE")
             return
 
         for pos in positions:
@@ -189,7 +189,7 @@ class GuardianAgent:
                     logger.info(f"Tentou matar {symbol}, mas ordem já não existe na base da Bybit.")
                     if slot_id:
                         logger.warning(f"🛡️ GUARDIÃO [GHOST BUSTER]: Purgando fantasma {symbol} direto do Firebase Slot {slot_id}.")
-                        await firebase_service.hard_reset_slot(slot_id, reason="GUARDIAN_GHOST_PURGE")
+                        await sovereign_service.hard_reset_slot(slot_id, reason="GUARDIAN_GHOST_PURGE")
 
     async def loop(self):
         self.is_running = True
@@ -201,7 +201,7 @@ class GuardianAgent:
             try:
                 # 1. Macro Básico de Sobrevivência (Terremoto Flash)
                 macro_state, var_pct = await self.get_btc_macro_state()
-                slots = await firebase_service.get_active_slots()
+                slots = await sovereign_service.get_active_slots()
                 
                 # Defesa 1: O Defletor de Terremoto Instantâneo (Emergency Dump/Pump 1%)
                 if macro_state in ["PUMP", "DUMP"]:

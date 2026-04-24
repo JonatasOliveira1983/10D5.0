@@ -26,10 +26,10 @@ async def nuke_paper():
     """Executa a limpeza total do estado Paper (Nuke)."""
     logger.warning("💥 EXECUTANDO NUKE TOTAL DO ESTADO...")
     from services.bybit_rest import bybit_rest_service
-    from services.firebase_service import firebase_service
+    from services.sovereign_service import sovereign_service
     
     # Inicializa Firebase SDK antes de usar
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
     # 1. RAM Cleanup
     bybit_rest_service.paper_positions.clear()
@@ -39,7 +39,7 @@ async def nuke_paper():
     
     # 2. Firebase Core Cleanup (Slots)
     for i in range(1, 5):
-        await firebase_service.hard_reset_slot(i, "COMMANDER_NUKE", pnl=0.0)
+        await sovereign_service.hard_reset_slot(i, "COMMANDER_NUKE", pnl=0.0)
     
     # 3. Firestore Collection Wipe (History & Logs)
     collections_to_wipe = ["trade_history", "journey_signals", "banca_history", "system_logs", "moonbags"]
@@ -47,7 +47,7 @@ async def nuke_paper():
         try:
             logger.info(f"🧹 Limpando coleção: {col_name}...")
             # Pega todos os documentos da coleção e deleta progressivamente
-            docs = await asyncio.to_thread(firebase_service.db.collection(col_name).get)
+            docs = await asyncio.to_thread(sovereign_service.db.collection(col_name).get)
             for doc in docs:
                 await asyncio.to_thread(doc.reference.delete)
             logger.info(f"✅ Coleção {col_name} purgada.")
@@ -55,17 +55,17 @@ async def nuke_paper():
             logger.error(f"❌ Erro ao limpar {col_name}: {e}")
 
     # 4. RTDB Cleanup
-    if firebase_service.rtdb:
+    if sovereign_service.rtdb:
         try:
             logger.info("🧹 Limpando Realtime DB (Moonbags & Cooldowns)...")
-            await asyncio.to_thread(firebase_service.rtdb.child("moonbag_vault").delete)
-            await asyncio.to_thread(firebase_service.rtdb.child("system_cooldowns").delete)
-            await asyncio.to_thread(firebase_service.rtdb.child("chat_history").delete)
+            await asyncio.to_thread(sovereign_service.rtdb.child("moonbag_vault").delete)
+            await asyncio.to_thread(sovereign_service.rtdb.child("system_cooldowns").delete)
+            await asyncio.to_thread(sovereign_service.rtdb.child("chat_history").delete)
         except Exception as e:
             logger.error(f"❌ Erro ao limpar RTDB: {e}")
 
     # 5. Reset Banca Status
-    await firebase_service.update_banca_status({
+    await sovereign_service.update_banca_status({
         "saldo_total": 100.0,
         "risco_real_percent": 0.0,
         "slots_disponiveis": 4,

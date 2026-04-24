@@ -5,20 +5,20 @@ import sys
 # Add parent dir to sys.path if needed
 sys.path.append(os.getcwd())
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 
 async def audit():
     print("Initializing Firebase...")
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
     print("\n--- FIRESTORE TACTICAL SLOTS ---")
-    slots = await firebase_service.get_active_slots(force_refresh=True)
+    slots = await sovereign_service.get_active_slots(force_refresh=True)
     for s in slots:
         print(f"Slot {s.get('id')}: {s.get('symbol')} | Status: {s.get('status')} | ROI: {s.get('pnl_percent')}%")
         
     print("\n--- FIRESTORE MOONBAGS (VAULT) ---")
-    moonbags = await firebase_service.get_moonbags()
+    moonbags = await sovereign_service.get_moonbags()
     for m in moonbags:
         print(f"Moonbag: {m.get('symbol')} | Qty: {m.get('qty')} | ROI: {m.get('pnl_percent')}%")
         

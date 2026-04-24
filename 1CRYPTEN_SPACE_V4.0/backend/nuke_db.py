@@ -4,15 +4,15 @@ import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from google.cloud import firestore
 
 async def nuke_slots():
     print("🔥 NUKING ALL GHOST POSITIONS 🔥")
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
-    db = firebase_service.db
-    rtdb = firebase_service.rtdb
+    db = sovereign_service.db
+    rtdb = sovereign_service.rtdb
 
     # 1. Nuke Firestore slots_ativos
     print("Nuking Firestore slots_ativos...")

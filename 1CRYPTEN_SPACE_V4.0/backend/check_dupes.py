@@ -6,10 +6,10 @@ import sys
 # Adicionar o caminho do backend para importar os serviços
 sys.path.append(os.path.join(os.getcwd(), "1CRYPTEN_SPACE_V4.0", "backend"))
 
-from services.firebase_service import FirebaseService
+from services.sovereign_service import SovereignService
 
 async def list_recent_trades():
-    fs = FirebaseService()
+    fs = SovereignService()
     await fs.initialize()
     
     trades = await fs.get_trade_history(limit=50)

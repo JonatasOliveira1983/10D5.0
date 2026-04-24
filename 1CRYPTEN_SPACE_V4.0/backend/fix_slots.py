@@ -7,8 +7,8 @@ sys.path.append(os.path.abspath('c:/Users/spcom/Desktop/10D-3.0/1CRYPTEN_SPACE_V
 async def main():
     print("Iniciando realocação de slots...")
     try:
-        from services.firebase_service import firebase_service
-        slots = await firebase_service.get_active_slots()
+        from services.sovereign_service import sovereign_service
+        slots = await sovereign_service.get_active_slots()
         
         pepe_slot_data = None
         
@@ -21,7 +21,7 @@ async def main():
         if pepe_slot_data:
             print("PEPE encontrado. Movendo para Slot 1...")
             # Atualiza Slot 1 com PEPE
-            await firebase_service.update_slot(1, {
+            await sovereign_service.update_slot(1, {
                 "symbol": "1000PEPEUSDT", 
                 "entry_price": pepe_slot_data.get('entry_price', 0), 
                 "current_stop": pepe_slot_data.get('current_stop', 0), 
@@ -35,7 +35,7 @@ async def main():
             
             # Limpa os slots 2, 3 e 4
             for i in range(2, 5):
-                await firebase_service.update_slot(i, {
+                await sovereign_service.update_slot(i, {
                     "symbol": None, "entry_price": 0, "current_stop": 0, "entry_margin": 0,
                     "status_risco": "LIVRE", "side": None, "pnl_percent": 0, "sl_phase": "IDLE"
                 })

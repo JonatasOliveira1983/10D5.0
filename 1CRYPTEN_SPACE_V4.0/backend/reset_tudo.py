@@ -3,7 +3,7 @@ import os
 import json
 import logging
 from google.cloud import firestore
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from config import settings
 
 logging.basicConfig(level=logging.INFO)
@@ -14,7 +14,7 @@ async def reset_all():
     
     # 1. Reset Banca Status to exactly 100 USD (no cumulative PnL)
     print("1. Resetando Banca para 100 dólares...")
-    doc_ref = firebase_service.db.collection("banca_status").document("status")
+    doc_ref = sovereign_service.db.collection("banca_status").document("status")
     await asyncio.to_thread(doc_ref.set, {
         "id": "status",
         "configured_balance": 100.0,
@@ -33,11 +33,11 @@ async def reset_all():
     # 2. Reset Active Slots
     print("2. Esvaziando Slots Ativos...")
     for i in range(1, 5):
-        await firebase_service.free_slot(i, reason="Reset Global da IA Iniciado")
+        await sovereign_service.free_slot(i, reason="Reset Global da IA Iniciado")
 
     # 3. Wipe Trade History
     print("3. Limpando Histórico de Operações (trade_history)...")
-    docs = await asyncio.to_thread(firebase_service.db.collection("trade_history").get)
+    docs = await asyncio.to_thread(sovereign_service.db.collection("trade_history").get)
     deleted_hist = 0
     for doc in docs:
         await asyncio.to_thread(doc.reference.delete)
@@ -46,7 +46,7 @@ async def reset_all():
 
     # 4. Wipe Moonbags
     print("4. Limpando Vault (Moonbags)...")
-    docs = await asyncio.to_thread(firebase_service.db.collection("moonbags").get)
+    docs = await asyncio.to_thread(sovereign_service.db.collection("moonbags").get)
     deleted_moon = 0
     for doc in docs:
         await asyncio.to_thread(doc.reference.delete)
@@ -70,10 +70,10 @@ async def reset_all():
     print("6. Sincronizando Interface Gráfica (RTDB)...")
     try:
         # Remover histórico do RTDB e resetar stats
-        if firebase_service.rtdb:
-            await asyncio.to_thread(firebase_service.rtdb.child("trade_history").delete)
-            await asyncio.to_thread(firebase_service.rtdb.child("moonbag_vault").delete)
-            await firebase_service.update_vault_pulse({
+        if sovereign_service.rtdb:
+            await asyncio.to_thread(sovereign_service.rtdb.child("trade_history").delete)
+            await asyncio.to_thread(sovereign_service.rtdb.child("moonbag_vault").delete)
+            await sovereign_service.update_vault_pulse({
                 "vault_total": 0,
                 "cycle_profit": 0,
                 "global_profit": 0,

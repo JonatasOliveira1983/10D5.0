@@ -4,11 +4,11 @@ import sys
 from datetime import datetime
 
 sys.path.append(os.getcwd())
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def main():
-    await firebase_service.initialize()
-    docs = firebase_service.db.collection("trade_history").order_by("closed_at", direction="DESCENDING").limit(20).stream()
+    await sovereign_service.initialize()
+    docs = sovereign_service.db.collection("trade_history").order_by("closed_at", direction="DESCENDING").limit(20).stream()
     
     with open('recent_trades.txt', 'w', encoding='utf-8') as f:
         f.write("Recent Trades (Last 20):\n")

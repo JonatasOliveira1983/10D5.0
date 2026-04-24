@@ -10,7 +10,7 @@ from mcp.server.fastmcp import FastMCP
 # Core Service Imports
 from services.bybit_rest import bybit_rest_service
 from services.bankroll import bankroll_manager
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 # Setup logging
 logger = logging.getLogger("MCPBridge")

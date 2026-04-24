@@ -10,12 +10,12 @@ logger = logging.getLogger("1CRYPTEN-TRADING")
 
 # Imports lazy to avoid circular dependency if any
 def get_services():
-    from services.firebase_service import firebase_service
+    from services.sovereign_service import sovereign_service
     from services.bybit_rest import bybit_rest_service
     from services.execution_protocol import execution_protocol
     from services.vault_service import vault_service
     from services.bankroll import bankroll_manager
-    return firebase_service, bybit_rest_service, execution_protocol, vault_service, bankroll_manager
+    return sovereign_service, bybit_rest_service, execution_protocol, vault_service, bankroll_manager
 
 async def verify_api_key(x_api_key: str = Header(None)):
     if settings.DEBUG:
@@ -27,9 +27,9 @@ async def verify_api_key(x_api_key: str = Header(None)):
 
 @router.get("/slots")
 async def get_slots():
-    firebase_service, bybit_rest_service, execution_protocol, _, _ = get_services()
+    sovereign_service, bybit_rest_service, execution_protocol, _, _ = get_services()
     try:
-        slots = await firebase_service.get_active_slots()
+        slots = await sovereign_service.get_active_slots()
         if slots:
             try:
                 resp = await asyncio.to_thread(bybit_rest_service.session.get_tickers, category="linear")
@@ -85,9 +85,9 @@ async def get_slots():
 
 @router.get("/signals")
 async def get_signals(min_score: int = 0, limit: int = 20):
-    firebase_service, _, _, _, _ = get_services()
+    sovereign_service, _, _, _, _ = get_services()
     try:
-        signals = await firebase_service.get_recent_signals(limit=limit)
+        signals = await sovereign_service.get_recent_signals(limit=limit)
         filtered = [s for s in signals if s.get("score", 0) >= min_score]
         if not filtered:
              return [{
@@ -105,9 +105,9 @@ async def get_signals(min_score: int = 0, limit: int = 20):
 
 @router.get("/history")
 async def get_history(limit: int = 50, last_timestamp: str = None, symbol: str = None, start_date: str = None, end_date: str = None):
-    firebase_service, _, _, _, _ = get_services()
+    sovereign_service, _, _, _, _ = get_services()
     try:
-        return await firebase_service.get_trade_history(
+        return await sovereign_service.get_trade_history(
             limit=limit, 
             last_timestamp=last_timestamp,
             symbol=symbol,
@@ -120,9 +120,9 @@ async def get_history(limit: int = 50, last_timestamp: str = None, symbol: str =
 
 @router.get("/history/stats")
 async def get_history_stats(symbol: str = None, start_date: str = None, end_date: str = None):
-    firebase_service, _, _, _, _ = get_services()
+    sovereign_service, _, _, _, _ = get_services()
     try:
-        return await firebase_service.get_trade_history_stats(
+        return await sovereign_service.get_trade_history_stats(
             symbol=symbol,
             start_date=start_date,
             end_date=end_date
@@ -150,9 +150,9 @@ A diretriz segue inalterada: Disciplina sobre a emoção."""
 
 @router.get("/moonbags")
 async def get_moonbags(limit: int = 10):
-    firebase_service, _, _, _, _ = get_services()
+    sovereign_service, _, _, _, _ = get_services()
     try:
-        return await firebase_service.get_moonbags(limit=limit)
+        return await sovereign_service.get_moonbags(limit=limit)
     except Exception as e:
         logger.error(f"Error fetching moonbags: {e}")
         return []
@@ -160,7 +160,7 @@ async def get_moonbags(limit: int = 10):
 @router.post("/nuke-paper")
 async def nuke_paper_state():
     _, bybit_rest_service, _, _, bankroll_manager = get_services()
-    from services.firebase_service import firebase_service
+    from services.sovereign_service import sovereign_service
     cleared = []
     if bybit_rest_service:
         bybit_rest_service.paper_positions.clear()
@@ -174,12 +174,12 @@ async def nuke_paper_state():
         cleared.append("RAM deep cleanup")
         bybit_rest_service._save_paper_state()
         cleared.append("disk-sync")
-    if firebase_service:
+    if sovereign_service:
         for i in range(1, 5):
-            try: await firebase_service.hard_reset_slot(i, "NUKE_PAPER_API", pnl=0.0)
+            try: await sovereign_service.hard_reset_slot(i, "NUKE_PAPER_API", pnl=0.0)
             except: pass
         try:
-            await asyncio.to_thread(firebase_service.rtdb.child("banca_status/status").update, {"saldo_total": 100.0, "lucro_acumulado": 0.0, "base_capital": 100.0})
+            await asyncio.to_thread(sovereign_service.rtdb.child("banca_status/status").update, {"saldo_total": 100.0, "lucro_acumulado": 0.0, "base_capital": 100.0})
             cleared.append("banca_status")
         except: pass
     return {"status": "success", "cleared": cleared}

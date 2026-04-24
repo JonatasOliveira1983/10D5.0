@@ -6,7 +6,7 @@ import datetime
 import math
 from typing import Dict, Any, List, Optional, Tuple
 from datetime import datetime, timezone, timedelta
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 from services.bybit_ws import bybit_ws_service
 from services.vault_service import vault_service
@@ -529,7 +529,7 @@ class SignalGenerator:
             # V15.7.5: Added logging to verify sync is happening
             logger.info("📡 [RADAR-PULSE] Syncing signals and decisions to RTDB...")
             # [V110.142] Busca Profunda: Aumentamos de 25 para 60 para não 'perder' a Blitz na inundação de Swing
-            all_signals = await firebase_service.get_recent_signals(limit=60)
+            all_signals = await sovereign_service.get_recent_signals(limit=60)
             
             # Priorização: Separa Blitz de Swing para garantir um mix saudável
             def is_blitz(s):
@@ -629,7 +629,7 @@ class SignalGenerator:
                 signal_pattern = sig.get("indicators", {}).get("pattern")
                 pattern = signal_pattern if signal_pattern else trend_data.get("pattern", "none")
                 
-                is_blocked, remaining = await firebase_service.is_symbol_blocked(symbol)
+                is_blocked, remaining = await sovereign_service.is_symbol_blocked(symbol)
                 status = "blocked" if is_blocked else "eligible"
                 
                 # [V110.137] Identificação de Estratégia para o Badge na UI (FIX: Injetando no sinal original)
@@ -710,7 +710,7 @@ class SignalGenerator:
             }
 
             # [V110.145] Removida injeção de special_signal (Agora exibido como cabeçalho fixo no Frontend)
-            await firebase_service.update_radar_pulse(
+            await sovereign_service.update_radar_pulse(
                 signals=signals, 
                 decisions=decisions, 
                 market_context=market_context
@@ -2446,7 +2446,7 @@ class SignalGenerator:
                         if btc_adx_inner >= 30: inferred_dir = "ROARING"
                         elif btc_adx_inner >= 25: inferred_dir = "TRENDING"
 
-                        await firebase_service.update_pulse_drag(
+                        await sovereign_service.update_pulse_drag(
                             self.btc_drag_mode, abs_btc_cvd, self.exhaustion_level,
                             bybit_ws_service.btc_price, bybit_ws_service.btc_variation_1h,
                             btc_adx_inner, 0, bybit_ws_service.btc_variation_24h,
@@ -2461,7 +2461,7 @@ class SignalGenerator:
                 if _brs.execution_mode == "PAPER":
                     occupied_count = len(_brs.paper_positions)
                 else:
-                    slots = await firebase_service.get_active_slots()
+                    slots = await sovereign_service.get_active_slots()
                     occupied_count = sum(1 for s in slots if s.get("symbol"))
                 
                 # [V110.36.3] Usar M-ADX do bybit_ws (Fonte Única de Verdade) em vez de recalcular.
@@ -2492,7 +2492,7 @@ class SignalGenerator:
                 if btc_adx >= 30: inferred_dir = "ROARING"
                 elif btc_adx >= 25: inferred_dir = "TRENDING"
 
-                await firebase_service.update_pulse_drag(
+                await sovereign_service.update_pulse_drag(
                     self.btc_drag_mode, 
                     abs(bybit_ws_service.get_cvd_score("BTCUSDT")), getattr(self, 'exhaustion_level', 0),
                     bybit_ws_service.btc_price, bybit_ws_service.btc_variation_1h,
@@ -2600,7 +2600,7 @@ class SignalGenerator:
                         self.last_state_update = time.time() * 1000
                         from services.agents.captain import captain_agent
                         lr = getattr(captain_agent, 'last_reconciliation_time', 0)
-                        await firebase_service.update_system_state("PAUSED", 0, reason, protocol="Sniper V15.1", last_reconciliation=lr)
+                        await sovereign_service.update_system_state("PAUSED", 0, reason, protocol="Sniper V15.1", last_reconciliation=lr)
                         logger.info(f"🔴 V15.1: System → PAUSED ({reason})")
                     await asyncio.sleep(5) 
                     continue
@@ -2617,7 +2617,7 @@ class SignalGenerator:
                     self.last_state_update = time.time() * 1000
                     from services.agents.captain import captain_agent
                     lr = getattr(captain_agent, 'last_reconciliation_time', 0)
-                    await firebase_service.update_system_state("SCANNING", occupied_count, desired_scanning_msg, protocol="Sniper V15.1", last_reconciliation=lr)
+                    await sovereign_service.update_system_state("SCANNING", occupied_count, desired_scanning_msg, protocol="Sniper V15.1", last_reconciliation=lr)
                     logger.info(f"[STAGE-0] V15.1: System -> SCANNING ({desired_scanning_msg})")
 
                 # [V34.2] Update occupied_count for all cases
@@ -2631,7 +2631,7 @@ class SignalGenerator:
                         self.last_state_update = time.time()
                         from services.agents.captain import captain_agent
                         lr = getattr(captain_agent, 'last_reconciliation_time', 0)
-                        await firebase_service.update_system_state("MONITORING", occupied_count, self.system_message, protocol="Sniper V15.1", last_reconciliation=lr)
+                        await sovereign_service.update_system_state("MONITORING", occupied_count, self.system_message, protocol="Sniper V15.1", last_reconciliation=lr)
                         logger.info(f"[STAGE-0] V15.1: MONITORING (4/4 slots ocupados). Scan PAUSADO.")
                     await asyncio.sleep(2) 
                     continue
@@ -3355,7 +3355,7 @@ class SignalGenerator:
                     if current_adx_val < 20: # [V110.148] BLOQUEIO ABSOLUTO SWING EM LATERAL
                         logger.info(f"🚫 [RADAR-THROTTLE] {norm_symbol} Swing OMITIDO (Mercado Lateral | ADX {current_adx_val:.1f}). Focando em Blitz.")
                     else:
-                        await firebase_service.log_signal(signal_data)
+                        await sovereign_service.log_signal(signal_data)
                         if self.signal_queue:
                             # [V110.118] PriorityQueue: (-score, counter, data) para processar maior score primeiro
                             # O 'counter' garante desempate sem comparar dicionários (evita TypeError)
@@ -3471,7 +3471,7 @@ class SignalGenerator:
                     }
                 
                 if radar_batch:
-                    await firebase_service.update_radar_batch(radar_batch)
+                    await sovereign_service.update_radar_batch(radar_batch)
                     # V15.7.5: Increased frequency of status logs for better transparency (30s)
                     if time.time() - getattr(self, '_last_radar_log', 0) > 30:
                         logger.info(f"📡 [RADAR-RT] Batch updated with {len(radar_batch)} assets. Syncing...")
@@ -3489,7 +3489,7 @@ class SignalGenerator:
                 if time.time() - getattr(self, '_last_radar_pulse_sync', 0) > 5:
                     try:
                         # 2. Find replacement candidates
-                        recent_signals = await firebase_service.get_recent_signals(limit=20)
+                        recent_signals = await sovereign_service.get_recent_signals(limit=20)
                         best_opportunity = None
                         
                         for r_data in recent_signals:
@@ -3518,7 +3518,7 @@ class SignalGenerator:
         logger.info("Signal Outcome Tracker started.")
         while self.is_running:
             try:
-                signals = await firebase_service.get_recent_signals(limit=50)
+                signals = await sovereign_service.get_recent_signals(limit=50)
                 now = datetime.now(timezone.utc)
                 for signal in signals:
                     if signal.get("outcome") is not None:
@@ -3555,7 +3555,7 @@ class SignalGenerator:
                                     is_win = current_price < entry_price
                             else:
                                 is_win = False
-                            await firebase_service.update_signal_outcome(signal["id"], is_win)
+                            await sovereign_service.update_signal_outcome(signal["id"], is_win)
                             logger.info(f"Signal outcome tracked for {signal['symbol']}: {'WIN' if is_win else 'LOSS'}")
                     except Exception as ts_err:
                         logger.error(f"Error parsing signal time {ts_str}: {ts_err}")

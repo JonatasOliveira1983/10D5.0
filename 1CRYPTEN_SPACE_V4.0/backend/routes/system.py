@@ -8,12 +8,12 @@ router = APIRouter(prefix="/api", tags=["System"])
 logger = logging.getLogger("1CRYPTEN-SYSTEM")
 
 def get_services():
-    from services.firebase_service import firebase_service
+    from services.sovereign_service import sovereign_service
     from services.bybit_rest import bybit_rest_service
     from services.vault_service import vault_service
     from services.bankroll import bankroll_manager
     from services.execution_protocol import execution_protocol
-    return firebase_service, bybit_rest_service, vault_service, bankroll_manager, execution_protocol
+    return sovereign_service, bybit_rest_service, vault_service, bankroll_manager, execution_protocol
 
 async def verify_api_key(x_api_key: str = Header(None)):
     if settings.DEBUG:
@@ -37,12 +37,12 @@ async def reset_bankroll_post(payload: dict = None):
 
 async def reset_bankroll_action(amount: float):
     # Imports internos para evitar circular dependency
-    from services.firebase_service import firebase_service
+    from services.sovereign_service import sovereign_service
     from services.database_service import database_service
     
     # 1. Firebase (se ativo)
     try:
-        await firebase_service.update_bankroll(amount)
+        await sovereign_service.update_bankroll(amount)
     except: pass
     
     # 2. Postgres
@@ -68,7 +68,7 @@ async def debug_test():
 
 @router.get("/health")
 async def health_check():
-    firebase_service, bybit_rest_service, _, _, _ = get_services()
+    sovereign_service, bybit_rest_service, _, _, _ = get_services()
     from main import VERSION, DEPLOYMENT_ID, FRONTEND_DIR
     frontend_files = []
     if os.path.exists(FRONTEND_DIR):
@@ -91,7 +91,7 @@ async def health_check():
 
 @router.get("/banca/data")
 async def get_banca_data():
-    firebase_service, bybit_rest_service, _, _, _ = get_services()
+    sovereign_service, bybit_rest_service, _, _, _ = get_services()
     from services.database_service import database_service
     try:
         # 1. Tenta buscar no Postgres (Railway Native)
@@ -99,7 +99,7 @@ async def get_banca_data():
         
         # 2. Se o status for UNKNOWN ou saldo zerado, tenta o Firebase como fallback
         if not status or status.get("status") == "UNKNOWN" or status.get("saldo_total", 0) == 0:
-            status = await firebase_service.get_banca_status()
+            status = await sovereign_service.get_banca_status()
             
         # 3. Se ainda assim estiver zerado, busca saldo real na Bybit (se estiver em REAL mode)
         if not status or status.get("saldo_total", 0) == 0:
@@ -117,16 +117,16 @@ async def update_banca(payload: dict):
 
 @router.get("/banca-history")
 async def get_banca_history(limit: int = 50):
-    firebase_service, _, _, _, _ = get_services()
-    try: return await firebase_service.get_banca_history(limit=limit)
+    sovereign_service, _, _, _, _ = get_services()
+    try: return await sovereign_service.get_banca_history(limit=limit)
     except Exception as e:
         logger.error(f"Error in banca history endpoint: {e}")
         return []
 
 @router.get("/stats")
 async def get_stats():
-    firebase_service, _, _, _, _ = get_services()
-    try: return await firebase_service.get_banca_status()
+    sovereign_service, _, _, _, _ = get_services()
+    try: return await sovereign_service.get_banca_status()
     except Exception as e:
         logger.error(f"Error in stats endpoint: {e}")
         return {"saldo_total": 0.0, "risco_real_percent": 0.0, "win_rate": 0.0}

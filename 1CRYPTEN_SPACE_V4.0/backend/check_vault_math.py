@@ -5,21 +5,21 @@ import sys
 # Garante que o dir atual está no path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def run_audit():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     await asyncio.sleep(2)
     
-    if not firebase_service.db:
+    if not sovereign_service.db:
         print("Erro Firebase")
         return
         
     print("---  AUDITORIA DO VAULT (CICLO) ---")
     
     # Busca o status atual da Banca e do Ciclo    
-    banca_doc = firebase_service.db.collection("banca_status").document("status").get().to_dict()
-    cycle_doc = firebase_service.db.collection("vault_management").document("current_cycle").get().to_dict()
+    banca_doc = sovereign_service.db.collection("banca_status").document("status").get().to_dict()
+    cycle_doc = sovereign_service.db.collection("vault_management").document("current_cycle").get().to_dict()
     
     print(f"\n[DADOS ATUAIS - FIREBASE]")
     print(f"Banca Configurada (Inicial): ${banca_doc.get('configured_balance', 0)}")
@@ -29,7 +29,7 @@ async def run_audit():
     
     # Busca Histórico Real
     print(f"\n[SOMATÓRIO DO HISTÓRICO DE TRADES]")
-    trades = list(firebase_service.db.collection("trade_history").stream())
+    trades = list(sovereign_service.db.collection("trade_history").stream())
     
     profit_total = sum(t.to_dict().get('pnl', 0) for t in trades)
     print(f"PnL líquido de TODOS os {len(trades)} trades da história: ${profit_total:.2f}")

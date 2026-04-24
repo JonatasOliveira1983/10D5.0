@@ -5,12 +5,12 @@ import sys
 from datetime import datetime
 
 sys.path.append(os.getcwd())
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def audit():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     # Pega os últimos 30 trades
-    trades_ref = firebase_service.db.collection("trade_history").order_by("closed_at", direction="DESCENDING").limit(30)
+    trades_ref = sovereign_service.db.collection("trade_history").order_by("closed_at", direction="DESCENDING").limit(30)
     docs = trades_ref.get()
     
     print(f"{'Date':<25} | {'Symbol':<12} | Slot | Type | ROI")

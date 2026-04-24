@@ -8,7 +8,7 @@ sys.path.insert(0, ".")
 SYMBOLS = ["WUSDT", "XRPUSDT", "DOTUSDT", "LINKUSDT"]
 
 async def main():
-    from services.firebase_service import firebase_service
+    from services.sovereign_service import sovereign_service
     from services.bybit_rest import bybit_rest_service
 
     # 1. Slots brutos no RTDB
@@ -16,7 +16,7 @@ async def main():
     print("SLOTS BRUTOS NO RTDB (todos os slots)")
     print("=" * 65)
     try:
-        raw = firebase_service.rtdb.child("slots").get()
+        raw = sovereign_service.rtdb.child("slots").get()
         if raw:
             for slot_id, data in raw.items():
                 sym = data.get("symbol") if isinstance(data, dict) else "?"
@@ -80,7 +80,7 @@ async def main():
     print("FIRESTORE SLOTS (colecao sniper_slots)")
     print("=" * 65)
     try:
-        fs_docs = firebase_service.db.collection("sniper_slots").stream()
+        fs_docs = sovereign_service.db.collection("sniper_slots").stream()
         found_fs = False
         for doc in fs_docs:
             d = doc.to_dict()

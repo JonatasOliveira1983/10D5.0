@@ -62,4 +62,13 @@ class WebSocketService:
             "data": data
         })
 
+    async def update_radar_pulse(self, signals: list, decisions: list, market_context: dict):
+        """Envia o pacote completo de inteligência do Radar (V110.175)."""
+        await self.broadcast({
+            "type": "RADAR_PULSE",
+            "signals": signals,
+            "decisions": decisions,
+            "market_context": market_context
+        })
+
 websocket_service = WebSocketService()

@@ -1,10 +1,10 @@
 import asyncio
-from services.firebase_service import FirebaseService
+from services.sovereign_service import SovereignService
 import json
 
 async def fetch_linkusdt_trade():
     try:
-        fb = FirebaseService()
+        fb = SovereignService()
         await fb.initialize()
         
         collections_to_check = ['vault_history_live', 'trade_history_live', 'vault_history_paper', 'trade_history_paper']

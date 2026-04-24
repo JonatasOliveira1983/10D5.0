@@ -1,7 +1,7 @@
 import logging
 import time
 from typing import Dict, Any
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.vault_service import vault_service
 
 logger = logging.getLogger("KernelTools")
@@ -18,10 +18,10 @@ class KernelTools:
         This is the source of truth for all AI conversations.
         """
         try:
-            banca = await firebase_service.get_banca_status()
-            slots = await firebase_service.get_active_slots()
+            banca = await sovereign_service.get_banca_status()
+            slots = await sovereign_service.get_active_slots()
             vault = await vault_service.get_cycle_status()
-            signals = await firebase_service.get_recent_signals(limit=5)
+            signals = await sovereign_service.get_recent_signals(limit=5)
             
             # Identify active mission
             active_symbols = [s["symbol"] for s in slots if s.get("symbol")]

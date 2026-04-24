@@ -1,16 +1,16 @@
 import asyncio
 from services.bybit_rest import bybit_rest_service
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 import platform
 
 if platform.system() == 'Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 async def run():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     await bybit_rest_service.initialize()
     
-    if not firebase_service.db:
+    if not sovereign_service.db:
         print("Erro db")
         return
         
@@ -65,8 +65,8 @@ async def run():
         "entry_margin": 10.02
     }
     
-    await firebase_service.update_slot(1, ltc_data)
-    await firebase_service.update_slot(2, bnb_data)
+    await sovereign_service.update_slot(1, ltc_data)
+    await sovereign_service.update_slot(2, bnb_data)
     
     print("Slots 1 (LTC) and 2 (BNB) successfully restored/relocated.")
 

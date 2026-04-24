@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Injeta as 4 posicoes diretamente no Firestore slots_ativos e no paper_state
-usando o firebase_service com inicializacao correta.
+usando o sovereign_service com inicializacao correta.
 """
 import asyncio, sys, time
 sys.path.insert(0, ".")

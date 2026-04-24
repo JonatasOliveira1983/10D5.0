@@ -1,17 +1,17 @@
 import asyncio
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 import platform
 
 if platform.system() == 'Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 async def run():
-    await firebase_service.initialize()
-    if not firebase_service.db:
+    await sovereign_service.initialize()
+    if not sovereign_service.db:
         print("Erro db")
         return
     
-    logs_ref = firebase_service.db.collection('system_logs')
+    logs_ref = sovereign_service.db.collection('system_logs')
     
     print("\n--- Searching for LTCUSDT DEPLOYED logs (UTF-8) ---")
     query = logs_ref.order_by('timestamp', direction='DESCENDING').limit(300)

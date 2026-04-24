@@ -3,7 +3,7 @@ import asyncio
 import logging
 import os
 import json
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("RestoreStructural")
@@ -12,8 +12,8 @@ async def restore_and_sync():
     logger.info("🚀 Restoring Structural Stops and Sincronizing State...")
     
     # 1. Initialize Firebase
-    await firebase_service.initialize()
-    await firebase_service.initialize_db()
+    await sovereign_service.initialize()
+    await sovereign_service.initialize_db()
     
     # 2. Restore exact values requested/observed for the 4 slots
     # These match the structural breathing room (~1.4% - 2.0%)
@@ -26,7 +26,7 @@ async def restore_and_sync():
     
     for slot_id, data in updates.items():
         logger.info(f"📏 Restoring Slot {slot_id} SL to structural: {data['current_stop']}")
-        await firebase_service.update_slot(slot_id, data)
+        await sovereign_service.update_slot(slot_id, data)
 
     # 3. Nuke local Paper Storage to force re-adoption
     paper_file = "paper_storage.json"

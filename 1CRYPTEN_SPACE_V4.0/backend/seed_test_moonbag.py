@@ -1,10 +1,10 @@
 
 import asyncio
 import time
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def create_test_moonbag():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     test_data = {
         "symbol": "BTCUSDT",
         "side": "Buy",
@@ -14,9 +14,9 @@ async def create_test_moonbag():
         "original_slot": 1,
         "strategy": "Sniper TREND"
     }
-    # Usando o Admin SDK via firebase_service interno se possível, ou direto
+    # Usando o Admin SDK via sovereign_service interno se possível, ou direto
     try:
-        doc_ref = firebase_service.db.collection("moonbags").document("test_moonbag_1")
+        doc_ref = sovereign_service.db.collection("moonbags").document("test_moonbag_1")
         doc_ref.set(test_data)
         print("✅ Moonbag de teste criada com sucesso!")
     except Exception as e:

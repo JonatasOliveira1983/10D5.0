@@ -9,7 +9,7 @@ import firebase_admin
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(current_dir))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from config import settings
 
 async def surgical_reset():
@@ -30,9 +30,9 @@ async def surgical_reset():
             options = {'databaseURL': settings.FIREBASE_DATABASE_URL}
             firebase_admin.initialize_app(cred, options)
         
-        firebase_service.db = firestore.client()
-        firebase_service.rtdb = rtdb_admin.reference("/")
-        firebase_service.is_active = True
+        sovereign_service.db = firestore.client()
+        sovereign_service.rtdb = rtdb_admin.reference("/")
+        sovereign_service.is_active = True
         print("--- Firebase conectado com sucesso!")
     except Exception as e:
         print(f"[X] Falha na conexao: {e}")
@@ -41,7 +41,7 @@ async def surgical_reset():
     # 1. Limpeza de Slots (Firestore & RTDB)
     print("--- Limpando slots de operacao (1-4) ---")
     for i in range(1, 5):
-        await firebase_service.free_slot(i, reason="SURGICAL RESET - CLEAN START V6.5")
+        await sovereign_service.free_slot(i, reason="SURGICAL RESET - CLEAN START V6.5")
     
     # 2. Reset de Banca (Firestore & RTDB)
     print("--- Resetando banca para $100.00 ---")
@@ -54,7 +54,7 @@ async def surgical_reset():
         "status": "SCANNING",
         "last_update": datetime.datetime.now(datetime.timezone.utc).isoformat()
     }
-    await firebase_service.update_banca_status(banca_data)
+    await sovereign_service.update_banca_status(banca_data)
 
     # 3. Limpeza de Historicos (Firestore)
     collections_to_clear = ["trade_history", "banca_history", "journey_signals", "system_logs"]
@@ -62,10 +62,10 @@ async def surgical_reset():
         print(f"--- Limpando colecao Firestore: {coll} ---")
         try:
             # Delete in batches to avoid timeout
-            docs = firebase_service.db.collection(coll).limit(100).stream()
+            docs = sovereign_service.db.collection(coll).limit(100).stream()
             deleted_total = 0
             while True:
-                batch = firebase_service.db.batch()
+                batch = sovereign_service.db.batch()
                 count = 0
                 docs_list = list(docs)
                 if not docs_list:
@@ -76,17 +76,17 @@ async def surgical_reset():
                 batch.commit()
                 deleted_total += count
                 print(f"   -> Removidos {deleted_total} documentos...")
-                docs = firebase_service.db.collection(coll).limit(100).stream()
+                docs = sovereign_service.db.collection(coll).limit(100).stream()
             print(f"   -> Total: {deleted_total} documentos removidos de {coll}.")
         except Exception as e:
             print(f"   -> Erro ao limpar {coll}: {e}")
 
     # 4. Limpeza de RTDB (Nodes em tempo real)
-    if firebase_service.rtdb:
+    if sovereign_service.rtdb:
         nodes_to_clear = ["live_slots", "radar_pulse", "historico_trades", "system_logs"]
         for node in nodes_to_clear:
             print(f"--- Limpando node RTDB: {node} ---")
-            firebase_service.rtdb.child(node).delete()
+            sovereign_service.rtdb.child(node).delete()
             
     print("\n--- RESET CIRURGICO COMPLETO ---")
     print("--- Sistema pronto para novo ciclo com Sentinel corrigido ---")

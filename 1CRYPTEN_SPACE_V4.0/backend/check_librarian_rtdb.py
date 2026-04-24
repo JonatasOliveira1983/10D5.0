@@ -1,12 +1,12 @@
 import json
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 def check_librarian_rtdb():
-    if not firebase_service.rtdb:
+    if not sovereign_service.rtdb:
         print("RTDB not connected")
         return
     
-    data = firebase_service.rtdb.child("librarian_intelligence").get()
+    data = sovereign_service.rtdb.child("librarian_intelligence").get()
     print("--- LIBRARIAN RTDB DATA ---")
     print(json.dumps(data, indent=2))
 

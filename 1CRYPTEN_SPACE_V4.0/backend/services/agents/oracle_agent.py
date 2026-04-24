@@ -3,7 +3,7 @@ import asyncio
 import time
 from typing import Dict, Any, List
 from services.agents.aios_adapter import AIOSAgent
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 logger = logging.getLogger("OracleAgent")
 

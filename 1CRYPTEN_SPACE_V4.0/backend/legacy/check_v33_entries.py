@@ -3,11 +3,11 @@ import os
 import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def run():
-    await firebase_service.initialize()
-    logs = await firebase_service.get_recent_logs(limit=200)
+    await sovereign_service.initialize()
+    logs = await sovereign_service.get_recent_logs(limit=200)
     
     print("Logs recentes encontrados para PEPE ou SUI:")
     for log in logs:

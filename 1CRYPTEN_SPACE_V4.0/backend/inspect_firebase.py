@@ -9,18 +9,18 @@ if sys.platform == "win32":
 # Add backend to path to import services
 sys.path.append(os.getcwd())
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def inspect():
     print("--- FIRESTORE INSPECTION ---")
-    await firebase_service.initialize()
-    await firebase_service.initialize_db()
+    await sovereign_service.initialize()
+    await sovereign_service.initialize_db()
     
     collections = ["slots_ativos", "live_slots", "slots", "active_positions"]
     
     for coll_name in collections:
         print(f"\nScanning collection: {coll_name}")
-        docs = firebase_service.db.collection(coll_name).stream()
+        docs = sovereign_service.db.collection(coll_name).stream()
         count = 0
         for doc in docs:
             print(f"  Document [{doc.id}]: {doc.to_dict()}")
@@ -28,9 +28,9 @@ async def inspect():
         if count == 0:
             print("  (Empty)")
 
-    if firebase_service.rtdb:
+    if sovereign_service.rtdb:
         print("\n--- RTDB INSPECTION ---")
-        live_slots = firebase_service.rtdb.child("live_slots").get()
+        live_slots = sovereign_service.rtdb.child("live_slots").get()
         print(f"RTDB live_slots: {live_slots}")
         
     print("\nINSPECTION COMPLETE.")

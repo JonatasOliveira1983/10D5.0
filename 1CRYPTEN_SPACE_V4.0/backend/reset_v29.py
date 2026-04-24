@@ -10,16 +10,16 @@ import json
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 os.environ["PYTHONIOENCODING"] = "utf-8"
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def full_reset():
     print("=" * 60)
     print("[RESET] V29.0 FULL SYSTEM RESET V2 (Direct Overwrite)")
     print("=" * 60)
     
-    await firebase_service.initialize()
-    db = firebase_service.db
-    rtdb = firebase_service.rtdb
+    await sovereign_service.initialize()
+    db = sovereign_service.db
+    rtdb = sovereign_service.rtdb
     
     if not db:
         print("ERRO: Sem conexao ao Firestore!")

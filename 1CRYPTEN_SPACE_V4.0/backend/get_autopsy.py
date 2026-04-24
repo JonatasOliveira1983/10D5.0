@@ -5,13 +5,13 @@ import sys
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def get_recent_autopsy():
     print("BUSCANDO AUTOPSIA DE TRADES RECENTES (V81.4)...")
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
-    trades = await firebase_service.get_trade_history(limit=5)
+    trades = await sovereign_service.get_trade_history(limit=5)
     
     if not trades:
         print("Nenhum trade encontrado no historico.")

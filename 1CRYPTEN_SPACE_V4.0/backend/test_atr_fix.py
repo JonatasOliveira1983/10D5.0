@@ -3,13 +3,13 @@ import sys
 import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bankroll import bankroll_manager
 from services.bybit_rest import bybit_rest_service
 
 async def test_bankroll():
     print("Iniciando teste de Bankroll V33.1 (Atr Fix)...")
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     await bybit_rest_service.initialize(paper_mode=True)
     
     mock_signal = {

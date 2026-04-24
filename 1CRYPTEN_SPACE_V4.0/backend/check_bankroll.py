@@ -5,10 +5,10 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from services.bankroll import bankroll_manager, bybit_rest_service
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def run_check():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     await bybit_rest_service.initialize()
     balance = await bankroll_manager._get_operating_balance()
     print(f"Current Operating Balance: {balance}")

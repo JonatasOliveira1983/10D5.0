@@ -7,12 +7,12 @@ from datetime import datetime
 
 # Adiciona o diretório atual ao path para importar os serviços
 sys.path.append(os.getcwd())
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def analyze_trades_detailed():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     # Pega os últimos 300 trades para uma base estatística melhor
-    trades = await firebase_service.get_trade_history(limit=300)
+    trades = await sovereign_service.get_trade_history(limit=300)
     
     if not trades:
         print("Nenhum trade encontrado no histórico.")

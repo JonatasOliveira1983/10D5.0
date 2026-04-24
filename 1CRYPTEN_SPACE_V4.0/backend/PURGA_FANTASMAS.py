@@ -8,7 +8,7 @@ import time
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from config import settings
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -18,8 +18,8 @@ async def run_purge():
     logger.info("🚀 [PURGA] Iniciando Protocolo de Limpeza Profunda (Moonbag Vault)...")
     
     # 1. Inicializar Conexões
-    await firebase_service.initialize()
-    if not firebase_service.is_active:
+    await sovereign_service.initialize()
+    if not sovereign_service.is_active:
         logger.error("❌ Falha ao conectar ao Firebase. Abortando.")
         return
 
@@ -38,7 +38,7 @@ async def run_purge():
 
     # 3. Buscar Moonbags do Firestore
     logger.info("🌖 Buscando Moonbags no Vault do Firebase...")
-    moonbags = await firebase_service.get_moonbags()
+    moonbags = await sovereign_service.get_moonbags()
     logger.info(f"✅ {len(moonbags)} Moonbags encontradas no banco de dados.")
 
     purged_count = 0
@@ -61,7 +61,7 @@ async def run_purge():
         if is_orphan or is_corrupted:
             logger.warning(f"🧹 [PURGA] Removendo {symbol} (ID: {moon_id}) | Motivo: {reason}")
             try:
-                await firebase_service.remove_moonbag(moon_id, reason=f"PURGE_{reason.split()[0]}")
+                await sovereign_service.remove_moonbag(moon_id, reason=f"PURGE_{reason.split()[0]}")
                 purged_count += 1
             except Exception as e:
                 logger.error(f"❌ Erro ao remover moonbag {moon_id}: {e}")
@@ -71,7 +71,7 @@ async def run_purge():
     # Snapshot final da banca para garantir que a UI atualize
     try:
         balance = await bybit_rest_service.get_wallet_balance()
-        await firebase_service.update_bankroll(balance)
+        await sovereign_service.update_bankroll(balance)
         logger.info(f"💰 Banca atualizada: ${balance:.2f}")
     except Exception as e:
         logger.error(f"Erro ao atualizar banca final: {e}")

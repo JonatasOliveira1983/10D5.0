@@ -1,17 +1,17 @@
 
 import asyncio
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def cleanup_duplicates():
     print("🚀 Iniciando Limpeza de Histórico Duplicado...")
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
-    if not firebase_service.db:
+    if not sovereign_service.db:
         print("❌ Erro ao conectar ao Firebase.")
         return
 
     # 1. Buscar trades de LTCUSDT
-    docs = firebase_service.db.collection("trade_history").where("symbol", "==", "LTCUSDT.P").stream()
+    docs = sovereign_service.db.collection("trade_history").where("symbol", "==", "LTCUSDT.P").stream()
     
     trades = []
     for d in docs:
@@ -21,7 +21,7 @@ async def cleanup_duplicates():
     
     # Se não achar com .P, tenta sem
     if not trades:
-        docs = firebase_service.db.collection("trade_history").where("symbol", "==", "LTCUSDT").stream()
+        docs = sovereign_service.db.collection("trade_history").where("symbol", "==", "LTCUSDT").stream()
         for d in docs:
             t = d.to_dict()
             t['doc_id'] = d.id
@@ -55,7 +55,7 @@ async def cleanup_duplicates():
     else:
         print(f"🔥 Deletando {len(to_delete)} registros duplicados...")
         for doc_id in to_delete:
-            firebase_service.db.collection("trade_history").document(doc_id).delete()
+            sovereign_service.db.collection("trade_history").document(doc_id).delete()
             print(f"✅ Deletado: {doc_id}")
         
     print("🏁 Limpeza concluída.")

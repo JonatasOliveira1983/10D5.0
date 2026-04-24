@@ -8,14 +8,14 @@ import logging
 # Adicionar path do backend
 sys.path.append(os.getcwd())
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("RescueIPUSDT-Final")
 
 async def rescue():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     print("🚑 [RESCUE-IPUSDT] Iniciando operação de resgate final...")
 
     symbol = "IPUSDT"
@@ -49,16 +49,16 @@ async def rescue():
 
     # 2. Gravação Síncrona via to_thread (ID FIXO)
     def force_write():
-        doc_ref = firebase_service.db.collection("moonbags").document(moon_id)
+        doc_ref = sovereign_service.db.collection("moonbags").document(moon_id)
         doc_ref.set(moon_data)
-        if firebase_service.rtdb:
-            firebase_service.rtdb.child("moonbag_vault").child(moon_id).set(moon_data)
+        if sovereign_service.rtdb:
+            sovereign_service.rtdb.child("moonbag_vault").child(moon_id).set(moon_data)
         # Limpar Slot 1
-        firebase_service.db.collection("slots").document("1").update({
+        sovereign_service.db.collection("slots").document("1").update({
             "symbol": None, "pnl_percent": 0, "status_risco": "LIVRE", "side": None
         })
-        if firebase_service.rtdb:
-            firebase_service.rtdb.child("slots").child("1").update({
+        if sovereign_service.rtdb:
+            sovereign_service.rtdb.child("slots").child("1").update({
                 "symbol": None, "pnl_percent": 0, "status_risco": "LIVRE"
             })
 

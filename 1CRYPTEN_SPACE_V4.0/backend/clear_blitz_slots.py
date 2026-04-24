@@ -1,5 +1,5 @@
 import asyncio
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 import os
 import sys
 
@@ -7,12 +7,12 @@ backend_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(backend_dir)
 
 async def clear_slots():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
     # Limpando Slot 1 e Slot 2 (Blitz)
     print("[CLEANUP] Limpando slots 1 e 2 para novos testes...")
-    await firebase_service.free_slot(1, reason="Limpeza para Teste Mola")
-    await firebase_service.free_slot(2, reason="Limpeza para Teste Mola")
+    await sovereign_service.free_slot(1, reason="Limpeza para Teste Mola")
+    await sovereign_service.free_slot(2, reason="Limpeza para Teste Mola")
     
     # Tambem limpa do paper_storage.json para evitar que o Ghostbuster tente recuperar
     paper_path = os.path.join(backend_dir, "paper_storage.json")
@@ -32,7 +32,7 @@ async def clear_slots():
         print(f"FILE paper_storage.json atualizado: {original_count} -> {new_count} posicoes.")
         
         # Sincroniza com Firestore paper_state
-        await firebase_service.update_paper_state(data)
+        await sovereign_service.update_paper_state(data)
 
     print("OK Slots 1 e 2 limpos com sucesso.")
 

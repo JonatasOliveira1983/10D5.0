@@ -9,11 +9,11 @@ backend_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(backend_dir)
 
 from services.bybit_rest import bybit_rest_service
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def restore():
     print("[RECOVERY] Restaurando slots apos Factory Reset acidental...")
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
     # Forçamos o reset da flag no settings antes de inicializar o BybitREST
     from config import settings
@@ -74,7 +74,7 @@ async def restore():
     print(f"FILE Local paper_storage.json criado com {len(positions)} posicoes.")
     
     # 2. Sincroniza com Firestore
-    await firebase_service.update_paper_state(data)
+    await sovereign_service.update_paper_state(data)
     print("CLOUD Firestore paper_state sincronizado.")
     
     # 3. Força o RTDB a manter os slots (opcional, mas bom para UI)
@@ -90,7 +90,7 @@ async def restore():
             "opened_at": pos["opened_at"],
             "entry_margin": pos["entry_margin"]
         }
-        await firebase_service.update_slot(i, slot_data)
+        await sovereign_service.update_slot(i, slot_data)
         print(f"SYNC Slot {i} ({pos['symbol']}) atualizado no Firebase/RTDB.")
 
     print("\nOK RESTAURACAO CONCLUIDA. O Ghostbuster nao deve mais remover estas ordens.")

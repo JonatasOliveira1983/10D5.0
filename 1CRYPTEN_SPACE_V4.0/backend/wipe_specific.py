@@ -4,25 +4,25 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def wipe_specific():
-    await firebase_service.initialize()
-    if not firebase_service.is_active:
+    await sovereign_service.initialize()
+    if not sovereign_service.is_active:
         print("Firebase FAIL")
         return
     
     print("🔥 WIPING SLOT 4...")
-    res4 = await firebase_service.free_slot(4, reason="MANUAL WIPE")
+    res4 = await sovereign_service.free_slot(4, reason="MANUAL WIPE")
     print(f"RESULT 4: {res4}")
     
     print("🔥 WIPING SLOT 2...")
-    res2 = await firebase_service.free_slot(2, reason="MANUAL WIPE")
+    res2 = await sovereign_service.free_slot(2, reason="MANUAL WIPE")
     print(f"RESULT 2: {res2}")
     
-    if firebase_service.rtdb:
-         firebase_service.rtdb.child("live_slots").child("4").delete()
-         firebase_service.rtdb.child("live_slots").child("2").delete()
+    if sovereign_service.rtdb:
+         sovereign_service.rtdb.child("live_slots").child("4").delete()
+         sovereign_service.rtdb.child("live_slots").child("2").delete()
          print("RTDB WIPE DONE")
 
 if __name__ == "__main__":

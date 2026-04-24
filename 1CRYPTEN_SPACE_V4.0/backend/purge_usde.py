@@ -1,5 +1,5 @@
 import asyncio
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 import os
 import sys
 import json
@@ -8,11 +8,11 @@ backend_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(backend_dir)
 
 async def purge_usde():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
     # 1. Limpa o Slot 2 no Firestore/RTDB
     print("[PURGE] Removendo USDEUSDT do Slot 2...")
-    await firebase_service.free_slot(2, reason="REMOVIDO: Ativo Sem Volatilidade (Stablecoin)")
+    await sovereign_service.free_slot(2, reason="REMOVIDO: Ativo Sem Volatilidade (Stablecoin)")
     
     # 2. Atualiza o paper_storage.json
     paper_path = os.path.join(backend_dir, "paper_storage.json")
@@ -29,7 +29,7 @@ async def purge_usde():
         print(f"FILE paper_storage.json atualizado: {original_count} -> {new_count} posicoes.")
         
         # 3. Sincroniza com Firestore paper_state
-        await firebase_service.update_paper_state(data)
+        await sovereign_service.update_paper_state(data)
 
     print("OK USDEUSDT purgado com sucesso.")
 

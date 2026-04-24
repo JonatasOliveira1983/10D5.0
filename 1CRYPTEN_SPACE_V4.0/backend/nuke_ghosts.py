@@ -3,7 +3,7 @@ import asyncio
 import logging
 import os
 import json
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 
 logging.basicConfig(level=logging.INFO)
@@ -13,11 +13,11 @@ async def nuke_ghosts_and_align_sl():
     logger.info("🚀 Starting Ghost Vaporization and SL Alignment...")
     
     # 1. Initialize Firebase
-    await firebase_service.initialize()
-    await firebase_service.initialize_db()
+    await sovereign_service.initialize()
+    await sovereign_service.initialize_db()
     
     # 2. Align Firestore SLs to 1% (Maximum)
-    slots = await firebase_service.get_active_slots()
+    slots = await sovereign_service.get_active_slots()
     for slot in slots:
         symbol = slot.get("symbol")
         if not symbol: continue
@@ -40,7 +40,7 @@ async def nuke_ghosts_and_align_sl():
             
         if is_wider:
             logger.info(f"📏 Aligning SL for {symbol}: {current_sl} -> {limit_sl} (1% limit)")
-            await firebase_service.update_slot(slot["id"], {"current_stop": limit_sl})
+            await sovereign_service.update_slot(slot["id"], {"current_stop": limit_sl})
         else:
             logger.info(f"✅ SL for {symbol} is already within 1% limit ({current_sl})")
 

@@ -640,8 +640,8 @@ class BlitzSniperAgent:
             # 4. Injeta na Queue com prioridade máxima e registra no Firebase (Radar)
             for sig in signals:
                 try:
-                    from services.firebase_service import firebase_service
-                    await firebase_service.log_signal(sig)
+                    from services.sovereign_service import sovereign_service
+                    await sovereign_service.log_signal(sig)
                     logger.info(f"🚀 [FIREBASE-PUBLISH] Blitz signal for {sig['symbol']} published to Radar.")
                 except Exception as fe:
 

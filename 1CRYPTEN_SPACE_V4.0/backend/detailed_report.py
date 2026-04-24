@@ -7,16 +7,16 @@ import sys
 sys.path.append(os.path.join(os.getcwd(), "1CRYPTEN_SPACE_V4.0", "backend"))
 
 async def report():
-    from services.firebase_service import firebase_service
+    from services.sovereign_service import sovereign_service
     from services.bybit_rest import bybit_rest_service
     from services.execution_protocol import execution_protocol
     
     print("Iniciando Diagnóstico de VIP...")
-    await firebase_service.initialize()
-    await firebase_service.initialize_db()
+    await sovereign_service.initialize()
+    await sovereign_service.initialize_db()
     await bybit_rest_service.initialize()
     
-    slots = await firebase_service.get_active_slots()
+    slots = await sovereign_service.get_active_slots()
     tickers = await asyncio.to_thread(bybit_rest_service.session.get_tickers, category="linear")
     price_map = {t["symbol"]: float(t.get("lastPrice", 0)) for t in tickers.get("result", {}).get("list", [])}
     

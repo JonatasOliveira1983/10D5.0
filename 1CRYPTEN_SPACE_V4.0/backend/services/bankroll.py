@@ -6,7 +6,7 @@ import time
 import math
 import os
 from typing import Optional, List, Dict, Any, Tuple
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 from services.vault_service import vault_service
 from config import settings
@@ -91,10 +91,10 @@ class BankrollManager:
         [V110.6.2] NUCLEAR RESET: Força a banca ao valor do settings.BYBIT_SIMULATED_BALANCE absoluto no Firebase.
         Útil para limpar a memória de profit acumulado em ambientes Cloud Run.
         """
-        if not firebase_service.is_active:
-            await firebase_service.initialize()
+        if not sovereign_service.is_active:
+            await sovereign_service.initialize()
             
-        if not firebase_service.is_active:
+        if not sovereign_service.is_active:
             logger.error("❌ [V110.6.2] Firebase NOT active for force reset. Aborting.")
             return False
 
@@ -116,10 +116,10 @@ class BankrollManager:
                 "timestamp_last_update": time.time()
             }
             # Use await to thread for consistency with other firebase calls
-            await asyncio.to_thread(firebase_service.db.collection("banca_status").document("status").set, reset_data)
+            await asyncio.to_thread(sovereign_service.db.collection("banca_status").document("status").set, reset_data)
             
-            if firebase_service.rtdb:
-                await asyncio.to_thread(firebase_service.rtdb.child("banca_status").set, reset_data)
+            if sovereign_service.rtdb:
+                await asyncio.to_thread(sovereign_service.rtdb.child("banca_status").set, reset_data)
             
             logger.info(f"✅ [V110.6.2] Firebase Bankroll Reset COMPLETE (${target_bal}).")
             return True
@@ -141,7 +141,7 @@ class BankrollManager:
             
             # 2. Fallback para Firebase se estiver zerado/UNKNOWN
             if not status or status.get("status") == "UNKNOWN" or status.get("saldo_total", 0) == 0:
-                status = await firebase_service.get_banca_status()
+                status = await sovereign_service.get_banca_status()
                 
             ui_saldo_total = float(status.get("saldo_total", 100.0))
             
@@ -207,7 +207,7 @@ class BankrollManager:
                     order_id = f"{sym.replace('.P', '')}_{int(opened_at_raw)}"
                 
                 if order_id:
-                    genesis = await firebase_service.get_order_genesis(order_id)
+                    genesis = await sovereign_service.get_order_genesis(order_id)
                     if genesis:
                         # Se temos a gênese, confiamos que a ordem é real, mesmo que a RAM tenha sumido
                         if life_sec < 1800:
@@ -250,11 +250,11 @@ class BankrollManager:
                 }
 
                 # V110.25.1: Bloqueia o registro de lixo $0.00 no histórico se for purga de sistema (Ghost)
-                if hasattr(firebase_service, "hard_reset_slot"):
-                    await firebase_service.hard_reset_slot(slot_id, reason="GHOSTBUSTER_PURGE", pnl=0.0, trade_data=trade_data)
+                if hasattr(sovereign_service, "hard_reset_slot"):
+                    await sovereign_service.hard_reset_slot(slot_id, reason="GHOSTBUSTER_PURGE", pnl=0.0, trade_data=trade_data)
                     # logger.info("Ghost purgada. Registro de histórico omitido para manter Vault limpo.")
                 else:
-                    await firebase_service.free_slot(slot_id, reason="GHOSTBUSTER_PURGE")
+                    await sovereign_service.free_slot(slot_id, reason="GHOSTBUSTER_PURGE")
 
     async def sync_slots_with_exchange(self):
         """
@@ -270,7 +270,7 @@ class BankrollManager:
         try:
             # 1. Fetch Current State
             exchange_positions = await bybit_rest_service.get_active_positions()
-            slots = await firebase_service.get_active_slots(force_refresh=True)
+            slots = await sovereign_service.get_active_slots(force_refresh=True)
             
             # Map normalized symbols for comparison (with null-safety)
             exchange_map = {}
@@ -294,7 +294,7 @@ class BankrollManager:
                 # Get tracked tactical symbols
                 tactical_symbols = {bybit_rest_service._strip_p(s.get("symbol") or "").upper() for s in slots if s.get("symbol")}
                 # Also Moonbags
-                moonbags = await firebase_service.get_moonbags()
+                moonbags = await sovereign_service.get_moonbags()
                 moon_symbols = {bybit_rest_service._strip_p(m.get("symbol") or "").upper() for m in moonbags}
                 all_tracked_symbols = tactical_symbols.union(moon_symbols)
                 
@@ -339,7 +339,7 @@ class BankrollManager:
             self.last_seen_exchange = exchange_map
 
             # 2. Fetch DB Slots
-            slots = await firebase_service.get_active_slots()
+            slots = await sovereign_service.get_active_slots()
             
             # 3. Persistence Logic for PAPER MODE
             for slot in slots:
@@ -386,7 +386,7 @@ class BankrollManager:
                     # é um slot fantasma com dados corrompidos. Limpar imediatamente.
                     if pos_size <= 0 or pos_entry <= 0:
                         logger.warning(f"🚨 [SANITY GUARD] Ghost slot detected: {symbol} size={pos_size} entry={pos_entry}. CLEARING NOW.")
-                        await firebase_service.hard_reset_slot(slot_id, reason="GHOST_ZERO_SIZE_PURGE")
+                        await sovereign_service.hard_reset_slot(slot_id, reason="GHOST_ZERO_SIZE_PURGE")
                         continue
 
                     real_margin = (pos_size * pos_entry) / leverage if leverage > 0 else 1.0
@@ -405,7 +405,7 @@ class BankrollManager:
                         logger.warning(f"💥 [ROI-SHIELD] {symbol} ROI capped at -100% to protect UI and logic consistency.")
                     if pnl_pct > 500 or pnl_pct < -100:
                         logger.warning(f"🚨 [SANITY GUARD] Impossible ROI detected for {symbol}: {pnl_pct:.1f}%. unrealised={unrealised_pnl} margin={real_margin}. CLEARING GHOST SLOT.")
-                        await firebase_service.hard_reset_slot(slot_id, reason=f"IMPOSSIBLE_ROI_GHOST_{pnl_pct:.0f}pct")
+                        await sovereign_service.hard_reset_slot(slot_id, reason=f"IMPOSSIBLE_ROI_GHOST_{pnl_pct:.0f}pct")
                         continue
                     # V42.9: Inject symbol-specific ADX and Regime for Dashboard visibility
                     from services.signal_generator import signal_generator
@@ -461,7 +461,7 @@ class BankrollManager:
                             price_risk_pct = 0.016 
                             initial_stop = pos_entry * (1 - price_risk_pct) if side_fix == "Buy" else pos_entry * (1 + price_risk_pct)
 
-                    await firebase_service.update_slot(slot_id, {
+                    await sovereign_service.update_slot(slot_id, {
                         "entry_margin": real_margin,
                         "pnl_percent": round(pnl_pct, 1),
                         "qty": float(pos.get("size", 0)),
@@ -496,20 +496,20 @@ class BankrollManager:
                     # Layer 1: Check pending_closures (short-term, 15s window)
                     if norm_symbol in bybit_rest_service.pending_closures:
                         logger.info(f"Sync [PAPER]: {symbol} has a pending closure. Blocking phantom re-adoption and CLEARING SLOT.")
-                        await firebase_service.hard_reset_slot(slot_id, reason="PAPER_CLOSED_SYNC")
+                        await sovereign_service.hard_reset_slot(slot_id, reason="PAPER_CLOSED_SYNC")
                         continue
 
                     # Layer 2: Check recently_closed registry (persistent, 120s window)
                     if self.is_recently_closed(norm_symbol):
                         logger.info(f"Sync [PAPER]: {symbol} is recently closed. CLEARING SLOT to avoid zombie UI.")
-                        await firebase_service.hard_reset_slot(slot_id, reason="PAPER_RECENTLY_CLOSED")
+                        await sovereign_service.hard_reset_slot(slot_id, reason="PAPER_RECENTLY_CLOSED")
                         continue
 
                     # [V53.8] Layer 3: Blocklist & Duplicate Safety
                     from services.signal_generator import signal_generator
                     if norm_symbol in getattr(signal_generator, 'asset_blocklist_permanent', set()):
                         logger.warning(f"Sync [PAPER]: {symbol} in PERMANENT BLOCKLIST. Clearing slot {slot_id}.")
-                        await firebase_service.update_slot(slot_id, {
+                        await sovereign_service.update_slot(slot_id, {
                             "symbol": None, "status_risco": "LIVRE", "pnl_percent": 0,
                             "entry_price": 0, "current_stop": 0, "entry_margin": 0, "side": None
                         })
@@ -526,7 +526,7 @@ class BankrollManager:
                     entry_price = float(slot.get("entry_price", 0))
                     if entry_price <= 0:
                         logger.warning(f"Sync [PAPER PERSISTENCE]: Slot {slot_id} ({symbol}) has 0.0 entry price. CLEARING GHOST SLOT.")
-                        await firebase_service.free_slot(slot_id, "Ghost Position Purge (0.0 Price)")
+                        await sovereign_service.free_slot(slot_id, "Ghost Position Purge (0.0 Price)")
                         continue
 
                     # [V110.19.3] GHOST-LOCK PROTECTION
@@ -584,7 +584,7 @@ class BankrollManager:
                         "closed_at": close_time_str
                     }
 
-                    await firebase_service.hard_reset_slot(slot_id, reason="PAPER_GHOST_SLOT_PURGE_PERSISTENT", pnl=0.0, trade_data=trade_data)
+                    await sovereign_service.hard_reset_slot(slot_id, reason="PAPER_GHOST_SLOT_PURGE_PERSISTENT", pnl=0.0, trade_data=trade_data)
                     await self.register_sniper_trade(trade_data)
                     self.ghost_tracker[slot_id] = 0
                     continue
@@ -760,7 +760,7 @@ class BankrollManager:
                                 
                                 # 1. Register and Reset using Idempotent Hard Reset
                                 # This prevents duplicate logs from concurrent loops (Guardian vs BybitREST)
-                                success = await firebase_service.hard_reset_slot(
+                                success = await sovereign_service.hard_reset_slot(
                                     slot_id=slot_id, 
                                     reason=diagnostic_reason, 
                                     pnl=pnl_val, 
@@ -780,7 +780,7 @@ class BankrollManager:
             # This allows orphan paper positions (reloaded from state) to be pushed to Firestore slots.
             
             # [V110.4] Busca Moonbags para evitar re-adotar trades emancipadas em slots táticos
-            moonbags_list = await firebase_service.get_moonbags()
+            moonbags_list = await sovereign_service.get_moonbags()
             moon_symbols = {bybit_rest_service._strip_p(m.get("symbol") or "").upper() for m in moonbags_list}
             
             logger.info(f"🔍 [SYNC-S4] Checking {len(exchange_map)} exchange positions for import into {sum(1 for s in slots if not s.get('symbol'))} empty slots")
@@ -824,7 +824,7 @@ class BankrollManager:
                 
                 # [V110.100.3 DUAL-SYNC GUARD] Race Condition Prevention
                 # Puxamos do Firebase ATUALIZADO momentos antes do commit
-                fresh_slots = await firebase_service.get_active_slots(force_refresh=True)
+                fresh_slots = await sovereign_service.get_active_slots(force_refresh=True)
                 fresh_target = next((s for s in fresh_slots if s["id"] == empty_slot["id"]), None)
                 if fresh_target and fresh_target.get("symbol"):
                     logger.warning(f"🚨 [RACE-CONDITION PREVENTED] Slot {empty_slot['id']} foi recém-tomado. Abortando duplicação de {symbol}.")
@@ -846,7 +846,7 @@ class BankrollManager:
                 calc_margin = (pos_size * entry_price) / lev
                 if calc_margin < 0.01: calc_margin = 1.0
 
-                await firebase_service.update_slot(empty_slot["id"], {
+                await sovereign_service.update_slot(empty_slot["id"], {
                     "symbol": symbol,
                     "side": side,
                     "entry_price": entry_price,
@@ -862,9 +862,9 @@ class BankrollManager:
                     "timestamp_last_update": time.time()
                 })
                 # Refresh local list
-                slots = await firebase_service.get_active_slots()
+                slots = await sovereign_service.get_active_slots()
 
-            await firebase_service.log_event("Bankroll", f"Sync Complete (V110.8). Active: {len(active_symbols)}", "SUCCESS")
+            await sovereign_service.log_event("Bankroll", f"Sync Complete (V110.8). Active: {len(active_symbols)}", "SUCCESS")
 
         except Exception as e:
             logger.error(f"Error during slot sync: {e}")
@@ -888,7 +888,7 @@ class BankrollManager:
         Risk = 20% per slot that is NOT Risk-Free.
         Max possible = 40% if both at risk (shouldn't happen with dual logic).
         """
-        slots = await firebase_service.get_active_slots()
+        slots = await sovereign_service.get_active_slots()
         real_risk = 0.0
         
         for slot in slots:
@@ -909,7 +909,7 @@ class BankrollManager:
         """
         try:
             # [V29.0/V34.2] PAPER MODE FIX: Ensure we check Firestore first
-            slots = await firebase_service.get_active_slots()
+            slots = await sovereign_service.get_active_slots()
             
             if bybit_rest_service.execution_mode == "PAPER":
                 paper_positions = bybit_rest_service.paper_positions
@@ -934,7 +934,7 @@ class BankrollManager:
                 return None
             
             # REAL MODE: Original Firestore check
-            slots = await firebase_service.get_active_slots(force_refresh=True)
+            slots = await sovereign_service.get_active_slots(force_refresh=True)
             for s_id in preferred_ids:
                 slot = next((s for s in slots if s["id"] == s_id), None)
                 if slot and not slot.get("symbol"):
@@ -972,7 +972,7 @@ class BankrollManager:
             # [V92.0] DECENTRALIZED: Global lock removed. Multiple symbols can claim slots in parallel.
 
             # [V43.2] Pre-fetch slots for Risk-Free check
-            slots = await firebase_service.get_active_slots(force_refresh=True)
+            slots = await sovereign_service.get_active_slots(force_refresh=True)
             active_slots_data = slots if bybit_rest_service.execution_mode == "REAL" else []
             if bybit_rest_service.execution_mode == "PAPER":
                 # Create a structure matching REAL slots for the risk check
@@ -1017,7 +1017,7 @@ class BankrollManager:
             # [V110.0] ZERO EQUITY SHIELD: Stop if balance is too low (Effective Zero)
             if balance < 2.0:
                 logger.warning(f"🚫 [ZERO EQUITY] Balance ${balance:.2f} is critically low. Blocked all new openings.")
-                await firebase_service.log_event("Bankroll", f"🛑 CRITICAL: Zero Equity Shield Active (${balance:.2f}). System Paused.", "CRITICAL")
+                await sovereign_service.log_event("Bankroll", f"🛑 CRITICAL: Zero Equity Shield Active (${balance:.2f}). System Paused.", "CRITICAL")
                 return None
 
             max_total_slots = 1 if self.strict_single_order_mode else 4
@@ -1200,16 +1200,16 @@ class BankrollManager:
         """Updates the banca_status table in Supabase."""
         try:
             real_risk = await self.calculate_real_risk()
-            slots = await firebase_service.get_active_slots()
+            slots = await sovereign_service.get_active_slots()
             available_slots_count = sum(1 for s in slots if s["symbol"] is None)
             
             # Fetch real balance from Bybit - NON-BLOCKING
             total_equity = await bybit_rest_service.get_wallet_balance()
             
-            banca = await firebase_service.get_banca_status()
+            banca = await sovereign_service.get_banca_status()
             if banca:
                 # V5.2.2: Calculate Cumulative Profit from All Trades
-                trades = await firebase_service.get_trade_history(limit=1000)
+                trades = await sovereign_service.get_trade_history(limit=1000)
                 
                 # [V3.0 Hardended PnL Calculation]
                 total_pnl = 0.0
@@ -1273,10 +1273,10 @@ class BankrollManager:
                     "leverage": banca.get("leverage", settings.LEVERAGE),
                     "saldo_total": calculated_equity
                 }
-                await firebase_service.update_banca_status(update_data)
+                await sovereign_service.update_banca_status(update_data)
                 
                 # [V3.0 Refinement] Explicitly log sync success for user verification
-                if firebase_service.rtdb:
+                if sovereign_service.rtdb:
                     logger.info(f"🛰️ RTDB SYNC SUCCESS: Banca Total=${calculated_equity:.2f} | Accumulated Profit=${total_pnl:.2f}")
                 
                 # Snapshot logging: Log once every 6 hours (approx)
@@ -1285,7 +1285,7 @@ class BankrollManager:
                 
                 current_time = time.time()
                 if (current_time - self._last_snapshot_time) > (6 * 3600): # 6 hours
-                    await firebase_service.log_banca_snapshot({
+                    await sovereign_service.log_banca_snapshot({
                          "saldo_total": total_equity,
                          "risco_real_percent": real_risk,
                          "avail_slots": available_slots_count
@@ -1327,7 +1327,7 @@ class BankrollManager:
                     logger.warning(f"Iron Lock: Signal {symbol} is in cooldown (recently closed). BLOCKED.")
                     return None
 
-                active_slots = await firebase_service.get_active_slots(force_refresh=True)
+                active_slots = await sovereign_service.get_active_slots(force_refresh=True)
                 if any(bybit_rest_service._strip_p(S.get("symbol") or "").upper() == norm_symbol for S in active_slots):
                     logger.warning(f"Iron Lock: Signal {symbol} already active in Firebase. BLOCKED.")
                     return None
@@ -1348,7 +1348,7 @@ class BankrollManager:
                 if not trading_allowed:
                     msg = f"Trading Blocked: {reason}"
                     logger.warning(msg)
-                    await firebase_service.log_event("VAULT", msg, "WARNING")
+                    await sovereign_service.log_event("VAULT", msg, "WARNING")
                     return None
                 
                 # [V6.3] ALWAYS check availability inside the lock, even if Captain routed a slot.
@@ -1374,7 +1374,7 @@ class BankrollManager:
                 # [V60.0] THE IRON DOME (Persistent Database Cooldown)
                 # Escreve imediatamente um bloqueio firme e global no Firebase para essa moeda por 120s.
                 # Qualquer restart, re-processamento ou atraso gigantesco no Bybit não deixará o Capitão entrar duplicado.
-                await firebase_service.register_sl_cooldown(symbol, 120)
+                await sovereign_service.register_sl_cooldown(symbol, 120)
                 
                 logger.info(f"Iron Lock: Claimed Slot {slot_id} for {symbol}. Proceeding with execution...")
 
@@ -1599,7 +1599,7 @@ class BankrollManager:
                 margin_usd = (qty * current_price) / current_leverage
                 logger.info(f"{squadron_emoji} {slot_type} DEPLOYING: {side} {qty} {symbol} @ {current_price} | Margin: ${margin_usd:.2f} (Expected: 10% of banca)")
                 
-                await firebase_service.log_event("Captain", f"{squadron_emoji} {slot_type} DEPLOYED: {side} {qty} {symbol} @ {current_price} | Margin: ${margin_usd:.2f}", "SUCCESS")
+                await sovereign_service.log_event("Captain", f"{squadron_emoji} {slot_type} DEPLOYED: {side} {qty} {symbol} @ {current_price} | Margin: ${margin_usd:.2f}", "SUCCESS")
 
                 # [V110.65] Calcula e passa o Ambush Price para entrada mais precisa
                 ambush_price = 0
@@ -1621,7 +1621,7 @@ class BankrollManager:
                     is_reverse_sniper = signal_data.get("is_reverse_sniper", False) if signal_data else False
                     # [V84.2] FORCE PURGE: Limpa o slot fisicamente antes de preencher com o novo trade
                     # Isso garante que maestria_guard_active e outras flags sejam DELETADAS do Firestore.
-                    await firebase_service.hard_reset_slot(slot_id, reason=f"Pre-Open Purge for {symbol}")
+                    await sovereign_service.hard_reset_slot(slot_id, reason=f"Pre-Open Purge for {symbol}")
 
                     # [V110.171 ATOMIC GENESIS] Gera o RG unico atrelado ao orderId da Exchange
                     strategy_type = "BLITZ_30M" if slot_type == "BLITZ_30M" else "SWING"
@@ -1636,7 +1636,7 @@ class BankrollManager:
                     logger.info(f"🧬 [GENESIS-GEN] Slot {slot_id} | {strategy_type} | ID: {genesis_id}")
                     opened_ts = time.time()
 
-                    await firebase_service.update_slot(slot_id, {
+                    await sovereign_service.update_slot(slot_id, {
                         "symbol": symbol,
                         "side": side,
                         "qty": qty,
@@ -1704,7 +1704,7 @@ class BankrollManager:
                         "status": "ACTIVE"
                     }
                     try:
-                        await firebase_service.register_order_genesis(genesis_payload)
+                        await sovereign_service.register_order_genesis(genesis_payload)
                         logger.info(f"[GENESIS] {genesis_id} registrado para {symbol} de forma atômica pós-validação.")
                     except Exception as _ge:
                         logger.warning(f"[GENESIS] Falha ao registrar genesis para {symbol}: {_ge}")
@@ -1735,7 +1735,7 @@ class BankrollManager:
         try:
             # Atomic lock to prevent sync interference
             async with self.execution_lock:
-                slots = await firebase_service.get_active_slots(force_refresh=True)
+                slots = await sovereign_service.get_active_slots(force_refresh=True)
                 slot = next((s for s in slots if s["id"] == slot_id), None)
                 
                 if not slot or not slot.get("symbol"):
@@ -1755,7 +1755,7 @@ class BankrollManager:
                     await bybit_rest_service.close_position(symbol, side, qty, reason=reason)
                 else:
                     # Lixo residual sem quantidade: Limpeza manual
-                    await firebase_service.hard_reset_slot(slot_id, reason=f"CLEANUP_{reason}")
+                    await sovereign_service.hard_reset_slot(slot_id, reason=f"CLEANUP_{reason}")
                 
                 # 3. Register in recently_closed to avoid immediate ghost re-entry
                 self.register_recently_closed(symbol)
@@ -1764,7 +1764,7 @@ class BankrollManager:
                 if slot_id in self.active_slot_memory:
                     del self.active_slot_memory[slot_id]
                 
-                await firebase_service.log_event("Bankroll", f"🛡️ [PREEMPTION] Slot {slot_id} ({symbol}) closed successfully.", "SUCCESS")
+                await sovereign_service.log_event("Bankroll", f"🛡️ [PREEMPTION] Slot {slot_id} ({symbol}) closed successfully.", "SUCCESS")
                 return True
                 
         except Exception as e:
@@ -1774,7 +1774,7 @@ class BankrollManager:
     async def emergency_close_all(self):
         """Panic Button: Closes all open positions immediately."""
         logger.warning("\U0001f6a8 PANIC BUTTON ACTIVATED: Closing all positions!")
-        slots = await firebase_service.get_active_slots()
+        slots = await sovereign_service.get_active_slots()
         
         for slot in slots:
             symbol = slot.get("symbol")
@@ -1791,12 +1791,12 @@ class BankrollManager:
                     logger.error(f"Error closing {symbol}: {e}")
                 
                 # Reset Slot in DB
-                await firebase_service.update_slot(slot["id"], {
+                await sovereign_service.update_slot(slot["id"], {
                     "symbol": None, "side": None, "entry_price": 0, "current_stop": 0, 
                     "status_risco": "LIVRE", "pnl_percent": 0
                 })
         
-        await firebase_service.log_event("Captain", "PANIC BUTTON: All positions closed.", "WARNING")
+        await sovereign_service.log_event("Captain", "PANIC BUTTON: All positions closed.", "WARNING")
         await self.update_banca_status()
         return {"status": "success", "message": "All positions closed"}
 
@@ -1988,7 +1988,7 @@ class BankrollManager:
                 
                 # Nota: O Hedge não ocupa um dos 4 slots sniper, ele transita fora.
                 # Para transparência na UI, podemos enviar um evento.
-                await firebase_service.log_event("SENTINELA", f"🛡️ GUARDIAN HEDGE ATIVADO: {reason}", "CRITICAL")
+                await sovereign_service.log_event("SENTINELA", f"🛡️ GUARDIAN HEDGE ATIVADO: {reason}", "CRITICAL")
                 
                 # Execução via BybitREST (Paper ou Real)
                 pos = await bybit_rest_service.open_position(
@@ -2024,7 +2024,7 @@ class BankrollManager:
                 if success:
                     self.hedge_active = False
                     self.hedge_position_id = None
-                    await firebase_service.log_event("SENTINELA", f"✅ GUARDIAN HEDGE ENCERRADO: {reason}", "SUCCESS")
+                    await sovereign_service.log_event("SENTINELA", f"✅ GUARDIAN HEDGE ENCERRADO: {reason}", "SUCCESS")
                 else:
                     logger.error("❌ Erro ao fechar posição de Hedge.")
             except Exception as e:

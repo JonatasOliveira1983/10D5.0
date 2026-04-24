@@ -3,7 +3,7 @@ import logging
 from dotenv import load_dotenv
 load_dotenv()
 from config import settings
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 
 logging.basicConfig(level=logging.INFO)
@@ -13,12 +13,12 @@ async def check():
     
     # 1. Check Bankroll Data
     print("=== BANCA STATUS IN FIREBASE ===")
-    banca = await firebase_service.get_banca_status()
+    banca = await sovereign_service.get_banca_status()
     print(banca)
     
     # 2. Check Recent Trades (last 20)
     print("\n=== RECENT TRADES (RECORD) ===")
-    trades = await firebase_service.get_trade_history(limit=20)
+    trades = await sovereign_service.get_trade_history(limit=20)
     for t in trades[:10]:
         print(f"[{t.get('timestamp')}] {t.get('symbol')} | {t.get('side')} | PnL: {t.get('pnl', 0)} ({t.get('pnl_percent', 0)}%) | Close Reason: {t.get('reason_for_closure', 'Unknown')} | Entry: {t.get('entry_price')} | Exit: {t.get('exit_price')}")
         
@@ -35,7 +35,7 @@ async def check():
         
     # 4. Active Slots in Firebase
     print("\n=== ACTIVE SLOTS ===")
-    slots = await firebase_service.get_active_slots()
+    slots = await sovereign_service.get_active_slots()
     for s in slots:
         print(f"Slot {s.get('id')} | {s.get('symbol')} | {s.get('side')} | Entry: {s.get('entry_price')}")
 

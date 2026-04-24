@@ -3,7 +3,7 @@ import asyncio
 import time
 import traceback
 from typing import Dict, Any, List
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 from services.agents.aios_adapter import AIOSAgent
 
@@ -60,7 +60,7 @@ class FleetAudit(AIOSAgent):
         
         try:
             # 1. Fetch current state
-            slots = await firebase_service.get_active_slots()
+            slots = await sovereign_service.get_active_slots()
             active_slots = [s for s in slots if s.get("symbol")]
             
             # 2. [V7.0] EARLY ROI PANIC PROTECTION
@@ -91,14 +91,14 @@ class FleetAudit(AIOSAgent):
                         else:
                             await bybit_rest_service.paper_close_position(sym)
                             
-                        await firebase_service.hard_reset_slot(s["id"], "EARLY_ROI_PANIC", pnl)
-                        await firebase_service.log_event("AUDIT", msg, "CRITICAL")
+                        await sovereign_service.hard_reset_slot(s["id"], "EARLY_ROI_PANIC", pnl)
+                        await sovereign_service.log_event("AUDIT", msg, "CRITICAL")
                         continue
 
             # 3. [V110.125] State Parity (REAL MODE ONLY)
             if execution_mode == "REAL":
                 real_positions = await bybit_rest_service.get_active_positions()
-                moonbags = await firebase_service.get_moonbags()
+                moonbags = await sovereign_service.get_moonbags()
                 
                 # Active symbols on Bybit (Normalized)
                 active_real_symbols = { p.get("symbol", "").replace(".P","").upper() for p in real_positions }
@@ -142,9 +142,9 @@ class FleetAudit(AIOSAgent):
                         await bybit_rest_service.set_trading_stop(category="linear", symbol=symbol, stopLoss=str(recovery_sl))
                         
                         if db_entry["type"] == "SLOT":
-                            await firebase_service.update_slot(slot_or_moon["id"], {"current_stop": recovery_sl})
+                            await sovereign_service.update_slot(slot_or_moon["id"], {"current_stop": recovery_sl})
                         else:
-                            await firebase_service.update_moonbag(slot_or_moon["id"], {"current_stop": recovery_sl})
+                            await sovereign_service.update_moonbag(slot_or_moon["id"], {"current_stop": recovery_sl})
 
                 # --- B. Check DB -> Bybit (Find Ghost Moonbags in Firestore) ---
                 for m in moonbags:
@@ -158,8 +158,8 @@ class FleetAudit(AIOSAgent):
                         
                     if symbol not in active_real_symbols:
                         logger.warning(f"🌙 [AUDIT] GHOST MOONBAG IN DB: {symbol} ({moon_id}). PURGING.")
-                        await firebase_service.remove_moonbag(moon_id, reason="AUDIT_GHOST_DB")
-                        await firebase_service.log_event("AUDIT", f"Purga de Moonbag Fantasma: {symbol}", "INFO")
+                        await sovereign_service.remove_moonbag(moon_id, reason="AUDIT_GHOST_DB")
+                        await sovereign_service.log_event("AUDIT", f"Purga de Moonbag Fantasma: {symbol}", "INFO")
 
             # 4. [V110.136.2 F2] PAPER Ghost Moonbag Cleanup
             # Em PAPER mode, a verificacao de paridade nao rodava. Moonbags fantasmas
@@ -167,7 +167,7 @@ class FleetAudit(AIOSAgent):
             elif execution_mode == "PAPER":
                 try:
                     from services.bybit_rest import bybit_rest_service as bbs
-                    moonbags_fb = await firebase_service.get_moonbags()
+                    moonbags_fb = await sovereign_service.get_moonbags()
                     paper_moon_syms = {
                         p.get("symbol", "").replace(".P", "").upper()
                         for p in bbs.paper_moonbags
@@ -182,13 +182,13 @@ class FleetAudit(AIOSAgent):
                         if m_symbol not in paper_moon_syms:
                             msg = f"[PAPER-AUDIT] GHOST MOONBAG: {m_symbol} ({moon_id}) no Firestore mas ausente em paper_moonbags. Purgando."
                             logger.warning(msg)
-                            await firebase_service.remove_moonbag(moon_id, reason="PAPER_AUDIT_GHOST")
-                            await firebase_service.log_event("AUDIT", msg, "INFO")
+                            await sovereign_service.remove_moonbag(moon_id, reason="PAPER_AUDIT_GHOST")
+                            await sovereign_service.log_event("AUDIT", msg, "INFO")
                 except Exception as paper_err:
                     logger.error(f"[PAPER-AUDIT] Erro no ghost cleanup: {paper_err}")
 
             # Update system pulse
-            await firebase_service.update_system_state(
+            await sovereign_service.update_system_state(
                 "SCANNING",
                 0,
                 "Fleet Audit Complete",

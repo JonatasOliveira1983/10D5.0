@@ -6,7 +6,7 @@ import sys
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(current_dir))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from firebase_admin import credentials
 
 async def test_conn():
@@ -35,14 +35,14 @@ async def test_conn():
                 options = {'databaseURL': settings.FIREBASE_DATABASE_URL}
                 firebase_admin.initialize_app(cred, options)
             
-            firebase_service.db = firestore.client()
-            firebase_service.rtdb = db.reference("/")
-            firebase_service.is_active = True
+            sovereign_service.db = firestore.client()
+            sovereign_service.rtdb = db.reference("/")
+            sovereign_service.is_active = True
             print("--- Firebase initialized successfully in test script!")
             
             # Test a simple write
             print("Testing write to 'system_logs'...")
-            doc_ref = firebase_service.db.collection("system_logs").add({
+            doc_ref = sovereign_service.db.collection("system_logs").add({
                 "agent": "SurgicalReset",
                 "message": "Connection test success",
                 "timestamp": datetime.datetime.now().isoformat()

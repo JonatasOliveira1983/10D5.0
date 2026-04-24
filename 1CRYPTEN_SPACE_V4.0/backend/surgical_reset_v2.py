@@ -6,11 +6,11 @@ import json
 # Ensure backend module can be imported
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def surgical_reset():
     print("🚀 Starting SURGICAL RESET V2.0...")
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
     # 1. Reset Slots to IDLE
     print("1. Clearing Slots 1 to 4...")
@@ -21,7 +21,7 @@ async def surgical_reset():
     }
     for i in range(1, 5):
         try:
-            await firebase_service.update_slot(i, empty_slot)
+            await sovereign_service.update_slot(i, empty_slot)
             print(f"  ✅ Slot {i} cleared.")
         except Exception as e:
             print(f"  ❌ Error slot {i}: {e}")
@@ -29,7 +29,7 @@ async def surgical_reset():
     # 2. Clear Collections (History, Vault, Signals)
     collections_to_clear = ["trade_history", "vault_management", "signals", "radar_pulse"]
     print(f"2. Clearing Firestore Collections: {collections_to_clear}...")
-    db = firebase_service.db
+    db = sovereign_service.db
     for coll_name in collections_to_clear:
         try:
             docs = db.collection(coll_name).limit(500).stream()
@@ -44,7 +44,7 @@ async def surgical_reset():
     # 3. Reset Banca in Firestore
     print("3. Resetting Banca Status to $100.00...")
     try:
-        await firebase_service.update_banca_status({
+        await sovereign_service.update_banca_status({
             "configured_balance": 100.0,
             "saldo_total": 100.0,
             "saldo_real_bybit": 0.0,
@@ -72,10 +72,10 @@ async def surgical_reset():
         print(f"  ❌ Error resetting paper_storage: {e}")
 
     # 5. Reset RTDB Vault status
-    if firebase_service.rtdb:
+    if sovereign_service.rtdb:
         print("5. Resetting RTDB Vault Status...")
         try:
-            firebase_service.rtdb.child("vault_status").set({
+            sovereign_service.rtdb.child("vault_status").set({
                 "cycle_profit": 0,
                 "vault_total": 0,
                 "updated_at": 0

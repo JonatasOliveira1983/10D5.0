@@ -4,18 +4,18 @@ import sys
 
 sys.path.append(os.getcwd())
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 
 async def wipe_slots():
     print("[WIPE] Starting absolute slot purge...")
-    if not firebase_service.is_active:
-        await firebase_service.initialize()
+    if not sovereign_service.is_active:
+        await sovereign_service.initialize()
     
     # 1. Clear Tactical Slots in Firestore (1 to 4)
     for i in range(1, 5):
         print(f"Cleaning Firestore Slot {i}...")
-        await firebase_service.hard_reset_slot(i, reason="USER_MANUAL_PURGE")
+        await sovereign_service.hard_reset_slot(i, reason="USER_MANUAL_PURGE")
         
     # 2. Clear Paper Positions in BybitREST Memory (to prevent re-adoption)
     print("Clearing BybitREST Paper Memory...")
@@ -24,10 +24,10 @@ async def wipe_slots():
     await bybit_rest_service._save_paper_state()
     
     # 3. Clear RTDB Slots
-    if firebase_service.rtdb:
+    if sovereign_service.rtdb:
         print("Cleaning RTDB Slots...")
         for i in range(1, 5):
-            firebase_service.rtdb.child("slots").child(str(i)).update({
+            sovereign_service.rtdb.child("slots").child(str(i)).update({
                 "symbol": None,
                 "status_risco": "LIVRE",
                 "pnl_percent": 0,

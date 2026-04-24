@@ -8,7 +8,7 @@ import logging
 # Adicionar path do backend
 sys.path.append(os.getcwd())
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 from services.bankroll import bankroll_manager
 
@@ -52,7 +52,7 @@ async def force_close_kite():
     # 2. Buscar e Limpar no Firebase
     print("🔥 [FIREBASE] Auditoria e limpeza de slots/moonbags...")
     moon_uuid = None
-    moon_docs = await firebase_service.get_moonbags()
+    moon_docs = await sovereign_service.get_moonbags()
     for m in moon_docs:
         if m.get("symbol") == "KITEUSDT":
             moon_uuid = m.get("id")
@@ -61,14 +61,14 @@ async def force_close_kite():
     if moon_uuid:
         print(f"🛡️ Removendo KITE (Vault Position: {moon_uuid}) do Firebase.")
         # Limpar o documento da Moonbag
-        await firebase_service.delete_moonbag(moon_uuid)
+        await sovereign_service.delete_moonbag(moon_uuid)
     
     # Check slots táticos
-    slots = await firebase_service.get_active_slots()
+    slots = await sovereign_service.get_active_slots()
     for s in slots:
         if s.get("symbol") == "KITEUSDT":
             print(f"🧹 Limpando Slot Tático {s['id']} ocupado pela KITE.")
-            await firebase_service.hard_reset_slot(s["id"], reason="MANUAL_PURGE_KITE")
+            await sovereign_service.hard_reset_slot(s["id"], reason="MANUAL_PURGE_KITE")
             
     print("💯 Liquidação concluída com sucesso. Almirante, a KITE agora é HISTÓRIA e LUCRO.")
 

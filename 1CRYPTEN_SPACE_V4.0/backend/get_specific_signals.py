@@ -1,17 +1,17 @@
 import asyncio
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 import platform
 
 if platform.system() == 'Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 async def run():
-    await firebase_service.initialize()
-    if not firebase_service.db:
+    await sovereign_service.initialize()
+    if not sovereign_service.db:
         print("Erro db")
         return
     
-    signals_ref = firebase_service.db.collection('journey_signals')
+    signals_ref = sovereign_service.db.collection('journey_signals')
     
     print("\n--- Recent LTCUSDT Signals ---")
     query_ltc = signals_ref.where('symbol', '==', 'LTCUSDT').order_by('timestamp', direction='DESCENDING').limit(5)

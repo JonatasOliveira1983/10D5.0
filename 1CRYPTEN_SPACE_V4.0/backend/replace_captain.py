@@ -26,7 +26,7 @@ new_methods = '''    async def monitor_signals(self):
         Picks the best signals and manages concurrent trades.
         """
         self.is_running = True
-        await firebase_service.log_event("SNIPER", "Sniper System V36.4 CONCURRENT ONLINE. Tocaias assíncronas ativadas.", "SUCCESS")
+        await sovereign_service.log_event("SNIPER", "Sniper System V36.4 CONCURRENT ONLINE. Tocaias assíncronas ativadas.", "SUCCESS")
         
         while self.is_running:
             try:
@@ -42,7 +42,7 @@ new_methods = '''    async def monitor_signals(self):
                     continue
 
                 # Check available slots
-                slots = await firebase_service.get_active_slots()
+                slots = await sovereign_service.get_active_slots()
                 if bybit_rest_service.execution_mode == "PAPER":
                     occupied_count = len(bybit_rest_service.paper_positions)
                 else:
@@ -112,7 +112,7 @@ new_methods = '''    async def monitor_signals(self):
                         allow_momentum = True
                     if not allow_momentum:
                         logger.info(f"⏭️ {symbol} rejeitado: SCORE={score} em LAYER={signal_layer}")
-                        await firebase_service.update_signal_outcome(best_signal["id"], "MOMENTUM_BLOCKED")
+                        await sovereign_service.update_signal_outcome(best_signal["id"], "MOMENTUM_BLOCKED")
                         return
 
             side = best_signal.get("side", "Buy")
@@ -126,14 +126,14 @@ new_methods = '''    async def monitor_signals(self):
                     logger.info(f"⚡ V12.5 ELITE BYPASS: {symbol} ignoring cooldown")
                 else:
                     logger.info(f"⏱️ {symbol} no cooldown. Abortando.")
-                    await firebase_service.update_signal_outcome(best_signal["id"], "COOLDOWN_SKIP")
+                    await sovereign_service.update_signal_outcome(best_signal["id"], "COOLDOWN_SKIP")
                     return
 
             consensus = await self._get_fleet_consensus(best_signal)
             if not consensus["approved"]:
                 reason = consensus["reason"]
                 logger.info(f"🚫 [FLEET] {symbol} REJEITADO: {reason}")
-                await firebase_service.update_signal_outcome(best_signal["id"], f"FLEET_REJECTED: {reason}")
+                await sovereign_service.update_signal_outcome(best_signal["id"], f"FLEET_REJECTED: {reason}")
                 return
             
             fleet_intel = consensus["intel"]
@@ -153,21 +153,21 @@ new_methods = '''    async def monitor_signals(self):
             if not price_check["confirmed"]:
                 rejection = price_check.get("rejection_type", "UNKNOWN")
                 logger.info(f"⏭️ [PULLBACK HUNTER] {symbol} REJEITADO: {rejection}")
-                await firebase_service.update_signal_outcome(best_signal["id"], f"FAKE_MOVE_{rejection}")
+                await sovereign_service.update_signal_outcome(best_signal["id"], f"FAKE_MOVE_{rejection}")
                 return
                 
-            await firebase_service.update_signal_outcome(best_signal["id"], "PRICE_STRUCTURE_OK")
+            await sovereign_service.update_signal_outcome(best_signal["id"], "PRICE_STRUCTURE_OK")
             best_signal["adaptive_sl"] = price_check.get("adaptive_sl", 0)
 
             flip_confirmed = await self._wait_for_needle_flip(symbol, side, max_wait=10, signal_data=best_signal)
             if not flip_confirmed:
                 logger.info(f"⏭️ [NEEDLE FLIP] {symbol} não confirmou exaustão CVD+Volume.")
-                await firebase_service.update_signal_outcome(best_signal["id"], "NEEDLE_FLIP_FAIL")
+                await sovereign_service.update_signal_outcome(best_signal["id"], "NEEDLE_FLIP_FAIL")
                 return
                 
-            await firebase_service.update_signal_outcome(best_signal["id"], "NEEDLE_FLIP_OK")
+            await sovereign_service.update_signal_outcome(best_signal["id"], "NEEDLE_FLIP_OK")
             logger.info(f"🎯 V36.4 PULLBACK ALVO PRONTO: {symbol}")
-            await firebase_service.update_signal_outcome(best_signal["id"], "PICKED")
+            await sovereign_service.update_signal_outcome(best_signal["id"], "PICKED")
             
             reasoning = best_signal.get("reasoning", "High Momentum")
             pensamento = f"V33.0 Pullback Hunter: Price Structure OK + Needle Flip OK. {reasoning} | Score: {score} | Fleet: {fleet_intel.get('sentiment', 'N/A')}"
@@ -185,14 +185,14 @@ new_methods = '''    async def monitor_signals(self):
                 sym_trades = {'count': 0, 'first_trade_at': time.time()}
             if sym_trades['count'] >= 3:
                 logger.info(f"🚫 [ANTI-CONCENTRATION] {symbol} bloqueado (limite 3 trades/dia).")
-                await firebase_service.update_signal_outcome(best_signal["id"], "CONCENTRATION_BLOCK")
+                await sovereign_service.update_signal_outcome(best_signal["id"], "CONCENTRATION_BLOCK")
                 return
                 
             # VERIFICAR E TRAVAR SLOT no ÚLTIMO MILISSEGUNDO!
             slot_id = await bankroll_manager.can_open_new_slot(symbol=symbol)
             if not slot_id:
                 logger.info(f"🚨 [V36.4] Tocaia finalizada para {symbol}, mas todos os slots foram roubados! Abortando.")
-                await firebase_service.update_signal_outcome(best_signal["id"], "SLOTS_FULL_LATE_REJECT")
+                await sovereign_service.update_signal_outcome(best_signal["id"], "SLOTS_FULL_LATE_REJECT")
                 return
                 
             order = await bankroll_manager.open_position(

@@ -58,8 +58,8 @@ class BybitREST:
         """[V110.23.5] Global Loader - loads paper positions and balance from Firestore. Resilient to Cloud Run restarts."""
         if self.execution_mode != "PAPER": return
         try:
-            from services.firebase_service import firebase_service
-            data = await firebase_service.get_paper_state()
+            from services.sovereign_service import sovereign_service
+            data = await sovereign_service.get_paper_state()
             
             if data:
                 self.paper_positions = data.get("positions", [])
@@ -73,8 +73,8 @@ class BybitREST:
 
                 # [V110.28.5] Auto-Healing: Sincronia ativa com o Vault Real (Firestore)
                 # Garante que se uma Moonbag existe no Vault mas não na RAM, ela seja adotada.
-                if hasattr(firebase_service, "get_all_moonbags"):
-                    vault_moons = await firebase_service.get_all_moonbags()
+                if hasattr(sovereign_service, "get_all_moonbags"):
+                    vault_moons = await sovereign_service.get_all_moonbags()
                     if vault_moons:
                         ram_symbols = {m.get("symbol") for m in self.paper_moonbags}
                         for v_moon in vault_moons:
@@ -101,7 +101,7 @@ class BybitREST:
                 # Se existem ordens nos slots ativos do Firestore que NÃO estão na memória local,
                 # nós as restauramos para evitar a purga prematura pelo Ghostbuster.
                 try:
-                    firestore_slots = await firebase_service.get_active_slots(force_refresh=True)
+                    firestore_slots = await sovereign_service.get_active_slots(force_refresh=True)
                     if firestore_slots:
                         local_symbols = {p.get("symbol") for p in self.paper_positions}
                         for f_slot in firestore_slots:
@@ -138,14 +138,14 @@ class BybitREST:
         if self.execution_mode != "PAPER": return
         async with self._paper_save_lock:
             try:
-                from services.firebase_service import firebase_service
+                from services.sovereign_service import sovereign_service
                 data = {
                     "positions": self.paper_positions,
                     "moonbags": self.paper_moonbags,
                     "balance": self.paper_balance,
                     "history": self.paper_orders_history[-50:] # Keep last 50 only
                 }
-                await firebase_service.update_paper_state(data)
+                await sovereign_service.update_paper_state(data)
                 # logger.debug("💾 [V110.23.5 PAPER] Global State saved to Firestore.")
             except Exception as e:
                 logger.error(f"❌ [PAPER] Failed to save global state: {e}")
@@ -185,10 +185,10 @@ class BybitREST:
                     logger.warning(f"🗑️ [FACTORY-RESET] Arquivo de estado deletado: {self.PAPER_STORAGE_FILE}")
                 
                 # Sincroniza limpo com RTDB/Firestore imediatamente
-                from services.firebase_service import firebase_service
+                from services.sovereign_service import sovereign_service
                 await self._save_paper_state()
-                if hasattr(firebase_service, "update_bankroll"):
-                    await firebase_service.update_bankroll(self.paper_balance)
+                if hasattr(sovereign_service, "update_bankroll"):
+                    await sovereign_service.update_bankroll(self.paper_balance)
                 logger.warning(f"✅ [FACTORY-RESET] Sistema purificado e balanceado em ${self.paper_balance:.2f}.")
                 return # Pula o carregamento de estado normal
         except Exception as e:
@@ -830,8 +830,8 @@ class BybitREST:
                             unified_confidence = 50
                             pensamento = ""
                             if slot_id > 0:
-                                from services.firebase_service import firebase_service
-                                slot_state = await firebase_service.get_slot(slot_id)
+                                from services.sovereign_service import sovereign_service
+                                slot_state = await sovereign_service.get_slot(slot_id)
                                 if slot_state:
                                     fleet_intel = slot_state.get("fleet_intel", {})
                                     unified_confidence = slot_state.get("unified_confidence", 50)
@@ -885,12 +885,12 @@ class BybitREST:
                                 )
                                 # Atualizar Firebase do Moonbag (se aplicável) sem resetar o slot
                                 if slot_id > 0:
-                                    from services.firebase_service import firebase_service
+                                    from services.sovereign_service import sovereign_service
                                     # Se é um moonbag (emancipado), atualizar o registro do vault
-                                    moonbags_state = await firebase_service.get_moonbags()
+                                    moonbags_state = await sovereign_service.get_moonbags()
                                     t_moon = next((m for m in moonbags_state if self._strip_p(m.get("symbol", "")) == norm_symbol), None)
                                     if t_moon:
-                                        await firebase_service.update_moonbag(t_moon["id"], {
+                                        await sovereign_service.update_moonbag(t_moon["id"], {
                                             "qty": remaining_qty,
                                             "entry_margin": round(remaining_qty * entry_price / leverage, 2),
                                             "harvest_pnl_accumulated": round(
@@ -910,8 +910,8 @@ class BybitREST:
                                 logger.info(f"🛑 [PAPER-CLOSE] Full Close: {symbol} removido das posições.")
 
                                 if slot_id > 0:
-                                    from services.firebase_service import firebase_service
-                                    await firebase_service.hard_reset_slot(slot_id, reason=f"PAPER_CLOSE_ATOMIC_{reason}", pnl=final_pnl, trade_data=trade_data)
+                                    from services.sovereign_service import sovereign_service
+                                    await sovereign_service.hard_reset_slot(slot_id, reason=f"PAPER_CLOSE_ATOMIC_{reason}", pnl=final_pnl, trade_data=trade_data)
                                     logger.info(f"🧹 [PAPER-SYNC] Slot {slot_id} resetado com audit log.")
 
                         except Exception as atomic_err:
@@ -1217,15 +1217,15 @@ class BybitREST:
             return
 
         from services.execution_protocol import execution_protocol
-        from services.firebase_service import firebase_service
+        from services.sovereign_service import sovereign_service
 
         logger.info("🚀 [V110.0] REAL Execution Engine (Tactical + Vault) ACTIVATING...")
 
         while True:
             try:
                 # 1. Get active slots AND moonbags from Firebase
-                slots = await firebase_service.get_active_slots()
-                moonbags = await firebase_service.get_moonbags()
+                slots = await sovereign_service.get_active_slots()
+                moonbags = await sovereign_service.get_moonbags()
                 
                 active_tactical = [s for s in slots if s.get("symbol") and s.get("entry_price", 0) > 0]
                 active_positions = active_tactical + moonbags
@@ -1257,7 +1257,7 @@ class BybitREST:
                             opened_at = slot.get("opened_at", 0)
                             if (time.time() - opened_at) > 300: # 5 min grace period
                                 logger.warning(f"🌙 [GHOST-PURGE] Moonbag {symbol} não encontrada na Bybit. Removendo do Vault.")
-                                await firebase_service.remove_moonbag(moon_uuid, reason="GHOST_SYCH_BYBIT")
+                                await sovereign_service.remove_moonbag(moon_uuid, reason="GHOST_SYCH_BYBIT")
                                 continue
 
                         slot_data = {
@@ -1289,8 +1289,8 @@ class BybitREST:
                         # [SENTINEL 3.0] Ativação da Paciência Diplomática
                         if reason == "SENTINEL_ACTIVATE":
                             upd = {"sentinel_first_hit_at": new_sl} 
-                            if is_moonbag: await firebase_service.update_moonbag(moon_uuid, upd)
-                            else: await firebase_service.update_slot(slot["id"], upd)
+                            if is_moonbag: await sovereign_service.update_moonbag(moon_uuid, upd)
+                            else: await sovereign_service.update_slot(slot["id"], upd)
                             continue
 
                         # [V110.6] EMANCIPATION TRIGGER (Real Mode)
@@ -1327,11 +1327,11 @@ class BybitREST:
                                 
                                 # 3. SOMENTE se a Bybit confirmar, promove no Firebase
                                 if success:
-                                    new_moon_uuid = await firebase_service.promote_to_moonbag(slot.get("id"))
+                                    new_moon_uuid = await sovereign_service.promote_to_moonbag(slot.get("id"))
                                     if new_moon_uuid:
                                         logger.info(f"✅ [V110.6] {symbol} promovido para Moonbag após confirmação da Bybit.")
                                         if rounded_sl > 0:
-                                            await firebase_service.update_moonbag(new_moon_uuid, {"current_stop": rounded_sl, "timestamp_last_update": time.time()})
+                                            await sovereign_service.update_moonbag(new_moon_uuid, {"current_stop": rounded_sl, "timestamp_last_update": time.time()})
                                 else:
                                     logger.warning(f"⚠️ [V110.6] Emancipação abortada para {symbol} devido a falha na corretora. O slot permanece tático.")
                             finally:
@@ -1356,14 +1356,14 @@ class BybitREST:
                                 )
                                 if result.get("retCode") == 0:
                                     upd = {"current_stop": rounded_sl, "timestamp_last_update": time.time()}
-                                    if is_moonbag: await firebase_service.update_moonbag(moon_uuid, upd)
-                                    else: await firebase_service.update_slot(slot["id"], upd)
+                                    if is_moonbag: await sovereign_service.update_moonbag(moon_uuid, upd)
+                                    else: await sovereign_service.update_slot(slot["id"], upd)
                                     logger.info(f"🛡️ [REAL SL] {symbol} ROI: {execution_protocol.calculate_roi(slot_data['entry_price'], current_price, side_norm):.1f}% | SL: {rounded_sl}")
 
                         # 5b. Status Updates Sem Fechamento (ex: MAESTRIA)
                         if reason == "MAESTRIA_GUARD_ACTIVATE" and not should_close:
-                            if is_moonbag: await firebase_service.update_moonbag(moon_uuid, {"maestria_guard_active": True})
-                            else: await firebase_service.update_slot(slot["id"], {"maestria_guard_active": True})
+                            if is_moonbag: await sovereign_service.update_moonbag(moon_uuid, {"maestria_guard_active": True})
+                            else: await sovereign_service.update_slot(slot["id"], {"maestria_guard_active": True})
 
                         # 5b. Handle Partial Harvest or Full Closure
                         elif should_close or reason == "PARTIAL_HARVEST":
@@ -1408,7 +1408,7 @@ class BybitREST:
                                                 await bankroll_manager.register_sniper_trade(trade_data)
                                                 
                                                 # Update moonbag record with new qty
-                                                await firebase_service.update_moonbag(moon_uuid, {
+                                                await sovereign_service.update_moonbag(moon_uuid, {
                                                     "qty": q - close_qty,
                                                     "entry_margin": ((q - close_qty) * entry_p) / 50.0,
                                                     "pensamento": f"🌾 Colheita de 500% ROI realizada em {harvest_res.get('target_level')}"
@@ -1438,7 +1438,7 @@ class BybitREST:
                                                 "order_id": f"{symbol.replace('.P','')}_{slot.get('opened_at', int(time.time()))}"
                                             }
                                             await bankroll_manager.register_sniper_trade(trade_data)
-                                            await firebase_service.remove_moonbag(moon_uuid, reason=reason)
+                                            await sovereign_service.remove_moonbag(moon_uuid, reason=reason)
                                         elif success and not is_moonbag:
                                             # Slots normais são pegos pelo Position Reaper, mas vamos garantir o order_id
                                             pass
@@ -1487,7 +1487,7 @@ class BybitREST:
 
         from services.bybit_ws import bybit_ws_service
         from services.execution_protocol import execution_protocol
-        from services.firebase_service import firebase_service
+        from services.sovereign_service import sovereign_service
 
         logger.info("🚀 [V110.12.12] PAPER Execution Engine (Tactical + Vault) ACTIVATING...")
         
@@ -1516,7 +1516,7 @@ class BybitREST:
                         if t_list: price_map[sym] = float(t_list[0].get("lastPrice", 0))
 
                 # 2. Get Firebase slots
-                slots = await firebase_service.get_active_slots()
+                slots = await sovereign_service.get_active_slots()
                 slots_by_symbol = {self._strip_p(s.get("symbol")): s for s in slots if s.get("symbol")}
 
                 # 3. Process each position
@@ -1565,11 +1565,11 @@ class BybitREST:
                                 "sl_phase": current_phase
                             }
                             if is_moonbag:
-                                moonbags_fb = await firebase_service.get_moonbags()
+                                moonbags_fb = await sovereign_service.get_moonbags()
                                 t_moon = next((m for m in moonbags_fb if m.get("symbol") == symbol), None)
-                                if t_moon: await firebase_service.update_moonbag(t_moon["id"], upd)
+                                if t_moon: await sovereign_service.update_moonbag(t_moon["id"], upd)
                             elif slot:
-                                await firebase_service.update_slot(slot["id"], upd)
+                                await sovereign_service.update_slot(slot["id"], upd)
                             continue  # EARLY EXIT: nunca chega no bloco de SL abaixo
 
                         # Se houve mudança de SL pela Escadinha
@@ -1583,7 +1583,7 @@ class BybitREST:
                                 pos["stopLoss"] = str(new_sl)
                                 if slot:
                                     current_phase = execution_protocol.get_sl_phase(roi, scale=1.0, slot_data=slot_data)
-                                    await firebase_service.update_slot(slot["id"], {
+                                    await sovereign_service.update_slot(slot["id"], {
                                         "current_stop": new_sl,
                                         "visual_status": current_phase,
                                         "sl_phase": current_phase
@@ -1597,7 +1597,7 @@ class BybitREST:
                         if slot and int(time.time()) % 5 == 0: # A cada ~5s
                             current_phase = execution_protocol.get_sl_phase(roi, scale=1.0, slot_data=slot_data)
                             if slot.get("visual_status") != current_phase:
-                                await firebase_service.update_slot(slot["id"], {
+                                await sovereign_service.update_slot(slot["id"], {
                                     "visual_status": current_phase,
                                     "sl_phase": current_phase
                                 })
@@ -1628,11 +1628,11 @@ class BybitREST:
                                 
                                 # 2. Promove no Firebase (Liberação da vaga tática)
                                 # Somente após o estado local estar salvo
-                                moon_uuid = await firebase_service.promote_to_moonbag(slot["id"]) if slot else None
+                                moon_uuid = await sovereign_service.promote_to_moonbag(slot["id"]) if slot else None
                                 if moon_uuid:
                                     pos["moon_uuid"] = moon_uuid # [V110.128.1] Persist ID for atomic closure
                                     if new_sl:
-                                        await firebase_service.update_moonbag(moon_uuid, {"current_stop": new_sl, "timestamp_last_update": time.time()})
+                                        await sovereign_service.update_moonbag(moon_uuid, {"current_stop": new_sl, "timestamp_last_update": time.time()})
                                     logger.info(f"[V110.6 PAPER] {symbol} promovido com sucesso no Firebase (ID: {moon_uuid}).")
                                 else:
                                     # [V110.136.2 F1] EMANCIPATION RETRY GUARD
@@ -1664,17 +1664,17 @@ class BybitREST:
                                 pos["stopLoss"] = str(new_sl)
                                 await self._save_paper_state()
                                 if is_moonbag:
-                                    moonbags = await firebase_service.get_moonbags()
+                                    moonbags = await sovereign_service.get_moonbags()
                                     target_moon = next((m for m in moonbags if m.get("symbol") == symbol), None)
-                                    if target_moon: await firebase_service.update_moonbag(target_moon["id"], {"current_stop": new_sl})
+                                    if target_moon: await sovereign_service.update_moonbag(target_moon["id"], {"current_stop": new_sl})
                                 elif slot:
-                                    await firebase_service.update_slot(slot["id"], {"current_stop": new_sl})
+                                    await sovereign_service.update_slot(slot["id"], {"current_stop": new_sl})
 
                         # 4b. Status Updates Sem Fechamento (ex: MAESTRIA)
                         if reason == "MAESTRIA_GUARD_ACTIVATE" and not should_close:
                             pos["maestria_guard_active"] = True
                             await self._save_paper_state()
-                            if slot: await firebase_service.update_slot(slot["id"], {"maestria_guard_active": True})
+                            if slot: await sovereign_service.update_slot(slot["id"], {"maestria_guard_active": True})
 
                         # 4b. Close or Partial Harvest
                         elif should_close or reason == "PARTIAL_HARVEST":
@@ -1726,12 +1726,12 @@ class BybitREST:
                                         # [V110.128.1] Use saved moon_uuid if available to avoid search failure
                                         target_id = pos.get("moon_uuid")
                                         if not target_id:
-                                            moonbags = await firebase_service.get_moonbags()
+                                            moonbags = await sovereign_service.get_moonbags()
                                             target_moon = next((m for m in moonbags if m.get("symbol") == symbol), None)
                                             target_id = target_moon["id"] if target_moon else None
                                         
                                         if target_id:
-                                            await firebase_service.remove_moonbag(target_id, reason=reason)
+                                            await sovereign_service.remove_moonbag(target_id, reason=reason)
                                         else:
                                             logger.warning(f"⚠️ [PAPER-GHOST-WARD] {symbol} (Moonbag) closed but no Firebase ID found to remove.")
                             except Exception as pe: logger.error(f"Error handling paper closure/harvest for {symbol}: {pe}")
@@ -1769,12 +1769,12 @@ class BybitREST:
                         await self.redis.publish_update("ui_updates", {"type": "PNL_PULSE", "data": pnl_summary})
                         # [V110.118 FIX-B] Publicar também no RTDB para que o PWA receba PnL dinâmico
                         # (o PWA assina RTDB, não Redis — sem isso o PnL fica estático)
-                        if firebase_service.rtdb:
+                        if sovereign_service.rtdb:
                             try:
                                 total_float_roi = sum(p["roi"] for p in pnl_summary)
                                 total_float_pnl = sum(p["pnl_usd"] for p in pnl_summary)
                                 await asyncio.to_thread(
-                                    firebase_service.rtdb.child("live_pnl").update,
+                                    sovereign_service.rtdb.child("live_pnl").update,
                                     {
                                         "slots_roi": {p["symbol"]: round(p["roi"], 1) for p in pnl_summary},
                                         "slots_pnl": {p["symbol"]: round(p["pnl_usd"], 2) for p in pnl_summary},

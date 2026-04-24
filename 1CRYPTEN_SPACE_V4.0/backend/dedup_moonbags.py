@@ -7,14 +7,14 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(base_dir)
 
 from config import settings
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def main():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     print("🧹 Iniciando limpeza de Moonbags duplicadas...")
     
     # Busca todas as moonbags
-    moonbags = await firebase_service.get_moonbags(limit=100)
+    moonbags = await sovereign_service.get_moonbags(limit=100)
     seen_symbols = set()
     to_delete = []
     
@@ -34,7 +34,7 @@ async def main():
     
     for uid, sym in to_delete:
         print(f"Removendo cópia de {sym} (ID: {uid})...")
-        await firebase_service.remove_moonbag(uid, reason="Deduplication")
+        await sovereign_service.remove_moonbag(uid, reason="Deduplication")
         
     print("✅ Limpeza concluída!")
 

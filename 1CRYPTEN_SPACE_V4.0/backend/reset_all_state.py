@@ -4,17 +4,17 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def reset_all():
     print("Conectando ao Firebase...")
-    await firebase_service.initialize()
-    await firebase_service.initialize_db()
+    await sovereign_service.initialize()
+    await sovereign_service.initialize_db()
 
     print("Limpando 4 slots...")
     for i in range(1, 5):
         try:
-            await firebase_service.update_slot(i, {
+            await sovereign_service.update_slot(i, {
                 "symbol": None, "entry_price": 0, "current_stop": 0, "entry_margin": 0,
                 "status_risco": "LIVRE", "side": None, "pnl_percent": 0
             })
@@ -24,7 +24,7 @@ async def reset_all():
 
     print("Resetando banca para $100...")
     try:
-        await firebase_service.update_banca_status({
+        await sovereign_service.update_banca_status({
             "saldo_total": 100.0,
             "configured_balance": 100.0,
             "lucro_total_acumulado": 0.0,

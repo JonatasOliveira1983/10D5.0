@@ -4,14 +4,14 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def unlock_bot():
     print("Conectando ao Firebase para desbloquear o sistema (Resetando META 100)...")
-    await firebase_service.initialize()
-    await firebase_service.initialize_db()
+    await sovereign_service.initialize()
+    await sovereign_service.initialize_db()
 
-    cycle_ref = firebase_service.db.collection("vault_management").document("current_cycle")
+    cycle_ref = sovereign_service.db.collection("vault_management").document("current_cycle")
     doc = cycle_ref.get()
     
     if doc.exists:

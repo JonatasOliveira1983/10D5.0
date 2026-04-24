@@ -5,19 +5,19 @@ import sys
 # Add project root to path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def force_firestore_purge():
     print("INICIANDO EXPURGO TOTAL FIRESTORE (V80.8)...")
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
     collections = ['trades', 'vault_cycle', 'moonbags', 'logs', 'system_events']
     
     for coll_name in collections:
         print(f"Limpando colecao: {coll_name}")
-        docs = await asyncio.to_thread(firebase_service.db.collection(coll_name).get)
+        docs = await asyncio.to_thread(sovereign_service.db.collection(coll_name).get)
         
-        batch = firebase_service.db.batch()
+        batch = sovereign_service.db.batch()
         count = 0
         deleted = 0
         for doc in docs:
@@ -26,7 +26,7 @@ async def force_firestore_purge():
             deleted += 1
             if count >= 400:
                 await asyncio.to_thread(batch.commit)
-                batch = firebase_service.db.batch()
+                batch = sovereign_service.db.batch()
                 count = 0
         
         if count > 0:
@@ -35,7 +35,7 @@ async def force_firestore_purge():
 
     # Reset System Bankroll
     await asyncio.to_thread(
-        firebase_service.db.collection('system').document('bankroll').set,
+        sovereign_service.db.collection('system').document('bankroll').set,
         {
             "total_balance": 100.0,
             "available_balance": 100.0,

@@ -4,23 +4,23 @@ import sys
 
 sys.path.append(os.getcwd())
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 
 async def check():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
     print("\n--- BUSCANDO IPUSDT ---")
     
     # 1. Slots
-    slots = await firebase_service.get_active_slots(force_refresh=True)
+    slots = await sovereign_service.get_active_slots(force_refresh=True)
     for s in slots:
         sym = s.get("symbol")
         if sym and "IPUSDT" in sym.upper():
             print(f"Slot {s['id']}: {sym} | Status: {s.get('status')}")
             
     # 2. Moonbags
-    moons = await firebase_service.get_moonbags()
+    moons = await sovereign_service.get_moonbags()
     for m in moons:
         sym = m.get("symbol")
         if sym and "IPUSDT" in sym.upper():

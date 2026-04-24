@@ -7,7 +7,7 @@ import time
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from services.agents.librarian_auditor import LibrarianAuditor
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def test_auditor_logic():
     print("📚 Iniciando Teste do Adaptive Weighting (Pilar 2)...")
@@ -46,7 +46,7 @@ async def test_auditor_logic():
         print(f"🔍 [MOCK] Retornando {len(mock_trades)} trades simulados.")
         return mock_trades
     
-    firebase_service.get_trade_history = mock_get_trade_history
+    sovereign_service.get_trade_history = mock_get_trade_history
     
     # Mockando a gravação de biases para não sujar o Firebase Real do Almirante durante o teste local
     async def mock_save_system_bias(biases):
@@ -65,7 +65,7 @@ async def test_auditor_logic():
         else:
             print(f"❌ TESTE FALHOU: Peso da Whale ({whl_w}) não foi aumentado.")
 
-    firebase_service.save_system_bias = mock_save_system_bias
+    sovereign_service.save_system_bias = mock_save_system_bias
 
     # Executa a auditoria
     print("🚀 Executando Auditoria do Bibliotecário...")

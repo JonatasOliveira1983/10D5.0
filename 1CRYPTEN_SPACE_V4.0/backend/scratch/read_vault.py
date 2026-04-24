@@ -6,7 +6,7 @@ import json
 # Adjust path to import backend modules
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from services.firebase_service import get_db
+from services.sovereign_service import get_db
 
 def analyze_vault():
     try:

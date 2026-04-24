@@ -4,15 +4,15 @@ import sys
 
 sys.path.append(os.getcwd())
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def cleanup():
     print("[CLEANUP] Starting IPUSDT deduplication...")
-    if not firebase_service.is_active:
-        await firebase_service.initialize()
+    if not sovereign_service.is_active:
+        await sovereign_service.initialize()
     
     # 1. Firestore Cleanup
-    moonbags_ref = firebase_service.db.collection("moonbags")
+    moonbags_ref = sovereign_service.db.collection("moonbags")
     docs = moonbags_ref.stream()
     deleted_docs = 0
     
@@ -26,14 +26,14 @@ async def cleanup():
             deleted_docs += 1
             
     # 2. RTDB Cleanup
-    if firebase_service.rtdb:
+    if sovereign_service.rtdb:
         # In firebase-admin, .get() returns the dict directly
-        rtdb_moons = firebase_service.rtdb.child("moonbags").get()
+        rtdb_moons = sovereign_service.rtdb.child("moonbags").get()
         if rtdb_moons and isinstance(rtdb_moons, dict):
             for k, v in rtdb_moons.items():
                 if v.get("symbol") == "IPUSDT":
                     print(f"Removing RTDB duplicate: IPUSDT")
-                    firebase_service.rtdb.child("moonbags").child(k).remove()
+                    sovereign_service.rtdb.child("moonbags").child(k).remove()
                     
     print(f"Cleanup finished. Removed {deleted_docs} duplicates from Firestore.")
 

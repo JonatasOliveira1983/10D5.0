@@ -5,10 +5,10 @@ import sys
 # Adiciona o diretório atual ao sys.path para importar services
 sys.path.append(os.getcwd())
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def main():
-    slots = await firebase_service.get_active_slots()
+    slots = await sovereign_service.get_active_slots()
     for s in slots:
         symbol = s.get('symbol', 'LIVRE')
         current_stop = s.get('current_stop', 0)

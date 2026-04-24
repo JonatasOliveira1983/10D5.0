@@ -8,10 +8,10 @@ sys.path.append(os.path.abspath('.'))
 async def main():
     print("🚀 Iniciando limpeza de slots BTC duplicados...")
     try:
-        from services.firebase_service import firebase_service
+        from services.sovereign_service import sovereign_service
         from services.bybit_rest import bybit_rest_service
         
-        await firebase_service.initialize()
+        await sovereign_service.initialize()
         await bybit_rest_service.initialize()
         
         # 1. Limpar RTDB/Firestore Slots 3 e 4
@@ -22,14 +22,14 @@ async def main():
             # Mas o foco do usuário é 3 e 4 com BTC duplicado.
             
             # Limpeza Direta no RTDB (Onde o problema foi visto)
-            if firebase_service.rtdb:
+            if sovereign_service.rtdb:
                 print(f"📡 Verificando RTDB Slot {i}...")
-                rtdb_slot = await asyncio.to_thread(firebase_service.rtdb.child("live_slots").child(str(i)).get)
+                rtdb_slot = await asyncio.to_thread(sovereign_service.rtdb.child("live_slots").child(str(i)).get)
                 if rtdb_slot:
                     sym = rtdb_slot.get('symbol', '')
                     if sym and ('BTC' in sym.upper()):
                         print(f"🧹 Limpando BTC do RTDB Slot {i} ({sym})...")
-                        await asyncio.to_thread(firebase_service.rtdb.child("live_slots").child(str(i)).set, {
+                        await asyncio.to_thread(sovereign_service.rtdb.child("live_slots").child(str(i)).set, {
                             "symbol": None, "status_risco": "LIVRE", "pnl_percent": 0
                         })
                 else:
@@ -39,7 +39,7 @@ async def main():
             print(f"🔥 Verificando Firestore Slot {i}...")
             # Forçamos o reset nos slots 3 e 4 de qualquer jeito para garantir
             if i in [3, 4]:
-                await firebase_service.update_slot(i, {
+                await sovereign_service.update_slot(i, {
                     "symbol": None, 
                     "entry_price": 0, 
                     "current_stop": 0, 

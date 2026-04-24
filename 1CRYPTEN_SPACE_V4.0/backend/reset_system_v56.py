@@ -7,7 +7,7 @@ import sys
 # Add parent directory to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from config import settings
 
 logging.basicConfig(level=logging.INFO)
@@ -27,8 +27,8 @@ async def reset_paper_storage():
 
 async def reset_firestore():
     logger.info("🔥 Connecting to Firestore...")
-    await firebase_service.initialize()
-    if not firebase_service.is_active:
+    await sovereign_service.initialize()
+    if not sovereign_service.is_active:
         logger.error("❌ Failed to connect to Firebase.")
         return
 
@@ -44,25 +44,25 @@ async def reset_firestore():
         "risco_real_percent": 0.0,
         "slots_disponiveis": 4
     }
-    await firebase_service.update_banca_status(banca_data)
+    await sovereign_service.update_banca_status(banca_data)
 
     # 2. Clear Trade History
     logger.info("📜 Clearing trade_history...")
-    docs = firebase_service.db.collection("trade_history").stream()
+    docs = sovereign_service.db.collection("trade_history").stream()
     count = 0
-    batch = firebase_service.db.batch()
+    batch = sovereign_service.db.batch()
     for doc in docs:
         batch.delete(doc.reference)
         count += 1
         if count % 400 == 0:
             batch.commit()
-            batch = firebase_service.db.batch()
+            batch = sovereign_service.db.batch()
     batch.commit()
     logger.info(f"✅ Cleared {count} trades from history.")
     
     # 2.1 Reset Vault Cycle
     logger.info("🏆 Resetting vault_management/current_cycle...")
-    vault_doc = firebase_service.db.collection("vault_management").document("current_cycle")
+    vault_doc = sovereign_service.db.collection("vault_management").document("current_cycle")
     # Using the default cycle structure from VaultService
     default_vault = {
         "sniper_wins": 0,
@@ -95,28 +95,28 @@ async def reset_firestore():
     # 3. Clear Slots
     logger.info("🎰 Resetting active slots (1-4)...")
     for i in range(1, 5):
-        await firebase_service.free_slot(i, reason="RESET SISTEMA V56 - CLEAN SLATE")
+        await sovereign_service.free_slot(i, reason="RESET SISTEMA V56 - CLEAN SLATE")
     
     # 4. Clear Logs & Signals (Optional but requested "limpar histórico")
     logger.info("🧹 Clearing system_logs and journey_signals...")
     for col in ["system_logs", "journey_signals", "banca_history"]:
-        docs = firebase_service.db.collection(col).stream()
+        docs = sovereign_service.db.collection(col).stream()
         count = 0
-        batch = firebase_service.db.batch()
+        batch = sovereign_service.db.batch()
         for doc in docs:
             batch.delete(doc.reference)
             count += 1
             if count % 400 == 0:
                 batch.commit()
-                batch = firebase_service.db.batch()
+                batch = sovereign_service.db.batch()
         batch.commit()
         logger.info(f"✅ Cleared {count} docs from {col}.")
 
     # 5. Reset RTDB nodes
-    if firebase_service.rtdb:
+    if sovereign_service.rtdb:
         logger.info("🛰️ Resetting Realtime DB nodes...")
-        firebase_service.rtdb.child("live_slots").delete()
-        firebase_service.rtdb.child("vault_status").set({
+        sovereign_service.rtdb.child("live_slots").delete()
+        sovereign_service.rtdb.child("vault_status").set({
             "cycle_profit": 0,
             "vault_total": 0,
             "updated_at": 0

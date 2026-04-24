@@ -7,7 +7,7 @@ import asyncio
 import time
 from datetime import datetime, timezone, timedelta
 from config import settings
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("VaultService")
@@ -21,7 +21,7 @@ class VaultService:
         """V15.0: Syncs current cycle status to RTDB for real-time dashboard."""
         try:
             status = await self.get_cycle_status()
-            await firebase_service.update_vault_pulse(status)
+            await sovereign_service.update_vault_pulse(status)
         except Exception as e:
             logger.error(f"Error syncing vault to RTDB: {e}")
         
@@ -31,11 +31,11 @@ class VaultService:
         Returns: {sniper_wins, cycle_number, cycle_profit, in_admiral_rest, rest_until}
         """
         try:
-            if not firebase_service.is_active or not firebase_service.db:
+            if not sovereign_service.is_active or not sovereign_service.db:
                 return self._default_cycle()
             
             def _get():
-                doc = firebase_service.db.collection("vault_management").document("current_cycle").get()
+                doc = sovereign_service.db.collection("vault_management").document("current_cycle").get()
                 return doc.to_dict() if doc.exists else None
             
             data = await asyncio.to_thread(_get)
@@ -103,11 +103,11 @@ class VaultService:
     async def initialize_cycle(self):
         """Creates initial cycle document if it doesn't exist."""
         try:
-            if not firebase_service.is_active or not firebase_service.db:
+            if not sovereign_service.is_active or not sovereign_service.db:
                 return
                 
             def _init():
-                doc_ref = firebase_service.db.collection("vault_management").document("current_cycle")
+                doc_ref = sovereign_service.db.collection("vault_management").document("current_cycle")
                 if not doc_ref.get().exists:
                     doc_ref.set(self._default_cycle())
                     logger.info("Vault cycle initialized.")
@@ -149,7 +149,7 @@ class VaultService:
         Gains (PnL > 0) deixam o par disponível para novas oportunidades.
         """
         try:
-            if not firebase_service.is_active or not firebase_service.db:
+            if not sovereign_service.is_active or not sovereign_service.db:
                 return
             
             # Se for GAIN, não bloqueamos o par (Regra V15.6)
@@ -168,7 +168,7 @@ class VaultService:
                 used_symbols.append(norm_symbol)
             
             def _update():
-                firebase_service.db.collection("vault_management").document("current_cycle").update({
+                sovereign_service.db.collection("vault_management").document("current_cycle").update({
                     "used_symbols_in_cycle": used_symbols
                 })
             
@@ -186,14 +186,14 @@ class VaultService:
         V9.0: Reseta a lista de pares após completar 10 trades.
         """
         try:
-            if not firebase_service.is_active or not firebase_service.db:
+            if not sovereign_service.is_active or not sovereign_service.db:
                 return
             
             current = await self.get_cycle_status()
             new_cycle_number = current.get("cycle_number", 1) + 1
             
             def _reset():
-                firebase_service.db.collection("vault_management").document("current_cycle").update({
+                sovereign_service.db.collection("vault_management").document("current_cycle").update({
                     "used_symbols_in_cycle": [],
                     "cycle_number": new_cycle_number,
                     "total_trades_cycle": 0,
@@ -204,7 +204,7 @@ class VaultService:
                 })
             
             await asyncio.to_thread(_reset)
-            await firebase_service.log_event("VAULT", f"🔄 V9.0: CICLO #{new_cycle_number} INICIADO! Lista de exclusão resetada. 83 pares disponíveis.", "SUCCESS")
+            await sovereign_service.log_event("VAULT", f"🔄 V9.0: CICLO #{new_cycle_number} INICIADO! Lista de exclusão resetada. 83 pares disponíveis.", "SUCCESS")
             logger.info(f"V9.0: Cycle symbols reset. New cycle #{new_cycle_number}")
             
             # [V15.0] Sync to RTDB
@@ -219,18 +219,18 @@ class VaultService:
         V15.8.1: Ensures configured_balance is prioritized if set.
         """
         try:
-            if not firebase_service.is_active or not firebase_service.db:
+            if not sovereign_service.is_active or not sovereign_service.db:
                 return
             
             # [V15.8.1] Check configured balance again to ensure we don't overwrite user preference with small real balance
-            banca_status = await firebase_service.get_banca_status()
+            banca_status = await sovereign_service.get_banca_status()
             config_balance = banca_status.get("configured_balance", 0)
             
             final_balance = config_balance if config_balance >= 5 else balance
             entry_value = final_balance * 0.10  # [V10.6.2] Correct 10% margin rule
             
             def _init():
-                firebase_service.db.collection("vault_management").document("current_cycle").update({
+                sovereign_service.db.collection("vault_management").document("current_cycle").update({
                     "cycle_start_bankroll": final_balance,
                     "cycle_bankroll": final_balance,
                     "next_entry_value": entry_value
@@ -238,7 +238,7 @@ class VaultService:
             
             await asyncio.to_thread(_init)
             logger.info(f"📊 V15.8.1 Compound: Banca travada em ${final_balance:.2f} . Entrada: ${entry_value:.2f}")
-            await firebase_service.log_event("VAULT", f"📊 V15.8 COMPOUND: Ciclo iniciado com ${final_balance:.2f} . Cada trade usará ${entry_value:.2f}.", "SUCCESS")
+            await sovereign_service.log_event("VAULT", f"📊 V15.8 COMPOUND: Ciclo iniciado com ${final_balance:.2f} . Cada trade usará ${entry_value:.2f}.", "SUCCESS")
             
             # [V15.0] Sync to RTDB
             await self._sync_rtdb()
@@ -253,7 +253,7 @@ class VaultService:
         """
         try:
             # [V15.8 FIX] Fetch the configured balance first
-            banca_status = await firebase_service.get_banca_status()
+            banca_status = await sovereign_service.get_banca_status()
             config_balance = banca_status.get("configured_balance", 0)
             from services.bybit_rest import bybit_rest_service
             real_balance = await bybit_rest_service.get_wallet_balance()
@@ -267,11 +267,11 @@ class VaultService:
             profit_pct = ((new_balance - old_bankroll) / old_bankroll * 100) if old_bankroll > 0 else 0
             new_entry = new_balance * 0.10 # [V10.6.2] Correct 10% margin rule
             
-            if not firebase_service.is_active or not firebase_service.db:
+            if not sovereign_service.is_active or not sovereign_service.db:
                 return
             
             def _update():
-                firebase_service.db.collection("vault_management").document("current_cycle").update({
+                sovereign_service.db.collection("vault_management").document("current_cycle").update({
                     "cycle_start_bankroll": new_balance,
                     "next_entry_value": new_entry,
                     "cycle_bankroll": new_balance  # Ensure legacy field is also updated
@@ -281,7 +281,7 @@ class VaultService:
             
             emoji = "🚀" if profit_pct > 0 else "⚠️"
             logger.info(f"V9.0 Compound: Recálculo completo. Nova banca: ${new_balance:.2f} (Real Bybit: ${real_balance:.2f})")
-            await firebase_service.log_event("VAULT", f"{emoji} V9.0 COMPOUND RECALCULADO: ${old_bankroll:.2f} → ${new_balance:.2f}. Nova entrada: ${new_entry:.2f}", "SUCCESS")
+            await sovereign_service.log_event("VAULT", f"{emoji} V9.0 COMPOUND RECALCULADO: ${old_bankroll:.2f} → ${new_balance:.2f}. Nova entrada: ${new_entry:.2f}", "SUCCESS")
             
             # [V15.0] Sync to RTDB
             await self._sync_rtdb()
@@ -311,7 +311,7 @@ class VaultService:
         try:
             from config import settings
             
-            if not firebase_service.is_active or not firebase_service.db:
+            if not sovereign_service.is_active or not sovereign_service.db:
                 return self._default_cycle()
             
             current = await self.get_cycle_status()
@@ -413,10 +413,10 @@ class VaultService:
                 update_data["mega_cycle_wins"] = 0
                 update_data["mega_cycle_total"] = 0
                 update_data["mega_cycle_profit"] = 0.0
-                await firebase_service.log_event("VAULT", f"🏆🏆🏆 MEGA CICLO #{mega_number-1} CONCLUÍDO! 100 missões com ROI >= 80%! Lucro: ${mega_profit:.2f}", "SUCCESS")
+                await sovereign_service.log_event("VAULT", f"🏆🏆🏆 MEGA CICLO #{mega_number-1} CONCLUÍDO! 100 missões com ROI >= 80%! Lucro: ${mega_profit:.2f}", "SUCCESS")
             
             def _update():
-                firebase_service.db.collection("vault_management").document("current_cycle").update(update_data)
+                sovereign_service.db.collection("vault_management").document("current_cycle").update(update_data)
             
             await asyncio.to_thread(_update)
             
@@ -426,17 +426,17 @@ class VaultService:
             # [V10.6.2] Automated 10-Trade Cycle Recalibration
             # [V20.5] Compound recalibration: Activated precisely on the 10th Elite Win (ROI >= 80%)
             if new_wins_count >= 10:
-                await firebase_service.log_event("VAULT", f"🏁 CICLO DE 10 MISSÕES FINALIZADO! 10 wins com ROI>=80% alcançadas.", "SUCCESS")
+                await sovereign_service.log_event("VAULT", f"🏁 CICLO DE 10 MISSÕES FINALIZADO! 10 wins com ROI>=80% alcançadas.", "SUCCESS")
                 await self.recalculate_cycle_bankroll() # Trigger Compound (10% of total bankroll)
                 await self.reset_cycle_symbols()
                 
             # Log detalhado V11.0
             event_type = "SUCCESS" if is_high_roi_win else ("INFO" if is_pnl_positive else "WARNING")
             result_msg = f"{result_emoji} V11.0 {result_label} | ROI: {roi:.1f}% | 1/10: {new_wins_count}/10 | 1/100: {mega_wins}/100 | PnL: ${pnl:.2f}"
-            await firebase_service.log_event("VAULT", result_msg, event_type)
+            await sovereign_service.log_event("VAULT", result_msg, event_type)
             
             if new_wins_count >= 10:
-                await firebase_service.log_event("VAULT", f"🏆 CICLO PERFEITO #{current.get('cycle_number', 1)}! 10 trades com ROI>=80%! Sniper Profit: ${new_profit:.2f}", "SUCCESS")
+                await sovereign_service.log_event("VAULT", f"🏆 CICLO PERFEITO #{current.get('cycle_number', 1)}! 10 trades com ROI>=80%! Sniper Profit: ${new_profit:.2f}", "SUCCESS")
             
             # [V15.6] Diversification by Result: Gain keeps symbol, Loss locks it.
             if trade_data.get("symbol"):
@@ -458,7 +458,7 @@ class VaultService:
         """
         try:
             logger.info("🔄 Iniciando Sincronização Vault <-> Histórico...")
-            if not firebase_service.is_active or not firebase_service.db:
+            if not sovereign_service.is_active or not sovereign_service.db:
                 return
                 
             current = await self.get_cycle_status()
@@ -466,7 +466,7 @@ class VaultService:
             
             # 1. Fetch trades for this cycle (Sniper & Surf)
             def _get_history():
-                docs = (firebase_service.db.collection("trade_history").stream())
+                docs = (sovereign_service.db.collection("trade_history").stream())
                 return [d.to_dict() for d in docs]
             
             all_trades = await asyncio.to_thread(_get_history)
@@ -549,7 +549,7 @@ class VaultService:
                             try:
                                 doc_id = t.get("id")
                                 if doc_id:
-                                    firebase_service.db.collection("trade_history").document(doc_id).update({"pnl_percent": roi})
+                                    sovereign_service.db.collection("trade_history").document(doc_id).update({"pnl_percent": roi})
                             except: pass
                     
                     if roi and roi >= getattr(settings, 'WIN_ROI_THRESHOLD', 80.0):
@@ -582,11 +582,11 @@ class VaultService:
             }
             
             def _push():
-                firebase_service.db.collection("vault_management").document("current_cycle").update(update_data)
+                sovereign_service.db.collection("vault_management").document("current_cycle").update(update_data)
             
             await asyncio.to_thread(_push)
             # logger.info(f"✅ Sincronização concluída: #{new_wins}/20 Wins | Total Trades (Sniper): {len([t for t in all_trades if t.get('slot_type') == 'SNIPER'])} | Profit: ${new_profit:.2f} | Symbols: {len(used_symbols)}")
-            # await firebase_service.log_event("VAULT", f"🔄 SINCRONIA COMPLETA: #{new_wins}/20 | Trades (Sniper): {len([t for t in all_trades if t.get('slot_type') == 'SNIPER'])}/10 | Profit: ${new_profit:.2f}", "SUCCESS")
+            # await sovereign_service.log_event("VAULT", f"🔄 SINCRONIA COMPLETA: #{new_wins}/20 | Trades (Sniper): {len([t for t in all_trades if t.get('slot_type') == 'SNIPER'])}/10 | Profit: ${new_profit:.2f}", "SUCCESS")
             
             # [V15.0] Sync to RTDB
             await self._sync_rtdb()
@@ -619,7 +619,7 @@ class VaultService:
         Registra uma retirada manual para o Vault.
         """
         try:
-            if not firebase_service.is_active or not firebase_service.db:
+            if not sovereign_service.is_active or not sovereign_service.db:
                 return False
             
             current = await self.get_cycle_status()
@@ -634,14 +634,14 @@ class VaultService:
             
             def _execute():
                 # Add to withdrawals subcollection
-                firebase_service.db.collection("vault_management").document("withdrawals").collection("history").add(withdrawal_record)
+                sovereign_service.db.collection("vault_management").document("withdrawals").collection("history").add(withdrawal_record)
                 # Update vault total
-                firebase_service.db.collection("vault_management").document("current_cycle").update({
+                sovereign_service.db.collection("vault_management").document("current_cycle").update({
                     "vault_total": new_vault_total
                 })
             
             await asyncio.to_thread(_execute)
-            await firebase_service.log_event("VAULT", f"💰 Retirada de ${amount:.2f} registrada. Cofre Total: ${new_vault_total:.2f}", "SUCCESS")
+            await sovereign_service.log_event("VAULT", f"💰 Retirada de ${amount:.2f} registrada. Cofre Total: ${new_vault_total:.2f}", "SUCCESS")
             
             # [V15.0] Sync to RTDB
             await self._sync_rtdb()
@@ -654,11 +654,11 @@ class VaultService:
     async def get_withdrawal_history(self, limit: int = 20) -> list:
         """Retorna histórico de retiradas."""
         try:
-            if not firebase_service.is_active or not firebase_service.db:
+            if not sovereign_service.is_active or not sovereign_service.db:
                 return []
             
             def _get():
-                docs = (firebase_service.db.collection("vault_management")
+                docs = (sovereign_service.db.collection("vault_management")
                         .document("withdrawals")
                         .collection("history")
                         .order_by("timestamp", direction="DESCENDING")
@@ -676,7 +676,7 @@ class VaultService:
         Inicia um novo ciclo após completar 20 trades ou retirada manual.
         """
         try:
-            if not firebase_service.is_active or not firebase_service.db:
+            if not sovereign_service.is_active or not sovereign_service.db:
                 return self._default_cycle()
             
             current = await self.get_cycle_status()
@@ -699,10 +699,10 @@ class VaultService:
             }
             
             def _update():
-                firebase_service.db.collection("vault_management").document("current_cycle").set(new_data)
+                sovereign_service.db.collection("vault_management").document("current_cycle").set(new_data)
             
             await asyncio.to_thread(_update)
-            await firebase_service.log_event("VAULT", f"🚀 Novo Ciclo #{new_cycle} iniciado!", "SUCCESS")
+            await sovereign_service.log_event("VAULT", f"🚀 Novo Ciclo #{new_cycle} iniciado!", "SUCCESS")
             
             # [V15.0] Sync to RTDB
             await self._sync_rtdb()
@@ -717,19 +717,19 @@ class VaultService:
         Ativa o modo de descanso do Almirante (bloqueia novas ordens).
         """
         try:
-            if not firebase_service.is_active or not firebase_service.db:
+            if not sovereign_service.is_active or not sovereign_service.db:
                 return False
             
             rest_until = datetime.now(timezone.utc) + timedelta(hours=hours)
             
             def _activate():
-                firebase_service.db.collection("vault_management").document("current_cycle").update({
+                sovereign_service.db.collection("vault_management").document("current_cycle").update({
                     "in_admiral_rest": True,
                     "rest_until": rest_until.isoformat()
                 })
             
             await asyncio.to_thread(_activate)
-            await firebase_service.log_event("VAULT", f"😴 Admiral's Rest ativado por {hours}h. Sistema em standby.", "WARNING")
+            await sovereign_service.log_event("VAULT", f"😴 Admiral's Rest ativado por {hours}h. Sistema em standby.", "WARNING")
             
             return True
         except Exception as e:
@@ -739,17 +739,17 @@ class VaultService:
     async def deactivate_admiral_rest(self) -> bool:
         """Desativa manualmente o modo de descanso."""
         try:
-            if not firebase_service.is_active or not firebase_service.db:
+            if not sovereign_service.is_active or not sovereign_service.db:
                 return False
             
             def _deactivate():
-                firebase_service.db.collection("vault_management").document("current_cycle").update({
+                sovereign_service.db.collection("vault_management").document("current_cycle").update({
                     "in_admiral_rest": False,
                     "rest_until": None
                 })
             
             await asyncio.to_thread(_deactivate)
-            await firebase_service.log_event("VAULT", "⚡ Admiral's Rest desativado. Sistema operacional.", "SUCCESS")
+            await sovereign_service.log_event("VAULT", "⚡ Admiral's Rest desativado. Sistema operacional.", "SUCCESS")
             
             return True
         except Exception as e:
@@ -761,11 +761,11 @@ class VaultService:
         Ativa/desativa modo cautela (aumenta threshold de score).
         """
         try:
-            if not firebase_service.is_active or not firebase_service.db:
+            if not sovereign_service.is_active or not sovereign_service.db:
                 return False
             
             def _set():
-                firebase_service.db.collection("vault_management").document("current_cycle").update({
+                sovereign_service.db.collection("vault_management").document("current_cycle").update({
                     "cautious_mode": enabled,
                     "min_score_threshold": min_score if enabled else 75
                 })
@@ -773,7 +773,7 @@ class VaultService:
             await asyncio.to_thread(_set)
             
             status = f"ATIVADO (Score mínimo: {min_score})" if enabled else "DESATIVADO"
-            await firebase_service.log_event("VAULT", f"⚠️ Modo Cautela {status}", "WARNING" if enabled else "INFO")
+            await sovereign_service.log_event("VAULT", f"⚠️ Modo Cautela {status}", "WARNING" if enabled else "INFO")
             
             return True
         except Exception as e:
@@ -785,18 +785,18 @@ class VaultService:
         [V8.0] Ativa ou Pausa o Capitão Sniper (Master Toggle).
         """
         try:
-            if not firebase_service.is_active or not firebase_service.db:
+            if not sovereign_service.is_active or not sovereign_service.db:
                 return False
             
             def _set():
-                firebase_service.db.collection("vault_management").document("current_cycle").update({
+                sovereign_service.db.collection("vault_management").document("current_cycle").update({
                     "sniper_mode_active": enabled
                 })
             
             await asyncio.to_thread(_set)
             
             status = "AUTORIZADO 🟢" if enabled else "BLOQUEADO 🔴"
-            await firebase_service.log_event("VAULT", f"⚓ Capitão Sniper {status} pelo Almirante.", "SUCCESS" if enabled else "WARNING")
+            await sovereign_service.log_event("VAULT", f"⚓ Capitão Sniper {status} pelo Almirante.", "SUCCESS" if enabled else "WARNING")
             
             return True
         except Exception as e:

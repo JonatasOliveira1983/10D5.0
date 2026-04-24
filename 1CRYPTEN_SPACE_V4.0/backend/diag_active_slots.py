@@ -28,7 +28,7 @@ def calc_roi(entry, price, side="buy"):
 
 
 async def main():
-    from services.firebase_service import firebase_service
+    from services.sovereign_service import sovereign_service
     from services.bybit_rest import bybit_rest_service
     from services.execution_protocol import execution_protocol
 
@@ -36,7 +36,7 @@ async def main():
     print("=" * 65)
     print("SLOTS NO FIREBASE")
     print("=" * 65)
-    slots = await firebase_service.get_active_slots()
+    slots = await sovereign_service.get_active_slots()
     slot_map = {}
     for s in slots:
         raw_sym = (s.get("symbol") or "").replace(".P", "")

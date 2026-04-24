@@ -4,19 +4,19 @@ import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def kill_rtdb_slots():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     print("Conectado. Deletando banca_status/slots e live_slots no RTDB...")
     try:
-        await asyncio.to_thread(firebase_service.rtdb.child("banca_status").child("slots").set, None)
+        await asyncio.to_thread(sovereign_service.rtdb.child("banca_status").child("slots").set, None)
         print("banca_status/slots deletado do RTDB com sucesso.")
     except Exception as e:
         print(f"Erro ao deletar banca_status/slots: {e}")
         
     try:
-        await asyncio.to_thread(firebase_service.rtdb.child("live_slots").set, None)
+        await asyncio.to_thread(sovereign_service.rtdb.child("live_slots").set, None)
         print("live_slots deletado do RTDB com sucesso.")
     except Exception as e:
         print(f"Erro ao deletar live_slots: {e}")
@@ -29,8 +29,8 @@ async def kill_rtdb_slots():
             "qty": 0, "slot_type": None, "pattern": None, "pensamento": ""
         }
         slots_data = {str(i): {**empty_slot, "id": i} for i in range(1, 5)}
-        await asyncio.to_thread(firebase_service.rtdb.child("banca_status").child("slots").set, slots_data)
-        await asyncio.to_thread(firebase_service.rtdb.child("live_slots").set, slots_data)
+        await asyncio.to_thread(sovereign_service.rtdb.child("banca_status").child("slots").set, slots_data)
+        await asyncio.to_thread(sovereign_service.rtdb.child("live_slots").set, slots_data)
         print("Slots RTDB recriados zerados.")
     except Exception as e:
         print(f"Erro reseting: {e}")

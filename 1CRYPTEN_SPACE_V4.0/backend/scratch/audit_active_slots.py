@@ -7,15 +7,15 @@ import time
 # Add backend to path
 sys.path.append(os.getcwd())
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 from services.execution_protocol import execution_protocol
 
 async def check_current_slots():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     await bybit_rest_service.initialize()
     
-    slots = await firebase_service.get_active_slots()
+    slots = await sovereign_service.get_active_slots()
     print(f"\n--- Current Slots Analysis ({len(slots)} active) ---")
     
     for s in slots:

@@ -1,13 +1,13 @@
 import asyncio
 from typing import Dict, Any
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bankroll import bankroll_manager
 from config import settings
 
 async def diagnostic_unopened_orders():
     print("--- Inicializando Conexão Firebase ---")
-    await firebase_service.initialize()
-    if not firebase_service.db:
+    await sovereign_service.initialize()
+    if not sovereign_service.db:
         print("FALHA: Não foi possível conectar ao Firestore.")
         return
 
@@ -15,7 +15,7 @@ async def diagnostic_unopened_orders():
     
     # 1. Obter os slots atuais
     try:
-        slots = await firebase_service.get_active_slots()
+        slots = await sovereign_service.get_active_slots()
         occupied = 0
         for slot in slots:
             if slot.get("symbol"):
@@ -37,7 +37,7 @@ async def diagnostic_unopened_orders():
     # 3. Obter os últimos eventos no Firestore
     print("\n--- Últimos 10 Sinais Avaliados pelo Capitão (Eventos) ---")
     try:
-        events_ref = firebase_service.db.collection('10D_logs')
+        events_ref = sovereign_service.db.collection('10D_logs')
         query = events_ref.where('category', '==', 'SNIPER').order_by('timestamp', direction='DESCENDING').limit(20)
         docs = await asyncio.to_thread(query.stream)
         
@@ -54,7 +54,7 @@ async def diagnostic_unopened_orders():
 
     print("\n--- Últimos 5 Sinais Gerados pelo Signal Generator ---")
     try:
-        signals_ref = firebase_service.db.collection('10D_signals')
+        signals_ref = sovereign_service.db.collection('10D_signals')
         query_sig = signals_ref.order_by('timestamp', direction='DESCENDING').limit(5)
         docs_sig = await asyncio.to_thread(query_sig.stream)
         

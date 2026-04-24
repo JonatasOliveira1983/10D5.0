@@ -5,12 +5,12 @@ import os
 # Ensure backend module can be imported
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.vault_service import vault_service
 
 async def reset():
     print("Starting Deep Reset...")
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
     print("1. Clearing Slots 1 to 4...")
     empty_slot = {
@@ -21,14 +21,14 @@ async def reset():
     
     for i in range(1, 5):
         try:
-            await firebase_service.update_slot(i, empty_slot)
+            await sovereign_service.update_slot(i, empty_slot)
             print(f"  Slot {i} reset to IDLE.")
         except Exception as e:
             print(f"  Error resetting slot {i}: {e}")
 
     print("2. Clearing Trade History...")
     try:
-        db = firebase_service.db
+        db = sovereign_service.db
         trades = db.collection("trade_history").limit(500).stream()
         count = 0
         for doc in trades:
@@ -40,7 +40,7 @@ async def reset():
 
     print("3. Clearing Vault & Cycles...")
     try:
-        db = firebase_service.db
+        db = sovereign_service.db
         vault_docs = db.collection("vault_management").stream()
         for doc in vault_docs:
             doc.reference.delete()
@@ -50,7 +50,7 @@ async def reset():
 
     print("4. Resetting Bankroll...")
     try:
-        await firebase_service.update_banca_status({
+        await sovereign_service.update_banca_status({
             "configured_balance": 100.0,
             "saldo_total": 100.0,
             "saldo_real_bybit": 0.0,

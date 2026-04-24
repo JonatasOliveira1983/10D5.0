@@ -6,21 +6,21 @@ import sys
 sys.path.append(os.getcwd())
 
 async def check():
-    from services.firebase_service import firebase_service
+    from services.sovereign_service import sovereign_service
     # Inicializar o serviço se necessário
-    if not firebase_service.is_active:
+    if not sovereign_service.is_active:
         print("Initializing Firebase Service...")
-        await firebase_service.initialize()
+        await sovereign_service.initialize()
         
-    print(f"Firebase Active: {firebase_service.is_active}")
-    if not firebase_service.is_active:
+    print(f"Firebase Active: {sovereign_service.is_active}")
+    if not sovereign_service.is_active:
         print("Firebase is not active. Check credentials.")
         return
 
     print("Checking trade_history collection...")
     try:
         def _get():
-            docs = firebase_service.db.collection("trade_history").limit(10).stream()
+            docs = sovereign_service.db.collection("trade_history").limit(10).stream()
             return [doc.to_dict() for doc in docs]
         
         trades = await asyncio.to_thread(_get)

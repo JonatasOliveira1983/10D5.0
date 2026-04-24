@@ -1,10 +1,10 @@
 
 import asyncio
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def check_history():
-    await firebase_service.initialize()
-    trades = await firebase_service.get_trade_history(limit=5)
+    await sovereign_service.initialize()
+    trades = await sovereign_service.get_trade_history(limit=5)
     print("--- RECENT TRADES ---")
     for t in trades:
         print(f"Symbol: {t.get('symbol')} | PnL: {t.get('pnl')} | Time: {t.get('closed_at') or t.get('close_time')}")

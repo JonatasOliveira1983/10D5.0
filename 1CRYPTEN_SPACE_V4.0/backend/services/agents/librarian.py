@@ -9,7 +9,7 @@ from services.backtest import data_extractor
 from services.bybit_ws import bybit_ws_service
 from services.google_calendar_service import google_calendar_service
 from services.agents.quartermaster import quartermaster_agent # [V110.135]
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.kernel.dispatcher import kernel
 from services.agents.market_data import get_sector
 from config import settings
@@ -128,7 +128,7 @@ class LibrarianAgent(AIOSAgent):
         logger.info("🧠 [LIBRARIAN ML] Iniciando análise post-mortem das últimas 72h...")
         try:
             # Pega histórico do Vault
-            history = await firebase_service.get_vault_history(limit=50)
+            history = await sovereign_service.get_vault_history(limit=50)
             if not history: return
 
             # [V110.128] Ordena por timestamp desc para conferência de sequencialidade
@@ -174,10 +174,10 @@ class LibrarianAgent(AIOSAgent):
         
         try:
             # [V2.2] Sinaliza início imediato para o Frontend
-            if firebase_service.rtdb:
+            if sovereign_service.rtdb:
                 try:
                     await asyncio.to_thread(
-                        firebase_service.rtdb.child("librarian_intelligence").update,
+                        sovereign_service.rtdb.child("librarian_intelligence").update,
                         {"status": "STUDYING", "updated_at": int(time.time() * 1000)}
                     )
                 except: pass
@@ -222,10 +222,10 @@ class LibrarianAgent(AIOSAgent):
                 logger.info(f"🧐 [LIBRARIAN] [{progress}%] Analisando {symbol} (Origem: {symbol_raw})...")
                 
                 # [V2.2] Telemetria de Pulso para a UI
-                if firebase_service.rtdb:
+                if sovereign_service.rtdb:
                     try:
                         await asyncio.to_thread(
-                            firebase_service.rtdb.child("librarian_intelligence").update,
+                            sovereign_service.rtdb.child("librarian_intelligence").update,
                             {
                                 "status": "STUDYING", 
                                 "current_symbol": symbol,
@@ -406,10 +406,10 @@ class LibrarianAgent(AIOSAgent):
                         # LIVE FEEDBACK: Atualiza o RTDB e o cache interno para visibilidade imediata
                         self.live_rankings[symbol] = result_entry
                         
-                        if firebase_service.rtdb:
+                        if sovereign_service.rtdb:
                             try:
                                 await asyncio.to_thread(
-                                    firebase_service.rtdb.child("librarian_intelligence").update,
+                                    sovereign_service.rtdb.child("librarian_intelligence").update,
                                     {
                                         f"top_rankings/{symbol}": result_entry,
                                         "last_study": time.time(),
@@ -468,11 +468,11 @@ class LibrarianAgent(AIOSAgent):
             self.sector_insights = sector_final
 
             # Sincronização Cloud Final
-            if firebase_service.is_active:
+            if sovereign_service.is_active:
                 # Firestore (Rankings)
                 for rank in self.rankings:
                     await asyncio.to_thread(
-                        firebase_service.db.collection("fleet_intelligence")
+                        sovereign_service.db.collection("fleet_intelligence")
                         .document("librarian")
                         .collection("rankings")
                         .document(rank["symbol"])
@@ -481,7 +481,7 @@ class LibrarianAgent(AIOSAgent):
                 
                 # Insights de Setor
                 await asyncio.to_thread(
-                    firebase_service.db.collection("fleet_intelligence")
+                    sovereign_service.db.collection("fleet_intelligence")
                     .document("librarian")
                     .collection("sector_insights")
                     .document("latest")
@@ -489,10 +489,10 @@ class LibrarianAgent(AIOSAgent):
                 )
 
                 # RTDB (Overview)
-                if firebase_service.rtdb:
+                if sovereign_service.rtdb:
                     try:
                         await asyncio.to_thread(
-                            firebase_service.rtdb.child("librarian_intelligence").update, 
+                            sovereign_service.rtdb.child("librarian_intelligence").update, 
                             {
                                 "top_rankings": {r["symbol"]: r for r in all_results},
                                 "spring_elite": self.spring_elite_list,
@@ -545,10 +545,10 @@ class LibrarianAgent(AIOSAgent):
                         f"📊 [V110.118 MISSED-OPP] {len(missed_opps)} oportunidades 2%-10% perdidas! "
                         f"Top: {top_missed[0]['symbol']} ({top_missed[0]['move_pct']:.1f}%)"
                     )
-                    if firebase_service.rtdb:
+                    if sovereign_service.rtdb:
                         try:
                             await asyncio.to_thread(
-                                firebase_service.rtdb.child("librarian_intelligence").update,
+                                sovereign_service.rtdb.child("librarian_intelligence").update,
                                 {
                                     "missed_opportunities": top_missed,
                                     "missed_opportunities_count": len(missed_opps),
@@ -565,15 +565,15 @@ class LibrarianAgent(AIOSAgent):
             logger.error(f"Falha crítica no estudo do Bibliotecário: {e}")
         finally:
             # [V110.100] SAFETY SHIELD: Garante que o Oráculo nunca fique travado em 'STUDYING'
-            if firebase_service.rtdb:
+            if sovereign_service.rtdb:
                 try:
-                    current_data = await asyncio.to_thread(firebase_service.rtdb.child("librarian_intelligence").get)
+                    current_data = await asyncio.to_thread(sovereign_service.rtdb.child("librarian_intelligence").get)
                     if current_data and current_data.get("status") == "STUDYING":
                         # Se ainda está em STUDYING e chegamos aqui, algo interrompeu ou finalizou sem atualizar.
                         # Forçamos COMPLETED apenas se já tivermos rankings, senão IDLE para resetar a UI.
                         final_status = "COMPLETED" if self.rankings else "IDLE"
                         await asyncio.to_thread(
-                            firebase_service.rtdb.child("librarian_intelligence").update,
+                            sovereign_service.rtdb.child("librarian_intelligence").update,
                             {"status": final_status, "updated_at": int(time.time() * 1000)}
                         )
                         logger.info(f"🛡️ [LIBRARIAN GUARD] Status resetado para {final_status} via Safety Shield.")

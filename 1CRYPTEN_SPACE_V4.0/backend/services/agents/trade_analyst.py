@@ -96,7 +96,7 @@ class TradeAnalyst(AIOSAgent):
         and records enriched autopsy to Firebase.
         """
         try:
-            from services.firebase_service import firebase_service
+            from services.sovereign_service import sovereign_service
 
             symbol = trade_data.get("symbol") or "UNKNOWN"
             side = trade_data.get("side") or "Buy"
@@ -190,7 +190,7 @@ class TradeAnalyst(AIOSAgent):
 
             # Persist to Firebase
             await asyncio.to_thread(
-                firebase_service.db.collection("trade_analytics").add, autopsy
+                sovereign_service.db.collection("trade_analytics").add, autopsy
             )
 
             # Update aggregated summary
@@ -214,7 +214,7 @@ class TradeAnalyst(AIOSAgent):
     async def _update_aggregated_summary(self, autopsy: Dict[str, Any]):
         """Incrementally updates the aggregated analytics summary."""
         try:
-            from services.firebase_service import firebase_service
+            from services.sovereign_service import sovereign_service
 
             summary = await self._get_or_create_summary()
 
@@ -262,7 +262,7 @@ class TradeAnalyst(AIOSAgent):
 
             # Persist
             await asyncio.to_thread(
-                firebase_service.db.collection("trade_analytics").document("summary").set,
+                sovereign_service.db.collection("trade_analytics").document("summary").set,
                 summary
             )
 
@@ -283,9 +283,9 @@ class TradeAnalyst(AIOSAgent):
                 pass
 
         try:
-            from services.firebase_service import firebase_service
+            from services.sovereign_service import sovereign_service
             doc = await asyncio.to_thread(
-                firebase_service.db.collection("trade_analytics").document("summary").get
+                sovereign_service.db.collection("trade_analytics").document("summary").get
             )
             if doc.exists:
                 summary = doc.to_dict()
@@ -436,10 +436,10 @@ class TradeAnalyst(AIOSAgent):
     async def _batch_analyze_recent_trades(self):
         """Scans trade_history for trades not yet in trade_analytics."""
         try:
-            from services.firebase_service import firebase_service
+            from services.sovereign_service import sovereign_service
 
             # Get recent trades
-            trades = await firebase_service.get_trade_history(limit=20)
+            trades = await sovereign_service.get_trade_history(limit=20)
             if not trades:
                 return
 
@@ -448,7 +448,7 @@ class TradeAnalyst(AIOSAgent):
             try:
                 docs = await asyncio.to_thread(
                     lambda: list(
-                        firebase_service.db.collection("trade_analytics")
+                        sovereign_service.db.collection("trade_analytics")
                         .order_by("analyzed_at")
                         .limit(50)
                         .stream()

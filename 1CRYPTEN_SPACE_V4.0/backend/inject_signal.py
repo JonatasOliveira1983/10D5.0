@@ -1,7 +1,7 @@
 
 import asyncio
 from services.signal_generator import signal_generator
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 import time
 
 async def inject_test_signal():

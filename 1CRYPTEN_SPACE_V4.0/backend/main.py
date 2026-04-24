@@ -77,7 +77,7 @@ if not os.path.exists(FRONTEND_DIR):
     FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
 # Global references
-firebase_service = None
+sovereign_service = None
 database_service = None # V110.175
 websocket_service = None # V110.175
 bybit_rest_service = None
@@ -113,17 +113,17 @@ async def lifespan(app: FastAPI):
     logger.info(f"Initializing 1CRYPTEN SPACE {VERSION}...")
     
     async def start_services():
-        global firebase_service, bybit_rest_service, bybit_ws_service, bankroll_manager, redis_service, captain_agent, sig_gen
+        global sovereign_service, bybit_rest_service, bybit_ws_service, bankroll_manager, redis_service, captain_agent, sig_gen
         
         logger.info("Step 0: Loading services (slow-walk mode)...")
         try:
             import importlib
             # Load services with 1s delay each to keep event loop breathing
-            logger.info("Step 0.1: Loading Firebase Service...")
-            firebase_service = importlib.import_module("services.firebase_service").firebase_service
+            logger.info("Step 0.1: Loading Sovereign Service...")
+            sovereign_service = importlib.import_module("services.sovereign_service").sovereign_service
             
             logger.info("Step 1: Activating Sovereign Mode (Railway)...")
-            await firebase_service.initialize()
+            await sovereign_service.initialize()
 
             logger.info("Step 1.1: Connecting Postgres (Railway)...")
             database_service = importlib.import_module("services.database_service").database_service
@@ -170,7 +170,7 @@ async def lifespan(app: FastAPI):
                     await bankroll_manager._force_paper_reset_v110()
                     # 4. Clear Firebase Slots (Deep Cleaned in V110.6.3)
                     for i in range(1, 5):
-                        try: await firebase_service.free_slot(i, "[V110.6.3] FACTORY RESET TRIGGERED")
+                        try: await sovereign_service.free_slot(i, "[V110.6.3] FACTORY RESET TRIGGERED")
                         except: pass
                     logger.info("✅ [V110.6.3] EMERGENCY DEEP SCRUB EXECUTED SUCCESSFULLY! 💥")
                 except Exception as e:
@@ -367,7 +367,7 @@ async def lifespan(app: FastAPI):
                                     else:
                                         captain_direction = "LATERAL"
 
-                                    await firebase_service.update_pulse_drag(
+                                    await sovereign_service.update_pulse_drag(
                                         btc_drag_mode=getattr(sig_gen, 'btc_drag_mode', False),
                                         btc_cvd=bybit_ws_service.get_cvd_score("BTCUSDT"),
                                         exhaustion=getattr(sig_gen, 'exhaustion_level', 0.0),

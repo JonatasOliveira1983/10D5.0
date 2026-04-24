@@ -6,15 +6,15 @@ import sys
 # Adiciona o diretório atual ao path para importar os serviços
 sys.path.append(os.getcwd())
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.execution_protocol import execution_protocol
 
 async def verify():
     print("--- Diagnostic: Missão Elite Count ---")
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
     # Busca TODOS os trades sem limite
-    docs = firebase_service.db.collection("trade_history").get()
+    docs = sovereign_service.db.collection("trade_history").get()
     all_trades = [d.to_dict() for d in docs]
     
     print(f"Total trades found in Firestore: {len(all_trades)}")
@@ -67,7 +67,7 @@ async def verify():
             print(f"  - {err}")
 
     # Verifica o documento current_cycle
-    vault_doc = firebase_service.db.collection("vault_management").document("current_cycle").get()
+    vault_doc = sovereign_service.db.collection("vault_management").document("current_cycle").get()
     if vault_doc.exists:
         vdata = vault_doc.to_dict()
         print(f"\nVault Status (Firestore):")

@@ -6,7 +6,7 @@ from collections import deque
 from unittest.mock import MagicMock, AsyncMock, patch
 
 # Configurando o ambiente para não tentar carregar Firebase real
-os.environ["FIREBASE_SERVICE_ACCOUNT"] = "{}" 
+os.environ["sovereign_service_ACCOUNT"] = "{}" 
 
 # Setup path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -21,7 +21,7 @@ async def run_v110_62_validation():
     
     # Mocking bybit_ws_service e captain_agent
     with patch("services.bybit_ws.bybit_ws_service") as mock_ws, \
-         patch("services.firebase_service.firebase_service") as mock_fb:
+         patch("services.sovereign_service.sovereign_service") as mock_fb:
         
         from services.bybit_ws import BybitWS
         real_ws = BybitWS() # Instancia localmente para testar a logica math
@@ -43,7 +43,7 @@ async def run_v110_62_validation():
     # 2. TESTE PILAR 2: ADAPTIVE WEIGHTING (LIBRARIAN)
     print("\n[TEST 2] Librarian Auditor Logic...")
     
-    with patch("services.firebase_service.firebase_service") as mock_fb:
+    with patch("services.sovereign_service.sovereign_service") as mock_fb:
         from services.agents.librarian_auditor import LibrarianAuditor
         auditor = LibrarianAuditor()
         
@@ -73,7 +73,7 @@ async def run_v110_62_validation():
     print("\n[TEST 3] Guardian Hedge Sentinel...")
     
     with patch("services.bankroll.bankroll_manager") as mock_bank, \
-         patch("services.firebase_service.firebase_service") as mock_fb:
+         patch("services.sovereign_service.sovereign_service") as mock_fb:
         
         from services.agents.oracle_agent import OracleAgent
         oracle = OracleAgent()

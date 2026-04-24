@@ -1,6 +1,6 @@
 
 import asyncio
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.agents.captain import captain_agent
 import json
 
@@ -9,8 +9,8 @@ async def check_tocaias():
     
     # 1. Verificar Tocaias no banco de dados (RTDB)
     try:
-        if firebase_service.db:
-            tocaias_ref = firebase_service.db.reference('tocaias')
+        if sovereign_service.db:
+            tocaias_ref = sovereign_service.db.reference('tocaias')
             tocaias = tocaias_ref.get()
             print(f"Tocaias no RTDB: {json.dumps(tocaias, indent=2) if tocaias else 'Nenhuma'}")
         else:
@@ -27,7 +27,7 @@ async def check_tocaias():
 
     # 3. Verificar se o sistema está escaneando
     try:
-        slots = await firebase_service.get_active_slots()
+        slots = await sovereign_service.get_active_slots()
         print(f"Slots ocupados: {sum(1 for s in slots if s.get('symbol'))}")
     except Exception as e:
         print(f"Erro ao buscar slots: {e}")

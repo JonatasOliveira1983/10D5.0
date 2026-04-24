@@ -5,20 +5,20 @@ import sys
 # Define base path to ensure relative imports work
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def fast_clean():
     print("Starting fast system cleanup...")
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
-    if not firebase_service.is_active:
+    if not sovereign_service.is_active:
         print("Firebase NOT active. Check credentials.")
         return
 
     # 1. Clear slots
     print("Clearing 4 active slots...")
     for i in range(1, 5):
-        await firebase_service.free_slot(i, "Nuclear Reset V110.30.1")
+        await sovereign_service.free_slot(i, "Nuclear Reset V110.30.1")
     
     # 2. Reset bankroll to 100
     print("Resetting bankroll to 100.00...")
@@ -32,14 +32,14 @@ async def fast_clean():
         "slots_disponiveis": 4,
         "status": "ONLINE"
     }
-    await firebase_service.update_banca_status(reset_data)
+    await sovereign_service.update_banca_status(reset_data)
     
     # 3. Clear History collections (limit 500 to avoid long waits)
     collections = ["trade_history", "banca_history", "system_logs", "journey_signals", "moonbags"]
     for col in collections:
         print(f"Cleaning collection: {col}...")
-        docs = firebase_service.db.collection(col).limit(500).stream()
-        batch = firebase_service.db.batch()
+        docs = sovereign_service.db.collection(col).limit(500).stream()
+        batch = sovereign_service.db.batch()
         count = 0
         for doc in docs:
             batch.delete(doc.reference)

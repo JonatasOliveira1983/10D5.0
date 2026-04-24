@@ -1,15 +1,15 @@
 
 import asyncio
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 import json
 
 async def check_slots():
     print("Iniciando consulta ao Firebase (Active Slots)...")
-    if not firebase_service.is_active:
+    if not sovereign_service.is_active:
         print("Firebase não está ativo!")
         return
 
-    slots = await firebase_service.get_active_slots()
+    slots = await sovereign_service.get_active_slots()
     print("Slots Ativos no Firebase:")
     print(json.dumps(slots, indent=2))
 

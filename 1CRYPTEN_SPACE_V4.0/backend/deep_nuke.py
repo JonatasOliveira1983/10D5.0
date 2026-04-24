@@ -7,7 +7,7 @@ import logging
 # Adiciona o diretório backend ao path para importar os serviços
 sys.path.append(os.getcwd())
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bankroll import BankrollManager
 
 logging.basicConfig(level=logging.INFO)
@@ -17,8 +17,8 @@ async def run_deep_nuke():
     print("[DEEP NUKE] Iniciando limpeza PROFUNDA e ABSOLUTA...")
     
     # 1. Inicializa Firebase
-    await firebase_service.initialize()
-    if not firebase_service.is_active:
+    await sovereign_service.initialize()
+    if not sovereign_service.is_active:
         print("FAIL: Falha ao conectar ao Firebase.")
         return
 
@@ -35,9 +35,9 @@ async def run_deep_nuke():
         "status": "ONLINE",
         "timestamp_last_update": time.time()
     }
-    await asyncio.to_thread(firebase_service.db.collection("banca_status").document("status").set, reset_data)
-    if firebase_service.rtdb:
-        await asyncio.to_thread(firebase_service.rtdb.child("banca_status").set, reset_data)
+    await asyncio.to_thread(sovereign_service.db.collection("banca_status").document("status").set, reset_data)
+    if sovereign_service.rtdb:
+        await asyncio.to_thread(sovereign_service.rtdb.child("banca_status").set, reset_data)
     print("SUCCESS: Banca resetada.")
 
     # 3. Limpeza de Coleções Firestore (Todos os documentos)
@@ -45,7 +45,7 @@ async def run_deep_nuke():
     for coll_name in collections_to_wipe:
         print(f"FIRESTORE: Limpando colecao {coll_name}...")
         try:
-            docs = firebase_service.db.collection(coll_name).limit(500).stream()
+            docs = sovereign_service.db.collection(coll_name).limit(500).stream()
             count = 0
             for doc in docs:
                 await asyncio.to_thread(doc.reference.delete)
@@ -55,12 +55,12 @@ async def run_deep_nuke():
             print(f"ERROR: Falha ao limpar {coll_name}: {e}")
 
     # 4. Limpeza Nuclear do Realtime Database (Nós Raiz)
-    if firebase_service.rtdb:
+    if sovereign_service.rtdb:
         nodes_to_wipe = ["live_slots", "moonbag_vault", "system_pulse", "radar_pulse", "agent_logs"]
         for node in nodes_to_wipe:
             print(f"RTDB: Deletando no raiz {node}...")
             try:
-                await asyncio.to_thread(firebase_service.rtdb.child(node).delete)
+                await asyncio.to_thread(sovereign_service.rtdb.child(node).delete)
                 print(f"SUCCESS: No {node} deletado do RTDB.")
             except Exception as e:
                 print(f"ERROR: Falha ao deletar no {node}: {e}")

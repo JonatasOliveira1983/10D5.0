@@ -6,13 +6,13 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def fix():
     print("🔧 Initializing Firebase...")
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
-    if not firebase_service.rtdb:
+    if not sovereign_service.rtdb:
         print("❌ RTDB not connected!")
         return
     
@@ -31,7 +31,7 @@ async def fix():
         "leverage": 50
     }
     
-    firebase_service.rtdb.child("banca_status").set(clean_banca)
+    sovereign_service.rtdb.child("banca_status").set(clean_banca)
     print("✅ RTDB banca_status REPLACED with $100.00")
     
     # Also clean vault_status in RTDB
@@ -44,7 +44,7 @@ async def fix():
         "used_symbols_in_cycle": [],
         "next_entry_value": 10.0
     }
-    firebase_service.rtdb.child("vault_status").set(clean_vault)
+    sovereign_service.rtdb.child("vault_status").set(clean_vault)
     print("✅ RTDB vault_status REPLACED with clean cycle")
     
     print("🎯 RTDB Fix Complete!")

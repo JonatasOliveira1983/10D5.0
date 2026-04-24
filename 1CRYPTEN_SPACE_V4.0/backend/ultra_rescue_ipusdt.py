@@ -10,14 +10,14 @@ from datetime import datetime
 # Adicionar path do backend
 sys.path.append(os.getcwd())
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("RescueIPUSDT-Ultra")
 
 async def ultra_rescue():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     print("🚀 [ULTRA-RESCUE] IPUSDT - Iniciando...")
 
     symbol = "IPUSDT"
@@ -51,16 +51,16 @@ async def ultra_rescue():
     }
 
     print(f"📝 Gravando Moonbag no Firestore: {moon_id}")
-    await asyncio.to_thread(firebase_service.db.collection("moonbags").document(moon_id).set, moon_data)
+    await asyncio.to_thread(sovereign_service.db.collection("moonbags").document(moon_id).set, moon_data)
     
     # 2. Atualizar RTDB (Vault)
-    if firebase_service.rtdb:
+    if sovereign_service.rtdb:
         print("⚡ Gravando no RTDB Vault...")
-        await asyncio.to_thread(firebase_service.rtdb.child("moonbag_vault").child(moon_id).set, moon_data)
+        await asyncio.to_thread(sovereign_service.rtdb.child("moonbag_vault").child(moon_id).set, moon_data)
 
     # 3. Limpar o Slot 1 (Liberação)
     print("🧹 Liberando Slot 1...")
-    await firebase_service.hard_reset_slot(1, "RESCUE_CLEANUP", pnl=0.0)
+    await sovereign_service.hard_reset_slot(1, "RESCUE_CLEANUP", pnl=0.0)
 
     # 4. Injetar na RAM do Motor (BybitREST)
     # Importante para o motor monitorar o SL de 110%

@@ -1,12 +1,12 @@
 import asyncio
 import os
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from config import settings
 
 async def check_active_slots():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     # [V110.25.0] get_active_slots now returns a list of dictionaries
-    slots = await firebase_service.get_active_slots()
+    slots = await sovereign_service.get_active_slots()
     print("--- SLOTS ATIVOS ---")
     for data in slots:
         if data.get("symbol"):

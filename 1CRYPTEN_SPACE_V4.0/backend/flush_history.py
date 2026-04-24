@@ -1,13 +1,13 @@
 import asyncio
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.vault_service import vault_service
 
 async def main():
-    await firebase_service.initialize()
-    await firebase_service.initialize_db()
+    await sovereign_service.initialize()
+    await sovereign_service.initialize_db()
     
     print("Fetching all trade history...")
-    trades = await firebase_service.get_trade_history(limit=5000)
+    trades = await sovereign_service.get_trade_history(limit=5000)
     print(f"Found {len(trades)} trades in history.")
     
     deleted = 0
@@ -15,7 +15,7 @@ async def main():
         doc_id = trade.get("id")
         if doc_id:
             try:
-                firebase_service.db.collection("trade_history").document(doc_id).delete()
+                sovereign_service.db.collection("trade_history").document(doc_id).delete()
                 deleted += 1
             except Exception as e:
                 print(f"Error deleting {doc_id}: {e}")
@@ -23,7 +23,7 @@ async def main():
     print(f"Successfully deleted {deleted} records from trade_history.")
     
     print("\nRe-syncing Vault and Banca to $100 base...")
-    await firebase_service.update_banca_status({
+    await sovereign_service.update_banca_status({
         "id": "status",
         "saldo_real_bybit": 0,
         "risco_real_percent": 0,

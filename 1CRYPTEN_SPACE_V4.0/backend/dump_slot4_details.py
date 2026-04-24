@@ -1,11 +1,11 @@
 
 import asyncio
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 import json
 
 async def dump_slot_4():
-    await firebase_service.initialize()
-    slot = await firebase_service.get_slot(4)
+    await sovereign_service.initialize()
+    slot = await sovereign_service.get_slot(4)
     print(json.dumps(slot, indent=2))
 
 if __name__ == "__main__":

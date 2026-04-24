@@ -1,15 +1,15 @@
 import asyncio
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from datetime import datetime, timedelta, timezone
 
 async def audit_fails():
-    await firebase_service.initialize()
-    if not firebase_service.is_active:
+    await sovereign_service.initialize()
+    if not sovereign_service.is_active:
         print("Firebase is not active.")
         return
 
     # Check more signals (last 100)
-    signals = await firebase_service.get_recent_signals(limit=100)
+    signals = await sovereign_service.get_recent_signals(limit=100)
     
     now = datetime.now(timezone.utc)
     fail_count = 0

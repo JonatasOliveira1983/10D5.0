@@ -3,7 +3,7 @@ import logging
 import time
 from typing import Dict, Any, List, Optional
 from services.agents.aios_adapter import AIOSAgent
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from config import settings
 
 logger = logging.getLogger("QuartermasterAgent")

@@ -1,5 +1,5 @@
 import asyncio
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def clear_all():
     print("Iniciando limpeza profunda de slots (V110.173)...")
@@ -18,9 +18,9 @@ async def clear_all():
             "opened_at": 0,
             "genesis_id": ""
         }
-        await firebase_service.update_slot(i, empty_slot)
-        if firebase_service.rtdb:
-            firebase_service.rtdb.child("live_slots").child(str(i)).set(empty_slot)
+        await sovereign_service.update_slot(i, empty_slot)
+        if sovereign_service.rtdb:
+            sovereign_service.rtdb.child("live_slots").child(str(i)).set(empty_slot)
         print(f"Slot {i} resetado.")
 
 if __name__ == "__main__":

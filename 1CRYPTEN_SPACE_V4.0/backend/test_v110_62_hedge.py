@@ -8,7 +8,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from services.agents.oracle_agent import OracleAgent
 from services.bankroll import bankroll_manager
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 
 async def test_hedge_sentinel():
@@ -28,7 +28,7 @@ async def test_hedge_sentinel():
         if "GUARDIAN HEDGE ATIVADO" in msg:
             print("🎯 TESTE PASSOU: Guardian Hedge disparado com sucesso pelo Oracle!")
 
-    firebase_service.log_event = mock_log_event
+    sovereign_service.log_event = mock_log_event
 
     # 2. Simular queda violenta do BTC (Crash de -3.0% em 15m)
     print("📉 Simulando Flash Crash no Oráculo (-3.0% em 15m)...")

@@ -6,12 +6,12 @@ import os
 # Adiciona o diretório atual ao path para importar os serviços
 sys.path.append(os.getcwd())
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def analyze_virtual_trades():
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     # Pega os últimos 200 trades para garantir que encontramos os de VIRTUALUSDT
-    trades = await firebase_service.get_trade_history(limit=200)
+    trades = await sovereign_service.get_trade_history(limit=200)
     
     virtual_trades = [t for t in trades if 'VIRTUAL' in str(t.get('symbol', ''))]
     

@@ -9,7 +9,7 @@ import logging
 # Adicionar path do backend
 sys.path.append(os.getcwd())
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 
 logging.basicConfig(level=logging.INFO)
@@ -44,30 +44,30 @@ async def nuclear_wipe_kite():
     print("🧠 [RAM] KITE removida da memória do BybitREST")
 
     # 3. Limpeza FIRESTORE (Atomic Delete)
-    await firebase_service.initialize()
-    m_fs = await firebase_service.get_moonbags()
+    await sovereign_service.initialize()
+    m_fs = await sovereign_service.get_moonbags()
     for m in m_fs:
         if m.get("symbol") == "KITEUSDT":
             print(f"🔥 [FIRESTORE] Deletando Moonbag: {m['id']}")
             # Use remove_moonbag para limpar RTDB e Firestore simultaneamente
-            await firebase_service.remove_moonbag(m['id'], reason="NUCLEAR_WIPE_FORCE")
+            await sovereign_service.remove_moonbag(m['id'], reason="NUCLEAR_WIPE_FORCE")
             
     # 4. Limpeza RTDB (Recursiva no rastro)
-    if firebase_service.rtdb:
+    if sovereign_service.rtdb:
         print("⚡ [RTDB] Nuke nos nós moonbag_vault e slots...")
-        vault = await asyncio.to_thread(firebase_service.rtdb.child("moonbag_vault").get)
+        vault = await asyncio.to_thread(sovereign_service.rtdb.child("moonbag_vault").get)
         if vault:
             for k, v in vault.items():
                 if v and v.get("symbol") == "KITEUSDT":
                     print(f"🗑️ Removendo KITE do RTDB moonbag_vault: {k}")
-                    await asyncio.to_thread(firebase_service.rtdb.child("moonbag_vault").child(k).delete)
+                    await asyncio.to_thread(sovereign_service.rtdb.child("moonbag_vault").child(k).delete)
                     
-        slots = await asyncio.to_thread(firebase_service.rtdb.child("slots").get)
+        slots = await asyncio.to_thread(sovereign_service.rtdb.child("slots").get)
         if slots:
             for sid, data in slots.items():
                 if data and data.get("symbol") == "KITEUSDT":
                     print(f"🧹 Resetando KITE no RTDB slot: {sid}")
-                    await asyncio.to_thread(firebase_service.rtdb.child("slots").child(sid).update, {
+                    await asyncio.to_thread(sovereign_service.rtdb.child("slots").child(sid).update, {
                         "symbol": None, "pnl_percent": 0, "status_risco": "LIVRE"
                     })
 

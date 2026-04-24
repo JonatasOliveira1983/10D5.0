@@ -4,16 +4,16 @@ import os
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.vault_service import vault_service
 
 async def reset_v33():
     print("=== V33.0 CLEAN RESET ===")
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     
     print("1. Clearing Trade History...")
     try:
-        db = firebase_service.db
+        db = sovereign_service.db
         trades = db.collection("trade_history").limit(500).stream()
         count = 0
         for doc in trades:
@@ -25,7 +25,7 @@ async def reset_v33():
 
     print("2. Clearing Vault & Cycles...")
     try:
-        db = firebase_service.db
+        db = sovereign_service.db
         vault_docs = db.collection("vault_management").stream()
         v_count = 0
         for doc in vault_docs:
@@ -37,7 +37,7 @@ async def reset_v33():
 
     print("3. Clearing Signal History...")
     try:
-        db = firebase_service.db
+        db = sovereign_service.db
         signals = db.collection("signal_history").limit(500).stream()
         s_count = 0
         for doc in signals:
@@ -49,17 +49,17 @@ async def reset_v33():
 
     print("4. Clearing RTDB slots + cooldowns...")
     try:
-        if firebase_service.rtdb:
-            firebase_service.rtdb.child("slots").delete()
-            firebase_service.rtdb.child("cooldowns").delete()
-            firebase_service.rtdb.child("analytics").delete()
+        if sovereign_service.rtdb:
+            sovereign_service.rtdb.child("slots").delete()
+            sovereign_service.rtdb.child("cooldowns").delete()
+            sovereign_service.rtdb.child("analytics").delete()
             print("   RTDB slots, cooldowns, analytics cleared.")
     except Exception as e:
         print(f"   Error: {e}")
 
     print("5. Resetting Banca to $10.00...")
     try:
-        await firebase_service.update_banca_status({
+        await sovereign_service.update_banca_status({
             "configured_balance": 100.0,
             "saldo_total": 100.0,
             "saldo_real_bybit": 0.0,

@@ -66,12 +66,12 @@ class ThresholdCalibrator:
     async def initialize(self):
         """Carrega thresholds persistidos do Firestore."""
         try:
-            from services.firebase_service import firebase_service
-            if not firebase_service.is_active:
-                await firebase_service.initialize()
+            from services.sovereign_service import sovereign_service
+            if not sovereign_service.is_active:
+                await sovereign_service.initialize()
             
-            if firebase_service.is_active:
-                doc = firebase_service.get_doc("system/thresholds")
+            if sovereign_service.is_active:
+                doc = sovereign_service.get_doc("system/thresholds")
                 if doc and doc.get("exists"):
                     data = doc.get("data", {})
                     self.active_thresholds = data.get("active", DEFAULT_THRESHOLDS)
@@ -86,8 +86,8 @@ class ThresholdCalibrator:
     async def persist_thresholds(self):
         """Salva thresholds ativos no Firestore."""
         try:
-            from services.firebase_service import firebase_service
-            if not firebase_service.is_active:
+            from services.sovereign_service import sovereign_service
+            if not sovereign_service.is_active:
                 return False
             
             data = {
@@ -98,7 +98,7 @@ class ThresholdCalibrator:
                 "updated_at": time.time()
             }
             
-            firebase_service.set_doc("system/thresholds", data)
+            sovereign_service.set_doc("system/thresholds", data)
             logger.info(f"💾 [THRESH-CAL] Thresholds persistidos no Firestore")
             return True
         except Exception as e:
@@ -121,13 +121,13 @@ class ThresholdCalibrator:
             return self._trade_history_cache
         
         try:
-            from services.firebase_service import firebase_service
-            if not firebase_service.is_active:
+            from services.sovereign_service import sovereign_service
+            if not sovereign_service.is_active:
                 return []
             
             # Buscar trade_history dos últimos 7 dias
             seven_days_go = now - (7 * 86400)
-            trades = firebase_service.get_collection("trade_history")
+            trades = sovereign_service.get_collection("trade_history")
             
             # Filtrar trades recentes
             recent_trades = []

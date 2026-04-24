@@ -6,24 +6,24 @@ import logging
 # Add parent directory to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("CleanSignals")
 
 async def clean_collection(col_name, limit=100):
     logger.info(f"🧹 Clearing {col_name} (limit {limit} per batch)...")
-    await firebase_service.initialize()
-    if not firebase_service.is_active:
+    await sovereign_service.initialize()
+    if not sovereign_service.is_active:
         logger.error("❌ Firebase not active.")
         return
 
     while True:
-        docs = list(firebase_service.db.collection(col_name).limit(limit).stream())
+        docs = list(sovereign_service.db.collection(col_name).limit(limit).stream())
         if not docs:
             break
             
-        batch = firebase_service.db.batch()
+        batch = sovereign_service.db.batch()
         for doc in docs:
             batch.delete(doc.reference)
         

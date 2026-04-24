@@ -3,7 +3,7 @@ import asyncio
 import time
 from typing import Dict, Any, List
 from services.agents.aios_adapter import AIOSAgent
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 logger = logging.getLogger("LibrarianAuditor")
 
@@ -27,7 +27,7 @@ class LibrarianAuditor(AIOSAgent):
         
         # Tenta carregar os vieses atuais do RTDB
         try:
-            current_biases = await firebase_service.get_system_bias()
+            current_biases = await sovereign_service.get_system_bias()
             if current_biases:
                 self.biases.update(current_biases)
                 logger.info(f"📚 [LIBRARIAN-AUDITOR] Biases carregados: {self.biases}")
@@ -51,7 +51,7 @@ class LibrarianAuditor(AIOSAgent):
         """Analisa o histórico e ajusta os pesos de confiança."""
         logger.info("🔍 [LIBRARIAN-AUDITOR] Iniciando auditoria de performance...")
         
-        trades = await firebase_service.get_trade_history(limit=50)
+        trades = await sovereign_service.get_trade_history(limit=50)
         if not trades:
             logger.warning("📚 [LIBRARIAN-AUDITOR] Histórico vazio. Mantendo pesos padrão.")
             return
@@ -103,7 +103,7 @@ class LibrarianAuditor(AIOSAgent):
         self.biases.update(new_biases)
         
         # Salva no RTDB para o Capitão consumir
-        await firebase_service.save_system_bias(self.biases)
+        await sovereign_service.save_system_bias(self.biases)
         logger.info(f"✅ [LIBRARIAN-AUDITOR] Auditoria concluída. Novos pesos: {new_biases}")
 
     async def on_message(self, message: Dict[str, Any]) -> Dict[str, Any]:

@@ -1,18 +1,18 @@
 import asyncio
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 import platform
 
 if platform.system() == 'Windows':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 async def fetch_signals():
-    await firebase_service.initialize()
-    if not firebase_service.db:
+    await sovereign_service.initialize()
+    if not sovereign_service.db:
         print("Erro db")
         return
     
-    # O firebase_service.log_signal usa doc_ref = self.db.collection('signals_log').document(signal_data["id"])
-    signals_ref = firebase_service.db.collection('signals_log')
+    # O sovereign_service.log_signal usa doc_ref = self.db.collection('signals_log').document(signal_data["id"])
+    signals_ref = sovereign_service.db.collection('signals_log')
     query_sig = signals_ref.order_by('timestamp', direction='DESCENDING').limit(50)
     
     try:

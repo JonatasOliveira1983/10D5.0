@@ -5,7 +5,7 @@ import time
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from services.bankroll import bankroll_manager
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.bybit_rest import bybit_rest_service
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -13,7 +13,7 @@ logger = logging.getLogger("Test")
 
 async def test_duplicate():
     logger.info("🔥 INICIANDO TESTE SEVERO DE DUPLICIDADE EM MODO PAPER 🔥")
-    await firebase_service.initialize()
+    await sovereign_service.initialize()
     await bybit_rest_service.initialize()
 
     symbol = "DOGEUSDT"

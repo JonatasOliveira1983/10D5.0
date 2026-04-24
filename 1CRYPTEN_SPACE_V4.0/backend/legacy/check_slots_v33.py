@@ -3,11 +3,11 @@ import os
 import sys
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 async def run():
-    await firebase_service.initialize()
-    slots = await firebase_service.get_active_slots()
+    await sovereign_service.initialize()
+    slots = await sovereign_service.get_active_slots()
     
     for slot in slots:
         if slot.get("symbol"):

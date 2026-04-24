@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 # Ajustar path para importar serviços
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 from services.vault_service import VaultService
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -17,13 +17,13 @@ logger = logging.getLogger("GoRealReset")
 async def deep_clean():
     logger.info("🚀 INICIANDO LIMPEZA PROFUNDA (GO REAL PROTOCOL)...")
     
-    await firebase_service.initialize()
-    if not firebase_service.is_active:
+    await sovereign_service.initialize()
+    if not sovereign_service.is_active:
         logger.error("❌ Falha ao conectar ao Firebase. Abortando.")
         return
 
-    db = firebase_service.db
-    rtdb = firebase_service.rtdb
+    db = sovereign_service.db
+    rtdb = sovereign_service.rtdb
 
     # 1. Limpar Coleções do Firestore
     collections_to_wipe = ["trade_history", "banca_history", "journey_signals", "system_logs"]
@@ -55,7 +55,7 @@ async def deep_clean():
     # 2. Resetar Slots Ativos
     logger.info("🎰 Resetando Slots Ativos no Firestore...")
     for i in range(1, 5):
-        await firebase_service.update_slot(i, {
+        await sovereign_service.update_slot(i, {
             "symbol": None,
             "entry_price": 0,
             "current_stop": 0,

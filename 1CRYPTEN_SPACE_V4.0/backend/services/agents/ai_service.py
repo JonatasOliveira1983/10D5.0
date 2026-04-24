@@ -9,7 +9,7 @@ except Exception:
 
 import google.generativeai as genai
 from config import settings
-from services.firebase_service import firebase_service
+from services.sovereign_service import sovereign_service
 
 logger = logging.getLogger("AIService")
 
