@@ -324,7 +324,10 @@ class LibrarianAgent(AIOSAgent):
                         if win_rate_val >= 70 and trend_4h == "UP" and trades_count >= 10:
                             nectar_seal = "🍯 ELITE NECTAR"
                         elif seal == "Quarentena 💀":
-                            nectar_seal = "💀 TRAP ZONE"
+                            if settings.BYBIT_EXECUTION_MODE == "PAPER":
+                                nectar_seal = "🛡️ VANGUARD (TRAP-WARNING)"
+                            else:
+                                nectar_seal = "💀 TRAP ZONE"
 
                         # [V110.152] MOMENTO MOLA: Detecção de Compressão de Volatilidade
                         # Compara o desvio padrão de curto prazo (20 barras) com o de longo prazo (100 barras)
