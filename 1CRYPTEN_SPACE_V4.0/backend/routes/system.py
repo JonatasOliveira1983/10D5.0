@@ -92,11 +92,20 @@ async def health_check():
 @router.get("/banca/data")
 async def get_banca_data():
     firebase_service, bybit_rest_service, _, _, _ = get_services()
+    from services.database_service import database_service
     try:
-        status = await firebase_service.get_banca_status()
+        # 1. Tenta buscar no Postgres (Railway Native)
+        status = await database_service.get_banca_status()
+        
+        # 2. Se o status for UNKNOWN ou saldo zerado, tenta o Firebase como fallback
+        if not status or status.get("status") == "UNKNOWN" or status.get("saldo_total", 0) == 0:
+            status = await firebase_service.get_banca_status()
+            
+        # 3. Se ainda assim estiver zerado, busca saldo real na Bybit (se estiver em REAL mode)
         if not status or status.get("saldo_total", 0) == 0:
             equity = await bybit_rest_service.get_wallet_balance()
             return {"saldo_total": equity, "risco_real_percent": 0.0, "slots_disponiveis": 4, "status": "LIVE_FETCH"}
+            
         return status
     except Exception as e:
         logger.error(f"Error fetching banca: {e}")
