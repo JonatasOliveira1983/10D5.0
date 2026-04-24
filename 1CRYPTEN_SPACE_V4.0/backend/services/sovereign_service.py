@@ -136,6 +136,8 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
     async def is_symbol_blocked(self, symbol): return False, 0
     async def register_sl_cooldown(self, symbol, duration): pass
     async def get_system_bias(self): return {}
+    async def update_radar_batch(self, batch): pass
+    async def update_system_state(self, *args, **kwargs): pass
 
     async def update_radar_pulse(self, signals: list, decisions: list, market_context: dict):
         """Atualiza e transmite o pulso do Radar."""
