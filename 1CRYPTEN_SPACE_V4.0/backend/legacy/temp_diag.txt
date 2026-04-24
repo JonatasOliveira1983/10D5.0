@@ -1,0 +1,87 @@
+--- SLOT 3 DETAILS ---
+{
+  "market_regime": "TRENDING",
+  "leverage": 50,
+  "target_extended": 0,
+  "is_reverse_sniper": false,
+  "id": 3,
+  "sl_phase": "SAFE",
+  "qty": 100.0,
+  "slot_type": "SWING",
+  "entry_margin": 0,
+  "opened_at": 1773172511.2588775,
+  "status_risco": "IDLE",
+  "move_room_pct": 6.0,
+  "pattern": "TOCAIA",
+  "timestamp_last_update": 1773233485.08027,
+  "rescue_resolved": false,
+  "target_price": 1.018342,
+  "symbol": null,
+  "liq_price": 0.83487903,
+  "side": null,
+  "entry_price": 0,
+  "pnl_percent": 0,
+  "score": 99,
+  "rescue_activated": true,
+  "current_stop": 453.59,
+  "pensamento": "V33.0 Pullback Hunter: Price Structure OK + Needle Flip OK. 🎯 SNIPER Long | Trigger: ZONE_REACTION | CVD: 133.2k | Funding: 0.0077% | Room: 5.1% | Score: 99 | Fleet: Score 50",
+  "structural_target": 1.018342
+}
+
+--- TRADE HISTORY (using method) ---
+NEARUSDT -0.27879922 2026-03-11T17:38:08
+SUIUSDT -0.14057484 2026-03-11T12:52:30
+1000PEPEUSDT -1.53847805 2026-03-11T12:51:24
+1000PEPEUSDT -2.1106908 2026-03-10T21:45:44
+BCHUSDT -0.2894514 2026-03-10T21:35:10
+
+--- RTDB vault_status ---
+{
+  "accumulated_vault": 0.0,
+  "cautious_mode": false,
+  "cycle_bankroll": 18.7077566,
+  "cycle_gains_count": 2,
+  "cycle_losses": 12.607813580000002,
+  "cycle_losses_count": 17,
+  "cycle_number": 1,
+  "cycle_profit": -4.254797550000001,
+  "cycle_start_bankroll": 18.7077566,
+  "in_admiral_rest": false,
+  "mega_cycle_number": 1,
+  "mega_cycle_profit": 0.0,
+  "mega_cycle_total": 0,
+  "mega_cycle_wins": 2,
+  "min_score_threshold": 75,
+  "next_entry_value": 1.87077566,
+  "sniper_mode_active": true,
+  "sniper_wins": 2,
+  "started_at": "2026-03-09T04:34:25.968773+00:00",
+  "total_trades_cycle": 6,
+  "updated_at": 1773282998274,
+  "used_symbols_in_cycle": [
+    "LTCUSDT",
+    "TAOUSDT",
+    "BNBUSDT",
+    "WLDUSDT",
+    "SUIUSDT",
+    "AVAXUSDT",
+    "NEARUSDT",
+    "LINKUSDT",
+    "1000PEPEUSDT",
+    "BCHUSDT"
+  ],
+  "vault_total": 0.0
+}
+
+--- RTDB vault_history ---
+null
+
+--- RTDB system_state ---
+{
+  "current": "SCANNING",
+  "last_reconciliation": 1773283106709.1775,
+  "message": "Fleet Audit Complete",
+  "protocol": "Sniper V15.1",
+  "slots_occupied": 0,
+  "updated_at": 1773283107830
+}

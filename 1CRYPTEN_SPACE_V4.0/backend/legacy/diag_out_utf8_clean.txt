@@ -1,0 +1,435 @@
+﻿
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.42 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-136.6%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4203 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-133.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4203 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-133.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4203 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-133.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4203 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-133.2%))
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4202 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-134.3%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4202 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-134.3%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:SignalGenerator:\U0001f4ca [V14.0 FUNNEL] 88 \u2192 S1:17 \u2192 S2:5 \u2192 Score\u2705:4 \u2192 Queued:0 | 
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:CaptainAgent:\U0001f3af V16.3 SNIPER SELECTS BEST SIGNAL: DOTUSDT.P (Score: 90)
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+WARNING:CaptainAgent:\u274c SNIPER SHOT FAILED for DOTUSDT.P
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4202 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-134.3%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4202 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-134.3%))
+INFO:CaptainAgent:\U0001f3af V16.3 SNIPER SELECTS BEST SIGNAL: SHIB1000USDT.P (Score: 97)
+WARNING:CaptainAgent:\u274c SNIPER SHOT FAILED for SHIB1000USDT.P
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.42 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-136.6%))
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.42 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-136.6%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.42 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-136.6%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.42 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-136.6%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.42 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-136.6%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.42 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-136.6%))
+INFO:BybitWS:V15.7: Sniper Pulse (ATR/RSI/LS/OI) updated for ALL 89 symbols.
+INFO:SignalGenerator:\U0001f4ca [V14.0 FUNNEL] 88 \u2192 S1:19 \u2192 S2:5 \u2192 Score\u2705:8 \u2192 Queued:3 | 
+INFO:CaptainAgent:\U0001f3af V16.3 SNIPER SELECTS BEST SIGNAL: ICPUSDT.P (Score: 88)
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.42 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-136.6%))
+WARNING:CaptainAgent:\u274c SNIPER SHOT FAILED for ICPUSDT.P
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.42 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-136.6%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.42 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-136.6%))
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4199 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-137.8%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4199 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-137.8%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4199 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-137.8%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4199 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-137.8%))
+INFO:CaptainAgent:\U0001f3af V16.3 SNIPER SELECTS BEST SIGNAL: DOTUSDT.P (Score: 99)
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4199 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-137.8%))
+WARNING:CaptainAgent:\u274c SNIPER SHOT FAILED for DOTUSDT.P
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+INFO:SignalGenerator:\U0001f4ca [V14.0 FUNNEL] 88 \u2192 S1:16 \u2192 S2:5 \u2192 Score\u2705:10 \u2192 Queued:2 | 
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4196 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-141.3%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4196 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-141.3%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4196 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-141.3%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-59.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-59.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-59.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-59.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-59.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-59.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+INFO:BybitWS:V15.7: Sniper Pulse (ATR/RSI/LS/OI) updated for ALL 89 symbols.
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:SignalGenerator:\U0001f4ca [V14.0 FUNNEL] 88 \u2192 S1:14 \u2192 S2:5 \u2192 Score\u2705:6 \u2192 Queued:0 | 
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-57.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-57.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-57.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-57.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-57.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-57.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-57.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-57.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4197 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-140.1%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-56.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-56.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4197 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-140.1%))
+INFO:CaptainAgent:\U0001f3af V16.3 SNIPER SELECTS BEST SIGNAL: STRKUSDT.P (Score: 99)
+WARNING:CaptainAgent:\u274c SNIPER SHOT FAILED for STRKUSDT.P
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-57.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-57.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-57.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-57.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-57.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-57.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4197 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-140.1%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-57.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-57.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4197 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-140.1%))
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-57.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-57.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-57.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-57.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:SignalGenerator:\U0001f4ca [V14.0 FUNNEL] 88 \u2192 S1:14 \u2192 S2:5 \u2192 Score\u2705:9 \u2192 Queued:2 | 
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4198 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-139.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4196 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-141.3%))
+INFO:CaptainAgent:\U0001f3af V16.3 SNIPER SELECTS BEST SIGNAL: BARDUSDT.P (Score: 89)
+WARNING:CaptainAgent:\u274c SNIPER SHOT FAILED for BARDUSDT.P
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4197 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-140.1%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4197 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-140.1%))
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4197 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-140.1%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4197 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-140.1%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4197 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-140.1%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:BybitWS:V15.7: Sniper Pulse (ATR/RSI/LS/OI) updated for ALL 89 symbols.
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4197 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-140.1%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4197 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-140.1%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4197 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-140.1%))
+INFO:SignalGenerator:\U0001f4ca [V14.0 FUNNEL] 88 \u2192 S1:15 \u2192 S2:5 \u2192 Score\u2705:14 \u2192 Queued:2 | 
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4197 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-140.1%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4197 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-140.1%))
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-58.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-58.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4197 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-140.1%))
+INFO:CaptainAgent:\U0001f3af V16.3 SNIPER SELECTS BEST SIGNAL: TONUSDT.P (Score: 98)
+WARNING:CaptainAgent:\u274c SNIPER SHOT FAILED for TONUSDT.P
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-56.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-56.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4199 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-137.8%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-54.3%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-54.3%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.42 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-136.6%))
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-55.3%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-55.3%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-54.3%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-54.3%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-54.3%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-54.3%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-54.3%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-54.3%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:SignalGenerator:\U0001f4ca [V14.0 FUNNEL] 88 \u2192 S1:15 \u2192 S2:5 \u2192 Score\u2705:7 \u2192 Queued:0 | 
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-54.3%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-54.3%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-54.3%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-54.3%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-51.4%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-51.4%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-51.4%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-51.4%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-51.4%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-51.4%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-51.4%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-51.4%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-51.4%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-51.4%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:CaptainAgent:\U0001f3af V16.3 SNIPER SELECTS BEST SIGNAL: UNIUSDT.P (Score: 95)
+WARNING:CaptainAgent:\u274c SNIPER SHOT FAILED for UNIUSDT.P
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4201 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-135.5%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4204 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-132.0%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4203 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-133.2%))
+INFO:BybitWS:V15.7: Sniper Pulse (ATR/RSI/LS/OI) updated for ALL 89 symbols.
+INFO:SignalGenerator:\U0001f4ca [V14.0 FUNNEL] 88 \u2192 S1:16 \u2192 S2:5 \u2192 Score\u2705:9 \u2192 Queued:3 | 
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4205 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-130.8%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4205 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-130.8%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4205 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-130.8%))
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4205 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-130.8%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4205 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-130.8%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4205 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-130.8%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4205 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-130.8%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-50.4%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-50.4%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4205 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-130.8%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-50.4%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-50.4%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4203 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-133.2%))
+INFO:CaptainAgent:\U0001f3af V16.3 SNIPER SELECTS BEST SIGNAL: IPUSDT.P (Score: 86)
+WARNING:CaptainAgent:\u274c SNIPER SHOT FAILED for IPUSDT.P
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-51.4%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-51.4%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4203 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-133.2%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-57.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-57.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4203 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-133.2%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-57.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-57.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4203 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-133.2%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-57.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-57.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4203 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-133.2%))
+INFO:SignalGenerator:\U0001f4ca [V14.0 FUNNEL] 88 \u2192 S1:12 \u2192 S2:5 \u2192 Score\u2705:8 \u2192 Queued:1 | 
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-57.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-57.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4204 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-132.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-57.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-57.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4204 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-132.0%))
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-56.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-56.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4204 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-132.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-55.3%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-55.3%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4204 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-132.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-56.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-56.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4204 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-132.0%))
+INFO:CaptainAgent:\U0001f3af V16.3 SNIPER SELECTS BEST SIGNAL: STRKUSDT.P (Score: 99)
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-56.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-56.2%))
+WARNING:CaptainAgent:\u274c SNIPER SHOT FAILED for STRKUSDT.P
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4204 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-132.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-55.3%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-55.3%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4204 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-132.0%))
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-55.3%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-55.3%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4204 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-132.0%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-55.3%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-55.3%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4205 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-130.8%))
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-56.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-56.2%))
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4202 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-134.3%))
+
+

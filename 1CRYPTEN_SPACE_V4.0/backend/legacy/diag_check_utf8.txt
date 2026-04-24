@@ -1,0 +1,100 @@
+﻿INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-132.0%))
+INFO:VaultService:\U0001f504 V15.6: WLDUSDT (LOSS) bloqueado para este ciclo.
+INFO:BybitREST:[PAPER] Closing position WLDUSDT | Reason: MANUAL_CLOSE
+INFO:BankrollManager:Starting Slot <-> Exchange Synchronization...
+INFO:BankrollManager:Exchange Positions (0): []
+WARNING:BankrollManager:Sync [PAPER PERSISTENCE]: Slot 1 (BCHUSDT.P) missing from memory. RE-ADOPTING.
+ERROR:BankrollManager:Error during slot sync: local variable 'side' referenced before assignment
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-55.3%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-55.3%))
+INFO:BankrollManager:\U0001f3af V12.0: Slot 4 disponÝvel.
+INFO:VaultService:\U0001f504 V15.6: BCHUSDT (LOSS) bloqueado para este ciclo.
+INFO:BybitREST:[PAPER] Closing position BCHUSDT | Reason: MANUAL_CLOSE
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4204 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-132.0%))
+INFO:VaultService:\U0001f504 V15.6: WLDUSDT (LOSS) bloqueado para este ciclo.
+INFO:SignalGenerator:\U0001f4ca [SIG-GEN] BTC Command Center: $69,013 | Var: -0.18% | CVD: $0.00M
+INFO:BybitREST:[PAPER] Closing position WLDUSDT | Reason: MANUAL_CLOSE
+INFO:FirebaseService:\u2705 [RTDB-BTC] Update SUCCESS: $69,013 | -0.18% | Traversed to btc_command_center node.
+INFO:BybitWS:V5.1.0: BTC 1h Variation updated: -0.11%
+INFO:BybitREST:BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...
+INFO:BybitREST:BybitREST: Identified 88 Elite pairs with exactly 50x leverage.
+WARNING:urllib3.connectionpool:Connection pool is full, discarding connection: api.bybit.com. Connection pool size: 10
+INFO:BybitREST:BybitREST: Elite Scan Successful. Monitoring 88 high-leverage assets.
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-55.3%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-55.3%))
+WARNING:urllib3.connectionpool:Connection pool is full, discarding connection: api.bybit.com. Connection pool size: 10
+WARNING:urllib3.connectionpool:Connection pool is full, discarding connection: api.bybit.com. Connection pool size: 10
+WARNING:urllib3.connectionpool:Connection pool is full, discarding connection: api.bybit.com. Connection pool size: 10
+WARNING:urllib3.connectionpool:Connection pool is full, discarding connection: api.bybit.com. Connection pool size: 10
+WARNING:urllib3.connectionpool:Connection pool is full, discarding connection: api.bybit.com. Connection pool size: 10
+WARNING:urllib3.connectionpool:Connection pool is full, discarding connection: api.bybit.com. Connection pool size: 10
+WARNING:urllib3.connectionpool:Connection pool is full, discarding connection: api.bybit.com. Connection pool size: 10
+INFO:VaultService:\U0001f504 V15.6: BCHUSDT (LOSS) bloqueado para este ciclo.
+INFO:AIOSAdapter:[macro_analyst] Calculating Global Risk Index...
+INFO:AIOSAdapter:[macro_analyst] Calculating Global Risk Index...
+INFO:AIOSAdapter:[macro_analyst] Calculating Global Risk Index...
+INFO:AIOSAdapter:[macro_analyst] Calculating Global Risk Index...
+INFO:AIOSAdapter:[sentiment_specialist] Analyzing sentiment for STRKUSDT.P...
+INFO:AIOSAdapter:[sentiment_specialist] Analyzing sentiment for WLDUSDT.P...
+INFO:AIOSAdapter:[sentiment_specialist] Analyzing sentiment for INJUSDT.P...
+INFO:AIOSAdapter:[sentiment_specialist] Analyzing sentiment for IPUSDT.P...
+INFO:BybitREST:[PAPER] Closing position BCHUSDT | Reason: MANUAL_CLOSE
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4204 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-132.0%))
+INFO:AIOSAdapter:[macro_analyst] Calculating Global Risk Index...
+INFO:AIOSAdapter:[sentiment_specialist] Analyzing sentiment for SOMIUSDT.P...
+INFO:VaultService:\U0001f504 V15.6: WLDUSDT (LOSS) bloqueado para este ciclo.
+INFO:httpx:HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:BybitREST:[PAPER] Closing position WLDUSDT | Reason: MANUAL_CLOSE
+INFO:httpx:HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-55.3%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-55.3%))
+INFO:VaultService:\U0001f504 V15.6: BCHUSDT (LOSS) bloqueado para este ciclo.
+INFO:BybitREST:[PAPER] Closing position BCHUSDT | Reason: MANUAL_CLOSE
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4205 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-130.8%))
+INFO:AIOSAdapter:[whale_tracker] Scanning for Whale activity on INJUSDT.P...
+INFO:VaultService:\U0001f504 V15.6: WLDUSDT (LOSS) bloqueado para este ciclo.
+INFO:AIOSAdapter:[whale_tracker] Scanning for Whale activity on SOMIUSDT.P...
+INFO:AIOSAdapter:[whale_tracker] Scanning for Whale activity on IPUSDT.P...
+INFO:DatabaseHarmonizer:\u2696\ufe0f [HARMONIZER] Starting parity check...
+INFO:SignalGenerator:\U0001f3af [V15.3] INJUSDT.P Long | Target: 3.368300 (+1.2%) | Extended: 3.507286
+INFO:SignalGenerator:\U0001f4e1 [RADAR-PULSE] Syncing signals and decisions to RTDB...
+INFO:CaptainAgent:\U0001f50d Analyzing Signal: INJUSDT.P (Score: 97)
+INFO:BybitREST:[PAPER] Closing position WLDUSDT | Reason: MANUAL_CLOSE
+INFO:DatabaseHarmonizer:\u2696\ufe0f [HARMONIZER] Skipping ghost check in PAPER mode.
+INFO:DatabaseHarmonizer:\u2696\ufe0f [HARMONIZER] Bybit Execution Mode is PAPER. Skipping orphaned slot finalization 
+to allow Bankroll memory re-adoption.
+INFO:DatabaseHarmonizer:\u2705 [HARMONIZER] Parity check complete. Pairs sync'd: 0
+INFO:SignalGenerator:\U0001f4e1 [RADAR-PULSE] Syncing signals and decisions to RTDB...
+INFO:CaptainAgent:\U0001f30a [ELITE OVERFLOW] SCALP signal for INJUSDT.P routed to TREND slot 4 (Score: 97)
+INFO:CaptainAgent:\u2693 [FLEET] Requesting consensus for INJUSDT.P...
+INFO:AIOSAdapter:[macro_analyst] Calculating Global Risk Index...
+INFO:AIOSAdapter:[sentiment_specialist] Analyzing sentiment for INJUSDT.P...
+INFO:TradeAnalyst:\U0001f4ca [AUTOPSY] \u274c LINKUSDT.P | big_loss | ROI=-50.6% | Pattern=unknown | Session=ny | 
+Phase=UNKNOWN | Target=0%
+INFO:httpx:HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+WARNING:ExecutionProtocol:\U0001f6d1 SNIPER HARD SL: BCHUSDT.P ROI=-56.2%
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for BCHUSDT.P (SNIPER_SL_HARD_STOP (-56.2%))
+INFO:TradeAnalyst:\U0001f4ca [AUTOPSY] \u274c ENAUSDT.P | big_loss | ROI=-53.5% | Pattern=unknown | Session=ny | 
+Phase=UNKNOWN | Target=0%
+INFO:VaultService:\U0001f504 V15.6: BCHUSDT (LOSS) bloqueado para este ciclo.
+INFO:BybitREST:[PAPER] Closing position BCHUSDT | Reason: MANUAL_CLOSE
+INFO:TradeAnalyst:\U0001f4ca [AUTOPSY] \u274c LTCUSDT.P | small_loss | ROI=-5.9% | Pattern=unknown | Session=ny | 
+Phase=UNKNOWN | Target=0%
+INFO:ExecutionProtocol:\U0001f6d1 SNIPER SL HIT: WLDUSDT.P Price=0.4202 | SL=0.423164 | Phase=SAFE
+INFO:ShadowSentinel:\U0001f6e1\ufe0f SENTINEL TRIGGER: Requesting closure for WLDUSDT.P (SNIPER_SL_SAFE (-134.3%))
+ERROR:AIOSAdapter:[sentiment_specialist] Failed to analyze sentiment: Expecting value: line 1 column 1 (char 0)
+INFO:AIOSAdapter:[whale_tracker] Scanning for Whale activity on STRKUSDT.P...
+INFO:VaultService:\U0001f504 V15.6: WLDUSDT (LOSS) bloqueado para este ciclo.
+WARNING:urllib3.connectionpool:Connection pool is full, discarding connection: api.bybit.com. Connection pool size: 10
+WARNING:urllib3.connectionpool:Connection pool is full, discarding connection: api.bybit.com. Connection pool size: 10
+WARNING:urllib3.connectionpool:Connection pool is full, discarding connection: api.bybit.com. Connection pool size: 10
+WARNING:urllib3.connectionpool:Connection pool is full, discarding connection: api.bybit.com. Connection pool size: 10
+INFO:TradeAnalyst:\U0001f4ca [AUTOPSY] \u274c KITEUSDT.P | big_loss | ROI=-47.9% | Pattern=unknown | Session=ny | 
+Phase=UNKNOWN | Target=0%
+WARNING:urllib3.connectionpool:Connection pool is full, discarding connection: api.bybit.com. Connection pool size: 10

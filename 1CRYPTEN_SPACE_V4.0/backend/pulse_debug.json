@@ -1,0 +1,20 @@
+{
+  "market_context": {
+    "btc_adx": 32.22,
+    "btc_direction": "UP",
+    "btc_dominance": 58.2,
+    "btc_price": 78193.98,
+    "btc_regime": "ROARING",
+    "btc_strength": 95,
+    "btc_variation_15m": -0.11,
+    "btc_variation_1h": 0.09,
+    "btc_variation_24h": 2.48,
+    "daily_gains": 0,
+    "daily_pnl": 0,
+    "daily_target": 10,
+    "decorrelation_active_count": 0,
+    "decorrelation_avg": 0,
+    "radar_mode": "SCAVENGER_RANGE"
+  },
+  "updated_at": 1776857776555
+}

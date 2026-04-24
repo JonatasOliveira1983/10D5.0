@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+.venv/
+venv/
+__pycache__/
+
+# System
+.DS_Store
+Thumbs.db
+
+# Environment & Secrets
+.env
+token.json
+serviceAccountKey.json
+client_secret.json
+1CRYPTEN_SPACE_V4.0/backend/token.json
+1CRYPTEN_SPACE_V4.0/backend/serviceAccountKey.json
+1CRYPTEN_SPACE_V4.0/backend/client_secret.json
+
+# IDE
+.vscode/
+.idea/
+
+# Build
+dist/
+build/
+coverage/
+
+# Specific Logs & Temporary Files (Protecting secrets)
+1CRYPTEN_SPACE_V4.0/backend/*.log*
+1CRYPTEN_SPACE_V4.0/backend/*.db
+1CRYPTEN_SPACE_V4.0/backend/*.txt
+!1CRYPTEN_SPACE_V4.0/backend/requirements.txt
+!requirements.txt
+!MASTER_ARCHITECTURE.md
+venv_elite/
