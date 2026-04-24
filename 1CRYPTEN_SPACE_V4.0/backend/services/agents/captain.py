@@ -838,7 +838,10 @@ class CaptainAgent(AIOSAgent):
                 is_warming_up = adx_slope > 0 or current_btc_adx >= 20
 
                 
-                can_bypass_lateral = is_blitz
+                is_decorrelated = best_signal.get("decorrelation_play", False)
+                is_spring_vanguard = lib_dna_lateral.get("is_spring_moment", False)
+                
+                can_bypass_lateral = is_blitz or is_decorrelated or is_spring_vanguard
                 if is_blitz:
                     msg = (
                         f"⚡ [BLITZ-LATERAL-BYPASS] {symbol} ({side}) ignorando trava lateral Sentinel."
@@ -886,7 +889,7 @@ class CaptainAgent(AIOSAgent):
                 local_cvd = bybit_ws_service.get_cvd_score(symbol)
                 is_whale_strong = abs(local_cvd) >= 15000 or score >= 88
                 
-                if is_blitz:
+                if is_blitz or is_decorrelated or is_spring_vanguard:
                     msg = f"⚡ [BLITZ-PRIORITY] {symbol} ({side}) ignorando bloqueio ADX lateral (M30 Blitz Mode)."
                     logger.info(msg)
                     await sovereign_service.log_event("CAPTAIN", msg, "SUCCESS")

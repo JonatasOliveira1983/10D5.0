@@ -94,6 +94,16 @@ class VaultCycle(Base):
     order_ids_processed = Column(JSON, default=list)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+class OrderGenesis(Base):
+    __tablename__ = "order_genesis"
+    order_id = Column(String, primary_key=True) # Linked to Bybit OrderId
+    genesis_id = Column(String, index=True)
+    symbol = Column(String)
+    side = Column(String)
+    strategy = Column(String)
+    data = Column(JSON) # Full intelligence payload
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
 class VaultWithdrawal(Base):
     __tablename__ = "vault_withdrawals"
     id = Column(Integer, primary_key=True)
@@ -262,5 +272,34 @@ class DatabaseService:
             result = await session.execute(select(VaultWithdrawal).order_by(desc(VaultWithdrawal.timestamp)).limit(limit))
             withdrawals = result.scalars().all()
             return [{c.name: getattr(w, c.name) for c in w.__table__.columns} for w in withdrawals]
+
+    # --- ORDER GENESIS ---
+    async def register_order_genesis(self, data: dict):
+        async with self.AsyncSessionLocal() as session:
+            try:
+                order_id = str(data.get("order_id", "loc_" + str(int(datetime.utcnow().timestamp()))))
+                obj = await session.get(OrderGenesis, order_id)
+                if not obj:
+                    obj = OrderGenesis(
+                        order_id=order_id,
+                        genesis_id=data.get("genesis_id"),
+                        symbol=data.get("symbol"),
+                        side=data.get("side"),
+                        strategy=data.get("strategy"),
+                        data=data
+                    )
+                    session.add(obj)
+                else:
+                    obj.data = data
+                await session.commit()
+            except Exception as e:
+                logger.error(f"Error registering order genesis: {e}")
+
+    async def get_order_genesis(self, order_id: str):
+        async with self.AsyncSessionLocal() as session:
+            obj = await session.get(OrderGenesis, str(order_id))
+            if obj:
+                return obj.data
+            return None
 
 database_service = DatabaseService()

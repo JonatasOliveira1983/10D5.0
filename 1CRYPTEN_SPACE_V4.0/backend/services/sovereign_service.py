@@ -108,9 +108,21 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
             await websocket_service.broadcast({"type": "VAULT_PULSE", "data": status})
         except: pass
 
-    # Stubs para compatibilidade
-    async def register_order_genesis(self, order_id: str, tactical_data: dict): return order_id
-    async def get_order_genesis(self, order_id: str): return None
+    # Implementation for Sovereign Mode [V110.187]
+    async def register_order_genesis(self, data: dict):
+        try:
+            await database_service.register_order_genesis(data)
+            return data.get("order_id")
+        except Exception as e:
+            logger.error(f"Error registering Sovereign genesis: {e}")
+            return None
+
+    async def get_order_genesis(self, order_id: str):
+        try:
+            return await database_service.get_order_genesis(order_id)
+        except Exception as e:
+            logger.error(f"Error getting Sovereign genesis: {e}")
+            return None
     async def promote_to_moonbag(self, slot_id: int): return None
     async def get_moonbags(self, **kwargs): return []
     async def update_moonbag(self, uuid, data): pass
