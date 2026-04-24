@@ -12,8 +12,8 @@ class AuthService:
     Simple, secure, and dependency-free authentication using SHA-256 and salt.
     """
     def __init__(self):
-        # Default password if not set in .env
-        self.master_password = os.getenv("MASTER_PASSWORD", "10D_SNIPER_ADMIN")
+        # [V110.201] Master Password simplified for user accessibility
+        self.master_password = os.getenv("MASTER_PASSWORD", "123")
         self.secret_key = os.getenv("AUTH_SECRET_KEY", secrets.token_hex(32))
         self.sessions: Dict[str, float] = {} # token -> expiry_timestamp
         self.session_duration = 3600 * 24 # 24 hours

@@ -6357,20 +6357,19 @@
                             </div>
 
                             <div className="text-center space-y-1">
-                                <h1 className="text-xl font-black text-white uppercase tracking-[0.3em]">Fortress Auth</h1>
-                                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Sovereign Engine Protocol V110.200</p>
+                                <h1 className="text-xl font-black text-white uppercase tracking-[0.3em]">System 10D</h1>
                             </div>
 
                             <form onSubmit={handleSubmit} className="w-full space-y-6">
                                 <div className="space-y-2">
                                     <div className="relative">
-                                        <span className="material-icons-round absolute left-4 top-1/2 -translate-y-1/2 text-gray-600">lock</span>
+                                        <span className="material-icons-round absolute left-4 top-1/2 -translate-y-1/2 text-gray-600">vpn_key</span>
                                         <input 
                                             type="password" 
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
-                                            placeholder="PASSWORD KEY"
-                                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-mono placeholder:text-gray-700 focus:outline-none focus:border-white/30 transition-all"
+                                            placeholder="CHAVE DE ACESSO"
+                                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-mono placeholder:text-gray-700 focus:outline-none focus:border-white/30 transition-all text-center"
                                             autoFocus
                                         />
                                     </div>
@@ -6382,7 +6381,7 @@
                                     type="submit"
                                     className="w-full bg-white text-black py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-gray-200 transition-all disabled:opacity-50"
                                 >
-                                    {loading ? 'Authenticating...' : 'Establish Connection'}
+                                    {loading ? 'Sincronizando...' : 'ENTRAR'}
                                 </button>
                             </form>
                         </div>
