@@ -215,6 +215,7 @@ async def lifespan(app: FastAPI):
                 from services.agents.onchain_whale_watcher import on_chain_whale_watcher
                 from services.agents.sentiment_specialist import sentiment_specialist
                 from services.agents.librarian import librarian_agent
+                from services.agents.harvester import harvester_agent
                 from services.agents.blitz_sniper import blitz_sniper_agent # [V110.137] Blitz Active
 
                 
@@ -237,6 +238,7 @@ async def lifespan(app: FastAPI):
                 await kernel.register_agent(whale_tracker)
                 await kernel.register_agent(sentiment_specialist)
                 await kernel.register_agent(librarian_agent)
+                await kernel.register_agent(harvester_agent)
                 logger.info("Step 3.0: [V35.0] [V35.0] AIOS Kernel — Python Logic Fleet (Macro, Whale, Sentiment, Audit) 🚀")
 
                 # Start Core Loops
@@ -247,6 +249,7 @@ async def lifespan(app: FastAPI):
                 asyncio.create_task(captain_agent.monitor_signals())
                 asyncio.create_task(captain_agent.monitor_active_positions_loop())
                 asyncio.create_task(librarian_agent.run_loop())
+                asyncio.create_task(harvester_agent.run_loop())
                 
 
                 

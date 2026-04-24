@@ -615,6 +615,11 @@ class BybitREST:
                         logger.info(f"📍 [V110.65 AMBUSH] {symbol} Market entry ${last_price:.6f} (Ambush zone: ${ambush_price:.6f} não alcançada)")
 
 
+                # [V110.175] INSTANT GENESIS: Batiza a ordem no nascimento para evitar IDs fantasmas na UI
+                import uuid as _uuid
+                strategy_prefix = "BLZ" if slot_id in [1, 2] else "SWG"
+                genesis_id = f"{strategy_prefix}-{_uuid.uuid4().hex[:6].upper()}-{api_symbol[:4]}"
+                
                 # 2. Create Position Object (Mocking Bybit Schema)
                 new_position = {
                     "symbol": api_symbol, # Normalized
@@ -628,7 +633,8 @@ class BybitREST:
                     "createdTime": str(int(time.time() * 1000)),
                     "opened_at": time.time(), # [V84.1] Absolute start
                     "maestria_guard_active": False, # [V84.1] Start clean
-                    "slot_id": slot_id # [V96.9] Track slot for history registration
+                    "slot_id": slot_id, # [V96.9] Track slot for history registration
+                    "genesis_id": genesis_id # [V110.175] RG unico instantâneo
                 }
                 
                 # Check if position already exists (Hedge mode not supported in paper simple impl, assuming One-Way)
