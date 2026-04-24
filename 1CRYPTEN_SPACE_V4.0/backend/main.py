@@ -122,9 +122,8 @@ async def lifespan(app: FastAPI):
             logger.info("Step 0.1: Loading Firebase Service...")
             firebase_service = importlib.import_module("services.firebase_service").firebase_service
             
-            logger.info("Step 1: Connecting Firebase...")
+            logger.info("Step 1: Activating Sovereign Mode (Railway)...")
             await firebase_service.initialize()
-            await firebase_service.initialize_db()
 
             logger.info("Step 1.1: Connecting Postgres (Railway)...")
             database_service = importlib.import_module("services.database_service").database_service
@@ -304,12 +303,11 @@ async def lifespan(app: FastAPI):
                     logger.info(f"Step 4: [V27.3] {bybit_rest_service.execution_mode} Execution Engine (Smart SL) ACTIVATING...")
                     asyncio.create_task(bybit_rest_service.run_real_execution_loop())
 
-                # Pulse & Bankroll Loops
+                # Sovereign Pulse Loop (WebSocket only)
                 async def pulse_loop():
                     while True:
-                        try: await firebase_service.update_pulse()
-                        except: pass
-                        await asyncio.sleep(2)
+                        # [V110.175] Native Railway Heartbeat (Implemented in update_pulse_drag)
+                        await asyncio.sleep(60)
                 asyncio.create_task(pulse_loop())
 
                 async def market_context_loop():

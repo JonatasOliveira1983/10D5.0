@@ -36,28 +36,9 @@ class OracleAgent(AIOSAgent):
     async def initialize(self):
         if self._is_initialized: return
         
-        # 🟢 Amnesia Guard: Load LKG from Firestore
-        try:
-            lkg_context = await firebase_service.get_oracle_context()
-            if lkg_context:
-                lkg_adx = lkg_context.get('btc_adx', 0)
-                logger.info(f"🔮 [ORACLE] LKG Context Recovered: ADX {lkg_adx} | Direction: {lkg_context.get('btc_direction')}")
-                
-                # Update metrics
-                self.market_context.update({
-                    k: v for k, v in lkg_context.items() 
-                    if k in ["regime", "btc_direction", "btc_adx", "btc_price", "btc_variation_1h", "btc_variation_24h", "dominance"]
-                })
-                
-                # ⚡ [V110.50] Amnesia Fast-Pass: If LKG is robust (>15 ADX), reduce stabilization wait to 15s
-                if lkg_adx > 15:
-                    logger.info("⚡ [ORACLE] Robust LKG detected. Shortening stabilization period to 15s.")
-                    # Adjust boot_time so that uptime (now - boot_time) appears larger
-                    self.boot_time = time.time() - (self.stabilization_period - 15)
-                
-                self.market_context["status"] = "BOOTING_RECOVERED"
-        except Exception as e:
-            logger.error(f"Failed to load LKG: {e}")
+        # 🟢 Railway Sovereign Mode: Booting directly
+        logger.info("🔮 [ORACLE] Sovereign Boot: Data Integrity monitoring ACTIVE.")
+        self.market_context["status"] = "BOOTING"
         
         self._is_initialized = True
         logger.info("🔮 Oracle Agent Initialized & Watching Data Integrity.")
@@ -138,17 +119,9 @@ class OracleAgent(AIOSAgent):
                  pass
 
     async def run_loop(self):
-        """Persistence loop for context backup (LKG)."""
+        """Monitor loop (Railway Sovereign Mode)."""
         while True:
-            try:
-                context = self.get_validated_context()
-                # Save LKG when stable and every 2 minutes
-                if context["status"] == "SECURE" and (time.time() - self.last_save_time > 120):
-                    await firebase_service.save_oracle_context(context)
-                    self.last_save_time = time.time()
-                    logger.info("🔮 [ORACLE] Market Snapshot Persisted (LKG).")
-            except Exception as e:
-                logger.error(f"Oracle Loop Error: {e}")
+            # Oracle Intelligence Loop (Placeholder for future local integrity checks)
             await asyncio.sleep(60)
 
 # Singleton instance
