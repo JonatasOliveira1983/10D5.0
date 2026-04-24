@@ -5082,7 +5082,7 @@
 // --- Component: Page10D (Centralized HQ) ---
         const Page10D = () => {
             const vault = useVaultRT(safeJsonParse(localStorage.getItem('vault_status_cache'), { cycle_number: 1, mega_cycle_wins: 0, used_symbols_in_cycle: [], cycle_start_bankroll: 0, cycle_profit: 0 }));
-            const banca = useBancaRT(safeJsonParse(localStorage.getItem('banca_cache'), { saldo_total: 10, configured_balance: 10, lucro_total_acumulado: 0, lucro_ciclo: 0 }));
+            const banca = useBancaRT(safeJsonParse(localStorage.getItem('banca_cache'), { saldo_total: 100, configured_balance: 100, lucro_total_acumulado: 0, lucro_ciclo: 0 }));
 
             // V20.6: Mission Cycle Calculation
             const missionCycle = Math.floor((vault.mega_cycle_wins || 0) / 10) + 1;
