@@ -134,14 +134,18 @@ class BankrollManager:
         que você vê no painel para base de cálculo dos 10%.
         """
         try:
-            banca_data = await firebase_service.get_banca_status()
-            config_bal = float(banca_data.get("configured_balance", 100.0))
+            from services.database_service import database_service
             
-            # Puxamos exatamente o que a UI exibe
-            ui_saldo_total = float(banca_data.get("saldo_total", config_bal))
+            # 1. Tenta buscar no Postgres (Railway Native)
+            status = await database_service.get_banca_status()
             
-            # Garantir no mínimo $1 para não travar erro divisão por zero,
-            # Mas o valor primário é o saldo que aparece na tela (ex: 107.62)
+            # 2. Fallback para Firebase se estiver zerado/UNKNOWN
+            if not status or status.get("status") == "UNKNOWN" or status.get("saldo_total", 0) == 0:
+                status = await firebase_service.get_banca_status()
+                
+            ui_saldo_total = float(status.get("saldo_total", 100.0))
+            
+            # Garantir no mínimo $1 para não travar erro divisão por zero
             return max(ui_saldo_total, 1.0)
             
         except Exception as e:
