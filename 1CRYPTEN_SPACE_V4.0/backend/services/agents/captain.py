@@ -220,7 +220,9 @@ class CaptainAgent(AIOSAgent):
             is_trap_prone = lib_dna.get("is_trap_prone", False)
             is_spring_vanguard = lib_dna.get("is_spring_moment", False)
 
-            if is_trap_prone and not is_spring_vanguard:
+            is_decorrelated = signal.get("decorrelation_play", False)
+            
+            if is_trap_prone and not (is_spring_vanguard or is_decorrelated):
                 approved = False
                 reasons.append("🛡️🚫 LIBRARIAN TRAP-PRONE SHIELD: Ativo com pavios traiçoeiros detectado.")
                 unified_score = 0
@@ -228,7 +230,7 @@ class CaptainAgent(AIOSAgent):
             elif is_trap_prone and is_spring_vanguard:
                 logger.info(f"🛡️ [V110.173 SPRING-TRUST] {symbol} é Trap-Prone mas também é MOLA. Bypass ativado.")
 
-            if "TRAP" in nectar_seal:
+            if "TRAP" in nectar_seal and not (is_spring_vanguard or is_decorrelated):
                 approved = False
                 reasons.append("⚠️🚫 LIBRARIAN TRAP SHIELD: Bloqueio absoluto por zona de armadilha.")
                 unified_score = 0 
@@ -1127,7 +1129,7 @@ class CaptainAgent(AIOSAgent):
             # 1. TRAP-PRONE MACRO SHIELD
             is_trap_prone = lib_dna.get("is_trap_prone", False)
             macro_score = fleet_intel.get("macro_score", 50)
-            if is_trap_prone and macro_score < 60:
+            if is_trap_prone and macro_score < 60 and not (is_spring_vanguard or is_decorrelated):
                 msg = f"🛡️ [V110.174 TRAP-MACRO-SHIELD] {symbol} negado: Ativo Trap-Prone exige Macro Score >= 60 (Atual: {macro_score})."
                 logger.warning(msg)
                 await sovereign_service.log_event("CAPTAIN", msg, "WARNING")
@@ -1141,7 +1143,8 @@ class CaptainAgent(AIOSAgent):
             is_asset_counter_trend = (asset_trend_h4 == "UP" and side.upper() == "SELL") or \
                                      (asset_trend_h4 == "DOWN" and side.upper() == "BUY")
             
-            if is_asset_counter_trend and vol_class == "EXTREME" and score < 115:
+            # [V110.190] Decorrelated assets bypass counter-trend penalty in Scavenger Mode
+            if is_asset_counter_trend and vol_class == "EXTREME" and score < 115 and not (is_spring_vanguard or is_decorrelated):
                 msg = f"🛑 [V110.174 ASSET-TREND-GUARD] {symbol} {side} negado: Contra tendência H4 ({asset_trend_h4}) em ativo EXTREME."
                 logger.warning(msg)
                 await sovereign_service.log_event("CAPTAIN", msg, "WARNING")
