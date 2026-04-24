@@ -95,7 +95,7 @@ class FirebaseService:
                 except Exception as e:
                     logger.error(f"❌ Failed to parse FIREBASE_CREDENTIALS: {e}")
             else:
-                logger.warning("⚠️ FIREBASE_CREDENTIALS environment variable not found")
+                logger.info("🚂 [RAILWAY-SOVEREIGN] Firebase off. Native Railway Stack ACTIVATED ✅")
 
             # 2. Try Local File (Development)
             if not cred:

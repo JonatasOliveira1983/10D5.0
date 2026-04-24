@@ -1278,8 +1278,6 @@ class BankrollManager:
                 # [V3.0 Refinement] Explicitly log sync success for user verification
                 if firebase_service.rtdb:
                     logger.info(f"🛰️ RTDB SYNC SUCCESS: Banca Total=${calculated_equity:.2f} | Accumulated Profit=${total_pnl:.2f}")
-                else:
-                    logger.warning("🛰️ RTDB SYNC SKIPPED: RTDB not connected.")
                 
                 # Snapshot logging: Log once every 6 hours (approx)
                 if not hasattr(self, "_last_snapshot_time"):
