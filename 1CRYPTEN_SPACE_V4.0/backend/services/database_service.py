@@ -111,6 +111,14 @@ class DatabaseService:
                     for key, value in data.items():
                         setattr(obj, key, value)
                 await session.commit()
+                
+                # V110.175: Broadcast imediato do saldo para o Cockpit
+                try:
+                    from .websocket_service import websocket_service
+                    await websocket_service.broadcast("BANCA_UPDATE", data)
+                except Exception as ws_err:
+                    logger.error(f"Erro no broadcast de banca: {ws_err}")
+                    
             except Exception as e:
                 logger.error(f"Error updating banca status: {e}")
 
