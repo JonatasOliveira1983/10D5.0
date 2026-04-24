@@ -1,7 +1,15 @@
-# MASTER_ARCHITECTURE.md — 10D Sniper V110.201
+# MASTER_ARCHITECTURE.md — 10D Sniper V110.203
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.203: DATA INTEGRITY & ATOMIC ARCHIVAL [APR 24]**
+    - **Atomic free_slot:** Refatoração do método de liberação de slots para arquivar obrigatoriamente trades no histórico antes da limpeza.
+    - **Zero Data Loss:** Garantia de que ordens encerradas por Auditoria ou Reset de Fábrica sejam preservadas no Vault.
+
+*   **V110.202: BOOT PERSISTENCE & SYNC RELIABILITY [APR 24]**
+    - **Forced Boot Sync:** Remoção da lógica de pular sincronia de slots no `main.py`; o robô agora recupera o estado do banco no início.
+    - **Persistence Shield:** Proteção contra perda de ordens durante deploys ou reinicializações do servidor Railway.
 
 *   **V110.201: BRANDING SIMPLIFICATION & OPEN ACCESS [APR 24]**
     - **System 10D UI:** Simplificação visual da tela de login para um estilo minimalista.

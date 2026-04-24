@@ -1,11 +1,18 @@
-# RULES.md — 10D Sniper V110.201 "Sovereign Engine Architecture"
-# Invariantes Tecnicas Inegociaveis — [EDICAO WEBSOCKET DEFINITIVA]
+# RULES.md — 10D Sniper V110.203 "Atomic Persistence Architecture"
+# Invariantes Tecnicas Inegociaveis — [BLINDAGEM DE DADOS DEFINITIVA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
-# Fonte da verdade: codigo real no Railway e WebSocket Nativo.
+# Fonte da verdade: codigo real no Railway e PostgreSQL/WebSocket Nativo.
 
 ---
 
-## ⚡ 10D BYBITY REAL 4.0 — PROTOCOLO DE ELITE — V110.175
+## 🛡️ PROTOCOLO DE BLINDAGEM V110.203 (CRÍTICO)
+1. **ARQUIVAMENTO ATÔMICO:** É terminantemente proibido limpar um slot (`free_slot` / `hard_reset_slot`) sem antes arquivar o estado completo da ordem (PnL, Entry, Exit, Genesis ID) na tabela `trade_history`.
+2. **PERSISTÊNCIA DE BOOT:** O sistema DEVE sincronizar todos os slots ativos do banco de dados PostgreSQL durante a inicialização (`main.py`). Pular a sincronia de slots no boot é proibido para evitar perda de trades durante deploys.
+3. **SOVEREIGN SSOT:** O PostgreSQL (Railway) é a autoridade absoluta. Caches locais devem ser revalidados contra o DB em cada mudança de estado.
+
+---
+
+## ⚡ 10D BYBITY REAL 4.0 — PROTOCOLO DE ELITE — V110.203
 ## REGRA 00 — REPOSITÓRIO ÚNICO E OFICIAL
 1. **REPO ÚNICO:** O único repositório oficial para este sistema é: `https://github.com/JonatasOliveira1983/10D5.0/`.
 2. **DEPRECATED:** O repositório `10DBybityREAL` foi desativado e não deve mais ser utilizado para push ou sincronização.
