@@ -15,7 +15,7 @@ class OracleAgent(AIOSAgent):
             capabilities=["market_integrity", "amnesia_guard", "data_validation"]
         )
         self.boot_time = time.time()
-        self.stabilization_period = 150 # 2.5 minutes (150s) - User requested 2-3 min
+        self.stabilization_period = 30 # [V110.175] Reduzido para 30s (mais ágil no Railway)
         self.market_context = {
             "regime": "TRANSITION",
             "btc_direction": "NEUTRAL",
@@ -27,8 +27,8 @@ class OracleAgent(AIOSAgent):
             "dominance": 50.0,
             "status": "BOOTING",
             "is_stale": False,
-            "last_updated": 0,
-            "remaining_wait": 150
+            "last_updated": time.time(), # [V110.175] Evita STALE imediato
+            "remaining_wait": 30
         }
         self.last_save_time = 0
         self._is_initialized = False

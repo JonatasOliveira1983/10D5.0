@@ -317,16 +317,31 @@ async def lifespan(app: FastAPI):
                         try:
                             if bybit_ws_service:
                                 await bybit_ws_service.update_market_context()
+                                
+                                # 🆕 [V110.175] FEED THE ORACLE: Alimenta o oráculo com dados reais do WebSocket
+                                if oracle_agent:
+                                    await oracle_agent.update_market_data("bybit_ws", {
+                                        "btc_price": bybit_ws_service.btc_price,
+                                        "btc_adx": bybit_ws_service.btc_adx,
+                                        "btc_variation_1h": bybit_ws_service.btc_variation_1h,
+                                        "btc_variation_24h": bybit_ws_service.btc_variation_24h,
+                                        "btc_variation_15m": bybit_ws_service.btc_variation_15m
+                                    })
+
                                 # Sync to RTDB for immediate UI update
                                 if sig_gen:
                                     # 🆕 [V110.32.1] Fetch Validated Context from Oracle
-                                    oracle_ctx = None
+                                    oracle_ctx = {}
                                     if oracle_agent:
                                         oracle_ctx = oracle_agent.get_validated_context()
                                         # Use Oracle ADX if available to ensure "Amnesia Guard" consistency in UI
-                                        current_adx = oracle_ctx.get("btc_adx", getattr(sig_gen, 'btc_adx', 0.0))
+                                        current_adx = oracle_ctx.get("btc_adx", getattr(bybit_ws_service, 'btc_adx', 20.0))
                                     else:
-                                        current_adx = getattr(sig_gen, 'btc_adx', 0.0)
+                                        current_adx = getattr(bybit_ws_service, 'btc_adx', 20.0)
+                                    
+                                    # Fallback final para evitar "..."
+                                    if not current_adx or current_adx < 0.1:
+                                        current_adx = 20.0
 
                                     # 🆕 [V110.33] Fetch BTC Dominance from Macro Analyst
                                     current_dominance = 0.0
