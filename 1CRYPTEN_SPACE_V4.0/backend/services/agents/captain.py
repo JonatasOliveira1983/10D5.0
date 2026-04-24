@@ -1225,14 +1225,18 @@ class CaptainAgent(AIOSAgent):
             
             # [V110.170] BLITZ STRIKE BYPASS: Sinais Blitz ignoram Ambush em ADX forte (> 25)
             # ou se o score for alto o suficiente.
-            is_elite_blitz = (is_blitz and (score >= 80 if current_btc_adx > 25 else score >= 95))
+            # [V110.189] Relaxado de 95 para 90 para maior agressividade em lateral
+            is_elite_blitz = (is_blitz and (score >= 80 if current_btc_adx > 25 else score >= 90))
+            
+            is_spring_strike = best_signal.get("is_spring_strike", False) or best_signal.get("is_spring_moment", False)
             
             # [V110.150] Refined Bypass: Strike signals or ultra-high confidence signals
             should_bypass_ambush = (
                 is_fleet_strike or
                 is_elite_blitz or
-                best_signal.get("is_spring_strike") or
-                (score >= 92 and abs(local_cvd) >= 30000 and current_btc_adx >= 30 and not is_high_risk)
+                is_spring_strike or
+                is_decorrelated or # [V110.189] Decorrelation is the soul of Scavenger Mode
+                (score >= 92 and abs(local_cvd) >= 10000 and not is_high_risk) # Relaxed ADX/CVD requirement
             )
             
             if should_bypass_ambush:
