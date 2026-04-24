@@ -97,7 +97,50 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
             logger.error(f"Error in Sovereign pulse update: {e}")
 
     async def free_slot(self, slot_id: int, reason: str = "Released"):
-        await self.update_slot(slot_id, {"symbol": None, "status_risco": "LIVRE", "pnl_percent": 0, "timestamp_last_update": time.time(), "pensamento": f"🔄 {reason}"})
+        """
+        [V110.203] DATA INTEGRITY PROTECTION: Archiving slot data before reset.
+        Prevents trade loss during automated cleanups or system reboots.
+        """
+        try:
+            # 1. Fetch current slot data from source of truth
+            slots_list = await database_service.get_active_slots()
+            slot = next((s for s in slots_list if s["id"] == slot_id), None)
+            
+            if slot and slot.get("symbol"):
+                logger.info(f"🛡️ [V110.203] Archiving {slot['symbol']} (Slot {slot_id}) to Vault before cleanup.")
+                
+                # 2. Map slot data to TradeHistory format
+                trade_data = {
+                    "order_id": slot.get("order_id") or f"CLEANUP_{int(time.time())}",
+                    "genesis_id": slot.get("genesis_id"),
+                    "symbol": slot.get("symbol"),
+                    "side": slot.get("side", "BUY"),
+                    "pnl": float(slot.get("pnl_usd") or 0.0),
+                    "pnl_percent": float(slot.get("pnl_percent") or 0.0),
+                    "entry_price": float(slot.get("entry_price") or 0.0),
+                    "exit_price": float(slot.get("current_price") or 0.0),
+                    "strategy": slot.get("pattern", "UNKNOWN"),
+                    "close_reason": reason,
+                    "data": {**slot, "archived_at": time.time(), "archived_reason": reason}
+                }
+                
+                # 3. Save to Persistent History
+                await database_service.log_trade(trade_data)
+                logger.info(f"✅ [V110.203] {slot['symbol']} archived successfully in TradeHistory.")
+                
+        except Exception as e:
+            logger.error(f"❌ [V110.203] Data Integrity Failure for Slot {slot_id}: {e}")
+            # We still proceed with the reset to avoid locking the slot forever,
+            # but the error is logged for audit.
+
+        # 4. Clear the slot
+        await self.update_slot(slot_id, {
+            "symbol": None, 
+            "status_risco": "LIVRE", 
+            "pnl_percent": 0, 
+            "timestamp_last_update": time.time(), 
+            "pensamento": f"🔄 {reason}"
+        })
         return True
 
     async def get_radar_pulse(self):
