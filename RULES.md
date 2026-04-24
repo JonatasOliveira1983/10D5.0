@@ -6,10 +6,10 @@
 ---
 
 ## ⚡ 10D BYBITY REAL 4.0 — PROTOCOLO DE ELITE — V110.175
-## REGRA 0 — PROTOCOLO DE INFRAESTRUTURA RAILWAY
-1. **SSOT (Source of Truth):** O banco de dados primario e o **PostgreSQL (Railway)**.
-2. **BROADCAST:** Toda comunicacao com a UI e feita via **WebSocket Nativo (/ws/cockpit)**.
-3. **FIREBASE PURGE:** O uso de Firebase/Firestore/RTDB foi DESCONTINUADO. Nenhuma funcao deve depender do sucesso de conexao com o Google para executar ordens ou atualizar a UI.
+## REGRA 0 — PROTOCOLO DE INFRAESTRUTURA RAILWAY (SOVEREIGN)
+1. **SSOT (Source of Truth):** O banco de dados primário é o **PostgreSQL (Railway)**, gerenciado pelo `database_service.py`.
+2. **BROADCAST:** Toda comunicação com a UI é feita via **WebSocket Nativo (/ws/cockpit)** através do `websocket_service.py`.
+3. **EMANCIPAÇÃO TOTAL:** O uso de Firebase/Firestore/RTDB foi **EXTINTO**. O sistema agora opera via `SovereignService`, que garante autonomia total dentro do cluster Railway, sem dependências de nuvens externas do Google.
 
 ---
 
@@ -106,5 +106,5 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versao: V110.175 "Railway Sovereign Doctrine" | Atualizado: 2026-04-24*
-*Este arquivo e a UNICA FONTE DA VERDADE. O Firebase foi descontinuado.*
+*Versão: V110.175 "Railway Sovereign Doctrine" | Atualizado: 2026-04-24*
+*Este arquivo é a ÚNICA FONTE DA VERDADE. O sistema foi EMANCIPADO do Firebase via SovereignService.*

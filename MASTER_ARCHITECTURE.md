@@ -3,12 +3,11 @@
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
 
-*   **V110.175: RAILWAY SOVEREIGN — FIREBASE PURGE 🚂 [APR 24]**
-    - **Infrastructure Migration:** Migracao definitiva do ecossistema Google Cloud/Firebase para a infraestrutura nativa do Railway.
-    - **Postgres Primary SSOT:** O PostgreSQL do Railway torna-se a fonte primária de verdade para saldos, slots, histórico e Genesis IDs.
-    - **Native WebSocket Broadcast:** Implementação de canal WebSocket nativo (`/ws/cockpit`) para transmissão de pulso, radar e atualizações de slot, eliminando a latência e dependência do Firebase RTDB.
-    - **Fast Oracle Boot:** Redução do tempo de estabilização do Oráculo de 150s para 30s, otimizado para reinicializações rápidas em contêineres Railway.
-    - **Instant Genesis:** Geração de Genesis ID no momento da criação da ordem (Paper e Real) para garantir rastreabilidade 100% na UI.
+*   **V110.175: RAILWAY SOVEREIGN — EMANCIPAÇÃO TOTAL 🚂 [APR 24]**
+    - **SovereignService Deployment:** Introdução do `SovereignService` como o orquestrador central de persistência e comunicação, eliminando 100% dos resíduos do SDK do Firebase.
+    - **Postgres Primary SSOT:** O PostgreSQL do Railway torna-se a fonte primária de verdade para saldos, slots, histórico e Genesis IDs, gerenciado localmente.
+    - **Native WebSocket Broadcast:** Transmissão de sinais, pulso e estados de slot via WebSocket nativo (`/ws/cockpit`), garantindo latência ultra-baixa para o Cockpit UI.
+    - **Fast Oracle Boot:** Otimização do tempo de estabilização do Oráculo para 30s, permitindo reinicializações ágeis e resilientes.
 
 *   **V110.174: SELECTIVE INTELLIGENCE UPGRADE — VANGUARD [APR 24]**
     - **Asset Trend Guard**: Implementação de trava obrigatória para alinhar trades com a tendência H4 em ativos de volatilidade EXTREME.

@@ -7,6 +7,12 @@ Este documento contém o registro de todas as versões anteriores à V110.100 Al
 
 ## 🏗️ CHANGELOG LEGACY (V110.23 -> V110.144)
 
+*   **V110.175: RAILWAY SOVEREIGN EMANCIPATION 🚂🛡️ [APR 24]**
+    *   **Firebase Purge:** Remoção total do `firebase-admin` e desativação de todas as rotas Firestore/RTDB.
+    *   **SovereignService:** Implementação do novo singleton de comunicação e persistência nativa.
+    *   **Postgres Native:** Migração de toda a lógica de banca e slots para PostgreSQL local no Railway.
+    *   **WebSocket Pulse:** Novo motor de broadcast nativo para o Cockpit UI (`RADAR_PULSE` full support).
+
 *   **V110.144: DAILY GOAL MONITOR & OMNIPRESENCE 🎯⚡ [APR 20]**
     *   **Daily Target Monitor:** Implementação de rastreador de "10 Gains por dia" e PnL 24h injetado no topo do Radar.
     *   **Blitz Omnipresence:** Remoção de travas de contra-tendência (ADX > 30) no BlitzSniper para operação total (Alta/Baixa/Lateral).
