@@ -121,9 +121,9 @@ class DatabaseService:
             db_url = db_url.replace("postgres://", "postgresql+asyncpg://", 1)
         
         # Fallback local para desenvolvimento
-        if not db_url:
+        if not db_url or "sua_url_do_postgres" in db_url:
             db_url = "sqlite+aiosqlite:///local_sniper.db"
-            logger.warning("DATABASE_URL not found. Using local SQLite.")
+            logger.warning("DATABASE_URL not found or placeholder detected. Using local SQLite.")
 
         self.engine = create_async_engine(db_url, echo=False)
         self.AsyncSessionLocal = sessionmaker(

@@ -1,7 +1,13 @@
-# MASTER_ARCHITECTURE.md — 10D Sniper V110.176
+# MASTER_ARCHITECTURE.md — 10D Sniper V110.181
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.181: SOVEREIGN ENGINE & WS RECOVERY [APR 24]**
+    - **Sovereign Engine Deployment:** Ativação do motor de sincronização WebSocket centralizado no frontend.
+    - **Universal Bridge Sync:** Correção de sincronização em tempo real para indicadores críticos (BTC Price, Equity) via `cockpit.html`.
+    - **Placeholder Purge:** Eliminação definitiva dos estados "---" no Cockpit HUD.
+    - **Backend-Frontend Handshake:** Estabilização do fluxo de pacotes `system_state` e `banca_status` via `/ws/cockpit`.
 
 *   **V110.176: SOVEREIGN REFINEMENT — BUG FIX & VAULT MIGRATION [APR 24]**
     - **Vault Postgres Migration:** Migração completa da lógica de ciclos e retiradas do Firestore para tabelas relacionais no Postgres.
@@ -49,5 +55,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-24 (V110.176) Sincronizado*
+*Documento atualizado em: 2026-04-24 (V110.181) Sincronizado*
 *Este documento reflete a migração completa e estabilizada para o ambiente RAILWAY.*

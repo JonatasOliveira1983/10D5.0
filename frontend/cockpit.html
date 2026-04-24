@@ -1486,8 +1486,9 @@
         let ws = null;
 
         const initWebSocket = () => {
-            console.log("🔌 Connecting to Railway WebSocket...", WS_URL);
-            ws = new WebSocket(WS_URL);
+            const wsUrl = API_BASE.replace('http', 'ws') + '/ws/cockpit';
+            console.log("🔌 Connecting to Sovereign WebSocket...", wsUrl);
+            ws = new WebSocket(wsUrl);
 
             // Mock RTDB Object to maintain compatibility with existing hooks
             rtdb = {
@@ -1498,8 +1499,7 @@
                         on: (type, callback) => {
                             if (!self.listeners[path]) self.listeners[path] = [];
                             self.listeners[path].push(callback);
-                            // Trigger immediate fetch from REST to avoid empty UI
-                            console.log(`📡 WS-Mock: Subscribed to ${path}`);
+                            console.log(`📡 Sovereign-WS: Subscribed to ${path}`);
                         },
                         off: (type, callback) => {
                             if (self.listeners[path]) {
@@ -1511,7 +1511,6 @@
                 },
                 trigger: function(path, data) {
                     if (this.listeners[path]) {
-                        console.log(`📥 WS-Mock: Update received for ${path}`);
                         const snapshot = { val: () => data, exists: () => !!data };
                         this.listeners[path].forEach(cb => cb(snapshot));
                     }
@@ -1522,23 +1521,31 @@
             ws.onmessage = (event) => {
                 try {
                     const msg = JSON.parse(event.data);
-                    // [V110.175] UNIVERSAL BRIDGE: Suporta nomes legados (Firebase) e novos (Railway)
-                    if (msg.type === 'SLOT_UPDATE' || msg.type === 'live_slots') {
-                        rtdb.trigger('live_slots', msg.data);
+                    const type = (msg.type || '').toLowerCase();
+                    const data = msg.data;
+
+                    // [V110.181] UNIVERSAL BRIDGE: Suporta nomes legados e novos
+                    if (type === 'slot_update' || type === 'live_slots') {
+                        rtdb.trigger('live_slots', data);
                     }
-                    if (msg.type === 'RADAR_PULSE' || msg.type === 'radar_pulse') {
-                        rtdb.trigger('radar_pulse', msg.signals || msg.data);
+                    else if (type === 'radar_pulse' || type === 'radar_pulse') {
+                        rtdb.trigger('radar_pulse', data.signals || data);
                     }
-                    if (msg.type === 'BANCA_STATUS' || msg.type === 'banca_status') {
-                        rtdb.trigger('banca_status', msg.data);
+                    else if (type === 'banca_status' || type === 'banca_status') {
+                        rtdb.trigger('banca_status', data);
                     }
-                    if (msg.type === 'SYSTEM_STATE' || msg.type === 'btc_command_center') {
+                    else if (type === 'system_state' || type === 'btc_command_center') {
                         // Crucial: O Cockpit UI ouve 'btc_command_center' para o ADX/Preço
-                        rtdb.trigger('btc_command_center', msg.data);
+                        rtdb.trigger('btc_command_center', data);
+                        rtdb.trigger('system_state', data);
                     }
                 } catch (e) {
                     console.error("WS Message Error:", e);
                 }
+            };
+
+            ws.onopen = () => {
+                console.log("✅ Sovereign WebSocket Connected");
             };
 
             ws.onclose = () => {

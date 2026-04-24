@@ -381,6 +381,10 @@ async def lifespan(app: FastAPI):
                                         btc_direction=captain_direction,
                                         oracle_context=oracle_ctx
                                     )
+                                    
+                                    # 🆕 [V110.181] BROADCAST SYSTEM STATE: Sincronização nativa WebSocket
+                                    from services.websocket_service import websocket_service
+                                    await websocket_service.emit_system_state(res)
 
                         except Exception as e:
                             logger.error(f"Error in market_context_loop: {e}")

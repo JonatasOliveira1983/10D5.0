@@ -85,4 +85,11 @@ class WebSocketService:
             }
         })
 
+    async def emit_system_state(self, state: dict):
+        """Envia o estado global do sistema (V110.181)."""
+        await self.broadcast({
+            "type": "system_state",
+            "data": state
+        })
+
 websocket_service = WebSocketService()

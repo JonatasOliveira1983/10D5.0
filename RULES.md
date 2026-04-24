@@ -1,15 +1,16 @@
-# RULES.md — 10D Sniper V110.175 "Railway Sovereign Doctrine"
-# Invariantes Tecnicas Inegociaveis — [EDICAO RAILWAY DEFINITIVA]
+# RULES.md — 10D Sniper V110.181 "Sovereign Engine Architecture"
+# Invariantes Tecnicas Inegociaveis — [EDICAO WEBSOCKET DEFINITIVA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
-# Fonte da verdade: codigo real no Railway (nao documentacao narrativa legada).
+# Fonte da verdade: codigo real no Railway e WebSocket Nativo.
 
 ---
 
 ## ⚡ 10D BYBITY REAL 4.0 — PROTOCOLO DE ELITE — V110.175
 ## REGRA 0 — PROTOCOLO DE INFRAESTRUTURA RAILWAY (SOVEREIGN)
 1. **SSOT (Source of Truth):** O banco de dados primário é o **PostgreSQL (Railway)**, gerenciado pelo `database_service.py`.
-2. **BROADCAST:** Toda comunicação com a UI é feita via **WebSocket Nativo (/ws/cockpit)** através do `websocket_service.py`.
-3. **EMANCIPAÇÃO TOTAL:** O uso de Firebase/Firestore/RTDB foi **EXTINTO**. O sistema agora opera via `SovereignService`, que garante autonomia total dentro do cluster Railway, sem dependências de nuvens externas do Google.
+2. **BROADCAST:** Toda comunicação com a UI é feita via **WebSocket Nativo (/ws/cockpit)**. O motor `Sovereign-WS` no frontend substitui permanentemente o Firebase RTDB.
+3. **UNIVERSAL BRIDGE:** O `cockpit.html` possui um script embutido que atua como ponte universal, traduzindo pacotes WebSocket em atualizações de estado para os hooks React. Qualquer alteração no `app.jsx` deve ser sincronizada com o bloco script do `cockpit.html`.
+4. **EMANCIPAÇÃO TOTAL:** O uso de Firebase/Firestore/RTDB foi **EXTINTO**. O sistema opera via `SovereignService` e `websocket_service`, garantindo autonomia total.
 
 ---
 
@@ -106,5 +107,5 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versão: V110.176 "Railway Sovereign Doctrine" | Atualizado: 2026-04-24*
-*Este arquivo é a ÚNICA FONTE DA VERDADE. O sistema foi TOTALMENTE EMANCIPADO do Firebase via SovereignService e Postgres.*
+*Versão: V110.181 "Sovereign Engine Architecture" | Atualizado: 2026-04-24*
+*Este arquivo é a ÚNICA FONTE DA VERDADE. O sistema foi TOTALMENTE EMANCIPADO do Firebase via WebSocket nativo e Postgres.*

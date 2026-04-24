@@ -61,6 +61,54 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
         })();
 
         console.log("System Initialized ✅ Port Target:", API_BASE);
+        
+        // --- Sovereign WebSocket Engine (V110.181) ---
+        const sovereignWS = {
+            listeners: new Set(),
+            socket: null,
+            connected: false,
+            
+            init() {
+                if (this.socket) return;
+                const wsUrl = API_BASE.replace(/^http/, 'ws') + '/ws/cockpit';
+                console.log("🔌 Initializing Sovereign WebSocket Engine:", wsUrl);
+                
+                const connect = () => {
+                    try {
+                        this.socket = new WebSocket(wsUrl);
+                        this.socket.onopen = () => {
+                            console.log("✅ Sovereign WebSocket Connected");
+                            this.connected = true;
+                            window.dispatchEvent(new CustomEvent('ws-status', { detail: true }));
+                        };
+                        this.socket.onmessage = (event) => {
+                            try {
+                                const message = JSON.parse(event.data);
+                                this.listeners.forEach(l => l(message));
+                                window.dispatchEvent(new CustomEvent('sovereign-packet', { detail: message }));
+                            } catch (e) {}
+                        };
+                        this.socket.onclose = () => {
+                            this.connected = false;
+                            window.dispatchEvent(new CustomEvent('ws-status', { detail: false }));
+                            setTimeout(connect, 5000);
+                        };
+                        this.socket.onerror = () => {
+                            this.socket.close();
+                        };
+                    } catch (e) {
+                        setTimeout(connect, 5000);
+                    }
+                };
+                connect();
+            },
+            
+            subscribe(callback) {
+                this.listeners.add(callback);
+                return () => this.listeners.delete(callback);
+            }
+        };
+        sovereignWS.init();
 
         // Firebase Config - V15.1.2: Added logging for debug
         const firebaseConfig = {
@@ -639,6 +687,16 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                 btc_variation_24h: 0
             });
 
+            useEffect(() => {
+                // Sincronização via WebSocket (Primário)
+                const unsubscribe = sovereignWS.subscribe((msg) => {
+                    if (msg.type === 'btc_command_center') {
+                        setData(msg.data);
+                        localStorage.setItem('btc_cache', JSON.stringify(msg.data));
+                    }
+                });
+                return unsubscribe;
+            }, []);
 
             useEffect(() => {
                 if (!rtdb) return;
@@ -669,7 +727,6 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                                     btc_variation_1h: val.btc_variation_1h || 0,
                                     btc_variation_24h: val.btc_variation_24h || 0,
                                     btc_drag_mode: val.btc_drag_mode || false,
-
                                     btc_cvd: val.btc_cvd || 0,
                                     exhaustion: val.exhaustion || 0,
                                     radar_mode: val.radar_mode || 'SCAVENGER_RANGE',
@@ -681,7 +738,7 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                         }
                     } catch (e) { }
                 };
-                const itv = setInterval(fetchFallback, 45000); // [V110.138] Relaxed from 15s to prevent 429/504
+                const itv = setInterval(fetchFallback, 45000);
                 const onVisibilityChange = () => { if (document.visibilityState === 'visible') fetchFallback(); };
                 document.addEventListener('visibilitychange', onVisibilityChange);
                 return () => { clearInterval(itv); document.removeEventListener('visibilitychange', onVisibilityChange); };
@@ -693,6 +750,17 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
         // --- Hook: Real-time Banca Status (V15.1.2) ---
         const useBancaRT = (initialData) => {
             const [banca, setBanca] = useState(initialData);
+
+            useEffect(() => {
+                // Sincronização via WebSocket (Primário)
+                const unsubscribe = sovereignWS.subscribe((msg) => {
+                    if (msg.type === 'banca_status') {
+                        setBanca(msg.data);
+                        localStorage.setItem('banca_cache', JSON.stringify(msg.data));
+                    }
+                });
+                return unsubscribe;
+            }, []);
 
             useEffect(() => {
                 if (!rtdb) return;
@@ -723,7 +791,6 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                         if (res.ok) {
                             const val = await res.json();
                             if (val && val.saldo_total !== undefined) {
-                                // Fix BUG: Always accept the server truth, even if it's lower (negative PnL)
                                 setBanca(val);
                                 localStorage.setItem('banca_cache', JSON.stringify(val));
                             }
@@ -731,7 +798,7 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                     } catch (e) { }
                 };
                 fetchFallback();
-                const itv = setInterval(fetchFallback, 45000); // [V110.138] Relaxed from 10s to prevent 429/504
+                const itv = setInterval(fetchFallback, 45000);
                 const onVisibilityChange = () => { if (document.visibilityState === 'visible') fetchFallback(); };
                 document.addEventListener('visibilitychange', onVisibilityChange);
                 return () => { clearInterval(itv); document.removeEventListener('visibilitychange', onVisibilityChange); };
@@ -800,6 +867,17 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
         const useRadarPulseRT = () => {
             const [data, setData] = React.useState({ signals: [], decisions: [], market_context: {}, updated_at: 0 });
 
+            useEffect(() => {
+                // Sincronização via WebSocket (Primário)
+                const unsubscribe = sovereignWS.subscribe((msg) => {
+                    if (msg.type === 'radar_pulse') {
+                        setData(msg.data);
+                        window.dispatchEvent(new CustomEvent('radar-pulse-update'));
+                    }
+                });
+                return unsubscribe;
+            }, []);
+
             React.useEffect(() => {
                 if (!rtdb) return;
                 try {
@@ -818,7 +896,6 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
             // V15.1.4: REST Fallback Polling (ensures signals are never stuck)
             React.useEffect(() => {
                 const fetchFallback = async () => {
-                    // Only poll if data is empty or RTDB is missing
                     try {
                         const res = await fetch(API_BASE + '/api/radar/pulse');
                         if (res.ok) {
@@ -828,7 +905,7 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                     } catch (e) { }
                 };
                 fetchFallback();
-                const itv = setInterval(fetchFallback, 60000); // [V110.138] Relaxed to 60s
+                const itv = setInterval(fetchFallback, 60000);
                 const onVisibilityChange = () => { if (document.visibilityState === 'visible') fetchFallback(); };
                 document.addEventListener('visibilitychange', onVisibilityChange);
                 return () => { clearInterval(itv); document.removeEventListener('visibilitychange', onVisibilityChange); };
@@ -842,28 +919,47 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
             const [slots, setSlots] = useState(initialData);
 
             useEffect(() => {
-                // V15.1.2: RTDB Initialized log for production verification
+                // Sincronização via WebSocket (Primário)
+                const unsubscribe = sovereignWS.subscribe((msg) => {
+                    if (msg.type === 'live_slots') {
+                        const val = msg.data;
+                        let rawSlots = [];
+                        if (Array.isArray(val)) {
+                            rawSlots = val.filter(v => v !== null && v !== undefined);
+                        } else {
+                            rawSlots = Object.values(val).filter(v => v !== null && v !== undefined);
+                        }
+                        rawSlots = rawSlots.map((s, idx) => ({ ...s, id: s.id || (idx + 1) }));
+                        const fullSlots = [];
+                        for (let i = 1; i <= 4; i++) {
+                            const existing = rawSlots.find(s => s && s.id === i);
+                            fullSlots.push(existing || { id: i, symbol: null, entry_price: 0, current_stop: 0, status_risco: 'LIVRE', pnl_percent: 0 });
+                        }
+                        setSlots(fullSlots);
+                        localStorage.setItem('slots_cache', JSON.stringify(fullSlots));
+                    }
+                });
+                return unsubscribe;
+            }, []);
+
+            useEffect(() => {
                 if (rtdb) {
                     console.log("RTDB V15.1.2 Initialized ✅");
                 }
-                // Primary: Realtime DB (Harmony)
-                let unsubscribe = null;
+                let unsubscribeRTDB = null;
                 if (rtdb) {
                     try {
-                        const ref = rtdb.ref('live_slots'); // Fixed path: was 'slots'
-                        unsubscribe = ref.on('value', (snapshot) => {
+                        const ref = rtdb.ref('live_slots');
+                        unsubscribeRTDB = ref.on('value', (snapshot) => {
                             const val = snapshot.val();
                             if (val) {
-                                // V14.0: Handle both array [null,s1,s2,s3,s4] and object {"1":s1,"2":s2...} formats
                                 let rawSlots = [];
                                 if (Array.isArray(val)) {
                                     rawSlots = val.filter(v => v !== null && v !== undefined);
                                 } else {
                                     rawSlots = Object.values(val).filter(v => v !== null && v !== undefined);
                                 }
-                                // Ensure each slot has an id
                                 rawSlots = rawSlots.map((s, idx) => ({ ...s, id: s.id || (idx + 1) }));
-                                // V14.0: ALWAYS guarantee 4 slots
                                 const fullSlots = [];
                                 for (let i = 1; i <= 4; i++) {
                                     const existing = rawSlots.find(s => s && s.id === i);
@@ -874,7 +970,6 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                             }
                         }, (err) => {
                             if (err && err.message && err.message.includes('permission_denied')) {
-                                // Silent: REST fallback ensures slot sync
                             } else {
                                 console.error("Slots RTDB Error:", err);
                             }
@@ -882,24 +977,17 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                     } catch (e) { console.error("Slots RTDB Error:", e); }
                 }
 
-                // Secondary: REST Polling Fallback (ensures slots sync on first load/failure)
-                // [V28.5.3] BUGFIX: Always accept REST data — previous condition blocked updates
-                // when any slot had data, preventing new trades/closures from appearing.
                 const fetchSlots = async () => {
                     try {
                         const res = await fetch(API_BASE + '/api/slots');
                         if (res.ok) {
                             const data = await res.json();
-
-                            // V15.1.4: ALWAYS guarantee 4 slots even in REST fallback
                             const rawSlots = Array.isArray(data) ? data : [];
                             const fullSlots = [];
                             for (let i = 1; i <= 4; i++) {
                                 const existing = rawSlots.find(s => s && s.id === i);
                                 fullSlots.push(existing || { id: i, symbol: null, entry_price: 0, current_stop: 0, status_risco: 'LIVRE', pnl_percent: 0 });
                             }
-
-                            // [V28.5.3] Always update: REST has live-price ROI recalculation
                             setSlots(fullSlots);
                             localStorage.setItem('slots_cache', JSON.stringify(fullSlots));
                         }
@@ -907,13 +995,12 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                 };
 
                 fetchSlots();
-                // [V28.5.3] Reduced from 10s to 5s — slots are the most critical real-time data
-                const itv = setInterval(fetchSlots, 30000); // [V110.138] Relaxed from 5s to 30s to save backend
+                const itv = setInterval(fetchSlots, 30000);
                 const onVisibilityChange = () => { if (document.visibilityState === 'visible') fetchSlots(); };
                 document.addEventListener('visibilitychange', onVisibilityChange);
 
                 return () => {
-                    if (unsubscribe && rtdb) rtdb.ref('live_slots').off('value', unsubscribe);
+                    if (unsubscribeRTDB && rtdb) rtdb.ref('live_slots').off('value', unsubscribeRTDB);
                     clearInterval(itv);
                     document.removeEventListener('visibilitychange', onVisibilityChange);
                 };
@@ -926,25 +1013,32 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
             const [state, setState] = useState({ current: 'PAUSED', slots_occupied: 0, message: '', updated_at: 0 });
 
             useEffect(() => {
-                // Primary: Realtime DB (Harmony)
-                let unsubscribe = null;
+                // Sincronização via WebSocket (Primário)
+                const unsubscribe = sovereignWS.subscribe((msg) => {
+                    if (msg.type === 'system_state') {
+                        setState(msg.data);
+                    }
+                });
+                return unsubscribe;
+            }, []);
+
+            useEffect(() => {
+                let unsubscribeRTDB = null;
                 if (rtdb) {
                     try {
                         const ref = rtdb.ref('system_state');
-                        unsubscribe = ref.on('value', (snapshot) => {
+                        unsubscribeRTDB = ref.on('value', (snapshot) => {
                             const val = snapshot.val();
                             if (val) setState(val);
                         });
                     } catch (e) { console.error("System State RTDB Error:", e); }
                 }
 
-                // Secondary: REST Polling Fallback (ensures status is never stuck)
                 const fetchFallback = async () => {
                     try {
                         const res = await fetch(API_BASE + '/api/system/state');
                         if (res.ok) {
                             const val = await res.json();
-                            // Only update if RTDB hasn't updated recently or we are still on default
                             setState(prev => {
                                 if (!prev.updated_at || (val.updated_at && val.updated_at > prev.updated_at)) {
                                     return val;
@@ -956,10 +1050,10 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                 };
 
                 fetchFallback();
-                const itv = setInterval(fetchFallback, 45000); // [V110.138] Relaxed to 45s
+                const itv = setInterval(fetchFallback, 45000);
                 
                 return () => {
-                    if (unsubscribe && rtdb) rtdb.ref('system_state').off('value', unsubscribe);
+                    if (unsubscribeRTDB && rtdb) rtdb.ref('system_state').off('value', unsubscribeRTDB);
                     clearInterval(itv);
                 };
             }, [rtdb]);
