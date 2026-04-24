@@ -1,7 +1,12 @@
-# MASTER_ARCHITECTURE.md — 10D Sniper V110.199
+# MASTER_ARCHITECTURE.md — 10D Sniper V110.200
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.200: BLINDAGEM PHASE & SOVEREIGN AUTH [APR 24]**
+    - **Fortress Auth:** Sistema de login soberano com autenticação JWT/Token no backend e frontend.
+    - **Guardian Agent:** Implementação do agente de custódia para manutenção de integridade e segurança.
+    - **Scrubbing:** Limpeza de >150 arquivos legados, reduzindo a dívida técnica e poluição do backend.
 
 *   **V110.199: PRODUCTION DOMAIN FINALIZATION [APR 24]**
     - **CORS Hardening:** Inclusão de variantes `www` e domínios de produção no backend para eliminar bloqueios de segurança.
@@ -91,5 +96,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-24 (V110.199) Sincronizado*
+*Documento atualizado em: 2026-04-24 (V110.200) Sincronizado*
 *Este documento reflete a migração completa e estabilizada para o ambiente RAILWAY.*
