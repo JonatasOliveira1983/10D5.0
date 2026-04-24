@@ -1522,11 +1522,20 @@
             ws.onmessage = (event) => {
                 try {
                     const msg = JSON.parse(event.data);
-                    // Map WebSocket types to RTDB paths
-                    if (msg.type === 'SLOT_UPDATE') rtdb.trigger('live_slots', msg.data);
-                    if (msg.type === 'RADAR_PULSE') rtdb.trigger('radar_pulse', msg.signals);
-                    if (msg.type === 'BANCA_STATUS') rtdb.trigger('banca_status', msg.data);
-                    if (msg.type === 'SYSTEM_STATE') rtdb.trigger('system_state', msg.data);
+                    // [V110.175] UNIVERSAL BRIDGE: Suporta nomes legados (Firebase) e novos (Railway)
+                    if (msg.type === 'SLOT_UPDATE' || msg.type === 'live_slots') {
+                        rtdb.trigger('live_slots', msg.data);
+                    }
+                    if (msg.type === 'RADAR_PULSE' || msg.type === 'radar_pulse') {
+                        rtdb.trigger('radar_pulse', msg.signals || msg.data);
+                    }
+                    if (msg.type === 'BANCA_STATUS' || msg.type === 'banca_status') {
+                        rtdb.trigger('banca_status', msg.data);
+                    }
+                    if (msg.type === 'SYSTEM_STATE' || msg.type === 'btc_command_center') {
+                        // Crucial: O Cockpit UI ouve 'btc_command_center' para o ADX/Preço
+                        rtdb.trigger('btc_command_center', msg.data);
+                    }
                 } catch (e) {
                     console.error("WS Message Error:", e);
                 }

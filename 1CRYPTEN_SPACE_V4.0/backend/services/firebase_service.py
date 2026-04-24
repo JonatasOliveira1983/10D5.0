@@ -271,10 +271,11 @@ class FirebaseService:
             logger.error(f"Error updating bankroll: {e}")
 
     async def update_banca_status(self, data: dict):
-        if not self.is_active: return data
+        # [V110.175] Always proceed even without Firebase (Railway Sovereign)
         try:
-            # Sync to Firestore
-            await asyncio.wait_for(asyncio.to_thread(self.db.collection("banca_status").document("status").set, data, merge=True), timeout=8.0)
+            if self.is_active and self.db:
+                # Sync to Firestore
+                await asyncio.wait_for(asyncio.to_thread(self.db.collection("banca_status").document("status").set, data, merge=True), timeout=8.0)
             
             # V11.0: Sync to Realtime DB with timeout
             if self.rtdb:
@@ -648,7 +649,7 @@ class FirebaseService:
             "data": data
         })
 
-        if not self.is_active: return data
+        if self.is_active and self.db:
         
         # V15.7.8: Clean mojibake before pushing to RTDB
         rtdb_data = self._clean_mojibake(data)
@@ -843,12 +844,14 @@ class FirebaseService:
         self.signal_buffer.appendleft(signal_data)
         
         # [V110.175] Broadcast Radar Signal via WebSocket
+        # Format aligned with cockpit.html: type='radar_pulse', signals=[...]
         await websocket_service.broadcast({
-            "type": "RADAR_SIGNAL",
-            "data": signal_data
+            "type": "radar_pulse",
+            "signals": list(self.signal_buffer)[:50] # Send recent batch
         })
 
-        if not self.is_active: return signal_data["id"]
+        # [V110.175] WebSocket broadcast already done above. Proceed to Firebase only if active.
+        if not self.is_active or not self.db: return signal_data["id"]
         
         # Retry logic for critical signal logging
         for attempt in range(3):
@@ -897,7 +900,7 @@ class FirebaseService:
             "data": data
         })
 
-        if not self.is_active: return data
+        if self.is_active and self.db:
         try:
             await asyncio.to_thread(self.db.collection("system_logs").add, data)
         except Exception: pass
@@ -983,8 +986,9 @@ class FirebaseService:
                 payload["stabilization_progress"] = progress
 
             # [V110.175] Broadcast System State via WebSocket
+            # Aligned with cockpit.html: btc_command_center
             await websocket_service.broadcast({
-                "type": "SYSTEM_STATE",
+                "type": "btc_command_center",
                 "data": payload
             })
 
