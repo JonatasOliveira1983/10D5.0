@@ -193,8 +193,9 @@ async def lifespan(app: FastAPI):
                         logger.error(f"Step 2: Symbol Scan or WS Start Error: {e}")
                         await bybit_ws_service.start(symbols)
                 asyncio.create_task(fetch_and_start_ws())
-                # Skip slot sync on startup - slots must be cleared by Vault button
-                logger.info("Skipping slot sync on startup - waiting for Vault authorization")
+                # [V110.202] Force slot sync on startup - ensuring persistence during deploys
+                logger.info("📡 [V110.202] Syncing slots from persistence layer...")
+                await bankroll_manager.update_banca_status()
             except Exception as e:
                 logger.warning(f"Step 2: Symbol fetch scheduled (Background): {e}")
 
