@@ -6,6 +6,10 @@
 ---
 
 ## ⚡ 10D BYBITY REAL 4.0 — PROTOCOLO DE ELITE — V110.175
+## REGRA 00 — REPOSITÓRIO ÚNICO E OFICIAL
+1. **REPO ÚNICO:** O único repositório oficial para este sistema é: `https://github.com/JonatasOliveira1983/10D5.0/`.
+2. **DEPRECATED:** O repositório `10DBybityREAL` foi desativado e não deve mais ser utilizado para push ou sincronização.
+
 ## REGRA 0 — PROTOCOLO DE INFRAESTRUTURA RAILWAY (SOVEREIGN)
 1. **SSOT (Source of Truth):** O banco de dados primário é o **PostgreSQL (Railway)**, gerenciado pelo `database_service.py`.
 2. **BROADCAST:** Toda comunicação com a UI é feita via **WebSocket Nativo (/ws/cockpit)**. O motor `Sovereign-WS` no frontend substitui permanentemente o Firebase RTDB.
