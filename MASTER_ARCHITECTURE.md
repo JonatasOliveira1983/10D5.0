@@ -1,7 +1,11 @@
-# MASTER_ARCHITECTURE.md — 10D Sniper V110.200
+# MASTER_ARCHITECTURE.md — 10D Sniper V110.201
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.201: BRANDING SIMPLIFICATION & OPEN ACCESS [APR 24]**
+    - **System 10D UI:** Simplificação visual da tela de login para um estilo minimalista.
+    - **Access Key:** Configuração da chave padrão `123` para facilitar o acesso livre do administrador.
 
 *   **V110.200: BLINDAGEM PHASE & SOVEREIGN AUTH [APR 24]**
     - **Fortress Auth:** Sistema de login soberano com autenticação JWT/Token no backend e frontend.
@@ -96,5 +100,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-24 (V110.200) Sincronizado*
+*Documento atualizado em: 2026-04-24 (V110.201) Sincronizado*
 *Este documento reflete a migração completa e estabilizada para o ambiente RAILWAY.*
