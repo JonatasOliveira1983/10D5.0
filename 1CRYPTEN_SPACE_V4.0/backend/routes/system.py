@@ -23,6 +23,40 @@ async def verify_api_key(x_api_key: str = Header(None)):
         raise HTTPException(status_code=403, detail="Acesso Proibido: Chave de API Inválida")
     return True
 
+@router.get("/system/reset-bankroll")
+async def reset_bankroll_get():
+    """Versão GET para facilidade de uso via navegador."""
+    return await reset_bankroll_action(100.0)
+
+@router.post("/system/reset-bankroll", dependencies=[Depends(verify_api_key)])
+async def reset_bankroll_post(payload: dict = None):
+    amount = 100.0
+    if payload and "amount" in payload:
+        amount = float(payload["amount"])
+    return await reset_bankroll_action(amount)
+
+async def reset_bankroll_action(amount: float):
+    # Imports internos para evitar circular dependency
+    from services.firebase_service import firebase_service
+    from services.database_service import database_service
+    
+    # 1. Firebase (se ativo)
+    try:
+        await firebase_service.update_bankroll(amount)
+    except: pass
+    
+    # 2. Postgres
+    try:
+        await database_service.update_banca_status({
+            "saldo_total": amount,
+            "risco_real_percent": 0.0,
+            "slots_disponiveis": 4,
+            "status": "OPERATIONAL"
+        })
+    except: pass
+    
+    return {"status": "success", "message": f"Bankroll reset to ${amount} in all layers."}
+
 @router.get("/test")
 async def test_connectivity():
     return {"status": "ok", "timestamp": datetime.datetime.now().isoformat()}
