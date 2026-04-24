@@ -179,7 +179,7 @@ async def nuke_paper_state():
             try: await sovereign_service.hard_reset_slot(i, "NUKE_PAPER_API", pnl=0.0)
             except: pass
         try:
-            await asyncio.to_thread(sovereign_service.rtdb.child("banca_status/status").update, {"saldo_total": 100.0, "lucro_acumulado": 0.0, "base_capital": 100.0})
+            await sovereign_service.update_banca_status({"saldo_total": 100.0, "lucro_acumulado": 0.0, "base_capital": 100.0})
             cleared.append("banca_status")
         except: pass
     return {"status": "success", "cleared": cleared}

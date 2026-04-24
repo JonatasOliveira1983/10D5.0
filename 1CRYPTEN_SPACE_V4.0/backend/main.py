@@ -65,8 +65,8 @@ asyncio.get_event_loop().set_default_executor(executor)
 # V5.2.4.8 Cloud Run Startup Optimization - Infrastructure Protocol
 # V90.3: PROTOCOLO COCKPIT - FIM DO CACHE
 # V110.40.0: PROTOCOLO COMMAND CENTER PRO - ALMIRANTE ELITE
-VERSION = "V110.125"
-DEPLOYMENT_ID = "V110.125_ELITE_COMMAND_ACTIVE"
+VERSION = "V110.176"
+DEPLOYMENT_ID = "V110.176_SOVEREIGN_ACTIVE"
 
 # Global Directory Configurations - Hardened for Docker/Cloud Run
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -415,8 +415,8 @@ async def lifespan(app: FastAPI):
     
     yield
     
-    # 🛑 [V110.60] CLEAN SHUTDOWN PROTOCOL
-    logger.info("🚀 [V110.60] 10D Sniper Intelligence Lab - STARTING BOOT...")
+    # 🛑 [V110.176] CLEAN SHUTDOWN PROTOCOL
+    logger.info("🛑 [V110.176] 10D Sniper Intelligence Lab - SHUTTING DOWN...")
     try:
         if bybit_ws_service:
             bybit_ws_service.stop()
