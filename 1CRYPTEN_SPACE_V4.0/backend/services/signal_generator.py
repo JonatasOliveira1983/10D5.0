@@ -2746,11 +2746,15 @@ class SignalGenerator:
                             has_real_flow = (btc_cvd_total > 0) and (btc_cvd_5m > 0)
                             is_vanguard_pre = (preliminary_score >= 90) and has_real_flow
 
-                            if not is_vanguard_pre:
+                            # [V110.183] SCAVENGER BYPASS: Permite ativos descorrelacionados passarem no S1 mesmo em Lateralidade
+                            if not is_vanguard_pre and not is_decorrelated:
                                 logger.debug(f"🔒 [LATERAL-LOCK S1] {symbol} negado | Score={preliminary_score:.0f} | CVD={btc_cvd_total/1e6:.2f}M")
                                 return None
                             else:
-                                logger.info(f"💎 [VANGUARD PRE-QUAL S1] {symbol} Score={preliminary_score:.0f} | CVD={btc_cvd_total/1e6:.2f}M → Passando para Captain decidir.")
+                                if is_decorrelated:
+                                    logger.info(f"🎯 [SCAVENGER-BYPASS S1] {symbol} (Descorrelacionado) ignorou trava lateral.")
+                                else:
+                                    logger.info(f"💎 [VANGUARD PRE-QUAL S1] {symbol} Score={preliminary_score:.0f} | CVD={btc_cvd_total/1e6:.2f}M → Passando para Captain decidir.")
                             
                             
                         # [V44.3] Relaxation: Allow entries with lower total CVD if 5m CVD is explosive OR ADX is accelerating
@@ -2872,13 +2876,17 @@ class SignalGenerator:
                         dna = await librarian_agent.get_asset_dna(symbol)
                         is_spring_vanguard = dna.get("is_spring_moment", False)
 
-                        if not is_vanguard_pre and not is_spring_vanguard:
+                        # [V110.183] SCAVENGER BYPASS S2: Permite descorrelacionados furarem o ADX Guard
+                        is_decorrelated_s2 = candidate.get('is_decorrelated', False)
+                        
+                        if not is_vanguard_pre and not is_spring_vanguard and not is_decorrelated_s2:
                             reason = f"SENTINELA ADX GUARD: M-ADX {m_adx:.1f} < 28 (MODO ELITE). Rejeitado."
                             logger.info(f"🚫 [V110.36.5] {symbol} rejected: {reason}")
                             self.recent_rejections.append({"symbol": symbol, "reason": reason, "timestamp": time.time()})
                             return None
-                        elif is_spring_vanguard:
-                            logger.info(f"🛡️ [V110.173 SPRING-BYPASS] {symbol} (MOLA) ignorou o ADX Guard.")
+                        elif is_spring_vanguard or is_decorrelated_s2:
+                            bypass_type = "MOLA" if is_spring_vanguard else "DESCORRELACIONADO"
+                            logger.info(f"🛡️ [V110.183 {bypass_type}-BYPASS] {symbol} ignorou o ADX Guard.")
                     
                     self._diag_counters['ema4h_pass'] += 1
                     
