@@ -381,6 +381,15 @@ async def lifespan(app: FastAPI):
                                         oracle_context=oracle_ctx
                                     )
                                     
+                                    payload = {
+                                        "btc_price": bybit_ws_service.btc_price,
+                                        "btc_variation_1h": btc_var_1h,
+                                        "btc_adx": current_adx,
+                                        "btc_direction": captain_direction,
+                                        "btc_dominance": current_dominance,
+                                        "btc_var_15m": btc_var_15m,
+                                        "timestamp": time.time()
+                                    }
                                     # 🆕 [V110.181] BROADCAST SYSTEM STATE: Sincronização nativa WebSocket
                                     from services.websocket_service import websocket_service
                                     await websocket_service.emit_system_state(payload)

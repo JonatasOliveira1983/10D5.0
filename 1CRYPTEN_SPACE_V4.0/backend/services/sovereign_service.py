@@ -138,6 +138,7 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
     async def get_active_slots(self, **kwargs): return self.slots_cache
     async def get_trade_history(self, **kwargs): return []
     async def get_trade_history_stats(self, **kwargs): return {"total_count": 0, "total_pnl": 0.0}
+    async def get_vault_history(self, limit: int = 50): return []
     async def hard_reset_slot(self, slot_id, reason, pnl=0.0): return await self.free_slot(slot_id, reason)
     async def get_doc(self, path): return {"exists": False, "data": {}}
     async def set_doc(self, path, data): return True

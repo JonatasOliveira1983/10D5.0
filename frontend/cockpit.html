@@ -1528,8 +1528,11 @@
                     if (type === 'slot_update' || type === 'live_slots') {
                         rtdb.trigger('live_slots', data);
                     }
-                    else if (type === 'radar_pulse' || type === 'radar_pulse') {
-                        rtdb.trigger('radar_pulse', data.signals || data);
+                    else if (type === 'radar_pulse') {
+                        // Fix: Passa o objeto COMPLETO {signals, decisions, market_context, updated_at}
+                        // O hook useRadarPulseRT espera esse objeto, não apenas o array de sinais
+                        const fullData = (data && data.signals !== undefined) ? data : { signals: data || [], decisions: [], market_context: {}, updated_at: Date.now() / 1000 };
+                        rtdb.trigger('radar_pulse', fullData);
                     }
                     else if (type === 'banca_status' || type === 'banca_status') {
                         rtdb.trigger('banca_status', data);
@@ -2270,19 +2273,32 @@
             const [data, setData] = React.useState({ signals: [], decisions: [], market_context: {}, updated_at: 0 });
 
             React.useEffect(() => {
-                if (!rtdb) return;
-                try {
-                    const ref = rtdb.ref('radar_pulse');
-                    ref.on('value', (snapshot) => {
-                        const val = snapshot.val();
-                        if (val) {
-                            setData(val);
-                            window.dispatchEvent(new CustomEvent('radar-pulse-update'));
-                        }
-                    });
-                    return () => ref.off();
-                } catch (e) { }
-            }, [rtdb]);
+                // Fix: Usar window.rtdb com polling para garantir que o listener é registrado
+                // mesmo quando rtdb é inicializado após o React montar o componente
+                let registered = false;
+                const tryRegister = () => {
+                    if (window.rtdb && !registered) {
+                        registered = true;
+                        try {
+                            const ref = window.rtdb.ref('radar_pulse');
+                            ref.on('value', (snapshot) => {
+                                const val = snapshot.val();
+                                if (val && (val.signals !== undefined || Array.isArray(val))) {
+                                    const normalized = Array.isArray(val)
+                                        ? { signals: val, decisions: [], market_context: {}, updated_at: Date.now() / 1000 }
+                                        : val;
+                                    setData(normalized);
+                                    window.dispatchEvent(new CustomEvent('radar-pulse-update'));
+                                }
+                            });
+                        } catch (e) { console.warn('radar_pulse listener error:', e); }
+                    }
+                };
+                // Tenta imediatamente e depois polling a cada 500ms até registrar
+                tryRegister();
+                const poll = setInterval(tryRegister, 500);
+                return () => clearInterval(poll);
+            }, []);
 
             // V15.1.4: REST Fallback Polling (ensures signals are never stuck)
             React.useEffect(() => {

@@ -1,4 +1,4 @@
-# RULES.md — 10D Sniper V110.181 "Sovereign Engine Architecture"
+# RULES.md — 10D Sniper V110.192 "Sovereign Engine Architecture"
 # Invariantes Tecnicas Inegociaveis — [EDICAO WEBSOCKET DEFINITIVA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
 # Fonte da verdade: codigo real no Railway e WebSocket Nativo.
@@ -58,7 +58,8 @@
 
 **Arquivo:** `signal_generator.py`, `websocket_service.py`
 
-- **Sincronizacao:** Os sinais sao enviados via WebSocket para a UI em tempo real (`type: RADAR_SIGNAL`).
+- **Sincronizacao:** Os sinais sao enviados via WebSocket para a UI em tempo real (`type: radar_pulse`).
+- **ESTRUTURA DE DADOS [V110.192]:** O pacote de radar_pulse DEVE ser um objeto completo `{signals, decisions, market_context}`. O frontend rejeita arrays puros para evitar quebra de HUD.
 - **Filtro de Swing:** Sinais de Swing (Harvester) sao exibidos nos Slots 3-4 e no Radar com badge AMBAR.
 - **Filtro de Blitz:** Sinais de Blitz (BlitzSniper) sao exibidos nos Slots 1-2 e no Radar com badge BRANCA.
 
@@ -107,5 +108,5 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versão: V110.181 "Sovereign Engine Architecture" | Atualizado: 2026-04-24*
+*Versão: V110.192 "Sovereign Engine Architecture" | Atualizado: 2026-04-24*
 *Este arquivo é a ÚNICA FONTE DA VERDADE. O sistema foi TOTALMENTE EMANCIPADO do Firebase via WebSocket nativo e Postgres.*
