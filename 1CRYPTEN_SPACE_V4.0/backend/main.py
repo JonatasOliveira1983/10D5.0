@@ -473,9 +473,10 @@ app.add_middleware(NoCacheMiddleware)
 # =================================================================
 # ROUTES & MODULARIZATION (V110.25.0)
 # =================================================================
-from routes import trading, system, dashboard, market, aios, chat, vault, backtest_routes
+from routes import trading, system, dashboard, market, aios, chat, vault, backtest_routes, auth
 
 # Include Modulated Routers
+app.include_router(auth.router)
 app.include_router(trading.router)
 app.include_router(system.router)
 app.include_router(dashboard.router)

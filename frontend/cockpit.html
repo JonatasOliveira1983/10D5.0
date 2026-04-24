@@ -6310,11 +6310,97 @@
             );
         };
 
-        const App = () => {
-            const [isLanding, setIsLanding] = useState(() => {
+        const FortressLogin = ({ onAuthSuccess }) => {
+            const [password, setPassword] = React.useState('');
+            const [loading, setLoading] = React.useState(false);
+            const [error, setError] = React.useState('');
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError('');
                 try {
-                    return sessionStorage.getItem('1crypten_entered') !== 'true';
-                } catch (e) { return true; }
+                    const resp = await fetch(`${API_BASE}/api/auth/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ password })
+                    });
+                    const data = await resp.json();
+                    if (data.status === 'SUCCESS') {
+                        localStorage.setItem('sniper_token', data.token);
+                        onAuthSuccess();
+                    } else {
+                        setError('Acesso negado. Senha incorreta.');
+                    }
+                } catch (err) {
+                    setError('Falha de conexão com o Fortress.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-obsidian overflow-hidden">
+                    <div className="absolute inset-0 stars-bg opacity-30"></div>
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                    
+                    <motion.div 
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="w-full max-w-sm glass-card border border-white/10 p-8 rounded-[2rem] relative z-10 shadow-2xl"
+                    >
+                        <div className="flex flex-col items-center gap-6">
+                            <div className="relative">
+                                <div className="absolute -inset-4 bg-white/5 rounded-full blur-2xl animate-pulse"></div>
+                                <img src="https://raw.githubusercontent.com/JonatasOliveira1983/10DBybityREAL/main/frontend/logo10D.png?v=2" 
+                                     className="w-20 h-20 relative z-10" alt="10D" />
+                            </div>
+
+                            <div className="text-center space-y-1">
+                                <h1 className="text-xl font-black text-white uppercase tracking-[0.3em]">Fortress Auth</h1>
+                                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Sovereign Engine Protocol V110.200</p>
+                            </div>
+
+                            <form onSubmit={handleSubmit} className="w-full space-y-6">
+                                <div className="space-y-2">
+                                    <div className="relative">
+                                        <span className="material-icons-round absolute left-4 top-1/2 -translate-y-1/2 text-gray-600">lock</span>
+                                        <input 
+                                            type="password" 
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            placeholder="PASSWORD KEY"
+                                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white text-sm font-mono placeholder:text-gray-700 focus:outline-none focus:border-white/30 transition-all"
+                                            autoFocus
+                                        />
+                                    </div>
+                                    {error && <p className="text-[9px] text-red-500 font-black uppercase text-center tracking-tighter">{error}</p>}
+                                </div>
+
+                                <button 
+                                    disabled={loading}
+                                    type="submit"
+                                    className="w-full bg-white text-black py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] hover:bg-gray-200 transition-all disabled:opacity-50"
+                                >
+                                    {loading ? 'Authenticating...' : 'Establish Connection'}
+                                </button>
+                            </form>
+                        </div>
+
+                        <div className="mt-8 flex justify-center">
+                            <div className="flex items-center gap-2 text-[8px] text-gray-600 font-black uppercase tracking-widest">
+                                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                                Interface Secured by GuardianAgent
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [isAuthenticated, setIsAuthenticated] = useState(() => {
+                return !!localStorage.getItem('sniper_token');
             });
             const [theme, setTheme] = useState(() => {
                 const saved = localStorage.getItem('v5_theme');
@@ -6381,17 +6467,16 @@
             };
 
             const handleLogout = () => {
-                sessionStorage.removeItem('1crypten_entered');
-                setIsLanding(true);
+                localStorage.removeItem('sniper_token');
+                setIsAuthenticated(false);
             };
 
-            const handleEnter = () => {
-                setIsLanding(false);
-                sessionStorage.setItem('1crypten_entered', 'true');
+            const handleAuthSuccess = () => {
+                setIsAuthenticated(true);
             };
 
-            if (isLanding) {
-                return <LandingPage onEnter={handleEnter} />;
+            if (!isAuthenticated) {
+                return <FortressLogin onAuthSuccess={handleAuthSuccess} />;
             }
 
             return (
