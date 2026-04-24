@@ -3356,9 +3356,11 @@ class SignalGenerator:
                         "is_swing_macro": candidate.get('is_swing_macro', False),
                         "timestamp": datetime.now(timezone.utc).isoformat()
                     }
-                    # [V110.181] RADAR THROTTLE RELAXED: Permite sinais de Mola (Spring) mesmo em Lateralidade
+                    # [V110.185] RADAR THROTTLE RELAXED: Permite sinais de Mola (Spring) ou Descorrelacionados mesmo em Lateralidade
                     current_adx_val = market_regime.get("adx", 20)
-                    if current_adx_val < 20 and not is_spring_vanguard: 
+                    is_decorrelated_final = candidate.get('is_decorrelated', False)
+                    
+                    if current_adx_val < 20 and not is_spring_vanguard and not is_decorrelated_final: 
                         logger.info(f"🚫 [RADAR-THROTTLE] {norm_symbol} Swing OMITIDO (Mercado Lateral | ADX {current_adx_val:.1f}). Focando em Blitz.")
                     else:
                         await sovereign_service.log_signal(signal_data)
