@@ -70,13 +70,19 @@ class QuartermasterAgent(AIOSAgent):
         
         # 3. Security Check (The Guillotine)
         block_reason = None
-        if classification == "EXTREME" and btc_adx < 25:
+        is_spring = lib_dna.get("is_spring_moment", False)
+        
+        if classification == "EXTREME" and btc_adx < 25 and not is_spring:
             reason = f"LOW_ADX_EXTREME_WICK: Asset is too wicky ({wick_intensity:.2f}) for low trend environment (ADX={btc_adx:.1f})"
-            if settings.BYBIT_EXECUTION_MODE == "PAPER":
+            
+            from services.bybit_rest import bybit_rest_service
+            if bybit_rest_service.execution_mode == "PAPER":
                 logger.info(f"🧪 [PAPER-BYPASS] Quartermaster ignorando bloqueio por Wick para teste: {reason}")
             else:
                 block_reason = reason
                 logger.warning(f"🛡️ [QUARTERMASTER] {symbol} BLOCKED: {block_reason}")
+        elif is_spring:
+            logger.info(f"🚀 [QUARTERMASTER-SPRING-BYPASS] {symbol} (MOLA) ignorou o Wick Shield.")
             
         logger.info(
             f"⚓ [QUARTERMASTER] {symbol} | Class: {classification} | "
