@@ -123,6 +123,10 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
     async def get_chat_status(self): return {"is_thinking": False}
     async def get_librarian_intel(self): return {}
     async def get_radar_grid(self): return {}
+    async def get_active_slots(self): return self.slots_cache
+    async def get_trade_history(self, **kwargs): return []
+    async def get_trade_history_stats(self, **kwargs): return {"total_count": 0, "total_pnl": 0.0}
+    async def hard_reset_slot(self, slot_id, reason, pnl=0.0): return await self.free_slot(slot_id, reason)
 
     async def update_radar_pulse(self, signals: list, decisions: list, market_context: dict):
         """Atualiza e transmite o pulso do Radar."""

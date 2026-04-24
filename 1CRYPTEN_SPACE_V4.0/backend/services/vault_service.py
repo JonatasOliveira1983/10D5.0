@@ -74,7 +74,7 @@ class VaultService:
             "cycle_number": 1,
             "cycle_profit": 0.0,      # Lucro líquido Sniper (Wins - Losses)
             "cycle_losses": 0.0,      # Apenas perdas acumuladas Sniper
-            "started_at": datetime.now(timezone.utc).isoformat(),
+            "started_at": datetime.now(timezone.utc),
             "in_admiral_rest": False,
             "rest_until": None,
             "vault_total": 0.0,
@@ -547,8 +547,7 @@ class VaultService:
                 "cycle_losses_count": len([t for t in trades if (t.get('pnl') or 0) <= 0]),
                 "total_trades_cycle": total_trades_capped,
                 "used_symbols_in_cycle": list(used_symbols),
-                "mega_cycle_wins": total_mega_wins, # V15.1
-                "updated_at": int(time.time() * 1000)
+                "mega_cycle_wins": total_mega_wins # V15.1
             }
             
             await database_service.update_vault_cycle(update_data)
@@ -595,7 +594,7 @@ class VaultService:
             withdrawal_record = {
                 "amount": amount,
                 "cycle_number": current.get("cycle_number", 1),
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(timezone.utc),
                 "destination": destination
             }
             
@@ -639,7 +638,7 @@ class VaultService:
                 "cycle_profit": 0.0,
                 "cycle_losses": 0.0,
                 "surf_profit": 0.0,
-                "started_at": datetime.now(timezone.utc).isoformat(),
+                "started_at": datetime.now(timezone.utc),
                 "in_admiral_rest": current.get("in_admiral_rest", False),
                 "rest_until": current.get("rest_until"),
                 "vault_total": current.get("vault_total", 0),
