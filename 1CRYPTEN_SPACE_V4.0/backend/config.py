@@ -81,7 +81,7 @@ class Settings(BaseSettings):
     # [V110.20.1] Official Asset Blocklist - Memecoins & Low Liquidity
     ASSET_BLOCKLIST: set = {
         'PAXGUSDT', 'XAUTUSDT', 'TAOUSDT', 'BTCUSDT', 'ETHUSDT', 'SOLUSDT', 
-        'PEPEUSDT', 'PIPPINUSDT', '1000PEPEUSDT', '1000LUNCUSDT',
+        'PIPPINUSDT', '1000PEPEUSDT', '1000LUNCUSDT',
         'DOGEUSDT', 'SHIBUSDT', 'FLOKIUSDT', 'BONKUSDT', 'WIFUSDT', 
         'MEMEUSDT', 'PEOPLEUSDT', 'TURBOUSDT', 'POPCATUSDT', 'BRETTUSDT', 
         'MOGUSDT', 'MEWUSDT', 'BOMEUSDT', 'MYROUSDT', 'COQUSDT', 

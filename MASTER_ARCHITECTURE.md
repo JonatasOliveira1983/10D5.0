@@ -1,7 +1,12 @@
-# MASTER_ARCHITECTURE.md — 10D Sniper V110.192
+# MASTER_ARCHITECTURE.md — 10D Sniper V110.193
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.193: GHOST-LOCK PURGE & SYMBOL HARDENING [APR 24]**
+    - **Ghost-Lock Resolution:** Implementação do protocolo de Database Wipe para limpar estados corrompidos de slots "4/4" sem ordens reais.
+    - **Symbol Purgue:** Remoção completa de `PEPEUSDT` (substituído por `1000PEPEUSDT`) em todas as camadas de configuração para evitar erros de subscrição no WebSocket.
+    - **Scan Resumption:** Otimização do loop de escaneamento para retomar imediatamente após a limpeza de estado.
 
 *   **V110.192: SOVEREIGN STABILIZATION & RADAR SYNC [APR 24]**
     - **Radar Sync Fix:** Correção da dessincronização de payload no frontend; o Radar agora recebe o objeto completo `{signals, decisions, market_context}`.
@@ -61,5 +66,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-24 (V110.192) Sincronizado*
+*Documento atualizado em: 2026-04-24 (V110.193) Sincronizado*
 *Este documento reflete a migração completa e estabilizada para o ambiente RAILWAY.*
