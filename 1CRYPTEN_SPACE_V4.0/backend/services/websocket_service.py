@@ -18,7 +18,7 @@ class WebSocketService:
         logger.info(f"🔌 Cockpit Connected. Active sessions: {len(self.active_connections)}")
 
     def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
+        self.active_connections.discard(websocket)
         logger.info(f"❌ Cockpit Disconnected. Active sessions: {len(self.active_connections)}")
 
     async def broadcast(self, message: dict):

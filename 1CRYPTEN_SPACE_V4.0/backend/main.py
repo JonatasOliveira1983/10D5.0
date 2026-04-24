@@ -248,7 +248,6 @@ async def lifespan(app: FastAPI):
                 asyncio.create_task(captain_agent.monitor_signals())
                 asyncio.create_task(captain_agent.monitor_active_positions_loop())
                 asyncio.create_task(librarian_agent.run_loop())
-                asyncio.create_task(harvester_agent.run_loop())
                 
 
                 
@@ -384,7 +383,7 @@ async def lifespan(app: FastAPI):
                                     
                                     # 🆕 [V110.181] BROADCAST SYSTEM STATE: Sincronização nativa WebSocket
                                     from services.websocket_service import websocket_service
-                                    await websocket_service.emit_system_state(res)
+                                    await websocket_service.emit_system_state(payload)
 
                         except Exception as e:
                             logger.error(f"Error in market_context_loop: {e}")

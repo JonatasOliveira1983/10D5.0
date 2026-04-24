@@ -2534,7 +2534,7 @@ class SignalGenerator:
                     "TIAUSDT.P", "SEIUSDT.P", "AXSUSDT.P", "FETUSDT.P", "TAOUSDT.P",
                     "IMXUSDT.P", "FTMUSDT.P", "STXUSDT.P", "BEAMUSDT.P", "PYTHUSDT.P",
                     # Expanded Elite +20
-                    "SOLUSDT.P", "ETHUSDT.P", "XRPUSDT.P", "PEPEUSDT.P", "WIFUSDT.P",
+                    "SOLUSDT.P", "ETHUSDT.P", "XRPUSDT.P", "XLMUSDT.P", "WIFUSDT.P",
                     "BONKUSDT.P", "SHIB1000USDT.P", "ATOMUSDT.P", "FILUSDT.P", "STMXUSDT.P",
                     "JUPUSDT.P", "STRKUSDT.P", "DYDXUSDT.P", "GMXUSDT.P", "CRVUSDT.P",
                     "LUNA2USDT.P", "EGLDUSDT.P", "GRTUSDT.P", "THETAUSDT.P", "VETUSDT.P"
@@ -2870,6 +2870,10 @@ class SignalGenerator:
                     
                     # [V110.36.5] VANGUARD PRE-QUALIFIER (S2): Alinhado com o Stage 1 e Captain.
                     # Usa M-ADX autêntico e permite passe livre para ativos com Score >= 90 e fluxo BTC Positivo.
+                    # [V110.173] Spring Vanguard and Decorrelation flags — initialized before conditional
+                    is_spring_vanguard = False
+                    is_decorrelated_s2 = candidate.get('is_decorrelated', False)
+
                     m_adx = getattr(bybit_ws_service, 'btc_adx', 0)
                     if m_adx and m_adx < 28:
                         btc_cvd_total = bybit_ws_service.get_cvd_score("BTCUSDT")
@@ -2883,7 +2887,6 @@ class SignalGenerator:
                         is_spring_vanguard = dna.get("is_spring_moment", False)
 
                         # [V110.183] SCAVENGER BYPASS S2: Permite descorrelacionados furarem o ADX Guard
-                        is_decorrelated_s2 = candidate.get('is_decorrelated', False)
                         
                         if not is_vanguard_pre and not is_spring_vanguard and not is_decorrelated_s2:
                             reason = f"SENTINELA ADX GUARD: M-ADX {m_adx:.1f} < 28 (MODO ELITE). Rejeitado."
