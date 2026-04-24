@@ -3348,11 +3348,9 @@ class SignalGenerator:
                         "is_swing_macro": candidate.get('is_swing_macro', False),
                         "timestamp": datetime.now(timezone.utc).isoformat()
                     }
-                    # [V110.143] RADAR THROTTLE (Foco Dinâmico)
-                    # Em mercado lateral (ADX < 20), escondemos sinais Swing com score < 95
-                    # Isso força o Radar a focar nos sinais Blitz (M30), que são melhores para lateralidade.
+                    # [V110.181] RADAR THROTTLE RELAXED: Permite sinais de Mola (Spring) mesmo em Lateralidade
                     current_adx_val = market_regime.get("adx", 20)
-                    if current_adx_val < 20: # [V110.148] BLOQUEIO ABSOLUTO SWING EM LATERAL
+                    if current_adx_val < 20 and not is_spring_vanguard: 
                         logger.info(f"🚫 [RADAR-THROTTLE] {norm_symbol} Swing OMITIDO (Mercado Lateral | ADX {current_adx_val:.1f}). Focando em Blitz.")
                     else:
                         await sovereign_service.log_signal(signal_data)
