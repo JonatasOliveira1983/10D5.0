@@ -637,11 +637,17 @@ class FirebaseService:
         # Update cache first
         for s in self.slots_cache:
             if s["id"] == slot_id:
-                if "unified_confidence" in data:
-                    logger.info(f"🦾 [CACHE-UPDATE] Slot {slot_id} getting intel: {data['unified_confidence']}%")
                 s.update(data)
                 break
                 
+        # [V110.175] Broadcast Slot Update via WebSocket
+        from services.websocket_service import websocket_service
+        await websocket_service.broadcast({
+            "type": "SLOT_UPDATE",
+            "slot_id": slot_id,
+            "data": data
+        })
+
         if not self.is_active: return data
         
         # V15.7.8: Clean mojibake before pushing to RTDB
@@ -836,6 +842,12 @@ class FirebaseService:
         signal_data["timestamp"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
         self.signal_buffer.appendleft(signal_data)
         
+        # [V110.175] Broadcast Radar Signal via WebSocket
+        await websocket_service.broadcast({
+            "type": "RADAR_SIGNAL",
+            "data": signal_data
+        })
+
         if not self.is_active: return signal_data["id"]
         
         # Retry logic for critical signal logging
@@ -879,6 +891,12 @@ class FirebaseService:
         }
         self.log_buffer.appendleft(data)
         
+        # [V110.175] Broadcast Event via WebSocket
+        await websocket_service.broadcast({
+            "type": "SYSTEM_EVENT",
+            "data": data
+        })
+
         if not self.is_active: return data
         try:
             await asyncio.to_thread(self.db.collection("system_logs").add, data)
@@ -939,7 +957,6 @@ class FirebaseService:
                                  oracle_context: dict = None):
 
         """V12.1: Updates BTC Command Center in RTDB with price, variation and intelligence metrics."""
-        if not self.is_active or not self.rtdb: return
         try:
             payload = {
                 "btc_drag_mode": btc_drag_mode,
@@ -971,11 +988,12 @@ class FirebaseService:
                 "data": payload
             })
 
-            data = self._clean_mojibake(self._make_json_safe(payload))
-
-            # V5.2.4.3: Added 3s timeout for RTDB updates
-            await asyncio.wait_for(asyncio.to_thread(self.rtdb.update, {"btc_command_center": data}), timeout=3.0)
-            logger.info(f"✅ [RTDB-BTC] Update SUCCESS: ${btc_price:,.0f} | Oracle: {payload.get('oracle_status')} | ADX: {btc_adx:.1f}")
+            # [V110.175] Native RTDB Update (Only if active)
+            if self.rtdb:
+                data = self._clean_mojibake(self._make_json_safe(payload))
+                # V5.2.4.3: Added 3s timeout for RTDB updates
+                await asyncio.wait_for(asyncio.to_thread(self.rtdb.update, {"btc_command_center": data}), timeout=3.0)
+                logger.info(f"✅ [RTDB-BTC] Update SUCCESS: ${btc_price:,.0f} | Oracle: {payload.get('oracle_status')} | ADX: {btc_adx:.1f}")
         except asyncio.TimeoutError:
             logger.warning("\u26a0\ufe0f RTDB BTC Update Timeout (3s)")
         except Exception as e:
