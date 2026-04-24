@@ -60,7 +60,7 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
                 break
         try:
             asyncio.create_task(database_service.update_slot(slot_id, data))
-            await websocket_service.emit_slot_update(slot_id, data)
+            await websocket_service.emit_slots(self.slots_cache)
         except Exception as e:
             logger.error(f"Error in Sovereign slot update: {e}")
         return data
@@ -138,6 +138,7 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
     async def get_system_bias(self): return {}
     async def update_radar_batch(self, batch): pass
     async def update_system_state(self, *args, **kwargs): pass
+    async def update_signal_outcome(self, *args, **kwargs): pass
 
     async def update_radar_pulse(self, signals: list, decisions: list, market_context: dict):
         """Atualiza e transmite o pulso do Radar."""

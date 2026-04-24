@@ -42,33 +42,47 @@ class WebSocketService:
 
     async def emit_slot_update(self, slot_id: int, data: dict):
         """Envia atualização de um slot específico."""
+        # V110.180: Encapsula em 'data' para compatibilidade com o trigger do rtdb.ref('live_slots')
+        # Se o frontend espera a lista completa, usaremos emit_slots.
         await self.broadcast({
             "type": "SLOT_UPDATE",
-            "slot_id": slot_id,
             "data": data
         })
 
-    async def emit_radar_pulse(self, signals: list):
-        """Envia novos sinais do Radar."""
+    async def emit_slots(self, slots: list):
+        """Envia a lista completa de slots (V110.180)."""
         await self.broadcast({
-            "type": "RADAR_PULSE",
-            "signals": signals
+            "type": "live_slots",
+            "data": slots
+        })
+
+    async def emit_radar_pulse(self, signals: list):
+        """Envia novos sinais do Radar (V110.180)."""
+        await self.broadcast({
+            "type": "radar_pulse",
+            "data": {
+                "signals": signals,
+                "updated_at": asyncio.get_event_loop().time()
+            }
         })
 
     async def emit_banca_status(self, data: dict):
         """Envia status da banca."""
         await self.broadcast({
-            "type": "BANCA_STATUS",
+            "type": "banca_status",
             "data": data
         })
 
     async def update_radar_pulse(self, signals: list, decisions: list, market_context: dict):
-        """Envia o pacote completo de inteligência do Radar (V110.175)."""
+        """Envia o pacote completo de inteligência do Radar (V110.180)."""
         await self.broadcast({
-            "type": "RADAR_PULSE",
-            "signals": signals,
-            "decisions": decisions,
-            "market_context": market_context
+            "type": "radar_pulse",
+            "data": {
+                "signals": signals,
+                "decisions": decisions,
+                "market_context": market_context,
+                "updated_at": asyncio.get_event_loop().time()
+            }
         })
 
 websocket_service = WebSocketService()
