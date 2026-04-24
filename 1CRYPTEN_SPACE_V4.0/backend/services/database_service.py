@@ -166,6 +166,7 @@ class DatabaseService:
                 # Sempre ID 1 para banca única
                 obj = await session.get(BancaStatus, 1)
                 if not obj:
+                    data.pop("id", None) # Evitar conflito de id
                     obj = BancaStatus(id=1, **data)
                     session.add(obj)
                 else:
@@ -196,6 +197,7 @@ class DatabaseService:
             try:
                 obj = await session.get(Slot, slot_id)
                 if not obj:
+                    data.pop("id", None) # Evitar conflito de id
                     obj = Slot(id=slot_id, **data)
                     session.add(obj)
                 else:

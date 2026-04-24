@@ -1,7 +1,11 @@
-# MASTER_ARCHITECTURE.md — 10D Sniper V110.196
+# MASTER_ARCHITECTURE.md — 10D Sniper V110.197
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.197: RUNTIME STABILITY & SCOPE HARDENING [APR 24]**
+    - **Execution Fix:** Resolvido `NameError: is_spring_strike` no `BankrollManager` via pré-declaração de variáveis de controle.
+    - **Database Sync Fix:** Resolvido `TypeError` de múltiplos valores para o argumento `id` em atualizações de banca e slots.
 
 *   **V110.196: DATABASE HARDENING & RATE LIMIT SHIELD [APR 24]**
     - **SQL Schema Sync:** Modelo `Slot` no Postgres atualizado para suportar 100% dos campos de telemetria e inteligência (margin, leverage, fleet_intel).
@@ -79,5 +83,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-24 (V110.196) Sincronizado*
+*Documento atualizado em: 2026-04-24 (V110.197) Sincronizado*
 *Este documento reflete a migração completa e estabilizada para o ambiente RAILWAY.*

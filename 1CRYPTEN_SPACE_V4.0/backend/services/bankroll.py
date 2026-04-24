@@ -1643,6 +1643,12 @@ class BankrollManager:
                     genesis_id = f"{strategy_prefix}-{bybit_order_id}-{norm_symbol[:4]}"
                     logger.info(f"🧬 [GENESIS-GEN] Slot {slot_id} | {strategy_type} | ID: {genesis_id}")
                     opened_ts = time.time()
+                    
+                    # [V110.197] Pre-declare control variables to avoid NameError
+                    is_spring_strike = signal_data.get("is_spring_strike", False) if signal_data else False
+                    is_ranging_sniper = signal_data.get("is_ranging_sniper", False) if signal_data else False
+                    is_shadow_strike = signal_data.get("is_shadow_strike", False) if signal_data else False
+                    is_reverse_sniper = signal_data.get("is_reverse_sniper", False) if signal_data else False
 
                     await sovereign_service.update_slot(slot_id, {
                         "symbol": symbol,
@@ -1674,8 +1680,8 @@ class BankrollManager:
                         "market_regime": "RANGING" if is_market_ranging else "TRENDING",
                         "rescue_activated": False,
                         "rescue_resolved": False,
-                        "is_shadow_strike": signal_data.get("is_shadow_strike", False) if signal_data else False,
-                        "is_spring_strike": signal_data.get("is_spring_strike", False) if signal_data else False,
+                        "is_shadow_strike": is_shadow_strike,
+                        "is_spring_strike": is_spring_strike,
                         "score": signal_data.get("score", 0) if signal_data else 0,
                         "strategy": strategy_type, # [V110.173] BLITZ_30M or SWING
                         "strategy_label": f"{strategy_type.replace('_', ' ')} | SPRING" if is_spring_strike else strategy_type.replace('_', ' '),
