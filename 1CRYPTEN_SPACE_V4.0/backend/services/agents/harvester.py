@@ -54,23 +54,21 @@ HARVEST_EXTENSION_PHASES = [
     },
 ]
 
-class HarvesterAgent:
+from services.agents.aios_adapter import AIOSAgent
+
+class HarvesterAgent(AIOSAgent):
     """
     [V110.113] HARVESTER AGENT ("CEIFEIRO") - UPGRADED
     Especialista em colheita de lucros em Moonbags (posições emancipadas).
-    
-    RESPONSABILIDADES DUPLAS:
-    1. Colheita parcial em resistências Fibonacci H4 com exaustão CVD
-    2. Trailing Stop progressivo para proteger lucros de Moonbags
-    
-    ESTRATÉGIA DE COLHEITA EM FASES:
-    - 1ª Colheita (250%+): Colhe 40%, deixa 60% surfando
-    - 2ª Colheita (500%+): Colhe 30%, deixa 30% surfando  
-    - 3ª Colheita (700%+): Colhe 25%, deixa 5-10% surfando
     """
     def __init__(self):
+        super().__init__(
+            agent_id="agent-harvester-logic",
+            role="harvester",
+            capabilities=["profit_harvesting", "trailing_stop", "moonbag_management"]
+        )
         self.leverage = 50.0
-        self.fibo_threshold = 0.005  # [V110.118] Proximidade de 0.5% do alvo (era 0.3%)
+        self.fibo_threshold = 0.005
         self.min_roi_for_harvest = 100.0  # Guard mínimo: 2% de move (100% ROI) antes de verificar
         self.harvest_cooldown = 1800  # 30 minutos entre colheitas do mesmo ativo
         self._harvest_history = {}  # {symbol: last_harvest_timestamp}
@@ -80,6 +78,16 @@ class HarvesterAgent:
         # Cache legado (retração) — mantido para compatibilidade
         self._fib_cache: dict = {}
         self._fib_cache_ttl = 1800  # 30 minutos
+
+    async def on_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
+        """Handles incoming messages for the Harvester."""
+        msg_type = message.get("type")
+        if msg_type == "CHECK_HARVEST":
+            data = message.get("data", {})
+            return await self.check_harvest_opportunity(
+                data.get("symbol"), data.get("side"), data.get("entry_price"), data.get("current_price")
+            )
+        return {"status": "ERROR", "message": f"Unknown message type: {msg_type}"}
 
     async def check_harvest_opportunity(self, symbol: str, side: str, entry_price: float, current_price: float) -> Dict[str, Any]:
         """
