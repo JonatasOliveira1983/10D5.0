@@ -2561,10 +2561,13 @@ class SignalGenerator:
                                 if sym not in all_liquid_symbols: continue
                                 
                                 change = float(t.get("price24hPcnt", 0))
+                                turnover = float(t.get("turnover24h", 0))
+                                # [V110.186] Populate turnover cache for all assets using bulk data
+                                bybit_ws_service.turnover_24h_cache[sym] = turnover
+                                
                                 # Descorrelation Score: How much it differs from BTC
                                 decor_score = abs(change - btc_change)
                                 # Plus some volume weight to prefer liquid ones
-                                turnover = float(t.get("turnover24h", 0))
                                 final_rank_score = decor_score * 0.7 + (math.log10(turnover) if turnover > 0 else 0) * 0.3
                                 
                                 scored_symbols.append({"symbol": sym, "score": final_rank_score})
@@ -2790,7 +2793,10 @@ class SignalGenerator:
                 s1_filtered = []
                 for candidate in stage1_candidates:
                     symbol = candidate['symbol']
-                    turnover_24h = bybit_ws_service.turnover_24h_cache.get(symbol, 0)
+                    norm_sym = symbol.replace(".P", "").upper()
+                    # [V110.186] Key-agnostic lookup
+                    turnover_24h = bybit_ws_service.turnover_24h_cache.get(symbol, 0) or \
+                                   bybit_ws_service.turnover_24h_cache.get(norm_sym, 0)
                     
                     # [V38.0] Macro Swing needs less liquidity ($500k) because it trades slow timeframes
                     min_turnover = 500000 if candidate.get('is_swing_macro') else 1000000
