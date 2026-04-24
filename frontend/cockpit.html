@@ -3142,7 +3142,14 @@
                 const chartReconnectTimeoutRef = { current: null };
 
                 const connectWs = () => {
-                    if (chartWsRef.current) chartWsRef.current.close();
+                    if (chartWsRef.current) {
+                        // V110.201: Prevent closing while connecting to avoid console spam
+                        chartWsRef.current.onclose = null;
+                        chartWsRef.current.onerror = null;
+                        if (chartWsRef.current.readyState === WebSocket.OPEN) {
+                            chartWsRef.current.close();
+                        }
+                    }
 
                     const ws = new WebSocket('wss://stream.bybit.com/v5/public/linear');
                     chartWsRef.current = ws;
@@ -3185,8 +3192,9 @@
                         }
                     };
 
-                    ws.onerror = () => {
-                        ws.close();
+                    ws.onerror = (e) => {
+                        // Silent close for cleaner console
+                        if (ws.readyState === WebSocket.OPEN) ws.close();
                     };
                 };
 
@@ -3385,7 +3393,13 @@
                 if (!activeSymbols || activeSymbols.length === 0) return;
 
                 const connect = () => {
-                    if (wsRef.current) wsRef.current.close();
+                    if (wsRef.current) {
+                        wsRef.current.onclose = null;
+                        wsRef.current.onerror = null;
+                        if (wsRef.current.readyState === WebSocket.OPEN) {
+                            wsRef.current.close();
+                        }
+                    }
 
                     const ws = new WebSocket('wss://stream.bybit.com/v5/public/linear');
                     wsRef.current = ws;
@@ -3429,8 +3443,8 @@
                     };
 
                     ws.onerror = (err) => {
-                        console.error("[WS] Tickers Error:", err);
-                        ws.close();
+                        // V110.201: Silent error handling for Bybit Stream
+                        if (ws.readyState === WebSocket.OPEN) ws.close();
                     };
                 };
 
