@@ -1,7 +1,11 @@
-# MASTER_ARCHITECTURE.md — 10D Sniper V110.197
+# MASTER_ARCHITECTURE.md — 10D Sniper V110.198
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.198: DOMAIN & SSL HARDENING [APR 24]**
+    - **WSS Protocol Fix:** Inteligência de detecção de protocolo no `cockpit.html` para suportar `wss://` automaticamente em domínios HTTPS.
+    - **Custom Domain Ready:** Ajustes de roteamento para garantir conectividade em `1crypten.space`.
 
 *   **V110.197: RUNTIME STABILITY & SCOPE HARDENING [APR 24]**
     - **Execution Fix:** Resolvido `NameError: is_spring_strike` no `BankrollManager` via pré-declaração de variáveis de controle.
@@ -83,5 +87,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-24 (V110.197) Sincronizado*
+*Documento atualizado em: 2026-04-24 (V110.198) Sincronizado*
 *Este documento reflete a migração completa e estabilizada para o ambiente RAILWAY.*
