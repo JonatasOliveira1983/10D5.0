@@ -841,7 +841,8 @@ class CaptainAgent(AIOSAgent):
                 is_decorrelated = best_signal.get("decorrelation_play", False)
                 is_spring_vanguard = lib_dna_lateral.get("is_spring_moment", False)
                 
-                can_bypass_lateral = is_blitz or is_decorrelated or is_spring_vanguard
+                # [V110.188] Scavenger Mode: Elite signals and Decorrelated assets bypass lateral guards
+                can_bypass_lateral = is_blitz or is_decorrelated or is_spring_vanguard or is_elite_score
                 if is_blitz:
                     msg = (
                         f"⚡ [BLITZ-LATERAL-BYPASS] {symbol} ({side}) ignorando trava lateral Sentinel."
