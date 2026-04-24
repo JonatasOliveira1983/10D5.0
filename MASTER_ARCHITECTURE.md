@@ -1,7 +1,11 @@
-# MASTER_ARCHITECTURE.md — 10D Sniper V110.198
+# MASTER_ARCHITECTURE.md — 10D Sniper V110.199
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.199: PRODUCTION DOMAIN FINALIZATION [APR 24]**
+    - **CORS Hardening:** Inclusão de variantes `www` e domínios de produção no backend para eliminar bloqueios de segurança.
+    - **Full Domain Parity:** Sincronização de regras de acesso para `1crypten.space`.
 
 *   **V110.198: DOMAIN & SSL HARDENING [APR 24]**
     - **WSS Protocol Fix:** Inteligência de detecção de protocolo no `cockpit.html` para suportar `wss://` automaticamente em domínios HTTPS.
@@ -87,5 +91,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-24 (V110.198) Sincronizado*
+*Documento atualizado em: 2026-04-24 (V110.199) Sincronizado*
 *Este documento reflete a migração completa e estabilizada para o ambiente RAILWAY.*

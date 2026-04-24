@@ -454,8 +454,10 @@ app = FastAPI(
 ALLOWED_ORIGINS = [
     "http://localhost:8085",
     "http://127.0.0.1:8085",
-    "http://localhost:5173", # Vite Dev
+    "http://localhost:5173",
     "https://1crypten.space",
+    "https://www.1crypten.space",
+    "https://10d50-production.up.railway.app",
 ]
 
 app.add_middleware(
