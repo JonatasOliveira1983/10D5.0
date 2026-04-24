@@ -1513,7 +1513,7 @@ class BankrollManager:
                         logger.info(f"🛡️ [V41.0 RANGING] Risco reduzido para {max_risk*100:.1f}% para alinhar com alvo lateral.")
                 else:
                     # [V43.2] Zero Tolerance for Low Balance: Cap risk at 2% (100% ROI) if balance < $10
-                    if balance < 10.0:
+                    if balance < 100.0:
                         max_risk = 0.020
                         logger.info(f"🛡️ [V43.2] Low Balance SL Cap: Risk capped at {max_risk*100:.1f}% (100% ROI) to protect account.")
                     else:

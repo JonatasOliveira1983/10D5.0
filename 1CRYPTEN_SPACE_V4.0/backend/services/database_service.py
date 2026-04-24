@@ -127,7 +127,7 @@ class DatabaseService:
             obj = await session.get(BancaStatus, 1)
             if obj:
                 return {c.name: getattr(obj, c.name) for c in obj.__table__.columns}
-            return {"saldo_total": 0, "risco_real_percent": 0, "slots_disponiveis": 4, "status": "UNKNOWN"}
+            return {"saldo_total": 100.0, "risco_real_percent": 0, "slots_disponiveis": 4, "status": "DEFAULT_BOOT"}
 
     # --- SLOTS ---
     async def update_slot(self, slot_id: int, data: dict):
