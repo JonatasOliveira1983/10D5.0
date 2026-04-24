@@ -236,36 +236,53 @@ class CaptainAgent(AIOSAgent):
             
             # [BLOCK] Absolute Trap Risk from WhaleTracker (Institutional Divergence)
             if trap_risk:
-                approved = False
-                reasons.append(f"🐳🚫 ANTI-TRAP BLOCK: {trap_reason}")
-                unified_score = 10 # Force low score if trap detected
-                logger.warning(f"🛡️ [V110.100] {symbol} {side} BLOCKED by ANTI-TRAP: {trap_reason}")
+                if bybit_rest_service.execution_mode == "PAPER":
+                    logger.info(f"🧪 [PAPER-BYPASS] Capitão ignorando ANTI-TRAP para teste: {trap_reason}")
+                else:
+                    approved = False
+                    reasons.append(f"🐳🚫 ANTI-TRAP BLOCK: {trap_reason}")
+                    unified_score = 10 # Force low score if trap detected
+                    logger.warning(f"🛡️ [V110.100] {symbol} {side} BLOCKED by ANTI-TRAP: {trap_reason}")
 
             if risk_score > 8:
-                approved = False
-                reasons.append(f"High Macro Risk ({risk_score})")
+                if bybit_rest_service.execution_mode == "PAPER":
+                    logger.info(f"🧪 [PAPER-BYPASS] Ignorando Risco Macro Alto para teste.")
+                else:
+                    approved = False
+                    reasons.append(f"High Macro Risk ({risk_score})")
             
             if sent_score < 30:
-                approved = False
-                reasons.append(f"Sentiment Block (Extreme Retail Trapped: {sent_score})")
+                if bybit_rest_service.execution_mode == "PAPER":
+                    logger.info(f"🧪 [PAPER-BYPASS] Ignorando Sentimento de Varejo para teste.")
+                else:
+                    approved = False
+                    reasons.append(f"Sentiment Block (Extreme Retail Trapped: {sent_score})")
             
             # [V110.27.0] RESTORED TO HARD BLOCK: Whale Bias Divergence
             wb_upper = whale_bias.upper()
             if side.lower() == "buy" and "DISTRIBUTION" in wb_upper:
-                approved = False
-                reasons.append(f"🐳🚫 FLEET DIVERGENCE: Whale {whale_bias} against LONG")
-                logger.warning(f"🛡️ [V110.137] {symbol} LONG BLOCKED by Whale {whale_bias}")
+                if bybit_rest_service.execution_mode == "PAPER":
+                    logger.info(f"🧪 [PAPER-BYPASS] Ignorando Divergência de Baleias (Distribuição) para teste.")
+                else:
+                    approved = False
+                    reasons.append(f"🐳🚫 FLEET DIVERGENCE: Whale {whale_bias} against LONG")
+                    logger.warning(f"🛡️ [V110.137] {symbol} LONG BLOCKED by Whale {whale_bias}")
             elif side.lower() == "sell" and "ACCUMULATION" in wb_upper:
-                approved = False
-                reasons.append(f"🐳🚫 FLEET DIVERGENCE: Whale {whale_bias} against SHORT")
-                logger.warning(f"🛡️ [V110.137] {symbol} SHORT BLOCKED by Whale {whale_bias}")
+                if bybit_rest_service.execution_mode == "PAPER":
+                    logger.info(f"🧪 [PAPER-BYPASS] Ignorando Divergência de Baleias (Acumulação) para teste.")
+                else:
+                    approved = False
+                    reasons.append(f"🐳🚫 FLEET DIVERGENCE: Whale {whale_bias} against SHORT")
+                    logger.warning(f"🛡️ [V110.137] {symbol} SHORT BLOCKED by Whale {whale_bias}")
                 
             # [V110.27.0] ABSOLUTE CONVERGENCE SHIELD: Minimum Confidence
-            # MONUSDT case was 39.2%. Cutoff 50.0% ensures institutional support.
             if unified_score < 50.0:
-                approved = False
-                reasons.append(f"LOW_FLEET_CONFIDENCE: {unified_score:.1f}% < 50.0%")
-                logger.warning(f"🛡️ [V110.100] {symbol} {side} BLOCKED by Low Confidence ({unified_score:.1f}%)")
+                if bybit_rest_service.execution_mode == "PAPER":
+                    logger.info(f"🧪 [PAPER-BYPASS] Ignorando Baixa Confiança ({unified_score:.1f}%) para teste.")
+                else:
+                    approved = False
+                    reasons.append(f"LOW_FLEET_CONFIDENCE: {unified_score:.1f}% < 50.0%")
+                    logger.warning(f"🛡️ [V110.100] {symbol} {side} BLOCKED by Low Confidence ({unified_score:.1f}%)")
                 
             return {
                 "approved": approved,

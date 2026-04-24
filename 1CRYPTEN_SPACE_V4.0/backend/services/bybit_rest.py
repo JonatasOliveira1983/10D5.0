@@ -197,7 +197,10 @@ class BybitREST:
         if self.is_initialized:
             return
 
-        logger.info("BybitREST: Initializing session and time sync...")
+        # [V110.175] AUTO-PAPER SHIELD: Se não houver chaves, força modo PAPER para evitar travamento
+        if not settings.BYBIT_API_KEY or "sua_chave" in settings.BYBIT_API_KEY.lower():
+            logger.warning("⚠️ [AUTO-PAPER] Chaves de API ausentes. Forçando modo PAPER para execução simulada.")
+            self.execution_mode = "PAPER"
         
         # Create a temporary session to fetch server time
         temp_session = HTTP(testnet=settings.BYBIT_TESTNET)
