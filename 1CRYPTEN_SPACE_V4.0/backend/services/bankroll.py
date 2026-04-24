@@ -216,8 +216,10 @@ class BankrollManager:
                             continue
 
                 # Fallback: Proteção de Graça Curta
-                if life_sec < 600:
-                    logger.info(f"⏳ [GRACE] {sym} in slot {slot_id} not found in exchange. Waiting 10m before purge (Current: {life_sec:.0f}s).")
+                # Fallback: Proteção de Graça Curta [V110.191] Reduzido para 60s para evitar travamento de slots
+                if life_sec < 60:
+                    if int(life_sec) % 10 == 0:
+                        logger.info(f"⏳ [GRACE] {sym} in slot {slot_id} not found in exchange. Waiting 60s before purge (Current: {life_sec:.0f}s).")
                     continue
                     
                 logger.error(f"👻 [GHOSTBUSTER] Slot {slot_id} ({sym}) é um FANTASMA! Não existe na fonte da verdade. Purgando com relatório...")
@@ -1044,6 +1046,8 @@ class BankrollManager:
                 # [V110.0] Ignora slots emancipados no limite de capacidade
                 firestore_occupied = sum(1 for s in slots if s.get("symbol") and s.get("status") != "EMANCIPATED")
                 occupied_count = max(len([p for p in paper_positions if p.get("status") != "EMANCIPATED"]), firestore_occupied)
+                
+                logger.info(f"📊 [SLOT-DIAG] PAPER: {len(paper_positions)} | DB-Occupied: {firestore_occupied} | Final: {occupied_count}")
                 
                 # Check if symbol is already pending or active
                 if symbol:
