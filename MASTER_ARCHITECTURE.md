@@ -1,7 +1,11 @@
-# MASTER_ARCHITECTURE.md — 10D Sniper V110.193
+# MASTER_ARCHITECTURE.md — 10D Sniper V110.194
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.194: CAPTAIN SCOPE STABILIZATION [APR 24]**
+    - **Captain Unbound Fix:** Correção de falha fatal (UnboundLocalError) ao processar sinais SNIPER/Elite; variáveis de escopo (`is_decorrelated`, `is_spring_vanguard`) agora inicializadas corretamente.
+    - **Vanguard Stability:** Garantia de que sinais Vanguard passem pelas travas de tendência H4 sem quebras de execução.
 
 *   **V110.193: GHOST-LOCK PURGE & SYMBOL HARDENING [APR 24]**
     - **Ghost-Lock Resolution:** Implementação do protocolo de Database Wipe para limpar estados corrompidos de slots "4/4" sem ordens reais.
@@ -66,5 +70,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-24 (V110.193) Sincronizado*
+*Documento atualizado em: 2026-04-24 (V110.194) Sincronizado*
 *Este documento reflete a migração completa e estabilizada para o ambiente RAILWAY.*

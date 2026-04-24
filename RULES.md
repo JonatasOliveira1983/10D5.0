@@ -1,4 +1,4 @@
-# RULES.md — 10D Sniper V110.193 "Sovereign Engine Architecture"
+# RULES.md — 10D Sniper V110.194 "Sovereign Engine Architecture"
 # Invariantes Tecnicas Inegociaveis — [EDICAO WEBSOCKET DEFINITIVA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
 # Fonte da verdade: codigo real no Railway e WebSocket Nativo.
@@ -108,5 +108,5 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versão: V110.193 "Sovereign Engine Architecture" | Atualizado: 2026-04-24*
+*Versão: V110.194 "Sovereign Engine Architecture" | Atualizado: 2026-04-24*
 *Este arquivo é a ÚNICA FONTE DA VERDADE. O sistema foi TOTALMENTE EMANCIPADO do Firebase via WebSocket nativo e Postgres.*

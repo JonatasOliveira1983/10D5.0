@@ -993,6 +993,11 @@ class CaptainAgent(AIOSAgent):
             else:
                 logger.info(f"✅ [V67.3 TREND] {symbol} {side} a favor da tendência BTC {btc_dir}.")
 
+            # [V110.194] INITIALIZE SCOPE VARIABLES (Avoid UnboundLocalError)
+            is_decorrelated = best_signal.get("is_decorrelated", False) or best_signal.get("decorrelation", {}).get("is_active", False)
+            is_spring_vanguard = best_signal.get("is_spring_strike", False) or best_signal.get("is_spring", False)
+            is_swing_macro = best_signal.get("is_swing_macro", False)
+
             # [V42.0] Extract specialized pattern tags from signal indicators
             pattern_data = best_signal.get("indicators", {}).get("v42_pattern", {})
             if pattern_data.get("detected"):
@@ -1000,9 +1005,6 @@ class CaptainAgent(AIOSAgent):
                 best_signal["is_ranging_sniper"] = True
                 
             if signal_layer == "MOMENTUM":
-                is_swing_macro = best_signal.get("is_swing_macro", False)
-                is_decorrelated = best_signal.get("decorrelation", {}).get("is_active", False)
-                
                 if is_decorrelated:
                     signal_layer = "SNIPER"
                     logger.info(f"🎯 [V42.0] DECORRELATION promovido: {symbol} ({score})")
@@ -1018,7 +1020,6 @@ class CaptainAgent(AIOSAgent):
                             return
 
                     allow_momentum = False
-                    is_spring_vanguard = best_signal.get("is_spring_strike", False) or best_signal.get("is_spring", False)
 
                     if market_regime == "RANGING":
                         if is_spring_vanguard:
