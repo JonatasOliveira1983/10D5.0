@@ -70,10 +70,17 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
         caches.match(event.request).then((cached) => {
             const networkFetch = fetch(event.request).then((response) => {
+                // Solo cacheia se a resposta for válida (V110.182)
+                if (!response || response.status !== 200 || response.type !== 'basic') {
+                    return response;
+                }
                 return caches.open(CACHE_NAME).then((cache) => {
                     cache.put(event.request, response.clone());
                     return response;
                 });
+            }).catch(() => {
+                // Falha silenciosa: O cache stale já foi servido ou falhou
+                return cached;
             });
             return cached || networkFetch;
         })
