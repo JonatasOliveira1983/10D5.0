@@ -19,6 +19,8 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
         self.signal_buffer = deque(maxlen=100)
         self.slots_cache = [{"id": i, "symbol": None, "entry_price": 0, "current_stop": 0, "status_risco": "LIVRE", "pnl_percent": 0} for i in range(1, 5)]
         self.radar_pulse_cache = {"signals": [], "decisions": [], "updated_at": 0}
+        self.rtdb = None # Legacy Firebase RTDB Stub
+        self.db = None   # Legacy Firebase Firestore Stub
 
     async def initialize(self):
         logger.info("🚂 [RAILWAY-SOVEREIGN] Sovereign Service initialized. Native Stack ACTIVE.")
@@ -94,16 +96,23 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
         except Exception as e:
             logger.error(f"Error in Sovereign pulse update: {e}")
 
-    async def get_active_slots(self, force_refresh: bool = False): return self.slots_cache
     async def free_slot(self, slot_id: int, reason: str = "Released"):
         await self.update_slot(slot_id, {"symbol": None, "status_risco": "LIVRE", "pnl_percent": 0, "timestamp_last_update": time.time(), "pensamento": f"🔄 {reason}"})
         return True
+
+    async def get_radar_pulse(self):
+        return self.radar_pulse_cache
+
+    async def update_vault_pulse(self, status: dict):
+        try:
+            await websocket_service.broadcast({"type": "VAULT_PULSE", "data": status})
+        except: pass
 
     # Stubs para compatibilidade
     async def register_order_genesis(self, order_id: str, tactical_data: dict): return order_id
     async def get_order_genesis(self, order_id: str): return None
     async def promote_to_moonbag(self, slot_id: int): return None
-    async def get_moonbags(self): return []
+    async def get_moonbags(self, **kwargs): return []
     async def update_moonbag(self, uuid, data): pass
     async def remove_moonbag(self, uuid, reason): pass
     async def get_recent_signals(self, limit: int = 100): return list(self.signal_buffer)[:limit]
@@ -111,6 +120,9 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
     async def update_bankroll(self, balance: float): await self.update_banca_status({"saldo_total": balance})
     async def log_banca_snapshot(self, data: dict): pass
     async def get_banca_history(self, limit: int = 50): return []
+    async def get_chat_status(self): return {"is_thinking": False}
+    async def get_librarian_intel(self): return {}
+    async def get_radar_grid(self): return {}
 
     async def update_radar_pulse(self, signals: list, decisions: list, market_context: dict):
         """Atualiza e transmite o pulso do Radar."""

@@ -61,9 +61,8 @@ async def get_radar_pulse():
 async def get_radar_grid():
     try:
         _, _, sovereign_service, _, _, _ = get_services()
-        if not sovereign_service or not sovereign_service.rtdb: return {}
-        grid_data = await asyncio.to_thread(sovereign_service.rtdb.child("market_radar").get)
-        return grid_data if grid_data else {}
+        if not sovereign_service: return {}
+        return await sovereign_service.get_radar_grid()
     except Exception as e:
         logger.error(f"Error fetching radar grid: {e}")
         return {}
@@ -73,8 +72,8 @@ async def get_radar_librarian():
     """V110.100: Rota REST para o Quartel General UI buscar o Historiador"""
     try:
         _, _, sovereign_service, _, _, _ = get_services()
-        if not sovereign_service or not sovereign_service.rtdb: return {"status": "error", "message": "Firebase Offline"}
-        lib_data = await asyncio.to_thread(sovereign_service.rtdb.child("librarian_intelligence").get)
+        if not sovereign_service: return {"status": "error", "message": "Sovereign Offline"}
+        lib_data = await sovereign_service.get_librarian_intel()
         if not lib_data: return {"status": "success", "rankings": []}
         
         # Converte o dicionário de rankings em uma lista ordenada por win_rate
@@ -87,7 +86,6 @@ async def get_radar_librarian():
             "sector_analysis": lib_data.get("sector_analysis", {}),
             "last_study": lib_data.get("last_study", 0),
             "updated_at": lib_data.get("updated_at", 0),
-            # [V110.42.2] Telemetria Expandida para Fallback UI
             "progress": lib_data.get("progress", 0),
             "total_assets": lib_data.get("total_assets", 0),
             "processed_count": lib_data.get("processed_count", 0),
@@ -189,16 +187,10 @@ async def get_system_state():
                 logger.warning(f"Error fetching Oracle context: {orc_err}")
 
         is_thinking = False
-        if sovereign_service and sovereign_service.rtdb:
+        if sovereign_service:
             try:
-                # [V110.117] Proteção 504: Timeout de 2s para resposta do RTDB
-                chat_status = await asyncio.wait_for(
-                    asyncio.to_thread(sovereign_service.rtdb.child("chat_status").get),
-                    timeout=2.0
-                )
+                chat_status = await sovereign_service.get_chat_status()
                 if chat_status: is_thinking = chat_status.get("is_thinking", False)
-            except asyncio.TimeoutError:
-                logger.warning("⏱️ [SYSTEM-STATE] RTDB Chat Status Timeout (2s). Usando fallback False.")
             except Exception as chat_err:
                 logger.warning(f"Error fetching Chat Status: {chat_err}")
 

@@ -66,6 +66,42 @@ class Moonbag(Base):
     promoted_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+class VaultCycle(Base):
+    __tablename__ = "vault_cycles"
+    id = Column(Integer, primary_key=True) # Always 1 for current cycle
+    sniper_wins = Column(Integer, default=0)
+    cycle_number = Column(Integer, default=1)
+    cycle_profit = Column(Float, default=0.0)
+    cycle_losses = Column(Float, default=0.0)
+    started_at = Column(DateTime, default=datetime.utcnow)
+    in_admiral_rest = Column(Boolean, default=False)
+    rest_until = Column(DateTime, nullable=True)
+    vault_total = Column(Float, default=0.0)
+    cautious_mode = Column(Boolean, default=False)
+    min_score_threshold = Column(Integer, default=75)
+    total_trades_cycle = Column(Integer, default=0)
+    cycle_gains_count = Column(Integer, default=0)
+    cycle_losses_count = Column(Integer, default=0)
+    accumulated_vault = Column(Float, default=0.0)
+    sniper_mode_active = Column(Boolean, default=True)
+    used_symbols_in_cycle = Column(JSON, default=list)
+    cycle_start_bankroll = Column(Float, default=0.0)
+    next_entry_value = Column(Float, default=0.0)
+    mega_cycle_wins = Column(Integer, default=0)
+    mega_cycle_total = Column(Integer, default=0)
+    mega_cycle_number = Column(Integer, default=1)
+    mega_cycle_profit = Column(Float, default=0.0)
+    order_ids_processed = Column(JSON, default=list)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+class VaultWithdrawal(Base):
+    __tablename__ = "vault_withdrawals"
+    id = Column(Integer, primary_key=True)
+    amount = Column(Float)
+    cycle_number = Column(Integer)
+    destination = Column(String)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+
 class DatabaseService:
     def __init__(self):
         # Em Railway, DATABASE_URL é provido automaticamente (postgres://...)
@@ -184,5 +220,47 @@ class DatabaseService:
             result = await session.execute(select(TradeHistory).order_by(desc(TradeHistory.timestamp)).limit(limit))
             trades = result.scalars().all()
             return [{c.name: getattr(t, c.name) for c in t.__table__.columns} for t in trades]
+
+    # --- VAULT ---
+    async def get_vault_cycle(self):
+        async with self.AsyncSessionLocal() as session:
+            obj = await session.get(VaultCycle, 1)
+            if obj:
+                res = {c.name: getattr(obj, c.name) for c in obj.__table__.columns}
+                # Ensure JSON fields are returned as lists if they were None
+                if res.get("used_symbols_in_cycle") is None: res["used_symbols_in_cycle"] = []
+                if res.get("order_ids_processed") is None: res["order_ids_processed"] = []
+                return res
+            return None
+
+    async def update_vault_cycle(self, data: dict):
+        async with self.AsyncSessionLocal() as session:
+            try:
+                obj = await session.get(VaultCycle, 1)
+                if not obj:
+                    obj = VaultCycle(id=1, **data)
+                    session.add(obj)
+                else:
+                    for key, value in data.items():
+                        if hasattr(obj, key):
+                            setattr(obj, key, value)
+                await session.commit()
+            except Exception as e:
+                logger.error(f"Error updating vault cycle: {e}")
+
+    async def add_withdrawal(self, data: dict):
+        async with self.AsyncSessionLocal() as session:
+            try:
+                new_w = VaultWithdrawal(**data)
+                session.add(new_w)
+                await session.commit()
+            except Exception as e:
+                logger.error(f"Error adding withdrawal: {e}")
+
+    async def get_withdrawal_history(self, limit: int = 20):
+        async with self.AsyncSessionLocal() as session:
+            result = await session.execute(select(VaultWithdrawal).order_by(desc(VaultWithdrawal.timestamp)).limit(limit))
+            withdrawals = result.scalars().all()
+            return [{c.name: getattr(w, c.name) for c in w.__table__.columns} for w in withdrawals]
 
 database_service = DatabaseService()

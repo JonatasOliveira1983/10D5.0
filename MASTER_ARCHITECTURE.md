@@ -1,7 +1,12 @@
-# MASTER_ARCHITECTURE.md — 10D Sniper V110.175
+# MASTER_ARCHITECTURE.md — 10D Sniper V110.176
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.176: SOVEREIGN REFINEMENT — BUG FIX & VAULT MIGRATION [APR 24]**
+    - **Vault Postgres Migration:** Migração completa da lógica de ciclos e retiradas do Firestore para tabelas relacionais no Postgres.
+    - **AttributeError Purge:** Limpeza total de referências ao `rtdb` e `db` do Firebase em todo o backend.
+    - **Sovereign Interface Expansion:** Implementação de métodos de compatibilidade (`get_radar_pulse`, `get_chat_status`, etc.) no `SovereignService`.
 
 *   **V110.175: RAILWAY SOVEREIGN — EMANCIPAÇÃO TOTAL 🚂 [APR 24]**
     - **SovereignService Deployment:** Introdução do `SovereignService` como o orquestrador central de persistência e comunicação, eliminando 100% dos resíduos do SDK do Firebase.
@@ -26,7 +31,7 @@
 
 ---
 
-## 🏗️ ARQUITETURA DE SISTEMA (V110.175)
+## 🏗️ ARQUITETURA DE SISTEMA (V110.176)
 
 ### 1. Camada de Dados (Persistência)
 - **Primary DB:** PostgreSQL (Railway) — Armazena banca, histórico e registros permanentes.
@@ -44,5 +49,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-24 (V110.175) Sincronizado*
-*Este documento reflete a migração completa para o ambiente RAILWAY.*
+*Documento atualizado em: 2026-04-24 (V110.176) Sincronizado*
+*Este documento reflete a migração completa e estabilizada para o ambiente RAILWAY.*

@@ -8,6 +8,7 @@ import time
 from datetime import datetime, timezone, timedelta
 from config import settings
 from services.sovereign_service import sovereign_service
+from services.database_service import database_service
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("VaultService")
@@ -31,14 +32,10 @@ class VaultService:
         Returns: {sniper_wins, cycle_number, cycle_profit, in_admiral_rest, rest_until}
         """
         try:
-            if not sovereign_service.is_active or not sovereign_service.db:
+            if not sovereign_service.is_active:
                 return self._default_cycle()
             
-            def _get():
-                doc = sovereign_service.db.collection("vault_management").document("current_cycle").get()
-                return doc.to_dict() if doc.exists else None
-            
-            data = await asyncio.to_thread(_get)
+            data = await database_service.get_vault_cycle()
             if not data:
                 # Initialize if not exists
                 await self.initialize_cycle()
@@ -103,16 +100,13 @@ class VaultService:
     async def initialize_cycle(self):
         """Creates initial cycle document if it doesn't exist."""
         try:
-            if not sovereign_service.is_active or not sovereign_service.db:
+            if not sovereign_service.is_active:
                 return
                 
-            def _init():
-                doc_ref = sovereign_service.db.collection("vault_management").document("current_cycle")
-                if not doc_ref.get().exists:
-                    doc_ref.set(self._default_cycle())
-                    logger.info("Vault cycle initialized.")
-            
-            await asyncio.to_thread(_init)
+            data = await database_service.get_vault_cycle()
+            if not data:
+                await database_service.update_vault_cycle(self._default_cycle())
+                logger.info("Vault cycle initialized in Postgres.")
         except Exception as e:
             logger.error(f"Error initializing cycle: {e}")
     
@@ -167,12 +161,9 @@ class VaultService:
             if norm_symbol not in used_symbols:
                 used_symbols.append(norm_symbol)
             
-            def _update():
-                sovereign_service.db.collection("vault_management").document("current_cycle").update({
-                    "used_symbols_in_cycle": used_symbols
-                })
-            
-            await asyncio.to_thread(_update)
+            await database_service.update_vault_cycle({
+                "used_symbols_in_cycle": used_symbols
+            })
             logger.info(f"🔄 V15.6: {norm_symbol} (LOSS) bloqueado para este ciclo.")
             
             # [V15.0] Sync to RTDB
@@ -192,18 +183,15 @@ class VaultService:
             current = await self.get_cycle_status()
             new_cycle_number = current.get("cycle_number", 1) + 1
             
-            def _reset():
-                sovereign_service.db.collection("vault_management").document("current_cycle").update({
-                    "used_symbols_in_cycle": [],
-                    "cycle_number": new_cycle_number,
-                    "total_trades_cycle": 0,
-                    "cycle_gains_count": 0,
-                    "cycle_losses_count": 0,
-                    "cycle_profit": 0.0,
-                    "started_at": datetime.now(timezone.utc).isoformat()
-                })
-            
-            await asyncio.to_thread(_reset)
+            await database_service.update_vault_cycle({
+                "used_symbols_in_cycle": [],
+                "cycle_number": new_cycle_number,
+                "total_trades_cycle": 0,
+                "cycle_gains_count": 0,
+                "cycle_losses_count": 0,
+                "cycle_profit": 0.0,
+                "started_at": datetime.now(timezone.utc)
+            })
             await sovereign_service.log_event("VAULT", f"🔄 V9.0: CICLO #{new_cycle_number} INICIADO! Lista de exclusão resetada. 83 pares disponíveis.", "SUCCESS")
             logger.info(f"V9.0: Cycle symbols reset. New cycle #{new_cycle_number}")
             
@@ -229,14 +217,10 @@ class VaultService:
             final_balance = config_balance if config_balance >= 5 else balance
             entry_value = final_balance * 0.10  # [V10.6.2] Correct 10% margin rule
             
-            def _init():
-                sovereign_service.db.collection("vault_management").document("current_cycle").update({
-                    "cycle_start_bankroll": final_balance,
-                    "cycle_bankroll": final_balance,
-                    "next_entry_value": entry_value
-                })
-            
-            await asyncio.to_thread(_init)
+            await database_service.update_vault_cycle({
+                "cycle_start_bankroll": final_balance,
+                "next_entry_value": entry_value
+            })
             logger.info(f"📊 V15.8.1 Compound: Banca travada em ${final_balance:.2f} . Entrada: ${entry_value:.2f}")
             await sovereign_service.log_event("VAULT", f"📊 V15.8 COMPOUND: Ciclo iniciado com ${final_balance:.2f} . Cada trade usará ${entry_value:.2f}.", "SUCCESS")
             
@@ -270,14 +254,10 @@ class VaultService:
             if not sovereign_service.is_active or not sovereign_service.db:
                 return
             
-            def _update():
-                sovereign_service.db.collection("vault_management").document("current_cycle").update({
-                    "cycle_start_bankroll": new_balance,
-                    "next_entry_value": new_entry,
-                    "cycle_bankroll": new_balance  # Ensure legacy field is also updated
-                })
-            
-            await asyncio.to_thread(_update)
+            await database_service.update_vault_cycle({
+                "cycle_start_bankroll": new_balance,
+                "next_entry_value": new_entry
+            })
             
             emoji = "🚀" if profit_pct > 0 else "⚠️"
             logger.info(f"V9.0 Compound: Recálculo completo. Nova banca: ${new_balance:.2f} (Real Bybit: ${real_balance:.2f})")
@@ -415,10 +395,7 @@ class VaultService:
                 update_data["mega_cycle_profit"] = 0.0
                 await sovereign_service.log_event("VAULT", f"🏆🏆🏆 MEGA CICLO #{mega_number-1} CONCLUÍDO! 100 missões com ROI >= 80%! Lucro: ${mega_profit:.2f}", "SUCCESS")
             
-            def _update():
-                sovereign_service.db.collection("vault_management").document("current_cycle").update(update_data)
-            
-            await asyncio.to_thread(_update)
+            await database_service.update_vault_cycle(update_data)
             
             # [V20.4] Compound recalibration: Only at the end of the 10-trade cycle
             # Removed real-time compound (recalculate_cycle_bankroll) to keep entry fixed as requested.
@@ -465,11 +442,7 @@ class VaultService:
             cycle_num = current.get("cycle_number", 1)
             
             # 1. Fetch trades for this cycle (Sniper & Surf)
-            def _get_history():
-                docs = (sovereign_service.db.collection("trade_history").stream())
-                return [d.to_dict() for d in docs]
-            
-            all_trades = await asyncio.to_thread(_get_history)
+            all_trades = await database_service.get_trade_history(limit=500)
             
             # Filtro opcional: apenas trades após a data de início do ciclo
             started_at = current.get("started_at")
@@ -546,11 +519,8 @@ class VaultService:
                         if t.get("entry_price") and t.get("exit_price"):
                             roi = execution_protocol.calculate_roi(t["entry_price"], t["exit_price"], t.get("side", "Buy"))
                             # Store the calculated ROI back to improve future lookups/UI
-                            try:
-                                doc_id = t.get("id")
-                                if doc_id:
-                                    sovereign_service.db.collection("trade_history").document(doc_id).update({"pnl_percent": roi})
-                            except: pass
+                            # No local sync needed if using Postgres directly for history
+                            pass
                     
                     if roi and roi >= getattr(settings, 'WIN_ROI_THRESHOLD', 80.0):
                         new_wins += 1
@@ -581,10 +551,7 @@ class VaultService:
                 "updated_at": int(time.time() * 1000)
             }
             
-            def _push():
-                sovereign_service.db.collection("vault_management").document("current_cycle").update(update_data)
-            
-            await asyncio.to_thread(_push)
+            await database_service.update_vault_cycle(update_data)
             # logger.info(f"✅ Sincronização concluída: #{new_wins}/20 Wins | Total Trades (Sniper): {len([t for t in all_trades if t.get('slot_type') == 'SNIPER'])} | Profit: ${new_profit:.2f} | Symbols: {len(used_symbols)}")
             # await sovereign_service.log_event("VAULT", f"🔄 SINCRONIA COMPLETA: #{new_wins}/20 | Trades (Sniper): {len([t for t in all_trades if t.get('slot_type') == 'SNIPER'])}/10 | Profit: ${new_profit:.2f}", "SUCCESS")
             
@@ -619,7 +586,7 @@ class VaultService:
         Registra uma retirada manual para o Vault.
         """
         try:
-            if not sovereign_service.is_active or not sovereign_service.db:
+            if not sovereign_service.is_active:
                 return False
             
             current = await self.get_cycle_status()
@@ -632,15 +599,8 @@ class VaultService:
                 "destination": destination
             }
             
-            def _execute():
-                # Add to withdrawals subcollection
-                sovereign_service.db.collection("vault_management").document("withdrawals").collection("history").add(withdrawal_record)
-                # Update vault total
-                sovereign_service.db.collection("vault_management").document("current_cycle").update({
-                    "vault_total": new_vault_total
-                })
-            
-            await asyncio.to_thread(_execute)
+            await database_service.add_withdrawal(withdrawal_record)
+            await database_service.update_vault_cycle({"vault_total": new_vault_total})
             await sovereign_service.log_event("VAULT", f"💰 Retirada de ${amount:.2f} registrada. Cofre Total: ${new_vault_total:.2f}", "SUCCESS")
             
             # [V15.0] Sync to RTDB
@@ -654,19 +614,10 @@ class VaultService:
     async def get_withdrawal_history(self, limit: int = 20) -> list:
         """Retorna histórico de retiradas."""
         try:
-            if not sovereign_service.is_active or not sovereign_service.db:
+            if not sovereign_service.is_active:
                 return []
             
-            def _get():
-                docs = (sovereign_service.db.collection("vault_management")
-                        .document("withdrawals")
-                        .collection("history")
-                        .order_by("timestamp", direction="DESCENDING")
-                        .limit(limit)
-                        .stream())
-                return [d.to_dict() for d in docs]
-            
-            return await asyncio.to_thread(_get)
+            return await database_service.get_withdrawal_history(limit)
         except Exception as e:
             logger.error(f"Error getting withdrawal history: {e}")
             return []
@@ -676,7 +627,7 @@ class VaultService:
         Inicia um novo ciclo após completar 20 trades ou retirada manual.
         """
         try:
-            if not sovereign_service.is_active or not sovereign_service.db:
+            if not sovereign_service.is_active:
                 return self._default_cycle()
             
             current = await self.get_cycle_status()
@@ -698,10 +649,7 @@ class VaultService:
                 "accumulated_vault": current.get("accumulated_vault", 0.0)
             }
             
-            def _update():
-                sovereign_service.db.collection("vault_management").document("current_cycle").set(new_data)
-            
-            await asyncio.to_thread(_update)
+            await database_service.update_vault_cycle(new_data)
             await sovereign_service.log_event("VAULT", f"🚀 Novo Ciclo #{new_cycle} iniciado!", "SUCCESS")
             
             # [V15.0] Sync to RTDB
@@ -717,18 +665,15 @@ class VaultService:
         Ativa o modo de descanso do Almirante (bloqueia novas ordens).
         """
         try:
-            if not sovereign_service.is_active or not sovereign_service.db:
+            if not sovereign_service.is_active:
                 return False
             
             rest_until = datetime.now(timezone.utc) + timedelta(hours=hours)
             
-            def _activate():
-                sovereign_service.db.collection("vault_management").document("current_cycle").update({
-                    "in_admiral_rest": True,
-                    "rest_until": rest_until.isoformat()
-                })
-            
-            await asyncio.to_thread(_activate)
+            await database_service.update_vault_cycle({
+                "in_admiral_rest": True,
+                "rest_until": rest_until
+            })
             await sovereign_service.log_event("VAULT", f"😴 Admiral's Rest ativado por {hours}h. Sistema em standby.", "WARNING")
             
             return True
@@ -739,16 +684,13 @@ class VaultService:
     async def deactivate_admiral_rest(self) -> bool:
         """Desativa manualmente o modo de descanso."""
         try:
-            if not sovereign_service.is_active or not sovereign_service.db:
+            if not sovereign_service.is_active:
                 return False
             
-            def _deactivate():
-                sovereign_service.db.collection("vault_management").document("current_cycle").update({
-                    "in_admiral_rest": False,
-                    "rest_until": None
-                })
-            
-            await asyncio.to_thread(_deactivate)
+            await database_service.update_vault_cycle({
+                "in_admiral_rest": False,
+                "rest_until": None
+            })
             await sovereign_service.log_event("VAULT", "⚡ Admiral's Rest desativado. Sistema operacional.", "SUCCESS")
             
             return True
@@ -761,16 +703,13 @@ class VaultService:
         Ativa/desativa modo cautela (aumenta threshold de score).
         """
         try:
-            if not sovereign_service.is_active or not sovereign_service.db:
+            if not sovereign_service.is_active:
                 return False
             
-            def _set():
-                sovereign_service.db.collection("vault_management").document("current_cycle").update({
-                    "cautious_mode": enabled,
-                    "min_score_threshold": min_score if enabled else 75
-                })
-            
-            await asyncio.to_thread(_set)
+            await database_service.update_vault_cycle({
+                "cautious_mode": enabled,
+                "min_score_threshold": min_score if enabled else 75
+            })
             
             status = f"ATIVADO (Score mínimo: {min_score})" if enabled else "DESATIVADO"
             await sovereign_service.log_event("VAULT", f"⚠️ Modo Cautela {status}", "WARNING" if enabled else "INFO")
@@ -785,15 +724,12 @@ class VaultService:
         [V8.0] Ativa ou Pausa o Capitão Sniper (Master Toggle).
         """
         try:
-            if not sovereign_service.is_active or not sovereign_service.db:
+            if not sovereign_service.is_active:
                 return False
             
-            def _set():
-                sovereign_service.db.collection("vault_management").document("current_cycle").update({
-                    "sniper_mode_active": enabled
-                })
-            
-            await asyncio.to_thread(_set)
+            await database_service.update_vault_cycle({
+                "sniper_mode_active": enabled
+            })
             
             status = "AUTORIZADO 🟢" if enabled else "BLOQUEADO 🔴"
             await sovereign_service.log_event("VAULT", f"⚓ Capitão Sniper {status} pelo Almirante.", "SUCCESS" if enabled else "WARNING")

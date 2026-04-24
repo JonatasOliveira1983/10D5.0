@@ -106,5 +106,5 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versão: V110.175 "Railway Sovereign Doctrine" | Atualizado: 2026-04-24*
-*Este arquivo é a ÚNICA FONTE DA VERDADE. O sistema foi EMANCIPADO do Firebase via SovereignService.*
+*Versão: V110.176 "Railway Sovereign Doctrine" | Atualizado: 2026-04-24*
+*Este arquivo é a ÚNICA FONTE DA VERDADE. O sistema foi TOTALMENTE EMANCIPADO do Firebase via SovereignService e Postgres.*
