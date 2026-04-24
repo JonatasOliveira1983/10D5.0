@@ -1819,24 +1819,40 @@ class BankrollManager:
     async def get_daily_performance(self) -> dict:
         """
         [V110.144] DAILY TARGET TRACKER:
-        Calcula o lucro e o número de ganhos (trades com PnL > 0) nas últimas 24h.
+        Calcula o lucro e o número de ganhos (trades com PnL > 0) nas últimas 24h via Postgres.
         """
         try:
+            from services.database_service import database_service
+            # V110.175: Busca trades do Postgres (Railway Native)
+            trades = await database_service.get_trade_history(limit=100)
+            
+            # Filtro das últimas 24h
             from datetime import datetime, timezone, timedelta
-            start_24h = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
+            start_24h = datetime.now(timezone.utc) - timedelta(hours=24)
             
-            # Buscando trades do histórico (via firebase_service)
-            def _query():
-                return firebase_service.db.collection("trade_history")\
-                    .where("timestamp", ">=", start_24h)\
-                    .stream()
+            recent_trades = []
+            for t in trades:
+                t_time = t.get("timestamp")
+                if isinstance(t_time, str):
+                    t_time = datetime.fromisoformat(t_time.replace('Z', '+00:00'))
+                
+                if t_time and t_time >= start_24h:
+                    recent_trades.append(t)
             
-            docs = await asyncio.to_thread(_query)
-            trades = [d.to_dict() for d in docs]
+            gains_count = sum(1 for t in recent_trades if float(t.get("pnl", 0)) > 0)
+            loss_count = sum(1 for t in recent_trades if float(t.get("pnl", 0)) < 0)
+            total_pnl = sum(float(t.get("pnl", 0)) for t in recent_trades)
             
-            gains_count = sum(1 for t in trades if float(t.get("pnl", 0)) > 0)
-            loss_count = sum(1 for t in trades if float(t.get("pnl", 0)) < 0)
-            total_pnl = sum(float(t.get("pnl", 0)) for t in trades)
+            return {
+                "gains_count": gains_count,
+                "loss_count": loss_count,
+                "total_pnl": round(total_pnl, 2),
+                "target_gains": 10,
+                "progress_pct": min(round((gains_count / 10) * 100, 1), 100)
+            }
+        except Exception as e:
+            logger.error(f"Error calculating daily performance: {e}")
+            return {"gains_count": 0, "loss_count": 0, "total_pnl": 0, "target_gains": 10, "progress_pct": 0}
             
             return {
                 "gains_count": gains_count,
