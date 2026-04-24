@@ -161,13 +161,12 @@ class FirebaseService:
                         raise e
 
         except Exception as e:
-            logger.error(f"Error initializing Firebase: {e}")
-            logger.warning("Starting FirebaseService in OFFLINE/SAFE MODE.")
+            # V110.175: Silenciando erro de credenciais no Railway para evitar poluição visual
+            if "No Firebase credentials found" in str(e):
+                logger.info("ℹ️ Firebase em modo passivo (Railway Native Mode).")
+            else:
+                logger.debug(f"Firebase Init Skip: {e}")
             self.is_active = False  
-            
-            # Start reconnection loop if not already running
-            if not self._reconnect_task or self._reconnect_task.done():
-                self._reconnect_task = asyncio.create_task(self._reconnection_loop())
 
     async def _reconnection_loop(self):
         """
