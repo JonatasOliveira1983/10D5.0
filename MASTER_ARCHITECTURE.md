@@ -1,7 +1,12 @@
-# MASTER_ARCHITECTURE.md — 10D Sniper V110.195
+# MASTER_ARCHITECTURE.md — 10D Sniper V110.196
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.196: DATABASE HARDENING & RATE LIMIT SHIELD [APR 24]**
+    - **SQL Schema Sync:** Modelo `Slot` no Postgres atualizado para suportar 100% dos campos de telemetria e inteligência (margin, leverage, fleet_intel).
+    - **CoinGecko Shield:** Implementação de `asyncio.Lock` no `MacroAnalyst` para evitar erros 429 durante picos de análise de sinais.
+    - **Nuclear Reset:** Disponibilizado script `nuclear_schema_reset.py` para sincronização forçada de ambiente.
 
 *   **V110.195: ORPHAN GENESIS PROTOCOL [APR 24]**
     - **Genesis Recovery:** Ordens re-adotadas da exchange (órfãs) agora geram automaticamente um `genesis_id` para identificação no Cockpit.
@@ -74,5 +79,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-24 (V110.195) Sincronizado*
+*Documento atualizado em: 2026-04-24 (V110.196) Sincronizado*
 *Este documento reflete a migração completa e estabilizada para o ambiente RAILWAY.*

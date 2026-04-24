@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import time
 from typing import Dict, Any, List
@@ -17,6 +18,7 @@ class MacroAnalyst(AIOSAgent):
             role="macro_analyst",
             capabilities=["trend_analysis", "btc_dominance", "market_bias"]
         )
+        self._lock = asyncio.Lock() # [V110.196] Rate Limit Shield
 
     async def on_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
         msg_type = message.get("type")
@@ -31,25 +33,29 @@ class MacroAnalyst(AIOSAgent):
 
     async def _get_btc_dominance(self) -> float:
         """[V55.0] Fetches global BTC Dominance from a public API (CoinGecko fallback). Cached for 10 min."""
-        now = time.time()
-        if hasattr(self, "_dom_cache") and (now - self._dom_cache_time < 600):
-            return self._dom_cache
+        async with self._lock:
+            now = time.time()
+            if hasattr(self, "_dom_cache") and (now - self._dom_cache_time < 600):
+                return self._dom_cache
 
-        try:
-            import httpx
-            # Use CoinGecko Global API (Public, no key required for basic usage)
-            url = "https://api.coingecko.com/api/v3/global"
-            async with httpx.AsyncClient() as client:
-                response = await client.get(url, timeout=10)
-                if response.status_code == 200:
-                    data = response.json()
-                    dominance = data.get("data", {}).get("market_cap_percentage", {}).get("btc", 0)
-                    self._dom_cache = float(dominance)
-                    self._dom_cache_time = now
-                    return self._dom_cache
-            return getattr(self, "_dom_cache", 0.0)
-        except Exception:
-            return getattr(self, "_dom_cache", 0.0)
+            try:
+                import httpx
+                # Use CoinGecko Global API (Public, no key required for basic usage)
+                url = "https://api.coingecko.com/api/v3/global"
+                async with httpx.AsyncClient() as client:
+                    response = await client.get(url, timeout=10)
+                    if response.status_code == 200:
+                        data = response.json()
+                        dominance = data.get("data", {}).get("market_cap_percentage", {}).get("btc", 0)
+                        self._dom_cache = float(dominance)
+                        self._dom_cache_time = now
+                        return self._dom_cache
+                    elif response.status_code == 429:
+                        logger.warning("⚠️ [COINGECKO] Rate limit hit. Returning cached dominance.")
+                return getattr(self, "_dom_cache", 0.0)
+            except Exception as e:
+                logger.error(f"Error fetching BTC dominance: {e}")
+                return getattr(self, "_dom_cache", 0.0)
 
     async def _get_macro_bias(self) -> Dict[str, Any]:
         """Calculates macro risk based on BTC variation and Dominance."""
