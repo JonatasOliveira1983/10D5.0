@@ -1,7 +1,11 @@
-# MASTER_ARCHITECTURE.md — 10D Sniper V110.194
+# MASTER_ARCHITECTURE.md — 10D Sniper V110.195
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.195: ORPHAN GENESIS PROTOCOL [APR 24]**
+    - **Genesis Recovery:** Ordens re-adotadas da exchange (órfãs) agora geram automaticamente um `genesis_id` para identificação no Cockpit.
+    - **ID Persistence:** Garantia de que o `genesis_id` e o `order_id` sejam preservados durante os ciclos de sincronização real-time do Bankroll.
 
 *   **V110.194: CAPTAIN SCOPE STABILIZATION [APR 24]**
     - **Captain Unbound Fix:** Correção de falha fatal (UnboundLocalError) ao processar sinais SNIPER/Elite; variáveis de escopo (`is_decorrelated`, `is_spring_vanguard`) agora inicializadas corretamente.
@@ -70,5 +74,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-24 (V110.194) Sincronizado*
+*Documento atualizado em: 2026-04-24 (V110.195) Sincronizado*
 *Este documento reflete a migração completa e estabilizada para o ambiente RAILWAY.*

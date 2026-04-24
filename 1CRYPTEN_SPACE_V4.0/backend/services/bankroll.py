@@ -469,6 +469,8 @@ class BankrollManager:
                         "qty": float(pos.get("size", 0)),
                         "entry_price": float(pos.get("avgPrice", 0)),
                         "current_stop": float(pos.get("stopLoss", 0)), # V14.2: Active SL Sync from Exchange
+                        "order_id": slot.get("order_id") or pos.get("orderId"), # Preserve ID
+                        "genesis_id": slot.get("genesis_id"), # Preserve Genesis
                         "initial_stop": initial_stop, # V110.23.4: Preserve INIT (Safeified by Integrity Loop)
                         "liq_price": float(pos.get("liqPrice", 0)),
                         "target_price": slot.get("target_price") or float(pos.get("takeProfit", 0)), # V22.0: Preserve or Extract TP
@@ -842,11 +844,11 @@ class BankrollManager:
                     tp_pct = 0.03 # [V34.0] All-SWING Transition (150% ROI target)
                     target_p = entry_price * (1 + tp_pct) if side == 'Buy' else entry_price * (1 - tp_pct)
 
-                # Safe Margin Calc
-                lev = 50
-                pos_size = float(pos.get("size", 0))
-                calc_margin = (pos_size * entry_price) / lev
-                if calc_margin < 0.01: calc_margin = 1.0
+                # [V110.195] RECOVERY GENESIS: Generate a unique ID for adopted orphans
+                strategy_type = get_slot_type(empty_slot["id"])
+                strategy_prefix = "BLZ" if strategy_type == "BLITZ_30M" else "SWG"
+                bybit_order_id = pos.get("orderId", f"REC_{int(time.time())}")
+                rec_genesis_id = f"{strategy_prefix}-{bybit_order_id}-{symbol[:4]}"
 
                 await sovereign_service.update_slot(empty_slot["id"], {
                     "symbol": symbol,
@@ -854,9 +856,11 @@ class BankrollManager:
                     "entry_price": entry_price,
                     "entry_margin": calc_margin,
                     "current_stop": float(pos.get("stopLoss", 0)),
+                    "order_id": bybit_order_id,
+                    "genesis_id": rec_genesis_id,
                     "target_price": target_p, # V22.0: Added target_price persistence
                     "status_risco": "RECOVERED",
-                    "slot_type": get_slot_type(empty_slot["id"]), # V5.4.5: Ensure correct logic type
+                    "slot_type": strategy_type,
                     "pnl_percent": (float(pos.get("unrealisedPnl", 0)) / calc_margin * 100) if calc_margin > 0 else 0,
                     "qty": float(pos.get("size", 0)),
                     "opened_at": time.time(), # Fallback for recovery
