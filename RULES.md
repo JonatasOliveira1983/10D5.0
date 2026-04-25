@@ -126,24 +126,39 @@ Captain (Orquestrador Central)
 - **Glassmorphism:** Uso obrigatório de `backdrop-blur-xl` em todos os painéis.
 - **Badge Contrast:** `BLITZ_30M` (Branco) | `SWING` (Ambar).
 
-## 9. PROTOCOLO DE EXPURGO DE FANTASMAS (GHOST PURGE)
-Quando uma ordem desincronizar e ficar presa como "fantasma" no slot ou no histórico sem ID, siga um destes 3 caminhos para limpar:
+## 9. MAPA DE ESTADO SOBERANO (SOVEREIGN STATE MAP)
+Para evitar surpresas de dessincronização, o estado completo do sistema foi migrado do Firebase para o **PostgreSQL**. A memória RAM dos containers é **EFÊMERA**, o que significa que o banco de dados dita as regras em todo deploy/restart.
 
-**CAMINHO 1: Limpeza de Memória (Paper Mode)**
-- O Paper Mode mantém posições ativas no arquivo `paper_positions.v110.json` (ou na memória RAM do processo Python).
-- **Ação:** Pare o processo do backend (terminal), abra o arquivo `backend/services/paper_positions.v110.json` e delete o bloco JSON da moeda presa. Reinicie o backend.
+| Componente | Localização Primária (SSOT) | Descrição |
+|---|---|---|
+| **Slots Ativos** | Tabela `slots` (Postgres) | Guarda a "Inteligência" da ordem (Genesis ID, Score, Pensamento). |
+| **Moonbags** | Tabela `moonbags` (Postgres) | Posições emancipadas (ROI > 150%). |
+| **Histórico Vault** | Tabela `trade_history` (Postgres) | Registro permanente de PNL e motivos de saída. |
+| **Motor Paper** | Tabela `system_state` (Postgres) | Chave `paper_engine_state` guarda o Array JSON com as ordens simuladas ativas, recriando o ambiente da Bybit. |
+| **Log Local** | `paper_positions.v110.json` | Apenas um backup local para ambiente de desenvolvimento. O Railway o ignora. |
+
+## 10. PROTOCOLO DE EXPURGO DE FANTASMAS (GHOST PURGE)
+Quando uma ordem desincronizar e ficar presa como "fantasma" no slot ou no histórico sem ID, siga um destes 3 caminhos para limpar. Como estamos na nuvem, edições de arquivos locais (JSON) **não funcionam** sem push.
+
+**CAMINHO 1: O Exorcismo Absoluto (Filtro no Código - Auto-Purge)**
+- A forma mais segura de destruir um fantasma que não quer morrer no Railway.
+- **Ação:** Adicione o nome da moeda na list comprehension do arquivo `bybit_rest.py` (dentro da função `_load_paper_state`), faça commit e push. Quando o Railway reiniciar, o próprio robô barra o fantasma ao ler do Banco de Dados e salva o banco limpo.
 
 **CAMINHO 2: Limpeza do Slot Ativo (Forçar Reset no DB)**
 - Se a ordem estiver ocupando o slot na UI mas não existe mais na exchange:
-- **Ação:** Conecte no banco de dados PostgreSQL e rode o comando:
+- **Ação:** Conecte no banco de dados PostgreSQL e rode:
   `UPDATE slots SET symbol = NULL, status_risco = 'LIVRE', qty = 0, order_id = NULL, genesis_id = NULL WHERE symbol LIKE '%MOEDA%';`
 
-**CAMINHO 3: Limpeza do Histórico da Vault (Trades sem PNL/ID)**
-- Se o histórico estiver poluído com ordens RECOVERY ou PNL $0:
-- **Ação:** Conecte no banco de dados PostgreSQL e rode o comando:
-  `DELETE FROM trade_history WHERE genesis_id LIKE 'RECOVERY-%' OR (pnl = 0 AND reasoning_report IS NULL);`
+**CAMINHO 3: Limpeza da Matriz (Postgres `system_state`)**
+- Se a ordem estiver "ressuscitando" em modo simulado.
+- **Ação:** Delete o JSON do banco ou atualize:
+  `UPDATE system_state SET state_data = '[json_limpo]' WHERE key = 'paper_engine_state';`
 
-*Dica:* O script `backend/scratch/clean_db_sync.py` faz os caminhos 2 e 3 automaticamente. Sempre reinicie o servidor local após executar limpezas manuais.
+**CAMINHO 4: Limpeza do Histórico da Vault**
+- Para limpar lixo visual (`RECOVERY` ou PNL $0):
+- **Ação:** `DELETE FROM trade_history WHERE genesis_id LIKE 'RECOVERY-%' OR pnl = 0;`
+
+*Dica:* Sempre priorize deletar fantasmas no banco ou via código (Auto-Purge) quando em produção.
 
 ---
 
