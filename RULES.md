@@ -15,14 +15,15 @@
 
 ## ⚡ 10D BYBITY REAL 4.0 — PROTOCOLO DE ELITE — V110.209
 ## REGRA 00 — REPOSITÓRIO ÚNICO E OFICIAL
-1. **REPO ÚNICO:** O único repositório oficial para este sistema é: `https://github.com/JonatasOliveira1983/10D5.0/`.
-2. **DEPRECATED:** O repositório `10DBybityREAL` foi desativado e não deve mais ser utilizado para push ou sincronização.
+1. **REPO ÚNICO:** O único repositório oficial para este sistema é: `https://github.com/JonatasOliveira1983/10DBybityREAL/`.
+2. **PUSH OBRIGATÓRIO:** Todo commit deve ser enviado para o branch `main` deste repositório.
+3. **URL DE COMANDO:** A UI deve ser acessada exclusivamente via `http://localhost:8085/`. Acesso via `/cockpit.html` é proibido e deve ser redirecionado pelo backend.
 
 ## REGRA 0 — PROTOCOLO DE INFRAESTRUTURA RAILWAY (SOVEREIGN)
-1. **SSOT (Source of Truth):** O banco de dados primário é o **PostgreSQL (Railway)**, gerenciado pelo `database_service.py`.
-2. **BROADCAST:** Toda comunicação com a UI é feita via **WebSocket Nativo (/ws/cockpit)**. O motor `Sovereign-WS` no frontend substitui permanentemente o Firebase RTDB.
-3. **UNIVERSAL BRIDGE:** O `cockpit.html` possui um script embutido que atua como ponte universal, traduzindo pacotes WebSocket em atualizações de estado para os hooks React. Qualquer alteração no `app.jsx` deve ser sincronizada com o bloco script do `cockpit.html`.
-4. **EMANCIPAÇÃO TOTAL:** O uso de Firebase/Firestore/RTDB foi **EXTINTO**. O sistema opera via `SovereignService` e `websocket_service`, garantindo autonomia total.
+1. **SSOT (Source of Truth):** O banco de dados primário é o **PostgreSQL (Railway)**. O `SovereignService` é o único orquestrador autorizado de persistência.
+2. **BROADCAST:** Toda comunicação com a UI é feita via **WebSocket Nativo (/ws/cockpit)**.
+3. **VAULT HISTORY:** O histórico de trades deve ser recuperado via `database_service` e exposto pela API `/api/history`. Retornar listas vazias na UI por falha de serviço soberano é inaceitável.
+4. **EMANCIPAÇÃO TOTAL:** O uso de Firebase/Firestore/RTDB foi **EXTINTO**. O sistema opera de forma 100% autônoma.
 
 ---
 

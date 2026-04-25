@@ -3,11 +3,12 @@
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
 
-*   **V110.209: PWA OPTIMIZATION & SMART CACHE [APR 25]**
-    - **PWA Re-activation:** Restauração do Service Worker com detecção automática de atualizações.
+*   **V110.209: PWA OPTIMIZATION & VAULT RESTORATION [APR 25]**
+    - **Vault History Activation:** Implementação dos métodos de recuperação de histórico no `SovereignService`, conectando a UI ao banco de dados Postgres para visualização de trades arquivadas.
+    - **URL Unification:** Redirecionamento de `/cockpit.html` para `/`, eliminando conflitos de acesso e estabelecendo a raiz como ponto único de comando.
+    - **PWA Re-activation:** Restauração do Service Worker com detecção automática de atualizações e limpeza de scripts de desregistração legados.
     - **Smart Caching:** Implementação de estratégias Network-First para lógica e Cache-First para bibliotecas/assets.
     - **Offline Fallback:** Integração da página `offline.html` para resiliência de conectividade.
-    - **Mobile UX:** Otimização de meta tags para iOS e shortcuts no Android/iOS.
 
 *   **V110.208: SELF-HEALING & BLACK BOX PERSISTENCE [APR 24]**
     - **Auto-Migration:** Implementação de migração automática de esquema no boot para corrigir divergências de colunas no Postgres.

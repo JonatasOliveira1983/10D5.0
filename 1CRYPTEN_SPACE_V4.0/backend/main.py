@@ -520,14 +520,13 @@ async def cockpit_websocket_endpoint(websocket: WebSocket):
 # Special Root Routes (Must stay in main for precedence or special handling)
 @app.get("/")
 async def serve_index():
-    # V90.2: Cache Buster - Serving cockpit.html to avoid SW V17.0 hijacker
     return FileResponse(os.path.join(FRONTEND_DIR, "cockpit.html"))
 
 @app.get("/cockpit")
-async def serve_cockpit():
-    return FileResponse(os.path.join(FRONTEND_DIR, "cockpit.html"))
+@app.get("/cockpit.html")
+async def cockpit_redirect():
+    return RedirectResponse(url="/")
 
-# V90.4: Intelligent Static Server + SPA Fallback
 @app.get("/{full_path:path}")
 async def catch_all(full_path: str):
     # Search for physical file first (crucial for manifest.json, sw.js, etc.)
@@ -538,11 +537,9 @@ async def catch_all(full_path: str):
     # SECURITY: Never catch-all API routes that DON'T correspond to files
     if full_path.startswith("api/"):
         raise HTTPException(status_code=404, detail="API endpoint not found")
-        
-    # SPA Fallback: Serve cockpit.html for all other frontend routes
-    if os.path.exists(os.path.join(FRONTEND_DIR, "cockpit.html")):
-        return FileResponse(os.path.join(FRONTEND_DIR, "cockpit.html"))
-    return {"detail": "Frontend assets not found."}
+    
+    # SPA Fallback
+    return FileResponse(os.path.join(FRONTEND_DIR, "cockpit.html"))
 
 if __name__ == "__main__":
     target_port = settings.PORT

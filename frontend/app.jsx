@@ -31,15 +31,18 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
         }, 600);
 
         // Global Error Handling: Prevents silent crashes and provides debug info
-        // V5.2.4.7 EMERGENCY: Unregister old Service Workers to force update
+        // V110.209: Service Worker Persistent Optimized Strategy
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(registrations => {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js?v=110.209');
+            });
+        }
+
                 registrations.forEach(registration => {
                     console.log("ðŸ› ï¸ Unregistering old Service Worker for Protocol Update...");
                     registration.unregister();
                 });
-            });
-        }
+
 
         window.onerror = function (message, source, lineno, colno, error) {
             console.error("GLOBAL CRASH DETECTED:", message, "at", source, ":", lineno);

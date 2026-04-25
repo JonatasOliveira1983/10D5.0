@@ -179,9 +179,22 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
     async def get_librarian_intel(self): return {}
     async def get_radar_grid(self): return {}
     async def get_active_slots(self, **kwargs): return self.slots_cache
-    async def get_trade_history(self, **kwargs): return []
-    async def get_trade_history_stats(self, **kwargs): return {"total_count": 0, "total_pnl": 0.0}
-    async def get_vault_history(self, limit: int = 50): return []
+    async def get_trade_history(self, limit: int = 50, **kwargs):
+        """Busca o histórico de trades do Postgres."""
+        return await database_service.get_trade_history(limit=limit)
+
+    async def get_trade_history_stats(self, **kwargs):
+        """Calcula estatísticas básicas do histórico."""
+        trades = await database_service.get_trade_history(limit=1000)
+        total_pnl = sum(float(t.get("pnl") or 0.0) for t in trades)
+        return {
+            "total_count": len(trades),
+            "total_pnl": round(total_pnl, 2)
+        }
+
+    async def get_vault_history(self, limit: int = 50):
+        """Alias para get_trade_history (Vault Context)."""
+        return await self.get_trade_history(limit=limit)
     async def hard_reset_slot(self, slot_id, reason, pnl=0.0): return await self.free_slot(slot_id, reason)
     async def get_doc(self, path): return {"exists": False, "data": {}}
     async def set_doc(self, path, data): return True
