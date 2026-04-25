@@ -62,8 +62,8 @@ class BybitREST:
             data = await sovereign_service.get_paper_state()
             
             if data:
-                self.paper_positions = data.get("positions", [])
-                self.paper_moonbags = data.get("moonbags", [])
+                self.paper_positions = [p for p in data.get("positions", []) if "FARTCOIN" not in p.get("symbol", "")]
+                self.paper_moonbags = [p for p in data.get("moonbags", []) if "FARTCOIN" not in p.get("symbol", "")]
                 self.paper_balance = data.get("balance", settings.BYBIT_SIMULATED_BALANCE)
                 self.paper_orders_history = data.get("history", [])
                 self._last_paper_load_time = time.time()
