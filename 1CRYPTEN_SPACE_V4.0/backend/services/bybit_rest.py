@@ -615,10 +615,12 @@ class BybitREST:
                         logger.info(f"📍 [V110.65 AMBUSH] {symbol} Market entry ${last_price:.6f} (Ambush zone: ${ambush_price:.6f} não alcançada)")
 
 
-                # [V110.175] INSTANT GENESIS: Batiza a ordem no nascimento para evitar IDs fantasmas na UI
-                import uuid as _uuid
-                strategy_prefix = "BLZ" if slot_id in [1, 2] else "SWG"
-                genesis_id = f"{strategy_prefix}-{_uuid.uuid4().hex[:6].upper()}-{api_symbol[:4]}"
+                # [V110.256] UNIFIED GENESIS: genesis_id ÚNICO é gerado SOMENTE no bankroll.py
+                # após receber o orderId desta resposta. Não geramos aqui para evitar duplicata.
+                # O paper_position NÃO carrega genesis_id — ele será injetado via update_slot().
+                
+                # orderId único baseado em timestamp para garantir unicidade por ordem
+                paper_order_id = f"PAPER-{api_symbol}-{int(time.time() * 1000)}"
                 
                 # 2. Create Position Object (Mocking Bybit Schema)
                 new_position = {
@@ -634,25 +636,24 @@ class BybitREST:
                     "opened_at": time.time(), # [V84.1] Absolute start
                     "maestria_guard_active": False, # [V84.1] Start clean
                     "slot_id": slot_id, # [V96.9] Track slot for history registration
-                    "genesis_id": genesis_id # [V110.175] RG unico instantâneo
+                    "order_id": paper_order_id  # [V110.256] Ancora real com o orderId único
+                    # genesis_id NÃO é definido aqui — bankroll.py define após receber o orderId
                 }
                 
                 # Check if position already exists (Hedge mode not supported in paper simple impl, assuming One-Way)
-                # If exists, we should technically add size/avg down, but for simplicity we reject or replace?
-                # Let's simple append or replace.
                 existing = next((p for p in self.paper_positions if p["symbol"] == api_symbol), None)
                 if existing:
                     logger.warning(f"[PAPER] Overwriting existing position for {api_symbol} (Simpler than averaging).")
                     self.paper_positions.remove(existing)
                 
                 self.paper_positions.append(new_position)
-                logger.info(f"[PAPER] Position Created: {api_symbol} Entry={last_price}")
+                logger.info(f"[PAPER] Position Created: {api_symbol} Entry={last_price} | OrderId={paper_order_id}")
                 await self._save_paper_state()
                 
-                # Return fake order response
+                # [V110.256] Retorna o orderId único — bankroll.py usará ele para gerar genesis_id
                 return {
                     "retCode": 0,
-                    "result": {"orderId": f"PAPER-{api_symbol}-123", "orderLinkId": f"PAPER-{api_symbol}-123"}
+                    "result": {"orderId": paper_order_id, "orderLinkId": paper_order_id}
                 }
 
             except Exception as e:
@@ -825,35 +826,54 @@ class BybitREST:
                             from services.bankroll import bankroll_manager
                             slot_id = pos.get("slot_id", 0)
                             
-                            # Capture intelligence BEFORE clearing slot or removing from memory
+                            # [V110.256] Capture intelligence BEFORE clearing slot or removing from memory
+                            # genesis_id é puxado do slot_state (bankroll.py é a fonte canônica do ID)
                             fleet_intel = {}
                             unified_confidence = 50
                             pensamento = ""
+                            canonical_genesis_id = pos.get("order_id")  # fallback inicial
+                            canonical_order_id = pos.get("order_id", f"{norm_symbol}_{int(time.time())}")
+
                             if slot_id > 0:
                                 from services.sovereign_service import sovereign_service
                                 slot_state = await sovereign_service.get_slot(slot_id)
                                 if slot_state:
-                                    fleet_intel = slot_state.get("fleet_intel", {})
+                                    fleet_intel = slot_state.get("fleet_intel", {}) or {}
                                     unified_confidence = slot_state.get("unified_confidence", 50)
                                     pensamento = slot_state.get("pensamento", "")
+                                    # [V110.256] genesis_id canônico vem do slot (definido pelo bankroll)
+                                    slot_genesis = slot_state.get("genesis_id")
+                                    slot_order_id = slot_state.get("order_id")
+                                    if slot_genesis:
+                                        canonical_genesis_id = slot_genesis
+                                    if slot_order_id:
+                                        canonical_order_id = slot_order_id
+
+                            # Fallback de emergência se genesis ainda for None
+                            if not canonical_genesis_id:
+                                strategy_prefix = "BLZ" if slot_id in [1, 2] else "SWG"
+                                canonical_genesis_id = f"{strategy_prefix}-RECOVERY-{norm_symbol[:4]}-{int(time.time())}"
+                                logger.warning(f"⚠️ [GENESIS-RECOVERY] {symbol}: genesis_id ausente. Fallback: {canonical_genesis_id}")
 
                             harvest_label = "HARVEST" if is_partial_real else "FULL_CLOSE"
                             trade_report = (
-                                f"--- PAPER EXECUTION V110.118 ({'PARTIAL HARVEST' if is_partial_real else 'FULL CLOSE'}) ---\n"
+                                f"--- PAPER EXECUTION V110.256 ({'PARTIAL HARVEST' if is_partial_real else 'FULL CLOSE'}) ---\n"
                                 f"Symbol: {symbol} | Side: {side_pos}\n"
                                 f"Entry: ${entry_price:.6f} | Exit: ${exit_price:.6f}\n"
                                 f"Qty Fechada: {close_qty:.6f} | Qty Restante: {remaining_qty:.6f}\n"
                                 f"PNL: ${final_pnl:.2f} | ROI: {harvest_roi:.1f}% | Reason: {reason}\n"
+                                f"Genesis: {canonical_genesis_id}\n"
                                 f"{'🌾 MOONBAG SOBREVIVE com residual!' if is_partial_real else '🛑 Posição totalmente fechada.'}"
                             )
-                            
+
                             trade_data = {
                                 "symbol": symbol,
                                 "side": side_pos,
                                 "entry_price": entry_price,
                                 "exit_price": exit_price,
                                 "qty": close_qty,  # [V110.118] qty da COLHEITA, não do total
-                                "order_id": f"{symbol.replace('.P','')}_{int(pos.get('opened_at', 0) or time.time())}{'_harvest' if is_partial_real else ''}",
+                                "order_id": canonical_order_id,  # [V110.256] order_id canônico
+                                "genesis_id": canonical_genesis_id,  # [V110.256] ID único e consistente
                                 "pnl": final_pnl,
                                 "slot_id": slot_id,
                                 "slot_type": "MOONBAG" if is_partial_real else "SNIPER",

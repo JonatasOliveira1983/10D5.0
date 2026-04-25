@@ -235,9 +235,17 @@ class DatabaseService:
             try:
                 # V110.251: Garantir que timestamps sejam naive (sem timezone) para o Postgres
                 now = datetime.utcnow()
+                
+                # [V110.256] GENESIS GUARD: genesis_id é obrigatório — gera fallback se ausente
+                genesis_id = trade_data.get("genesis_id")
+                if not genesis_id:
+                    sym = trade_data.get("symbol", "UNK")
+                    genesis_id = f"RECOVERY-{sym[:4].upper()}-{int(now.timestamp())}"
+                    logger.warning(f"⚠️ [GENESIS-GUARD] genesis_id ausente para {sym}. Usando fallback: {genesis_id}")
+                
                 new_trade = TradeHistory(
-                    order_id=str(trade_data.get("order_id")),
-                    genesis_id=trade_data.get("genesis_id"),
+                    order_id=str(trade_data.get("order_id") or f"ORD-{int(now.timestamp())}"),
+                    genesis_id=genesis_id,
                     symbol=trade_data.get("symbol"),
                     side=trade_data.get("side"),
                     pnl=float(trade_data.get("pnl", 0)),

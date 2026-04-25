@@ -42,43 +42,50 @@ class FlowSentinel(AIOSAgent):
                 logger.error(f"FlowSentinel Audit Error: {e}")
             await asyncio.sleep(self.audit_interval)
 
-    async def notify_reset(self, slot_id: int, symbol: str, genesis_id: str, pnl: float):
-        """Called by SovereignService when a slot is cleared."""
-        logger.info(f"📥 FlowSentinel: Notified of reset for {symbol} (Slot {slot_id}). Tracking archival...")
+    async def notify_reset(self, slot_id: int, symbol: str, genesis_id: str, pnl: float, order_id: str = None):
+        """Called by SovereignService/bybit_rest when a slot is cleared."""
+        logger.info(f"📥 FlowSentinel: Notified of reset for {symbol} (Slot {slot_id}). Genesis: {genesis_id}. Tracking archival...")
         self.pending_slots[slot_id] = {
             "symbol": symbol,
             "genesis_id": genesis_id,
+            "order_id": order_id,  # [V110.256] Fallback de auditoria
             "pnl": pnl,
             "timestamp": time.time()
         }
 
     async def perform_integrity_audit(self):
-        """Validates that all recently cleared slots have corresponding history entries."""
+        """[V110.256] Validates that all recently cleared slots have corresponding history entries.
+        Audits by genesis_id PRIMARY and order_id SECONDARY to handle ID discrepancies."""
         if not self.pending_slots:
             return
 
         logger.info(f"🔍 FlowSentinel: Auditing {len(self.pending_slots)} pending archivals...")
         
         # 1. Fetch recent history
-        history = await database_service.get_trade_history(limit=20)
+        history = await database_service.get_trade_history(limit=50)
         history_genesis_ids = {t.get("genesis_id") for t in history if t.get("genesis_id")}
+        history_order_ids = {t.get("order_id") for t in history if t.get("order_id")}
         
         resolved_ids = []
         for slot_id, data in self.pending_slots.items():
-            gen_id = data["genesis_id"]
+            gen_id = data.get("genesis_id")
+            ord_id = data.get("order_id")
             symbol = data["symbol"]
             
-            # Check if it exists in history
-            if gen_id in history_genesis_ids:
-                logger.info(f"✅ FlowSentinel: Archival confirmed for {symbol} ({gen_id}).")
+            # [V110.256] Verifica por genesis_id OU order_id para tolerar discrepâncias de ID
+            found_by_genesis = gen_id and gen_id in history_genesis_ids
+            found_by_order = ord_id and ord_id in history_order_ids
+            
+            if found_by_genesis or found_by_order:
+                match_method = "genesis_id" if found_by_genesis else "order_id"
+                logger.info(f"✅ FlowSentinel: Archival confirmed for {symbol} ({gen_id}) via {match_method}.")
                 resolved_ids.append(slot_id)
             else:
-                # If it's been pending for more than 5 minutes and not in history, we have a problem
                 age = time.time() - data["timestamp"]
                 if age > 300:
                     logger.critical(f"🚨 FlowSentinel: INTEGRITY BREACH! {symbol} ({gen_id}) cleared but NOT found in History after 5min.")
                     await sovereign_service.log_event("INTEGRITY", f"MIA Trade: {symbol} ({gen_id}) missing from history.", "CRITICAL")
-                    # TODO: Self-healing from emergency_trades.json or exchange recovery
+                    resolved_ids.append(slot_id)  # Remove do pending para não logar infinitamente
                 else:
                     logger.warning(f"⏳ FlowSentinel: Archival pending for {symbol} ({gen_id}). Age: {int(age)}s")
 

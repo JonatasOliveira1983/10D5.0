@@ -254,7 +254,59 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
     async def get_vault_history(self, limit: int = 50):
         """Alias para get_trade_history (Vault Context)."""
         return await self.get_trade_history(limit=limit)
-    async def hard_reset_slot(self, slot_id, reason, pnl=0.0): return await self.free_slot(slot_id, reason)
+    async def get_slot(self, slot_id: int) -> dict:
+        """[V110.256] Retorna o estado atual de um slot específico do cache em memória."""
+        return next((s for s in self.slots_cache if s.get("id") == slot_id), None)
+
+    async def hard_reset_slot(self, slot_id: int, reason: str = "Released", pnl: float = 0.0, trade_data: dict = None):
+        """
+        [V110.256] ATOMIC HARD RESET com suporte a trade_data direto.
+        Se trade_data for passado, usa ele para arquivar ANTES de limpar o slot,
+        evitando race condition onde o slot já foi limpo no momento do arquivamento.
+        """
+        try:
+            if trade_data and trade_data.get("symbol"):
+                # Caminho feliz: temos o trade_data completo, arquivamos diretamente
+                logger.info(f"🛡️ [V110.256] hard_reset_slot: Arquivando {trade_data['symbol']} (Slot {slot_id}) via trade_data atômico.")
+                await database_service.log_trade(trade_data)
+                logger.info(f"✅ [V110.256] {trade_data['symbol']} arquivado no Vault com sucesso.")
+                
+                # FlowSentinel notification
+                try:
+                    from services.agents.flow_sentinel import flow_sentinel
+                    asyncio.create_task(flow_sentinel.notify_reset(
+                        slot_id=slot_id,
+                        symbol=trade_data["symbol"],
+                        genesis_id=trade_data.get("genesis_id"),
+                        order_id=trade_data.get("order_id"),
+                        pnl=float(trade_data.get("pnl", 0.0))
+                    ))
+                except Exception as sent_err:
+                    logger.error(f"⚠️ FlowSentinel notification failed: {sent_err}")
+            else:
+                # Fallback: sem trade_data, usa o fluxo padrão do free_slot
+                await self.free_slot(slot_id, reason)
+                return True
+        except Exception as e:
+            logger.error(f"❌ [V110.256] hard_reset_slot archival error for Slot {slot_id}: {e}")
+
+        # Reset atômico do slot (sempre executa, independente do arquivamento)
+        await self.update_slot(slot_id, {
+            "symbol": None,
+            "status_risco": "LIVRE",
+            "pnl_percent": 0,
+            "pnl_usd": 0,
+            "entry_price": 0,
+            "current_stop": 0,
+            "target_price": 0,
+            "qty": 0,
+            "side": None,
+            "order_id": None,
+            "genesis_id": None,
+            "timestamp_last_update": time.time(),
+            "pensamento": f"🔄 {reason}"
+        })
+        return True
     async def get_doc(self, path): return {"exists": False, "data": {}}
     async def set_doc(self, path, data): return True
     async def get_collection(self, path): return []
