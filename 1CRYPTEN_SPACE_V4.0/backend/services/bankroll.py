@@ -872,6 +872,10 @@ class BankrollManager:
                 bybit_order_id = pos.get("orderId", f"REC_{int(time.time())}")
                 rec_genesis_id = f"{strategy_prefix}-{bybit_order_id}-{symbol[:4]}"
 
+                # Calculate margin for recovery
+                leverage = float(pos.get("leverage", 50))
+                calc_margin = (float(pos.get("size", 0)) * entry_price) / leverage if leverage > 0 else 0
+
                 await sovereign_service.update_slot(empty_slot["id"], {
                     "symbol": symbol,
                     "side": side,

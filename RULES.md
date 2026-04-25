@@ -126,7 +126,26 @@ Captain (Orquestrador Central)
 - **Glassmorphism:** Uso obrigatório de `backdrop-blur-xl` em todos os painéis.
 - **Badge Contrast:** `BLITZ_30M` (Branco) | `SWING` (Ambar).
 
+## 9. PROTOCOLO DE EXPURGO DE FANTASMAS (GHOST PURGE)
+Quando uma ordem desincronizar e ficar presa como "fantasma" no slot ou no histórico sem ID, siga um destes 3 caminhos para limpar:
+
+**CAMINHO 1: Limpeza de Memória (Paper Mode)**
+- O Paper Mode mantém posições ativas no arquivo `paper_positions.v110.json` (ou na memória RAM do processo Python).
+- **Ação:** Pare o processo do backend (terminal), abra o arquivo `backend/services/paper_positions.v110.json` e delete o bloco JSON da moeda presa. Reinicie o backend.
+
+**CAMINHO 2: Limpeza do Slot Ativo (Forçar Reset no DB)**
+- Se a ordem estiver ocupando o slot na UI mas não existe mais na exchange:
+- **Ação:** Conecte no banco de dados PostgreSQL e rode o comando:
+  `UPDATE slots SET symbol = NULL, status_risco = 'LIVRE', qty = 0, order_id = NULL, genesis_id = NULL WHERE symbol LIKE '%MOEDA%';`
+
+**CAMINHO 3: Limpeza do Histórico da Vault (Trades sem PNL/ID)**
+- Se o histórico estiver poluído com ordens RECOVERY ou PNL $0:
+- **Ação:** Conecte no banco de dados PostgreSQL e rode o comando:
+  `DELETE FROM trade_history WHERE genesis_id LIKE 'RECOVERY-%' OR (pnl = 0 AND reasoning_report IS NULL);`
+
+*Dica:* O script `backend/scratch/clean_db_sync.py` faz os caminhos 2 e 3 automaticamente. Sempre reinicie o servidor local após executar limpezas manuais.
+
 ---
 
-*Versão: V110.255 "Sovereign Sync & Recovery" | Atualizado: 2026-04-25*
+*Versão: V110.256 "Sovereign Sync & Recovery" | Atualizado: 2026-04-25*
 *Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10D5.0.*
