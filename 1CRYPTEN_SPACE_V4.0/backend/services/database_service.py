@@ -138,8 +138,11 @@ class DatabaseService:
         # Em Railway, DATABASE_URL é provido automaticamente (postgres://...)
         # Precisamos converter para postgresql+asyncpg://...
         db_url = os.getenv("DATABASE_URL")
-        if db_url and db_url.startswith("postgres://"):
-            db_url = db_url.replace("postgres://", "postgresql+asyncpg://", 1)
+        if db_url:
+            if db_url.startswith("postgres://"):
+                db_url = db_url.replace("postgres://", "postgresql+asyncpg://", 1)
+            elif db_url.startswith("postgresql://"):
+                db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
         
         # Fallback local para desenvolvimento
         if not db_url or "sua_url_do_postgres" in db_url:

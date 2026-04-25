@@ -38,7 +38,7 @@ if __name__ == "__main__":
     env_id = "8eb265ac-5e41-4a1e-81ca-2cce1a3d205f"
     
     vars_to_set = {
-        "DATABASE_URL": "postgresql://postgres:JSLsEfBVPywKuYJSAypuNPVvIgYwGXzz@postgres.railway.internal:5432/railway",
+        "DATABASE_URL": "postgresql+asyncpg://postgres:JSLsEfBVPywKuYJSAypuNPVvIgYwGXzz@postgres.railway.internal:5432/railway",
         "BYBIT_API_KEY": "ggAuWk4lVoMaKDkxsH",
         "BYBIT_API_SECRET": "aAHZbYUmRY9ukf0eIW9yVbOA3CuO0wgRKUs7",
         "BYBIT_TESTNET": "False",
