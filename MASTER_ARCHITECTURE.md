@@ -1,7 +1,14 @@
-# MASTER_ARCHITECTURE.md — 10D Sniper V110.210
+# MASTER_ARCHITECTURE.md — 10D Sniper V110.251
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.251: PAPER MODE ENFORCEMENT & TZ STABILITY [APR 25]**
+    - **Paper Mode Injection:** Ativação forçada via variáveis de ambiente Railway (`BYBIT_EXECUTION_MODE=PAPER`) para garantir isolamento total e saldo de $100.00.
+    - **Timezone Fix:** Normalização de todos os campos `DateTime` para naive (sem offset) no Postgres, eliminando erros de persistência no `VaultCycle`.
+    - **Leverage 50x Standard:** Unificação da alavancagem de 50x em todos os slots (Blitz e Swing) para acelerar o crescimento da banca simulada.
+    - **Database Repair:** Sincronização de IDs de banca (ID 1 e 'status') e correção de esquema de colunas dinâmicas no Postgres.
+    - **Official Repo Sync:** Migração definitiva do fluxo de deploy para o repositório `10D5.0`.
 
 *   **V110.210: FLOW INTEGRITY & PERSISTENCE [APR 25]**
     - **Sentinel Agent:** Implementação do `FlowSentinel` para monitoramento post-mortem de trades, detectando gaps entre estados de memória e persistência.
@@ -129,5 +136,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-25 (V110.209) Sincronizado*
-*Este documento reflete a migração completa e estabilizada para o ambiente RAILWAY.*
+*Documento atualizado em: 2026-04-25 (V110.251) Sincronizado*
+*Este documento reflete a estabilização final do ambiente Soberano com alavancagem de 50x.*

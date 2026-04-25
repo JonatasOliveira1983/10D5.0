@@ -113,7 +113,7 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
         };
         sovereignWS.init();
 
-        // Firebase Config - V15.1.2: Added logging for debug
+        /* [V110.230] SOVEREIGN MODE: Firebase Disabled as per Admiral Request
         const firebaseConfig = {
             projectId: "projeto-teste-firestore-3b00e",
             databaseURL: "https://projeto-teste-firestore-3b00e-default-rtdb.europe-west1.firebasedatabase.app"
@@ -128,18 +128,21 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
         }
 
         const db = firebase.firestore();
+        */
+        const db = null;
         let rtdb = null;
+        /*
         try {
-            // V15.1.2: Resilient RTDB Initialization logic
             if (firebaseConfig.databaseURL) {
                 console.log("📡 Initializing RTDB Connection...");
                 rtdb = firebase.database();
-                window.rtdb = rtdb; // Expose for iframes
-                console.log("RTDB V15.1.2 Initialized ✅ Reference State:", rtdb ? 'Connected' : 'Failed');
+                window.rtdb = rtdb; 
+                console.log("RTDB V15.1.2 Initialized ✅");
             }
         } catch (e) {
             console.error("RTDB critical init failed:", e);
         }
+        */
 
         // --- Global Utilities ---
         const safeJsonParse = (str, fallback) => {

@@ -1,28 +1,28 @@
-# RULES.md — 10D Sniper V110.209 "Smart PWA Architecture"
+# RULES.md — 10D Sniper V110.251 "Sovereign Finality"
 # Invariantes Tecnicas Inegociaveis — [PERSISTÊNCIA ABSOLUTA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
 # Fonte da verdade: codigo real no Railway e PostgreSQL/WebSocket Nativo.
 
 ---
 
-## 🛡️ PROTOCOLO DE BLINDAGEM V110.209 (CRÍTICO)
-1. **AUTO-CURA DE BANCO:** O sistema deve realizar migrações automáticas de esquema no boot. Qualquer divergência de coluna deve ser corrigida via script `migrate_db.py` integrado ao `main.py`.
-2. **CAIXA PRETA DE EMERGÊNCIA:** Se o registro de um trade no banco de dados falhar, o sistema DEVE salvar o payload completo em `emergency_trades.json`. Perder dados de lucro por erro de DB é uma violação gravíssima.
-3. **ARQUIVAMENTO ATÔMICO:** É terminantemente proibido limpar um slot sem antes garantir o arquivamento (seja no DB ou na Caixa Preta).
-4. **PWA & SMART CACHE:** O Service Worker deve operar em modo Network-First para o HTML e Stale-While-Revalidate para CDNs. Desativar o SW via scripts de "nuke" é proibido, exceto em caso de corrupção total de dados.
+## 🛡️ PROTOCOLO DE BLINDAGEM V110.251 (CRÍTICO)
+1. **AUTO-CURA DE BANCO:** O sistema realiza migrações automáticas de esquema no boot. Qualquer divergência de coluna deve ser corrigida via script integrado ao `database_service.py`.
+2. **TIMEZONE INTEGRITY:** É obrigatório o uso de `datetime.utcnow().replace(tzinfo=None)` para todas as interações com o Postgres (WITHOUT TIME ZONE).
+3. **ARQUIVAMENTO ATÔMICO:** É terminantemente proibido limpar um slot sem antes garantir o arquivamento no Postgres via `database_service.log_trade`.
+4. **PAPER MODE ENFORCEMENT:** Em modo de teste, a variável `BYBIT_EXECUTION_MODE` deve ser injetada como `PAPER` no Railway para garantir o saldo simulado de $100.
 
 ---
 
-## ⚡ 10D BYBITY REAL 4.0 — PROTOCOLO DE ELITE — V110.209
+## ⚡ 10D BYBITY REAL 4.0 — PROTOCOLO DE ELITE — V110.251
 ## REGRA 00 — REPOSITÓRIO ÚNICO E OFICIAL
-1. **REPO ÚNICO:** O único repositório oficial para este sistema é: `https://github.com/JonatasOliveira1983/10DBybityREAL/`.
-2. **PUSH OBRIGATÓRIO:** Todo commit deve ser enviado para o branch `main` deste repositório.
-3. **URL DE COMANDO:** A UI deve ser acessada exclusivamente via `http://localhost:8085/`. Acesso via `/cockpit.html` é proibido e deve ser redirecionado pelo backend.
+1. **REPO ÚNICO:** O único repositório oficial para este sistema é: `https://github.com/JonatasOliveira1983/10D5.0/`.
+2. **PUSH OBRIGATÓRIO:** Todo commit deve ser enviado para o branch `main` deste repositório para deploy automático no Railway.
+3. **URL DE COMANDO:** A UI oficial é acessível via `https://1crypten.space/`.
 
-### 5. PROTOCOLO DE INTEGRIDADE (V110.210)
-- **FlowSentinel**: Toda limpeza de slot deve notificar o Agente Sentinela para validação de arquivamento.
-- **Persistence First**: O estado em memória (`slots_cache`) deve ser espelhado e recuperado do Postgres em todo boot.
-- **Genesis Lock**: Nenhum trade pode existir sem um `genesis_id` válido e rastreável pelo Sentinela.
+### 5. PROTOCOLO DE INTEGRIDADE (V110.251)
+- **FlowSentinel**: Monitoramento contínuo de sinais e ordens via WebSocket nativo.
+- **Persistence First**: O saldo total é calculado como: `configured_balance (100) + sum(trade_history)`.
+- **Genesis Lock**: Nenhum trade pode existir sem um `genesis_id` válido (ex: `BLZ-PAPER-VIRTUAL-123`).
 
 ## REGRA 0 — PROTOCOLO DE INFRAESTRUTURA RAILWAY (SOVEREIGN)
 1. **SSOT (Source of Truth):** O banco de dados primário é o **PostgreSQL (Railway)**. O `SovereignService` é o único orquestrador autorizado de persistência.
@@ -32,14 +32,16 @@
 
 ---
 
-## 1. SISTEMA DE SLOTS — ATRIBUICAO FIXA (V110.137)
+## 1. SISTEMA DE SLOTS — ATRIBUICAO FIXA (V110.251)
 
 | Slot | Tipo       | Estrategia   | Moonbag?                     | Leverage      |
 |------|------------|--------------|------------------------------|---------------|
 | 1    | BLITZ_30M  | BlitzSniper  | Condicional (pos 300% ROI)   | 50x fixo      |
 | 2    | BLITZ_30M  | BlitzSniper  | Condicional (pos 300% ROI)   | 50x fixo      |
-| 3    | SWING      | Wyckoff      | SIM (emancipa em 150% ROI)   | Quartermaster |
-| 4    | SWING      | Wyckoff      | SIM (emancipa em 150% ROI)   | Quartermaster |
+| 3    | SWING      | Harvester    | SIM (emancipa em 150% ROI)   | 50x fixo      |
+| 4    | SWING      | Harvester    | SIM (emancipa em 150% ROI)   | 50x fixo      |
+
+**REGRA:** Alavancagem de 50x é OBRIGATÓRIA para todos os slots para maximizar o potencial da banca Sniper.
 
 **Arquivo:** `bankroll.py::get_slot_type()`
 **REGRA:** Slots 1 e 2 sao EXCLUSIVOS para BlitzSniper. Nunca atribua outro tipo.
@@ -126,5 +128,5 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versão: V110.209 "Smart PWA Architecture" | Atualizado: 2026-04-25*
-*Este arquivo é a ÚNICA FONTE DA VERDADE. O sistema foi TOTALMENTE EMANCIPADO do Firebase via WebSocket nativo e Postgres.*
+*Versão: V110.251 "Sovereign Finality" | Atualizado: 2026-04-25*
+*Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10D5.0.*
