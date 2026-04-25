@@ -2110,19 +2110,16 @@
 
 
             useEffect(() => {
-                if (!rtdb) return;
-                try {
-                    const btcRef = rtdb.ref('btc_command_center');
-                    const onValue = btcRef.on('value', (snapshot) => {
-                        const val = snapshot.val();
-                        if (val) {
-                            setData(val);
-                            localStorage.setItem('btc_cache', JSON.stringify(val));
-                        }
-                    });
-                    return () => btcRef.off('value', onValue);
-                } catch (e) { console.error("BTC Command Error:", e); }
-            }, [rtdb]);
+                const handlePacket = (e) => {
+                    const message = e.detail;
+                    if (message.type === 'btc_command_center' && message.data) {
+                        setData(message.data);
+                        localStorage.setItem('btc_cache', JSON.stringify(message.data));
+                    }
+                };
+                window.addEventListener('sovereign-packet', handlePacket);
+                return () => window.removeEventListener('sovereign-packet', handlePacket);
+            }, []);
 
             // V12.2: REST Polling Fallback (ensures BTC data is never stuck)
             useEffect(() => {
@@ -2164,25 +2161,16 @@
             const [banca, setBanca] = useState(initialData);
 
             useEffect(() => {
-                if (!rtdb) return;
-                try {
-                    const ref = rtdb.ref('banca_status');
-                    const onValue = ref.on('value', (snapshot) => {
-                        const val = snapshot.val();
-                        if (val) {
-                            setBanca(val);
-                            localStorage.setItem('banca_cache', JSON.stringify(val));
-                        }
-                    }, (err) => {
-                        if (err && err.message && err.message.includes('permission_denied')) {
-                            // Silent: use already has initialData or REST fallback
-                        } else {
-                            console.error("Banca RTDB Error:", err);
-                        }
-                    });
-                    return () => ref.off('value', onValue);
-                } catch (e) { }
-            }, [rtdb]);
+                const handlePacket = (e) => {
+                    const message = e.detail;
+                    if (message.type === 'banca_status' && message.data) {
+                        setBanca(message.data);
+                        localStorage.setItem('banca_cache', JSON.stringify(message.data));
+                    }
+                };
+                window.addEventListener('sovereign-packet', handlePacket);
+                return () => window.removeEventListener('sovereign-packet', handlePacket);
+            }, []);
 
             // V15.1.5: REST Fallback Polling (ensures banca data is never stuck)
             useEffect(() => {
@@ -2270,31 +2258,21 @@
             const [data, setData] = React.useState({ signals: [], decisions: [], market_context: {}, updated_at: 0 });
 
             React.useEffect(() => {
-                // Fix: Usar window.rtdb com polling para garantir que o listener é registrado
-                // mesmo quando rtdb é inicializado após o React montar o componente
-                let registered = false;
-                const tryRegister = () => {
-                    if (window.rtdb && !registered) {
-                        registered = true;
-                        try {
-                            const ref = window.rtdb.ref('radar_pulse');
-                            ref.on('value', (snapshot) => {
-                                const val = snapshot.val();
-                                if (val && (val.signals !== undefined || Array.isArray(val))) {
-                                    const normalized = Array.isArray(val)
-                                        ? { signals: val, decisions: [], market_context: {}, updated_at: Date.now() / 1000 }
-                                        : val;
-                                    setData(normalized);
-                                    window.dispatchEvent(new CustomEvent('radar-pulse-update'));
-                                }
-                            });
-                        } catch (e) { console.warn('radar_pulse listener error:', e); }
+                const handlePacket = (e) => {
+                    const message = e.detail;
+                    if (message.type === 'radar_pulse' && message.data) {
+                        const val = message.data;
+                        if (val && (val.signals !== undefined || Array.isArray(val))) {
+                            const normalized = Array.isArray(val)
+                                ? { signals: val, decisions: [], market_context: {}, updated_at: Date.now() / 1000 }
+                                : val;
+                            setData(normalized);
+                            window.dispatchEvent(new CustomEvent('radar-pulse-update'));
+                        }
                     }
                 };
-                // Tenta imediatamente e depois polling a cada 500ms até registrar
-                tryRegister();
-                const poll = setInterval(tryRegister, 500);
-                return () => clearInterval(poll);
+                window.addEventListener('sovereign-packet', handlePacket);
+                return () => window.removeEventListener('sovereign-packet', handlePacket);
             }, []);
 
             // V15.1.4: REST Fallback Polling (ensures signals are never stuck)
@@ -2324,45 +2302,29 @@
             const [slots, setSlots] = useState(initialData);
 
             useEffect(() => {
-                // V15.1.2: RTDB Initialized log for production verification
-                if (rtdb) {
-                    console.log("RTDB V15.1.2 Initialized ✅");
-                }
-                // Primary: Realtime DB (Harmony)
-                let unsubscribe = null;
-                if (rtdb) {
-                    try {
-                        const ref = rtdb.ref('live_slots'); // Fixed path: was 'slots'
-                        unsubscribe = ref.on('value', (snapshot) => {
-                            const val = snapshot.val();
-                            if (val) {
-                                // V14.0: Handle both array [null,s1,s2,s3,s4] and object {"1":s1,"2":s2...} formats
-                                let rawSlots = [];
-                                if (Array.isArray(val)) {
-                                    rawSlots = val.filter(v => v !== null && v !== undefined);
-                                } else {
-                                    rawSlots = Object.values(val).filter(v => v !== null && v !== undefined);
-                                }
-                                // Ensure each slot has an id
-                                rawSlots = rawSlots.map((s, idx) => ({ ...s, id: s.id || (idx + 1) }));
-                                // V14.0: ALWAYS guarantee 4 slots
-                                const fullSlots = [];
-                                for (let i = 1; i <= 4; i++) {
-                                    const existing = rawSlots.find(s => s && s.id === i);
-                                    fullSlots.push(existing || { id: i, symbol: null, entry_price: 0, current_stop: 0, status_risco: 'LIVRE', pnl_percent: 0 });
-                                }
-                                setSlots(fullSlots);
-                                localStorage.setItem('slots_cache', JSON.stringify(fullSlots));
-                            }
-                        }, (err) => {
-                            if (err && err.message && err.message.includes('permission_denied')) {
-                                // Silent: REST fallback ensures slot sync
-                            } else {
-                                console.error("Slots RTDB Error:", err);
-                            }
-                        });
-                    } catch (e) { console.error("Slots RTDB Error:", e); }
-                }
+                const handlePacket = (e) => {
+                    const message = e.detail;
+                    if (message.type === 'live_slots' && message.data) {
+                        const val = message.data;
+                        let rawSlots = [];
+                        if (Array.isArray(val)) {
+                            rawSlots = val.filter(v => v !== null && v !== undefined);
+                        } else {
+                            rawSlots = Object.values(val).filter(v => v !== null && v !== undefined);
+                        }
+                        rawSlots = rawSlots.map((s, idx) => ({ ...s, id: s.id || (idx + 1) }));
+                        const fullSlots = [];
+                        for (let i = 1; i <= 4; i++) {
+                            const existing = rawSlots.find(s => s && s.id === i);
+                            fullSlots.push(existing || { id: i, symbol: null, entry_price: 0, current_stop: 0, status_risco: 'LIVRE', pnl_percent: 0 });
+                        }
+                        setSlots(fullSlots);
+                        localStorage.setItem('slots_cache', JSON.stringify(fullSlots));
+                    }
+                };
+                window.addEventListener('sovereign-packet', handlePacket);
+                return () => window.removeEventListener('sovereign-packet', handlePacket);
+            }, []);
 
                 // Secondary: REST Polling Fallback (ensures slots sync on first load/failure)
                 // [V28.5.3] BUGFIX: Always accept REST data — previous condition blocked updates

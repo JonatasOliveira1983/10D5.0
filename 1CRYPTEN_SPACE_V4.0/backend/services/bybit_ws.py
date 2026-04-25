@@ -437,17 +437,12 @@ class BybitWS:
                         await asyncio.gather(*(process_symbol_metrics(s) for s in chunk))
                         processed_total += len(chunk)
                         
-                    # [V110.151] Global Decorrelation Intelligence
-                    correlations = []
-                    for s in self.active_symbols:
-                        corr = self.get_correlation("BTCUSDT", s)
-                        if corr != 0: correlations.append(abs(corr))
-                    
-                    if correlations:
-                        self.decorrelation_avg = sum(correlations) / len(correlations)
+                    # [V110.152] Global Decorrelation Intelligence (SSOT: SignalGenerator is the Source of Truth)
+                    # We no longer calculate simple Pearson average here to avoid scale conflicts (0-1 vs 0-100).
+                    # self.decorrelation_avg is now injected by SignalGenerator.
                     
                     self.last_atr_update = now
-                    logger.info(f"V15.7: Sniper Pulse (ATR/RSI/LS/OI/Pearson) updated. Decorr Avg: {self.decorrelation_avg:.2f}")
+                    logger.info(f"V15.7: Sniper Pulse (ATR/RSI/LS/OI/Pearson) updated. Decorr SSOT: {self.decorrelation_avg:.1f}%")
 
         except Exception as e:
             logger.error(f"Error updating market context in BybitWS: {e}")

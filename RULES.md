@@ -1,4 +1,4 @@
-# RULES.md — 10D Sniper V110.253 "JSON Integrity"
+# RULES.md — 10D Sniper V110.255 "Sovereign Sync & Recovery"
 # Invariantes Tecnicas Inegociaveis — [PERSISTÊNCIA ABSOLUTA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
 # Fonte da verdade: codigo real no Railway e PostgreSQL/WebSocket Nativo.
@@ -128,5 +128,5 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versão: V110.251 "Sovereign Finality" | Atualizado: 2026-04-25*
+*Versão: V110.255 "Sovereign Sync & Recovery" | Atualizado: 2026-04-25*
 *Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10D5.0.*

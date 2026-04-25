@@ -279,6 +279,7 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
         self.radar_pulse_cache = {
             "signals": signals,
             "decisions": decisions,
+            "market_context": market_context,
             "updated_at": time.time()
         }
         await websocket_service.update_radar_pulse(signals, decisions, market_context)

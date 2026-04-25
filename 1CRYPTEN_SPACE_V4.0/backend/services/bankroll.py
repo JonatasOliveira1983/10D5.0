@@ -520,16 +520,38 @@ class BankrollManager:
                         continue
 
                     combined_all = bybit_rest_service.paper_positions + bybit_rest_service.paper_moonbags
-                    if any(p.get("symbol", "").upper() == norm_symbol for p in combined_all):
+                    match = next((p for p in combined_all if p.get("symbol", "").upper() == norm_symbol), None)
+                    
+                    if match:
                         # Se já está no motor de simulação, não precisamos re-adotar, mas atualizamos o mapa local
-                        logger.info(f"Sync [PAPER]: {symbol} já está no motor (Positions ou Moonbags). Pulando re-adoção.")
-                        match = next(p for p in combined_all if p.get("symbol", "").upper() == norm_symbol)
+                        # e forçamos a atualização do slot no DB para restaurar preços perdidos (ex: entry_price ---)
+                        logger.info(f"Sync [PAPER-RECOVERY]: {symbol} está no motor. Restaurando integridade do slot no DB.")
                         exchange_map[norm_symbol] = match
+                        # [V110.152] Em vez de pular (continue), deixamos o loop subir para a seção de UPDATE ACTIVE SLOT
+                        # Fazemos isso voltando ao topo do loop ou simplesmente forçando a re-avaliação.
+                        # Para ser limpo, vamos apenas garantir que exchange_map tenha o match e pular o resto desta sub-iteração.
+                        # Na próxima iteração do 'for slot in slots', ele cairá no 'if norm_symbol in exchange_map' (linha 364).
+                        # No entanto, estamos no meio do loop atual. Vamos usar um truque: processar o update agora mesmo.
+                        pos = match
+                        pos_size = float(pos.get("size", 0))
+                        pos_entry = float(pos.get("avgPrice", 0))
+                        unrealised_pnl = float(pos.get("unrealisedPnl", 0))
+                        leverage = float(pos.get("leverage", 50))
+                        real_margin = (pos_size * pos_entry) / leverage if leverage > 0 else 1.0
+                        pnl_pct = (unrealised_pnl / real_margin * 100) if real_margin > 0 else 0
+                        
+                        await sovereign_service.update_slot(slot_id, {
+                            "entry_price": pos_entry,
+                            "pnl_percent": round(pnl_pct, 1),
+                            "qty": pos_size,
+                            "status_risco": slot.get("status_risco") or "MONITORANDO",
+                            "timestamp_last_update": time.time()
+                        })
                         continue
 
                     entry_price = float(slot.get("entry_price", 0))
                     if entry_price <= 0:
-                        logger.warning(f"Sync [PAPER PERSISTENCE]: Slot {slot_id} ({symbol}) has 0.0 entry price. CLEARING GHOST SLOT.")
+                        logger.warning(f"Sync [PAPER PERSISTENCE]: Slot {slot_id} ({symbol}) has 0.0 entry price and NOT in motor. CLEARING GHOST SLOT.")
                         await sovereign_service.free_slot(slot_id, "Ghost Position Purge (0.0 Price)")
                         continue
 

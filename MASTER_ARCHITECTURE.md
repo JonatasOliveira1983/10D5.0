@@ -1,7 +1,13 @@
-# MASTER_ARCHITECTURE.md — V110.253 "JSON Integrity"
+# MASTER_ARCHITECTURE.md — V110.255 "Sovereign Sync & Recovery"
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.255: SOVEREIGN SYNC & RECOVERY [APR 25]**
+    - **WebSocket Pulse Restoration:** Integração do evento `sovereign-packet` no Cockpit UI, resolvendo a estagnação da telemetria e permitindo atualizações instantâneas de slots e banca.
+    - **Decorrelation SSOT:** Unificação da telemetria de decorrelação com o `SignalGenerator` como fonte primária, eliminando conflitos de escala (0-1 vs 0-100) e placeholders `...%`.
+    - **Paper Price Recovery:** Implementação de loop de sincronização robusto no `bankroll.py` para restaurar `entry_price` do motor de simulação para o banco de dados em caso de perda de persistência.
+    - **Context Persistence:** Adição de cache para `market_context` no `SovereignService` para garantir estabilidade da UI durante a inicialização.
 
 *   **V110.251: PAPER MODE ENFORCEMENT & TZ STABILITY [APR 25]**
     - **Paper Mode Injection:** Ativação forçada via variáveis de ambiente Railway (`BYBIT_EXECUTION_MODE=PAPER`) para garantir isolamento total e saldo de $100.00.
@@ -136,5 +142,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-25 (V110.251) Sincronizado*
+*Documento atualizado em: 2026-04-25 (V110.255) Sincronizado*
 *Este documento reflete a estabilização final do ambiente Soberano com alavancagem de 50x.*

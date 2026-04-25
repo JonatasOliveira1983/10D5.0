@@ -675,7 +675,7 @@ class SignalGenerator:
 
             btc_regime = {"regime": inferred_regime, "adx": m_adx_radar}
             
-            logger.info(f"🔍 [DEBUG-BTC] Syncing: Dir={btc_dir.get('direction')} Regime={inferred_regime} ADX={m_adx_radar:.1f}")
+            logger.info(f"🔍 [DEBUG-BTC] Syncing: Dir={btc_dir.get('direction')} Regime={inferred_regime} ADX={m_adx_radar:.1f} | Decorr={avg_d_score:.1f}%")
             # [V57.0] Calculate Global Decorrelation Temperature
             d_scores = [sig.get("decorrelation", {}).get("score", 0) for sig in signals[:10] if "decorrelation" in sig]
             d_active = [sig for sig in signals[:10] if sig.get("decorrelation", {}).get("is_active")]
