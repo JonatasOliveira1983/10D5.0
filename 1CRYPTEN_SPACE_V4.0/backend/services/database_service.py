@@ -233,6 +233,8 @@ class DatabaseService:
     async def log_trade(self, trade_data: dict):
         async with self.AsyncSessionLocal() as session:
             try:
+                # V110.251: Garantir que timestamps sejam naive (sem timezone) para o Postgres
+                now = datetime.utcnow()
                 new_trade = TradeHistory(
                     order_id=str(trade_data.get("order_id")),
                     genesis_id=trade_data.get("genesis_id"),
@@ -244,7 +246,8 @@ class DatabaseService:
                     exit_price=float(trade_data.get("exit_price", 0)),
                     strategy=trade_data.get("strategy"),
                     close_reason=trade_data.get("close_reason"),
-                    data=trade_data
+                    data=trade_data,
+                    timestamp=now.replace(tzinfo=None)
                 )
                 session.add(new_trade)
                 await session.commit()
@@ -287,6 +290,11 @@ class DatabaseService:
     async def update_vault_cycle(self, data: dict):
         async with self.AsyncSessionLocal() as session:
             try:
+                # V110.251: Strip timezone from all datetime values in data
+                for key, value in data.items():
+                    if isinstance(value, datetime) and value.tzinfo is not None:
+                        data[key] = value.replace(tzinfo=None)
+                
                 obj = await session.get(VaultCycle, 1)
                 if not obj:
                     obj = VaultCycle(id=1, **data)

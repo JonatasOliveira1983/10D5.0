@@ -7,16 +7,22 @@ service_id = "ce913a1d-f8e3-428e-b657-1f38506d29ce"
 project_id = "9ba72cc0-165c-453d-a176-2b9711eb33eb"
 env_id = "8eb265ac-5e41-4a1e-81ca-2cce1a3d205f"
 
+db_url = "postgresql+asyncpg://postgres:JSLsEfBVPywKuYJSAypuNPVvIgYwGXzz@postgres.railway.internal:5432/railway"
+
 query = """
-query variables($serviceId: String!, $projectId: String!, $environmentId: String!) {
-  variables(serviceId: $serviceId, projectId: $projectId, environmentId: $environmentId)
+mutation variableUpsert($input: VariableUpsertInput!) {
+  variableUpsert(input: $input)
 }
 """
 
 variables = {
-    "serviceId": service_id,
-    "projectId": project_id,
-    "environmentId": env_id
+    "input": {
+        "projectId": project_id,
+        "environmentId": env_id,
+        "serviceId": service_id,
+        "name": "DATABASE_URL",
+        "value": db_url
+    }
 }
 
 response = requests.post(
