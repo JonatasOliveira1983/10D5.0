@@ -110,7 +110,7 @@ class CaptainAgent(AIOSAgent):
         [ANTI-TRAP] Now checks for institutional absorption and Squeeze risks.
         """
         symbol = signal.get("symbol")
-        side = signal.get("side", "Buy")
+        side = signal.get("side") or "Buy"
         
         # [LIBRARIAN] Periodic Sync
         if time.time() - self.last_librarian_sync > 300: # 5 min
@@ -515,7 +515,7 @@ class CaptainAgent(AIOSAgent):
                 # [V110.136] Executa o scan imediatamente e depois aguarda o intervalo
                 # Check available slots
                 # [V110.151] SSOT OCCUPATION: Always use slots for consistent state
-                from services.sovereign import sovereign_service
+                from services.sovereign_service import sovereign_service
                 slots = await sovereign_service.get_active_slots()
                 occupied_count = sum(1 for s in slots if s.get("symbol"))
 
