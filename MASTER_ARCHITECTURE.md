@@ -1,7 +1,13 @@
-# MASTER_ARCHITECTURE.md — V110.255 "Sovereign Sync & Recovery"
+# MASTER_ARCHITECTURE.md — V110.256 "Sovereign Identifier & Syntax Recovery"
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.256: SOVEREIGN IDENTIFIER & SYNTAX RECOVERY [APR 25]**
+    - **Syntax Error Resolution:** Correção de fechamentos prematuros de hooks no `cockpit.html` (especialmente `useSlotsRT` e `useBancaRT`) que causavam falha de carregamento da UI.
+    - **Identifier De-confliction:** Renomeação global de `rtdb` para `sovereign_rtdb` no frontend para evitar erros de redeclaração (`Identifier already declared`) causados pelo Babel-standalone em scripts inline.
+    - **Hook Consolidation:** Limpeza de duplicatas e unificação da lógica de WebSocket/REST Fallback em todos os hooks de tempo real.
+    - **Librarian Integration Fix:** Correção da referência de hook na `Page10D` para apontar corretamente para `useLibrarianRT`.
 
 *   **V110.255: SOVEREIGN SYNC & RECOVERY [APR 25]**
     - **WebSocket Pulse Restoration:** Integração do evento `sovereign-packet` no Cockpit UI, resolvendo a estagnação da telemetria e permitindo atualizações instantâneas de slots e banca.

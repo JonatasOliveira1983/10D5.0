@@ -1,4 +1,4 @@
-# RULES.md — 10D Sniper V110.255 "Sovereign Sync & Recovery"
+# RULES.md — 10D Sniper V110.256 "Sovereign Identifier & Syntax Recovery"
 # Invariantes Tecnicas Inegociaveis — [PERSISTÊNCIA ABSOLUTA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
 # Fonte da verdade: codigo real no Railway e PostgreSQL/WebSocket Nativo.
