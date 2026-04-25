@@ -122,7 +122,7 @@ class OracleAgent(AIOSAgent):
         """Monitor loop (Railway Sovereign Mode)."""
         while True:
             # Oracle Intelligence Loop (Placeholder for future local integrity checks)
-            await asyncio.sleep(60)
+            await asyncio.sleep(15) # [V110.150] More reactive (15s instead of 60s)
 
 # Singleton instance
 oracle_agent = OracleAgent()

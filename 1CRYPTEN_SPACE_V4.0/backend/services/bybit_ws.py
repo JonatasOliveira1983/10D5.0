@@ -255,7 +255,7 @@ class BybitWS:
         
         # Necesário ter pontos suficientes para correlação significativa (min 10)
         n = min(len(hist_a), len(hist_b))
-        if n < 10:
+        if n < 5:
             return 0.0
             
         # Alinha os tamanhos

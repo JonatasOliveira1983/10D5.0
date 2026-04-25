@@ -177,9 +177,9 @@ async def get_system_state():
             try:
                 oracle_ctx = oracle_agent.get_validated_context()
                 oracle_status = oracle_ctx.get("status", "SECURE")
-                # Progress calculation: 150s base
+                # Progress calculation: 30s base (V110.150)
                 uptime = time.time() - oracle_agent.boot_time
-                stabilization_progress = min(1.0, uptime / 150.0) if oracle_status == "STABILIZING" else 1.0
+                stabilization_progress = min(1.0, uptime / 30.0) if oracle_status == "STABILIZING" else 1.0
                 # Override ADX with Oracle validated ADX for consistency
                 btc_adx = oracle_ctx.get("btc_adx", btc_adx)
                 btc_dominance = oracle_ctx.get("dominance", btc_dominance)

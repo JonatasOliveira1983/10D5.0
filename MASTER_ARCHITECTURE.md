@@ -1,4 +1,4 @@
-# MASTER_ARCHITECTURE.md — 10D Sniper V110.251
+# MASTER_ARCHITECTURE.md — V110.252 "Oracle Resiliency"
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS

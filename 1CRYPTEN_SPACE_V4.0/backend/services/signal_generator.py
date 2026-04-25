@@ -709,6 +709,9 @@ class SignalGenerator:
                 "daily_target": daily_stats["target_gains"]
             }
 
+            # [V110.150] Propagate to BybitWS for REST API consistency
+            bybit_ws_service.decorrelation_avg = market_context["decorrelation_avg"]
+
             # [V110.145] Removida injeção de special_signal (Agora exibido como cabeçalho fixo no Frontend)
             await sovereign_service.update_radar_pulse(
                 signals=signals, 
@@ -1245,48 +1248,21 @@ class SignalGenerator:
             if alt_ls_ratio is None:
                 alt_ls_ratio = await redis_service.get_ls_ratio(symbol)
             
-            # 1. Pearson Correlation Check (Statistical Independence)
+            # 1. Pearson Correlation Check (WS Optimized - V110.150)
             correlation_data = {"is_decorrelated": False, "correlation": 1.0}
             try:
-                # Fetch last 15 1h candles for both
-                btc_klines = await bybit_rest_service.get_klines(symbol="BTCUSDT.P", interval="60", limit=15)
-                sym_klines = await bybit_rest_service.get_klines(symbol=symbol, interval="60", limit=15)
+                # [V110.150] FAST PATH: Use BybitWS Price History (No REST calls)
+                correlation = bybit_ws_service.get_correlation("BTCUSDT", symbol)
                 
-                if btc_klines and sym_klines and len(btc_klines) >= 10 and len(sym_klines) >= 10:
-                    btc_returns = []
-                    for i in range(1, len(btc_klines)):
-                        ret = (float(btc_klines[i][4]) - float(btc_klines[i-1][4])) / float(btc_klines[i-1][4])
-                        btc_returns.append(ret)
-                    sym_returns = []
-                    for i in range(1, len(sym_klines)):
-                        ret = (float(sym_klines[i][4]) - float(sym_klines[i-1][4])) / float(sym_klines[i-1][4])
-                        sym_returns.append(ret)
-                    
-                    mean_btc = sum(btc_returns) / len(btc_returns)
-                    mean_sym = sum(sym_returns) / len(sym_returns)
-                    
-                    # Normal Pearson (15h)
-                    num = sum((b - mean_btc) * (s - mean_sym) for b, s in zip(btc_returns, sym_returns))
-                    den = (sum((b - mean_btc)**2 for b in btc_returns) * sum((s - mean_sym)**2 for s in sym_returns))**0.5
-                    correlation = num / den if den > 0 else 1.0
-
-                    # Short-term Pearson (4h) - Last 4 entries of returns list
-                    corr_short = 1.0
-                    try:
-                        b4, s4 = btc_returns[-4:], sym_returns[-4:]
-                        m_b4, m_s4 = sum(b4)/4, sum(s4)/4
-                        n4 = sum((b - m_b4) * (s - m_s4) for b, s in zip(b4, s4))
-                        d4 = (sum((b - m_b4)**2 for b in b4) * sum((s - m_s4)**2 for s in s4))**0.5
-                        corr_short = n4 / d4 if d4 > 0 else 1.0
-                    except: pass
-                    
-                    correlation_data = {
-                        "is_decorrelated": correlation < 0.35 or corr_short < 0.25, 
-                        "correlation": round(correlation, 2),
-                        "correlation_short": round(corr_short, 2)
-                    }
+                # If correlation is 0 but we have price history, it might be perfect independence or not enough data
+                # We'll use 0.35 as threshold for active decorrelation
+                correlation_data = {
+                    "is_decorrelated": correlation < 0.35 and correlation != 0, 
+                    "correlation": round(correlation, 2),
+                    "correlation_short": round(correlation, 2) # Simplify for now
+                }
             except Exception as e:
-                logger.warning(f"Pearson calculation error for {symbol}: {e}")
+                logger.warning(f"Fast Pearson calculation error for {symbol}: {e}")
 
             # 2. Captura estado do BTC
             btc_var = bybit_ws_service.btc_variation_1h

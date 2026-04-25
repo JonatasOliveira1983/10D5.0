@@ -548,7 +548,7 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                             <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/[0.03]">
                                 <MarketMetric label="ADX Intelligence" value={adx || '...'} subValue={adx >= 25 ? 'Strong Trend' : 'Weak Market'} />
                                 <MarketMetric label="Dominance" value={`${dominance?.toFixed(1) || '...'}%`} subValue="BTC Prevalence" />
-                                <MarketMetric label="Correlation" value={`${decorrelation || '...'}%`} subValue="Alt-Decoupling" />
+                                <MarketMetric label="Correlation" value={`${decorrelation !== null ? decorrelation.toFixed(1) : '...'}%`} subValue="Alt-Decoupling" />
                             </div>
                         </div>
                     </div>
@@ -871,7 +871,7 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
 
         // --- Hook: Real-time Radar Pulse (V15.0) ---
         const useRadarPulseRT = () => {
-            const [data, setData] = React.useState({ signals: [], decisions: [], market_context: {}, updated_at: 0 });
+            const [data, setData] = React.useState({ signals: [], decisions: [], market_context: null, updated_at: 0 });
 
             useEffect(() => {
                 // Sincronização via WebSocket (Primário)
@@ -3745,15 +3745,15 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                         const systemState = useSystemState();
             const librarianIntel = useLibrarianIntelRT();
 
-            // V110.32.1: Robust Telemetry Fallback for Cockpit UI
+            // V110.150: Robust Telemetry Fallback for Cockpit UI
             const btcCtx = pulseData?.market_context || btcCommandStatus || {};
             const oracleStatus = btcCtx?.oracle_status || 'SECURE';
             const oracleMessage = btcCtx?.oracle_message || 'Active Status';
             const stabilizationProgress = btcCtx?.stabilization_progress || 1.0;
-            const btcAdx = btcCtx?.btc_adx !== undefined ? btcCtx.btc_adx : (btcCommandStatus?.btc_adx || '...');
+            const btcAdx = (btcCtx?.btc_adx !== undefined && btcCtx?.btc_adx !== null) ? btcCtx.btc_adx : (btcCommandStatus?.btc_adx || '...');
             const realAdx = btcAdx; 
-            const dominance = btcCtx?.btc_dominance !== undefined ? btcCtx.btc_dominance : 45.0;
-            const realDecorrelation = btcCtx?.decorrelation_avg !== undefined ? btcCtx.decorrelation_avg : null;
+            const dominance = (btcCtx?.btc_dominance !== undefined && btcCtx?.btc_dominance !== null) ? btcCtx.btc_dominance : 58.0;
+            const realDecorrelation = (btcCtx?.decorrelation_avg !== undefined && btcCtx?.decorrelation_avg !== null) ? btcCtx.decorrelation_avg : null;
             const protocolLabel = btcCommandStatus?.protocol || (systemState && systemState.protocol) || "Sniper V110.127";
 
             // V110.34: Regime agora espelha EXATAMENTE a lógica do Capitão
