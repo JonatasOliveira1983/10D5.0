@@ -2425,7 +2425,7 @@ class SignalGenerator:
                         await sovereign_service.update_pulse_drag(
                             self.btc_drag_mode, abs_btc_cvd, self.exhaustion_level,
                             bybit_ws_service.btc_price, bybit_ws_service.btc_variation_1h,
-                            btc_adx_inner, 0, bybit_ws_service.btc_variation_24h,
+                            btc_adx_inner, bybit_ws_service.decorrelation_avg, bybit_ws_service.btc_variation_24h,
                             btc_direction=inferred_dir, # <-- Fix: Direção Real
                             oracle_context=oracle_ctx
                         )
@@ -2433,12 +2433,9 @@ class SignalGenerator:
                     
                 # [V42.0] System Status Update (SCANNING vs PAUSED)
                 # [V29.0] PAPER MODE FIX: Use paper positions count instead of Firestore
-                from services.bybit_rest import bybit_rest_service as _brs
-                if _brs.execution_mode == "PAPER":
-                    occupied_count = len(_brs.paper_positions)
-                else:
-                    slots = await sovereign_service.get_active_slots()
-                    occupied_count = sum(1 for s in slots if s.get("symbol"))
+                # [V110.151] SSOT OCCUPATION: Always use slots_cache for consistent radar/UI state
+                slots = await sovereign_service.get_active_slots()
+                occupied_count = sum(1 for s in slots if s.get("symbol"))
                 
                 # [V110.36.3] Usar M-ADX do bybit_ws (Fonte Única de Verdade) em vez de recalcular.
                 # Elimina conflito entre ADX 1H (22.46) e M-ADX ponderado (34.0).
@@ -2472,7 +2469,7 @@ class SignalGenerator:
                     self.btc_drag_mode, 
                     abs(bybit_ws_service.get_cvd_score("BTCUSDT")), getattr(self, 'exhaustion_level', 0),
                     bybit_ws_service.btc_price, bybit_ws_service.btc_variation_1h,
-                    btc_adx, 0, bybit_ws_service.btc_variation_24h,
+                    btc_adx, bybit_ws_service.decorrelation_avg, bybit_ws_service.btc_variation_24h,
                     btc_direction=inferred_dir, # <-- Fix: Direção Real
                     oracle_context=oracle_ctx
                 )

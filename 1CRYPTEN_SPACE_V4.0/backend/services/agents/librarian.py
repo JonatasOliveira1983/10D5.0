@@ -469,24 +469,25 @@ class LibrarianAgent(AIOSAgent):
 
             # Sincronização Cloud Final
             if sovereign_service.is_active:
-                # Firestore (Rankings)
-                for rank in self.rankings:
+                # [V110.151] Sovereign Check: Only use Cloud DB if available
+                if sovereign_service.db:
+                    for rank in self.rankings:
+                        await asyncio.to_thread(
+                            sovereign_service.db.collection("fleet_intelligence")
+                            .document("librarian")
+                            .collection("rankings")
+                            .document(rank["symbol"])
+                            .set, rank
+                        )
+                    
+                    # Insights de Setor
                     await asyncio.to_thread(
                         sovereign_service.db.collection("fleet_intelligence")
                         .document("librarian")
-                        .collection("rankings")
-                        .document(rank["symbol"])
-                        .set, rank
+                        .collection("sector_insights")
+                        .document("latest")
+                        .set, {"sectors": sector_final, "updated_at": time.time()}
                     )
-                
-                # Insights de Setor
-                await asyncio.to_thread(
-                    sovereign_service.db.collection("fleet_intelligence")
-                    .document("librarian")
-                    .collection("sector_insights")
-                    .document("latest")
-                    .set, {"sectors": sector_final, "updated_at": time.time()}
-                )
 
                 # RTDB (Overview)
                 if sovereign_service.rtdb:

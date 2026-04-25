@@ -170,11 +170,19 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
             # We still proceed with the reset to avoid locking the slot forever,
             # but the error is logged for audit.
 
-        # 4. Clear the slot
+        # 4. Clear the slot [V110.151] ATOMIC RESET: Clear all price and ID fields to avoid ghost UI
         await self.update_slot(slot_id, {
             "symbol": None, 
             "status_risco": "LIVRE", 
             "pnl_percent": 0, 
+            "pnl_usd": 0,
+            "entry_price": 0,
+            "current_stop": 0,
+            "target_price": 0,
+            "qty": 0,
+            "side": None,
+            "order_id": None,
+            "genesis_id": None,
             "timestamp_last_update": time.time(), 
             "pensamento": f"🔄 {reason}"
         })

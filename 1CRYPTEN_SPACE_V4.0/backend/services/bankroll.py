@@ -1271,7 +1271,7 @@ class BankrollManager:
                         reported_real_bybit = 0.0
 
                 update_data = {
-                    "id": banca.get("id", "status"),
+                    "id": 1, # [V110.151] Always integer ID 1 for PostgreSQL parity
                     "saldo_real_bybit": reported_real_bybit,
                     "risco_real_percent": real_risk,
                     "slots_disponiveis": available_slots_count,

@@ -395,10 +395,8 @@ class CaptainAgent(AIOSAgent):
                     await asyncio.sleep(10)
                     continue
 
-                if bybit_rest_service.execution_mode == "PAPER":
-                    occupied_count = len(bybit_rest_service.paper_positions)
-                else:
-                    occupied_count = sum(1 for s in slots if s.get("symbol"))
+                # [V110.151] SSOT OCCUPATION: Always use slots for consistent state
+                occupied_count = sum(1 for s in slots if s.get("symbol"))
 
                 # [V110.116] Heartbeat Log
                 if not hasattr(self, "_last_heartbeat") or (time.time() - self._last_heartbeat) > 300:
@@ -516,11 +514,8 @@ class CaptainAgent(AIOSAgent):
             try:
                 # [V110.136] Executa o scan imediatamente e depois aguarda o intervalo
                 # Check available slots
-                slots = await sovereign_service.get_active_slots()
-                if bybit_rest_service.execution_mode == "PAPER":
-                    occupied_count = len(bybit_rest_service.paper_positions)
-                else:
-                    occupied_count = sum(1 for s in slots if s.get("symbol"))
+                # [V110.151] SSOT OCCUPATION: Always use slots for consistent state
+                occupied_count = sum(1 for s in slots if s.get("symbol"))
 
                 # Regra Elite Slot 1: Só escaneia se o Slot 1 estiver livre (ou se houver menos de 4 ordens)
                 # Na verdade, o 'can_open_new_slot' já protege, mas aqui evitamos chamadas de rede desnecessárias.
