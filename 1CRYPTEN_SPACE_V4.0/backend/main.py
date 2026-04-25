@@ -240,6 +240,11 @@ async def lifespan(app: FastAPI):
                 else:
                     logger.info("📊 [V110.113] Threshold Calibrator DISABLED - Using static thresholds")
 
+                # 🆕 [V110.210] Flow Sentinel - Integrity Guard
+                from services.agents.flow_sentinel import flow_sentinel
+                await flow_sentinel.start()
+                await kernel.register_agent(flow_sentinel)
+
                 await kernel.register_agent(captain_agent)
                 await kernel.register_agent(fleet_audit)
                 await kernel.register_agent(macro_analyst)
@@ -247,7 +252,7 @@ async def lifespan(app: FastAPI):
                 await kernel.register_agent(sentiment_specialist)
                 await kernel.register_agent(librarian_agent)
                 await kernel.register_agent(harvester_agent)
-                logger.info("Step 3.0: [V35.0] [V35.0] AIOS Kernel — Python Logic Fleet (Macro, Whale, Sentiment, Audit) 🚀")
+                logger.info("Step 3.0: [V35.0] AIOS Kernel — Python Logic Fleet (Macro, Whale, Sentiment, Audit, Sentinel) 🚀")
 
                 # Start Core Loops
                 asyncio.create_task(sig_gen._sync_radar_rtdb()) # [V15.7.6] Initial sync

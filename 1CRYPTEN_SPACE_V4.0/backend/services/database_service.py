@@ -119,6 +119,12 @@ class OrderGenesis(Base):
     data = Column(JSON) # Full intelligence payload
     timestamp = Column(DateTime, default=datetime.utcnow)
 
+class SystemState(Base):
+    __tablename__ = "system_state"
+    key = Column(String, primary_key=True)
+    data = Column(JSON)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 class VaultWithdrawal(Base):
     __tablename__ = "vault_withdrawals"
     id = Column(Integer, primary_key=True)
@@ -332,5 +338,30 @@ class DatabaseService:
             if obj:
                 return obj.data
             return None
+
+    # --- SYSTEM STATE ---
+    async def update_system_state(self, key: str, data: dict):
+        async with self.AsyncSessionLocal() as session:
+            try:
+                obj = await session.get(SystemState, key)
+                if not obj:
+                    obj = SystemState(key=key, data=data)
+                    session.add(obj)
+                else:
+                    obj.data = data
+                await session.commit()
+            except Exception as e:
+                logger.error(f"Error updating system state for {key}: {e}")
+
+    async def get_system_state(self, key: str):
+        async with self.AsyncSessionLocal() as session:
+            try:
+                obj = await session.get(SystemState, key)
+                if obj:
+                    return obj.data
+                return None
+            except Exception as e:
+                logger.error(f"Error getting system state for {key}: {e}")
+                return None
 
 database_service = DatabaseService()

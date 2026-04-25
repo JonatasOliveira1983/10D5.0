@@ -1,7 +1,13 @@
-# MASTER_ARCHITECTURE.md — 10D Sniper V110.209
+# MASTER_ARCHITECTURE.md — 10D Sniper V110.210
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.210: FLOW INTEGRITY & PERSISTENCE [APR 25]**
+    - **Sentinel Agent:** Implementação do `FlowSentinel` para monitoramento post-mortem de trades, detectando gaps entre estados de memória e persistência.
+    - **Boot Persistence Sync:** Carregamento automático de slots e estado Paper do Postgres no boot, garantindo que o robô retome exatamente onde parou.
+    - **SystemState Engine:** Nova camada de persistência para blobs de estado do sistema, eliminando inconsistências após reinicializações.
+    - **End-to-End Validation:** Garantia absoluta de que nenhum trade seja perdido entre a transição Slot -> Histórico.
 
 *   **V110.209: PWA OPTIMIZATION & VAULT RESTORATION [APR 25]**
     - **Vault History Activation:** Implementação dos métodos de recuperação de histórico no `SovereignService`, conectando a UI ao banco de dados Postgres para visualização de trades arquivadas.

@@ -19,6 +19,11 @@
 2. **PUSH OBRIGATÓRIO:** Todo commit deve ser enviado para o branch `main` deste repositório.
 3. **URL DE COMANDO:** A UI deve ser acessada exclusivamente via `http://localhost:8085/`. Acesso via `/cockpit.html` é proibido e deve ser redirecionado pelo backend.
 
+### 5. PROTOCOLO DE INTEGRIDADE (V110.210)
+- **FlowSentinel**: Toda limpeza de slot deve notificar o Agente Sentinela para validação de arquivamento.
+- **Persistence First**: O estado em memória (`slots_cache`) deve ser espelhado e recuperado do Postgres em todo boot.
+- **Genesis Lock**: Nenhum trade pode existir sem um `genesis_id` válido e rastreável pelo Sentinela.
+
 ## REGRA 0 — PROTOCOLO DE INFRAESTRUTURA RAILWAY (SOVEREIGN)
 1. **SSOT (Source of Truth):** O banco de dados primário é o **PostgreSQL (Railway)**. O `SovereignService` é o único orquestrador autorizado de persistência.
 2. **BROADCAST:** Toda comunicação com a UI é feita via **WebSocket Nativo (/ws/cockpit)**.

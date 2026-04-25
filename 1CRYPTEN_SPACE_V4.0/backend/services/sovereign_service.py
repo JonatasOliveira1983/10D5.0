@@ -23,8 +23,22 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
         self.db = None   # Legacy Firebase Firestore Stub
 
     async def initialize(self):
-        logger.info("🚂 [RAILWAY-SOVEREIGN] Sovereign Service initialized. Native Stack ACTIVE.")
-        return True
+        """[V110.210] Boot Sync: Carrega o estado atual do banco de dados para a memória."""
+        logger.info("🚂 [RAILWAY-SOVEREIGN] Sovereign Service initializing. Syncing state...")
+        try:
+            db_slots = await database_service.get_active_slots()
+            if db_slots:
+                # Mapeia os slots do DB para o cache de memória
+                for db_s in db_slots:
+                    slot_id = db_s.get("id")
+                    for cache_s in self.slots_cache:
+                        if cache_s["id"] == slot_id:
+                            cache_s.update(db_s)
+                logger.info(f"✅ Sync Complete: {len(db_slots)} slots recovered from Postgres.")
+            return True
+        except Exception as e:
+            logger.error(f"❌ Boot Sync Failure: {e}")
+            return False
 
     def _make_json_safe(self, data):
         if isinstance(data, dict):
@@ -141,6 +155,20 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
             "timestamp_last_update": time.time(), 
             "pensamento": f"🔄 {reason}"
         })
+
+        # 5. [V110.210] Flow Integrity Notification
+        try:
+            from services.agents.flow_sentinel import flow_sentinel
+            if slot and slot.get("symbol"):
+                asyncio.create_task(flow_sentinel.notify_reset(
+                    slot_id=slot_id,
+                    symbol=slot["symbol"],
+                    genesis_id=slot.get("genesis_id"),
+                    pnl=float(slot.get("pnl_usd") or 0.0)
+                ))
+        except Exception as sent_err:
+            logger.error(f"⚠️ FlowSentinel notification failed: {sent_err}")
+
         return True
 
     async def get_radar_pulse(self):
@@ -199,8 +227,14 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
     async def get_doc(self, path): return {"exists": False, "data": {}}
     async def set_doc(self, path, data): return True
     async def get_collection(self, path): return []
-    async def get_paper_state(self): return {}
-    async def update_paper_state(self, data): return True
+    async def get_paper_state(self):
+        """[V110.210] Recupera o estado do motor Paper do Postgres."""
+        return await database_service.get_system_state("paper_engine_state") or {}
+
+    async def update_paper_state(self, data):
+        """[V110.210] Salva o estado do motor Paper no Postgres."""
+        await database_service.update_system_state("paper_engine_state", data)
+        return True
     async def get_all_moonbags(self): return []
     async def is_symbol_blocked(self, symbol): return False, 0
     async def register_sl_cooldown(self, symbol, duration): pass
