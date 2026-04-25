@@ -1676,7 +1676,7 @@ class BybitREST:
                         # 4a. Update SL
                         if new_sl is not None and not should_close:
                             current_sl = float(pos.get("stopLoss", 0)) if pos.get("stopLoss") else 0
-                            side_norm = slot_data["side"].lower()
+                            side_norm = str(slot_data.get("side") or "Buy").lower()
                             is_improvement = (side_norm == "buy" and new_sl > current_sl) or \
                                              (side_norm == "sell" and (current_sl == 0 or new_sl < current_sl))
                             

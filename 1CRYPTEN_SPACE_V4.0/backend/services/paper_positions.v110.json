@@ -1,17 +1,17 @@
 {
-  "positions": [],
-  "moonbags": [
-    {
-      "symbol": "DYDXUSDT",
-      "side": "Buy",
-      "avgPrice": "2.8450",
-      "size": "3.339",
-      "stopLoss": "3.21485",
-      "takeProfit": "0",
-      "status": "EMANCIPATED",
-      "opened_at": 1776445051.1965718
-    }
-  ],
-  "history": [],
-  "balance": 100.42
+    "positions": [],
+    "moonbags": [
+        {
+            "symbol": "DYDXUSDT",
+            "side": "Buy",
+            "avgPrice": "2.8450",
+            "size": "3.339",
+            "stopLoss": "3.21485",
+            "takeProfit": "0",
+            "status": "EMANCIPATED",
+            "opened_at": 1776445051.1965718
+        }
+    ],
+    "history": [],
+    "balance": 100.42
 }
