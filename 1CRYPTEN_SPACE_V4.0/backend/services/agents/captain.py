@@ -515,11 +515,13 @@ class CaptainAgent(AIOSAgent):
                 # [V110.136] Executa o scan imediatamente e depois aguarda o intervalo
                 # Check available slots
                 # [V110.151] SSOT OCCUPATION: Always use slots for consistent state
+                from services.sovereign import sovereign_service
+                slots = await sovereign_service.get_active_slots()
                 occupied_count = sum(1 for s in slots if s.get("symbol"))
 
                 # Regra Elite Slot 1: Só escaneia se o Slot 1 estiver livre (ou se houver menos de 4 ordens)
                 # Na verdade, o 'can_open_new_slot' já protege, mas aqui evitamos chamadas de rede desnecessárias.
-                slot_1 = slots[0] if len(slots) > 0 else {}
+                slot_1 = next((s for s in slots if s.get("id") == 1), {})
                 slot_1_busy = slot_1.get("symbol") is not None
                 
                 if not slot_1_busy:
