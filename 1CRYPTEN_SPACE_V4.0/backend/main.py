@@ -128,6 +128,14 @@ async def lifespan(app: FastAPI):
             logger.info("Step 1.1: Connecting Postgres (Railway)...")
             database_service = importlib.import_module("services.database_service").database_service
             await database_service.initialize()
+            
+            # [V110.208] AUTO-MIGRATION SHIELD: Ensures DB schema is always up to date
+            try:
+                from migrate_db import migrate
+                await migrate()
+                logger.info("✅ Database Schema check complete.")
+            except Exception as migrate_err:
+                logger.error(f"⚠️ Auto-migration failed, but continuing: {migrate_err}")
 
             logger.info("Step 1.2: Initializing WebSocket Service...")
             websocket_service = importlib.import_module("services.websocket_service").websocket_service

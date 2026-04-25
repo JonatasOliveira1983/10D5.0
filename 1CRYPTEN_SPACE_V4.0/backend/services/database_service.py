@@ -240,7 +240,21 @@ class DatabaseService:
                 await session.commit()
                 logger.info(f"✅ Trade logged in Postgres: {trade_data.get('symbol')}")
             except Exception as e:
-                logger.error(f"Error logging trade: {e}")
+                logger.error(f"❌ DATABASE LOG FAIL for {trade_data.get('symbol')}: {e}")
+                # [V110.208] BLACK BOX EMERGENCY BACKUP
+                try:
+                    import json
+                    backup_path = "emergency_trades.json"
+                    entry = {
+                        "timestamp": datetime.utcnow().isoformat(),
+                        "error": str(e),
+                        "trade_data": trade_data
+                    }
+                    with open(backup_path, "a", encoding="utf-8") as f:
+                        f.write(json.dumps(entry) + "\n")
+                    logger.warning(f"🛡️ [BLACK BOX] Trade backed up to emergency file: {backup_path}")
+                except Exception as fatal_e:
+                    logger.critical(f"🚨 ABSOLUTE PERSISTENCE FAILURE: {fatal_e}")
 
     async def get_trade_history(self, limit: int = 50):
         async with self.AsyncSessionLocal() as session:
