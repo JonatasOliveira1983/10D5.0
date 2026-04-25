@@ -30,5 +30,11 @@ async def check_prod_db():
     finally:
         await engine.dispose()
 
+    # 3. Check Trade History
+    res_trades = await conn.execute(text("SELECT count(*) FROM trade_history"))
+    count_trades = res_trades.scalar()
+    print(f"--- TRADE HISTORY ---")
+    print(f"Count: {count_trades}")
+
 if __name__ == "__main__":
     asyncio.run(check_prod_db())
