@@ -2413,6 +2413,10 @@ class SignalGenerator:
                         btc_adx_inner = _fallback_regime.get("adx", 0)
 
                     if btc_price > 0:
+                        # [V110.260] BOOTSTRAP: Garante que o WS Service tenha o preço inicial se o loop do WS ainda não rodou
+                        if bybit_ws_service.btc_price == 0:
+                            bybit_ws_service.btc_price = btc_price
+
                         logger.info(f"📊 [SIG-GEN] BTC Command Center: ${btc_price:,.0f} | Var: {btc_var:.2f}% | CVD: ${btc_cvd/1000000:.2f}M")
                         
                         # 🆕 [V110.32.1] Fetch Validated Context from Oracle

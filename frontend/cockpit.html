@@ -5096,7 +5096,8 @@
             const librarianIntel = useLibrarianRT();
 
             // V110.32.1: Robust Telemetry Fallback for Cockpit UI
-            const btcCtx = pulseData?.market_context || btcCommandStatus || {};
+            // [V110.260] FIX: Pula market_context se estiver vazio ({}) para permitir fallback para btcCommandStatus
+            const btcCtx = (pulseData?.market_context && Object.keys(pulseData.market_context).length > 0) ? pulseData.market_context : (btcCommandStatus || {});
             const oracleStatus = btcCtx?.oracle_status || 'SECURE';
             const oracleMessage = btcCtx?.oracle_message || 'Active Status';
             const stabilizationProgress = btcCtx?.stabilization_progress || 1.0;
