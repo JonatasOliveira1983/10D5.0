@@ -1521,13 +1521,14 @@
                     const type = (msg.type || '').toLowerCase();
                     const data = msg.data;
 
+                    // [V110.256] EMIT SOVEREIGN PACKET (For modern hooks)
+                    window.dispatchEvent(new CustomEvent('sovereign-packet', { detail: msg }));
+
                     // [V110.181] UNIVERSAL BRIDGE: Suporta nomes legados e novos
                     if (type === 'slot_update' || type === 'live_slots') {
                         sovereign_rtdb.trigger('live_slots', data);
                     }
                     else if (type === 'radar_pulse') {
-                        // Fix: Passa o objeto COMPLETO {signals, decisions, market_context, updated_at}
-                        // O hook useRadarPulseRT espera esse objeto, não apenas o array de sinais
                         const fullData = (data && data.signals !== undefined) ? data : { signals: data || [], decisions: [], market_context: {}, updated_at: Date.now() / 1000 };
                         sovereign_rtdb.trigger('radar_pulse', fullData);
                     }
@@ -1535,7 +1536,6 @@
                         sovereign_rtdb.trigger('banca_status', data);
                     }
                     else if (type === 'system_state' || type === 'btc_command_center') {
-                        // Crucial: O Cockpit UI ouve 'btc_command_center' para o ADX/Preço
                         sovereign_rtdb.trigger('btc_command_center', data);
                         sovereign_rtdb.trigger('system_state', data);
                     }
