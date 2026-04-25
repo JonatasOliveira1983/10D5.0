@@ -35,6 +35,10 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
                         if cache_s["id"] == slot_id:
                             cache_s.update(db_s)
                 logger.info(f"✅ Sync Complete: {len(db_slots)} slots recovered from Postgres.")
+            
+            # [V110.220] Inicia o heartbeat de sincronização persistente
+            asyncio.create_task(self._heartbeat_loop())
+            
             return True
         except Exception as e:
             logger.error(f"❌ Boot Sync Failure: {e}")
@@ -48,6 +52,25 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
         elif hasattr(data, 'isoformat'):
             return data.isoformat()
         return data
+
+    async def _heartbeat_loop(self):
+        """[V110.220] Heartbeat: Mantém o estado sincronizado entre DB, Memória e UI."""
+        while True:
+            try:
+                # 1. Sincroniza Banca
+                from .database_service import database_service
+                banca = await database_service.get_banca_status()
+                await self.update_bankroll(banca.get("saldo_total", 100.0))
+                
+                # 2. Sincroniza Slots (Garante que o Reset Nuclear reflita na UI)
+                db_slots = await database_service.get_active_slots()
+                self.slots_cache = db_slots
+                await websocket_service.emit_slots(self.slots_cache)
+                
+                logger.debug("Sovereign Heartbeat: DB Sync OK")
+            except Exception as e:
+                logger.error(f"Heartbeat Error: {e}")
+            await asyncio.sleep(60)
 
     async def get_banca_status(self):
         return {"saldo_total": 0, "risco_real_percent": 0, "slots_disponiveis": 4, "status": "SOVEREIGN"}
