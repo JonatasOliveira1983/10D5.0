@@ -144,17 +144,21 @@ Quando uma ordem desincronizar e ficar presa como "fantasma" no slot ou no hist�
 - A forma mais segura de destruir um fantasma que não quer morrer no Railway.
 - **Ação:** Adicione o nome da moeda na list comprehension do arquivo `bybit_rest.py` (dentro da função `_load_paper_state`), faça commit e push. Quando o Railway reiniciar, o próprio robô barra o fantasma ao ler do Banco de Dados e salva o banco limpo.
 
-**CAMINHO 2: Limpeza do Slot Ativo (Forçar Reset no DB)**
+**CAMINHO 2: Quebra do Ciclo de Ressurreição (Hard Block no AMNESIA-GUARD)**
+- **O Bug da Ressurreição:** Se uma ordem fantasma estiver no banco de dados (`slots`) e na memória RAM da Railway ao mesmo tempo, apagar do banco via script não funciona! O servidor velho vai recriar o slot antes de morrer, e o `AMNESIA-GUARD` do servidor novo vai puxá-la de volta do banco pra memória.
+- **Ação:** No arquivo `bybit_rest.py`, dentro de `_load_paper_state` (seção do Amnesia-Guard), adicione um `if "MOEDA" in symbol: continue` para forçar o sistema a ignorar a existência da moeda no banco de dados.
+
+**CAMINHO 3: Limpeza do Slot Ativo (Para Ordens Simples Fora de Loop)**
 - Se a ordem estiver ocupando o slot na UI mas não existe mais na exchange:
 - **Ação:** Conecte no banco de dados PostgreSQL e rode:
   `UPDATE slots SET symbol = NULL, status_risco = 'LIVRE', qty = 0, order_id = NULL, genesis_id = NULL WHERE symbol LIKE '%MOEDA%';`
 
-**CAMINHO 3: Limpeza da Matriz (Postgres `system_state`)**
+**CAMINHO 4: Limpeza da Matriz (Postgres `system_state`)**
 - Se a ordem estiver "ressuscitando" em modo simulado.
 - **Ação:** Delete o JSON do banco ou atualize:
   `UPDATE system_state SET state_data = '[json_limpo]' WHERE key = 'paper_engine_state';`
 
-**CAMINHO 4: Limpeza do Histórico da Vault**
+**CAMINHO 5: Limpeza do Histórico da Vault**
 - Para limpar lixo visual (`RECOVERY` ou PNL $0):
 - **Ação:** `DELETE FROM trade_history WHERE genesis_id LIKE 'RECOVERY-%' OR pnl = 0;`
 
