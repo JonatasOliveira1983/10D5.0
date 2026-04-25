@@ -1,18 +1,19 @@
-# RULES.md — 10D Sniper V110.208 "Self-Healing Architecture"
+# RULES.md — 10D Sniper V110.209 "Smart PWA Architecture"
 # Invariantes Tecnicas Inegociaveis — [PERSISTÊNCIA ABSOLUTA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
 # Fonte da verdade: codigo real no Railway e PostgreSQL/WebSocket Nativo.
 
 ---
 
-## 🛡️ PROTOCOLO DE BLINDAGEM V110.208 (CRÍTICO)
+## 🛡️ PROTOCOLO DE BLINDAGEM V110.209 (CRÍTICO)
 1. **AUTO-CURA DE BANCO:** O sistema deve realizar migrações automáticas de esquema no boot. Qualquer divergência de coluna deve ser corrigida via script `migrate_db.py` integrado ao `main.py`.
 2. **CAIXA PRETA DE EMERGÊNCIA:** Se o registro de um trade no banco de dados falhar, o sistema DEVE salvar o payload completo em `emergency_trades.json`. Perder dados de lucro por erro de DB é uma violação gravíssima.
 3. **ARQUIVAMENTO ATÔMICO:** É terminantemente proibido limpar um slot sem antes garantir o arquivamento (seja no DB ou na Caixa Preta).
+4. **PWA & SMART CACHE:** O Service Worker deve operar em modo Network-First para o HTML e Stale-While-Revalidate para CDNs. Desativar o SW via scripts de "nuke" é proibido, exceto em caso de corrupção total de dados.
 
 ---
 
-## ⚡ 10D BYBITY REAL 4.0 — PROTOCOLO DE ELITE — V110.208
+## ⚡ 10D BYBITY REAL 4.0 — PROTOCOLO DE ELITE — V110.209
 ## REGRA 00 — REPOSITÓRIO ÚNICO E OFICIAL
 1. **REPO ÚNICO:** O único repositório oficial para este sistema é: `https://github.com/JonatasOliveira1983/10D5.0/`.
 2. **DEPRECATED:** O repositório `10DBybityREAL` foi desativado e não deve mais ser utilizado para push ou sincronização.
@@ -119,5 +120,5 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versão: V110.201 "Sovereign Engine Architecture" | Atualizado: 2026-04-24*
+*Versão: V110.209 "Smart PWA Architecture" | Atualizado: 2026-04-25*
 *Este arquivo é a ÚNICA FONTE DA VERDADE. O sistema foi TOTALMENTE EMANCIPADO do Firebase via WebSocket nativo e Postgres.*

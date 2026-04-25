@@ -1,7 +1,13 @@
-# MASTER_ARCHITECTURE.md — 10D Sniper V110.208
+# MASTER_ARCHITECTURE.md — 10D Sniper V110.209
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.209: PWA OPTIMIZATION & SMART CACHE [APR 25]**
+    - **PWA Re-activation:** Restauração do Service Worker com detecção automática de atualizações.
+    - **Smart Caching:** Implementação de estratégias Network-First para lógica e Cache-First para bibliotecas/assets.
+    - **Offline Fallback:** Integração da página `offline.html` para resiliência de conectividade.
+    - **Mobile UX:** Otimização de meta tags para iOS e shortcuts no Android/iOS.
 
 *   **V110.208: SELF-HEALING & BLACK BOX PERSISTENCE [APR 24]**
     - **Auto-Migration:** Implementação de migração automática de esquema no boot para corrigir divergências de colunas no Postgres.
@@ -116,5 +122,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-24 (V110.201) Sincronizado*
+*Documento atualizado em: 2026-04-25 (V110.209) Sincronizado*
 *Este documento reflete a migração completa e estabilizada para o ambiente RAILWAY.*

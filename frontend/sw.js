@@ -1,16 +1,31 @@
 /**
- * 1CRYPTEN SNIPER V100 - PWA SERVICE WORKER
- * Estratégia: Stale-While-Revalidate (Main) + Cache-First (Assets)
- * Foco: Carregamento instantâneo e bypass de API
+ * 1CRYPTEN SNIPER PWA SERVICE WORKER
+ * Version: V110.182.1
+ * Strategies: 
+ * - Network-First: Main Logic & HTML (Always fresh if online)
+ * - Cache-First: Static Assets & Vendor (Instant load)
+ * - Stale-While-Revalidate: Manifest & CDNs
  */
 
-const CACHE_NAME = '1crypten-sniper-v100.1';
+const CACHE_NAME = '1crypten-sniper-v110.182.1';
+const OFFLINE_URL = '/offline.html';
+
+// Assets that must be available offline
 const STATIC_ASSETS = [
     '/',
     '/cockpit.html',
+    '/offline.html',
+    '/manifest.json',
     '/logo10D.png',
+    '/logo10DTrasp.png',
     '/favicon.ico',
-    '/manifest.json'
+    '/vendor/react.production.min.js',
+    '/vendor/react-dom.production.min.js',
+    '/vendor/react-router.production.min.js',
+    '/vendor/react-router-dom.production.min.js',
+    '/vendor/babel.min.js',
+    '/vendor/framer-motion.js',
+    '/vendor/lightweight-charts.standalone.production.js'
 ];
 
 // Instalação: Cacheia arquivos críticos
@@ -33,55 +48,93 @@ self.addEventListener('activate', (event) => {
             );
         })
     );
-    console.log('[SW] V100 Activated and ready ✅');
+    console.log('[SW] V110.182.1 Activated ✅');
     return self.clients.claim();
 });
 
 // Interceptor de Fetch
 self.addEventListener('fetch', (event) => {
+    // Apenas requisições GET
+    if (event.request.method !== 'GET') return;
+
     const url = new URL(event.request.url);
 
-    // 1. BYPASS para APIs, Firebase e WebSockets
+    // 1. BYPASS para APIs, WebSockets e Bybit
     if (url.pathname.startsWith('/api/') || 
         url.hostname.includes('firebaseio.com') || 
         url.hostname.includes('bybit') ||
-        event.request.method !== 'GET') {
+        url.hostname.includes('railway.app')) {
         return; // Network Only
     }
 
-    // 2. Cache-First para Fontes e Ícones (CDNs)
-    if (url.hostname.includes('gstatic.com') || 
-        url.hostname.includes('googleapis.com') || 
-        url.hostname.includes('material-icons')) {
+    // 2. Network-First para a página principal e manifest
+    // Isso garante que se houver internet, o usuário pegue a versão mais nova.
+    if (url.pathname === '/' || url.pathname === '/cockpit.html' || url.pathname === '/manifest.json') {
+        event.respondWith(
+            fetch(event.request)
+                .then((response) => {
+                    const clonedResponse = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, clonedResponse);
+                    });
+                    return response;
+                })
+                .catch(() => {
+                    return caches.match(event.request).then((cached) => {
+                        return cached || caches.match(OFFLINE_URL);
+                    });
+                })
+        );
+        return;
+    }
+
+    // 3. Cache-First para Vendor e Imagens Locais
+    if (url.pathname.startsWith('/vendor/') || url.pathname.endsWith('.png') || url.pathname.endsWith('.ico')) {
         event.respondWith(
             caches.match(event.request).then((cached) => {
                 return cached || fetch(event.request).then((response) => {
-                    return caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, response.clone());
-                        return response;
+                    const clonedResponse = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, clonedResponse);
                     });
+                    return response;
                 });
             })
         );
         return;
     }
 
-    // 3. Stale-While-Revalidate para o Cockpit e Manifest
+    // 4. Stale-While-Revalidate para CDNs (Tailwind, Google Fonts, etc)
+    if (url.hostname.includes('gstatic.com') || 
+        url.hostname.includes('googleapis.com') || 
+        url.hostname.includes('jsdelivr.net') ||
+        url.hostname.includes('tailwindcss.com')) {
+        event.respondWith(
+            caches.match(event.request).then((cached) => {
+                const networkFetch = fetch(event.request).then((response) => {
+                    const clonedResponse = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, clonedResponse);
+                    });
+                    return response;
+                });
+                return cached || networkFetch;
+            })
+        );
+        return;
+    }
+
+    // Default: Stale-While-Revalidate
     event.respondWith(
         caches.match(event.request).then((cached) => {
             const networkFetch = fetch(event.request).then((response) => {
-                // Solo cacheia se a resposta for válida (V110.182)
-                if (!response || response.status !== 200 || response.type !== 'basic') {
-                    return response;
-                }
-                return caches.open(CACHE_NAME).then((cache) => {
-                    cache.put(event.request, response.clone());
-                    return response;
+                if (!response || response.status !== 200 || response.type !== 'basic') return response;
+                const clonedResponse = response.clone();
+                caches.open(CACHE_NAME).then((cache) => {
+                    cache.put(event.request, clonedResponse);
                 });
-            }).catch(() => {
-                // Falha silenciosa: O cache stale já foi servido ou falhou
-                return cached;
-            });
+                return response;
+            }).catch(() => cached);
             return cached || networkFetch;
         })
     );

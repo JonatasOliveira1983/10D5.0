@@ -5,17 +5,7 @@
     <meta charset="utf-8" />
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
         name="viewport" />
-    <script>
-        // V90.1: EMERGENCY SERVICE WORKER NUKE
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) {
-                    registration.unregister();
-                    console.log('SW Unregistered ✅');
-                }
-            });
-        }
-    </script>
+
     <title>Sniper V110.125 — ELITE COMMAND</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="logo10DTrasp.png?v=4">
@@ -37,6 +27,7 @@
     <meta name="twitter:description" content="Central de Comando Sniper para Trading de Elite.">
     <meta name="twitter:image" content="logo10DTrasp.png?v=4">
     <!-- PWA iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="1CRYPTEN">
@@ -6449,7 +6440,7 @@
 
             useEffect(() => {
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('/sw.js?v=100.1').then(reg => {
+                    navigator.serviceWorker.register('/sw.js?v=110.182.1').then(reg => {
                         // Detect updates
                         reg.addEventListener('updatefound', () => {
                             const newWorker = reg.installing;
@@ -6505,7 +6496,7 @@
                         <NavBar onLogout={handleLogout} />
                     </div>
                     
-                    {/* [V110.150] PWA Update Toast */}
+                    {/* [V110.182] PWA Update Toast */}
                     {showUpdate && (
                         <div className="fixed bottom-24 left-4 right-4 z-[100] animate-bounce">
                             <div className="glass border border-primary/40 p-4 rounded-2xl flex items-center justify-between shadow-2xl">
@@ -6514,7 +6505,7 @@
                                         <span className="material-icons-round text-white text-sm">system_update</span>
                                     </div>
                                     <div>
-                                        <h4 className="text-xs font-black text-white uppercase">Update Sniper V100</h4>
+                                        <h4 className="text-xs font-black text-white uppercase">Update Sniper V110</h4>
                                         <p className="text-[9px] text-gray-400 font-bold uppercase">Novas inteligências detectadas!</p>
                                     </div>
                                 </div>
@@ -6562,11 +6553,7 @@
             startApp();
         }
 
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(regs => {
-                regs.forEach(reg => reg.unregister());
-            });
-        }
+
     </script>
 </body>
 </html>
