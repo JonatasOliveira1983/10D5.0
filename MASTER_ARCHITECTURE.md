@@ -1,4 +1,4 @@
-# MASTER_ARCHITECTURE.md — V110.252 "Oracle Resiliency"
+# MASTER_ARCHITECTURE.md — V110.253 "JSON Integrity"
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS

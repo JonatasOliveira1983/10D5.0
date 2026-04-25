@@ -1,11 +1,11 @@
-# RULES.md — 10D Sniper V110.252 "Sovereign Finality"
+# RULES.md — 10D Sniper V110.253 "JSON Integrity"
 # Invariantes Tecnicas Inegociaveis — [PERSISTÊNCIA ABSOLUTA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
 # Fonte da verdade: codigo real no Railway e PostgreSQL/WebSocket Nativo.
 
 ---
 
-## 🛡️ PROTOCOLO DE BLINDAGEM V110.252 (CRÍTICO)
+## 🛡️ PROTOCOLO DE BLINDAGEM V110.253 (CRÍTICO)
 1. **AUTO-CURA DE BANCO:** O sistema realiza migrações automáticas de esquema no boot. Qualquer divergência de coluna deve ser corrigida via script integrado ao `database_service.py`.
 2. **TIMEZONE INTEGRITY:** É obrigatório o uso de `datetime.utcnow().replace(tzinfo=None)` para todas as interações com o Postgres (WITHOUT TIME ZONE).
 3. **ARQUIVAMENTO ATÔMICO:** É terminantemente proibido limpar um slot sem antes garantir o arquivamento no Postgres via `database_service.log_trade`.
