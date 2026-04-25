@@ -952,7 +952,13 @@ class CaptainAgent(AIOSAgent):
             best_signal["leverage"] = armory["leverage"]
             best_signal["margin_multiplier"] = armory["margin_multiplier"]
             best_signal["wick_intensity"] = armory["wick_intensity"]
-            logger.info(f"⚓ [QUARTERMASTER] {symbol} alavancagem definida em {armory['leverage']}x (Multiplier: {armory['margin_multiplier']}x)")
+
+            # [V110.176] MANDATORY 50X OVERRIDE
+            if is_blitz or strategy == "SWING":
+                best_signal["leverage"] = 50
+                logger.info(f"⚓ [V110.176 QUARTERMASTER] {symbol} forçado 50x (Slot {strategy})")
+            else:
+                logger.info(f"⚓ [QUARTERMASTER] {symbol} alavancagem definida em {armory['leverage']}x (Multiplier: {armory['margin_multiplier']}x)")
 
             # --- PHASE 2: TRENDING MARKET (UP/DOWN) ---
             is_counter_trend = (btc_dir == "UP" and side.upper() == "SELL") or \

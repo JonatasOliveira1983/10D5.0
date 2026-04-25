@@ -25,10 +25,10 @@ class QuartermasterAgent(AIOSAgent):
         self.wick_smooth_threshold = 0.45
         self.wick_jumpy_threshold = 0.70
         
-        # Standard leverages
+        # Standard leverages (V110.176: Forçado 50x conforme regra mandatória do usuário)
         self.lev_smooth = 50
-        self.lev_jumpy = 20
-        self.lev_extreme = 10
+        self.lev_jumpy = 50
+        self.lev_extreme = 50
 
     async def on_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """AIOS Message Handler for Quartermaster."""

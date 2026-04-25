@@ -1424,8 +1424,8 @@ class BankrollManager:
                 vol_class = lib_dna.get("volatility_class", "STABLE")
                 
                 dna_leverage_map = {
-                    "EXTREME": 30.0,
-                    "VOLATILE": 40.0,
+                    "EXTREME": 50.0,  # [V110.176] Forçado 50x conforme regra mandatória
+                    "VOLATILE": 50.0,
                     "STABLE": 50.0
                 }
                 dna_margin_map = {
@@ -1452,6 +1452,12 @@ class BankrollManager:
                         f"🧬 [V110.113 DNA-SIZE] {symbol} Vol={vol_class} | "
                         f"Leverage={current_leverage}x, Margin={dna_margin_pct*100:.0f}%"
                     )
+
+                # [V110.176] MANDATORY 50X OVERRIDE for BLITZ and SWING
+                if slot_type in ["BLITZ_30M", "SWING"]:
+                    if current_leverage != 50:
+                        logger.warning(f"🛡️ [V110.176 LEVERAGE-GUARD] Forçando alavancagem de {current_leverage}x para 50x (Regra Slot {slot_type})")
+                        current_leverage = 50
 
                 qty_step = float(info.get("lotSizeFilter", {}).get("qtyStep", 0.001))
                 
