@@ -185,7 +185,13 @@ class RedisService:
     async def publish_update(self, channel: str, data: dict):
         """Publishes a message to a Redis channel for real-time UI updates."""
         try:
-            await self.client.publish(channel, json.dumps(data))
+            # [V110.151] Robust JSON Serialization (Handles datetime objects from DB)
+            def json_serial(obj):
+                if hasattr(obj, 'isoformat'):
+                    return obj.isoformat()
+                return str(obj)
+                
+            await self.client.publish(channel, json.dumps(data, default=json_serial))
         except Exception as e:
             logger.error(f"Redis publish error: {e}")
 

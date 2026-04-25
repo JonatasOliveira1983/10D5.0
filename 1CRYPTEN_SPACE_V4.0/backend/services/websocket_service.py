@@ -27,7 +27,20 @@ class WebSocketService:
             return
             
         disconnected = set()
-        msg_str = json.dumps(message)
+        
+        # [V110.151] Robust JSON Serialization (Handles datetime objects)
+        def json_serial(obj):
+            if hasattr(obj, 'isoformat'):
+                return obj.isoformat()
+            if isinstance(obj, set):
+                return list(obj)
+            return str(obj)
+
+        try:
+            msg_str = json.dumps(message, default=json_serial)
+        except Exception as e:
+            logger.error(f"CRITICAL: Failed to serialize WS message: {e}")
+            return
         
         for connection in self.active_connections:
             try:

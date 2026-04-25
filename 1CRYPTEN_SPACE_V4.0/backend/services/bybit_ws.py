@@ -114,7 +114,7 @@ class BybitWS:
             # 🆕 V6.0: Push health metrics to Redis
             if getattr(redis_service, 'client', None):
                 health_data = {"latency": self.latency_ms, "status": "ONLINE", "ts": self.last_message_time}
-                await redis_service.client.set("ws_health", json.dumps(health_data))
+                await redis_service.client.set("ws_health", json.dumps(health_data, default=str))
         except Exception as e:
             logger.error(f"Error processing trade message: {e}")
 

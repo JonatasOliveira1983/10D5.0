@@ -264,7 +264,7 @@ class DatabaseService:
                         "trade_data": trade_data
                     }
                     with open(backup_path, "a", encoding="utf-8") as f:
-                        f.write(json.dumps(entry) + "\n")
+                        f.write(json.dumps(entry, default=str) + "\n")
                     logger.warning(f"🛡️ [BLACK BOX] Trade backed up to emergency file: {backup_path}")
                 except Exception as fatal_e:
                     logger.critical(f"🚨 ABSOLUTE PERSISTENCE FAILURE: {fatal_e}")
