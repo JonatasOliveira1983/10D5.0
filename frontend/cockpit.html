@@ -1471,9 +1471,9 @@
 
         console.log("System Initialized ✅ Port Target:", API_BASE);
 
-        // V110.175: Railway WebSocket Integration (Replaces Firebase RTDB)
+        // V110.175: Railway WebSocket Integration (Replaces Firebase sovereign_rtdb)
         const WS_URL = API_BASE.replace('http', 'ws') + '/ws/cockpit';
-        let rtdb = null;
+        let sovereign_rtdb = null;
         let ws = null;
 
         // V110.198: Domain Hardening — Intelligent Protocol Detection
@@ -1487,8 +1487,8 @@
             console.log("🔌 Connecting to Sovereign WebSocket...", wsUrl);
             ws = new WebSocket(wsUrl);
 
-            // Mock RTDB Object to maintain compatibility with existing hooks
-            rtdb = {
+            // Mock sovereign_rtdb Object to maintain compatibility with existing hooks
+            sovereign_rtdb = {
                 listeners: {},
                 ref: function(path) {
                     const self = this;
@@ -1513,7 +1513,7 @@
                     }
                 }
             };
-            window.rtdb = rtdb;
+            window.sovereign_rtdb = sovereign_rtdb;
 
             ws.onmessage = (event) => {
                 try {
@@ -1523,21 +1523,21 @@
 
                     // [V110.181] UNIVERSAL BRIDGE: Suporta nomes legados e novos
                     if (type === 'slot_update' || type === 'live_slots') {
-                        rtdb.trigger('live_slots', data);
+                        sovereign_rtdb.trigger('live_slots', data);
                     }
                     else if (type === 'radar_pulse') {
                         // Fix: Passa o objeto COMPLETO {signals, decisions, market_context, updated_at}
                         // O hook useRadarPulseRT espera esse objeto, não apenas o array de sinais
                         const fullData = (data && data.signals !== undefined) ? data : { signals: data || [], decisions: [], market_context: {}, updated_at: Date.now() / 1000 };
-                        rtdb.trigger('radar_pulse', fullData);
+                        sovereign_rtdb.trigger('radar_pulse', fullData);
                     }
                     else if (type === 'banca_status' || type === 'banca_status') {
-                        rtdb.trigger('banca_status', data);
+                        sovereign_rtdb.trigger('banca_status', data);
                     }
                     else if (type === 'system_state' || type === 'btc_command_center') {
                         // Crucial: O Cockpit UI ouve 'btc_command_center' para o ADX/Preço
-                        rtdb.trigger('btc_command_center', data);
-                        rtdb.trigger('system_state', data);
+                        sovereign_rtdb.trigger('btc_command_center', data);
+                        sovereign_rtdb.trigger('system_state', data);
                     }
                 } catch (e) {
                     console.error("WS Message Error:", e);
@@ -1983,7 +1983,7 @@
             useEffect(() => {
                 let unsubscribe = null;
                 const startTime = Date.now();
-                console.log("📡 Pulse Monitor: System Booting [", rtdb ? 'RTDB-READY' : 'RTDB-MISSING', "]");
+                console.log("📡 Pulse Monitor: System Booting [", sovereign_rtdb ? 'sovereign_rtdb-READY' : 'sovereign_rtdb-MISSING', "]");
 
                 // Immediate REST Check on Mount (Eliminates 12s wait)
                 const immediateCheck = async () => {
@@ -2007,10 +2007,10 @@
                 };
                 immediateCheck();
 
-                // Primary: Firebase RTDB
-                if (rtdb) {
+                // Primary: Firebase sovereign_rtdb
+                if (sovereign_rtdb) {
                     try {
-                        const pulseRef = rtdb.ref('system_pulse');
+                        const pulseRef = sovereign_rtdb.ref('system_pulse');
                         unsubscribe = pulseRef.on('value', (snapshot) => {
                             const data = snapshot.val();
                             if (data && data.timestamp) {
@@ -2018,27 +2018,27 @@
                                 const lat = Date.now() - data.timestamp;
                                 setLatency(Math.max(0, lat));
                                 setStatus('ONLINE');
-                                channelRef.current = 'RTDB';
+                                channelRef.current = 'sovereign_rtdb';
                             } else {
-                                console.warn("📡 Pulse Monitor: RTDB Pulse received but content is malformed", data);
+                                console.warn("📡 Pulse Monitor: sovereign_rtdb Pulse received but content is malformed", data);
                             }
                         }, (err) => {
                             // If it's a permission error, we don't spam the console since we have REST fallback
                             if (err && err.message && err.message.includes('permission_denied')) {
-                                console.warn("📡 Pulse Monitor: RTDB Access Denied (system_pulse). Using REST Fallback Only.");
+                                console.warn("📡 Pulse Monitor: sovereign_rtdb Access Denied (system_pulse). Using REST Fallback Only.");
                             } else {
-                                console.error("📡 Pulse Monitor: RTDB Subscription Error:", err);
+                                console.error("📡 Pulse Monitor: sovereign_rtdb Subscription Error:", err);
                             }
                         });
 
-                        // [V18.1] Listen for Thinking State in RTDB
-                        const thinkingRef = rtdb.ref('chat_status/is_thinking');
+                        // [V18.1] Listen for Thinking State in sovereign_rtdb
+                        const thinkingRef = sovereign_rtdb.ref('chat_status/is_thinking');
                         thinkingRef.on('value', (snap) => {
                             if (snap.exists()) setIsThinking(snap.val());
                         });
 
                     } catch (e) {
-                        console.error("📡 Pulse Monitor: RTDB Logic Failure:", e);
+                        console.error("📡 Pulse Monitor: sovereign_rtdb Logic Failure:", e);
                     }
                 }
 
@@ -2054,7 +2054,7 @@
                 const checker = setInterval(async () => {
                     const diff = Date.now() - lastUpdateRef.current;
 
-                    // Fallback: If heart beating via RTDB is slow (> 12s), force a REST check to verify health
+                    // Fallback: If heart beating via sovereign_rtdb is slow (> 12s), force a REST check to verify health
                     if (diff > 12000) {
                         try {
                             const res = await fetch(API_BASE + '/api/system/state');
@@ -2084,15 +2084,15 @@
                 }, 5000);
 
                 return () => {
-                    if (unsubscribe && rtdb) {
+                    if (unsubscribe && sovereign_rtdb) {
                         try {
-                            rtdb.ref('system_pulse').off('value', unsubscribe);
+                            sovereign_rtdb.ref('system_pulse').off('value', unsubscribe);
                         } catch (e) { }
                     }
                     window.removeEventListener('rest-pulse', onRestPulse);
                     clearInterval(checker);
                 };
-            }, [rtdb]);
+            }, [sovereign_rtdb]);
 
             return { latency, status, channel: channelRef.current, isThinking };
         };
@@ -2168,30 +2168,31 @@
                         localStorage.setItem('banca_cache', JSON.stringify(message.data));
                     }
                 };
-                window.addEventListener('sovereign-packet', handlePacket);
-                return () => window.removeEventListener('sovereign-packet', handlePacket);
-            }, []);
 
-            // V15.1.5: REST Fallback Polling (ensures banca data is never stuck)
-            useEffect(() => {
                 const fetchFallback = async () => {
                     try {
                         const res = await fetch(API_BASE + '/api/banca/data');
                         if (res.ok) {
                             const val = await res.json();
                             if (val && val.saldo_total !== undefined) {
-                                // Fix BUG: Always accept the server truth, even if it's lower (negative PnL)
                                 setBanca(val);
                                 localStorage.setItem('banca_cache', JSON.stringify(val));
                             }
                         }
                     } catch (e) { }
                 };
+
+                window.addEventListener('sovereign-packet', handlePacket);
                 fetchFallback();
-                const itv = setInterval(fetchFallback, 45000); // [V110.138] Relaxed from 10s to prevent 429/504
+                const itv = setInterval(fetchFallback, 45000);
                 const onVisibilityChange = () => { if (document.visibilityState === 'visible') fetchFallback(); };
                 document.addEventListener('visibilitychange', onVisibilityChange);
-                return () => { clearInterval(itv); document.removeEventListener('visibilitychange', onVisibilityChange); };
+
+                return () => {
+                    window.removeEventListener('sovereign-packet', handlePacket);
+                    clearInterval(itv);
+                    document.removeEventListener('visibilitychange', onVisibilityChange);
+                };
             }, []);
 
             return banca;
@@ -2202,9 +2203,9 @@
             const [vault, setVault] = useState(initialData || { cycle_number: 1, used_symbols_in_cycle: [], cycle_start_bankroll: 0 });
 
             useEffect(() => {
-                if (!rtdb) return;
+                if (!sovereign_rtdb) return;
                 try {
-                    const ref = rtdb.ref('vault_status');
+                    const ref = sovereign_rtdb.ref('vault_status');
                     const onValue = ref.on('value', (snapshot) => {
                         const val = snapshot.val();
                         if (val) {
@@ -2216,12 +2217,12 @@
                         if (err && err.message && err.message.includes('permission_denied')) {
                             // Silent: REST fallback active
                         } else {
-                            console.error("Vault RTDB Error:", err);
+                            console.error("Vault sovereign_rtdb Error:", err);
                         }
                     });
                     return () => ref.off('value', onValue);
                 } catch (e) { }
-            }, [rtdb]);
+            }, [sovereign_rtdb]);
 
             // V15.1.5: REST Fallback Polling (ensures vault data is never stuck)
             useEffect(() => {
@@ -2278,7 +2279,7 @@
             // V15.1.4: REST Fallback Polling (ensures signals are never stuck)
             React.useEffect(() => {
                 const fetchFallback = async () => {
-                    // Only poll if data is empty or RTDB is missing
+                    // Only poll if data is empty or sovereign_rtdb is missing
                     try {
                         const res = await fetch(API_BASE + '/api/radar/pulse');
                         if (res.ok) {
@@ -2322,46 +2323,37 @@
                         localStorage.setItem('slots_cache', JSON.stringify(fullSlots));
                     }
                 };
-                window.addEventListener('sovereign-packet', handlePacket);
-                return () => window.removeEventListener('sovereign-packet', handlePacket);
-            }, []);
 
-                // Secondary: REST Polling Fallback (ensures slots sync on first load/failure)
-                // [V28.5.3] BUGFIX: Always accept REST data — previous condition blocked updates
-                // when any slot had data, preventing new trades/closures from appearing.
                 const fetchSlots = async () => {
                     try {
                         const res = await fetch(API_BASE + '/api/slots');
                         if (res.ok) {
                             const data = await res.json();
-
-                            // V15.1.4: ALWAYS guarantee 4 slots even in REST fallback
                             const rawSlots = Array.isArray(data) ? data : [];
                             const fullSlots = [];
                             for (let i = 1; i <= 4; i++) {
                                 const existing = rawSlots.find(s => s && s.id === i);
                                 fullSlots.push(existing || { id: i, symbol: null, entry_price: 0, current_stop: 0, status_risco: 'LIVRE', pnl_percent: 0 });
                             }
-
-                            // [V28.5.3] Always update: REST has live-price ROI recalculation
                             setSlots(fullSlots);
                             localStorage.setItem('slots_cache', JSON.stringify(fullSlots));
                         }
                     } catch (e) { }
                 };
 
+                window.addEventListener('sovereign-packet', handlePacket);
                 fetchSlots();
-                // [V28.5.3] Reduced from 10s to 5s — slots are the most critical real-time data
-                const itv = setInterval(fetchSlots, 30000); // [V110.138] Relaxed from 5s to 30s to save backend
+                const itv = setInterval(fetchSlots, 30000);
                 const onVisibilityChange = () => { if (document.visibilityState === 'visible') fetchSlots(); };
                 document.addEventListener('visibilitychange', onVisibilityChange);
 
                 return () => {
-                    if (unsubscribe && rtdb) rtdb.ref('live_slots').off('value', unsubscribe);
+                    window.removeEventListener('sovereign-packet', handlePacket);
                     clearInterval(itv);
                     document.removeEventListener('visibilitychange', onVisibilityChange);
                 };
-            }, [rtdb]);
+            }, []);
+
             return slots;
         };
 
@@ -2372,14 +2364,14 @@
             useEffect(() => {
                 // Primary: Realtime DB (Harmony)
                 let unsubscribe = null;
-                if (rtdb) {
+                if (sovereign_rtdb) {
                     try {
-                        const ref = rtdb.ref('system_state');
+                        const ref = sovereign_rtdb.ref('system_state');
                         unsubscribe = ref.on('value', (snapshot) => {
                             const val = snapshot.val();
                             if (val) setState(val);
                         });
-                    } catch (e) { console.error("System State RTDB Error:", e); }
+                    } catch (e) { console.error("System State sovereign_rtdb Error:", e); }
                 }
 
                 // Secondary: REST Polling Fallback (ensures status is never stuck)
@@ -2388,7 +2380,7 @@
                         const res = await fetch(API_BASE + '/api/system/state');
                         if (res.ok) {
                             const val = await res.json();
-                            // Only update if RTDB hasn't updated recently or we are still on default
+                            // Only update if sovereign_rtdb hasn't updated recently or we are still on default
                             setState(prev => {
                                 if (!prev.updated_at || (val.updated_at && val.updated_at > prev.updated_at)) {
                                     return val;
@@ -2403,10 +2395,10 @@
                 const itv = setInterval(fetchFallback, 45000); // [V110.138] Relaxed to 45s
                 
                 return () => {
-                    if (unsubscribe && rtdb) rtdb.ref('system_state').off('value', unsubscribe);
+                    if (unsubscribe && sovereign_rtdb) sovereign_rtdb.ref('system_state').off('value', unsubscribe);
                     clearInterval(itv);
                 };
-            }, [rtdb]);
+            }, [sovereign_rtdb]);
 
             return state;
         };
@@ -2417,11 +2409,11 @@
             const [moonbags, setMoonbags] = useState([]);
 
             useEffect(() => {
-                // Primary: RTDB for instant updates
+                // Primary: sovereign_rtdb for instant updates
                 let unsubscribe = null;
-                if (rtdb) {
+                if (sovereign_rtdb) {
                     try {
-                        const ref = rtdb.ref('moonbag_vault');
+                        const ref = sovereign_rtdb.ref('moonbag_vault');
                         unsubscribe = ref.on('value', (snapshot) => {
                             const val = snapshot.val();
                             if (val) {
@@ -2436,7 +2428,7 @@
                             }
                         });
                     } catch (e) {
-                        console.error("Moonbags RTDB Error:", e);
+                        console.error("Moonbags sovereign_rtdb Error:", e);
                     }
                 }
 
@@ -2446,7 +2438,7 @@
                         const resp = await fetch('/api/moonbags');
                         if (resp.ok) {
                             const data = await resp.json();
-                            // Só atualiza via REST se não tivermos dados do RTDB recentemente
+                            // Só atualiza via REST se não tivermos dados do sovereign_rtdb recentemente
                             setMoonbags(prev => (prev.length === 0 ? data : prev));
                         }
                     } catch (e) {
@@ -2457,29 +2449,29 @@
                 fetchMoonbags();
                 const interval = setInterval(fetchMoonbags, 45000); // [V110.138] Relaxed to 45s
                 return () => {
-                    if (unsubscribe && rtdb) rtdb.ref('moonbag_vault').off('value', unsubscribe);
+                    if (unsubscribe && sovereign_rtdb) sovereign_rtdb.ref('moonbag_vault').off('value', unsubscribe);
                     clearInterval(interval);
                 };
-            }, [rtdb]);
+            }, [sovereign_rtdb]);
 
             return moonbags;
         };
 
-        // --- Hook: [V110.165] Librarian Intelligence RTDB ---
+        // --- Hook: [V110.165] Librarian Intelligence sovereign_rtdb ---
         const useLibrarianRT = () => {
             const [data, setData] = useState({ top_rankings: {}, spring_elite: [], status: 'IDLE', updated_at: 0 });
 
             useEffect(() => {
-                if (!rtdb) return;
+                if (!sovereign_rtdb) return;
                 try {
-                    const ref = rtdb.ref('librarian_intelligence');
+                    const ref = sovereign_rtdb.ref('librarian_intelligence');
                     const onValue = ref.on('value', (snapshot) => {
                         const val = snapshot.val();
                         if (val) setData(val);
                     });
                     return () => ref.off('value', onValue);
                 } catch (e) { }
-            }, [rtdb]);
+            }, [sovereign_rtdb]);
 
             return data;
         };
@@ -2493,9 +2485,9 @@
             const lastUpdateRef = useRef(Date.now());
 
             useEffect(() => {
-                if (!rtdb) return;
+                if (!sovereign_rtdb) return;
                 try {
-                    const ref = rtdb.ref('market_radar');
+                    const ref = sovereign_rtdb.ref('market_radar');
                     const onValue = ref.on('value', (snapshot) => {
                         const val = snapshot.val();
                         if (val) {
@@ -2507,8 +2499,8 @@
                         }
                     });
                     return () => ref.off('value', onValue);
-                } catch (e) { console.error("Radar RTDB Error:", e); }
-            }, [rtdb]);
+                } catch (e) { console.error("Radar sovereign_rtdb Error:", e); }
+            }, [sovereign_rtdb]);
 
             // V12.2: REST Fallback Polling (15s) [V28.5.3] Removed conditional block
             useEffect(() => {
@@ -3636,9 +3628,9 @@
 
             // V15.0: Real-time Chat Listener (Instant & Resilient for Mobile)
             useEffect(() => {
-                if (typeof rtdb === 'undefined' || !rtdb) return;
+                if (typeof sovereign_rtdb === 'undefined' || !sovereign_rtdb) return;
 
-                const chatRef = rtdb.ref('chat_history');
+                const chatRef = sovereign_rtdb.ref('chat_history');
                 const onValue = chatRef.limitToLast(30).on('value', (snapshot) => {
                     const data = snapshot.val();
                     if (data) {
@@ -3655,7 +3647,7 @@
                 });
 
                 return () => chatRef.off('value', onValue);
-            }, [rtdb]);
+            }, [sovereign_rtdb]);
 
             // Filter Oracle chat logs (Deprecated in V15.0 since logs only contain chat)
             const oracleLogs = logs;
@@ -4859,7 +4851,7 @@
                                 <h3 className="text-[10px] font-black uppercase tracking-widest text-gray-600">Telemetry</h3>
                                 <div className="h-32 bg-black/30 rounded-xl p-3 overflow-y-auto no-scrollbar font-mono text-[9px] text-gray-500 space-y-1">
                                     <div className="flex gap-2 opacity-50"><span className="text-white">√</span> Ready.</div>
-                                    <div className="flex gap-2"><span className="text-white">&gt;</span> RTDB: {latency}ms</div>
+                                    <div className="flex gap-2"><span className="text-white">&gt;</span> sovereign_rtdb: {latency}ms</div>
                                     <div className="flex gap-2"><span className="text-white">&gt;</span> Oracle: {unifiedRegime}</div>
                                 </div>
                             </section>
@@ -5101,7 +5093,7 @@
             const btcCommandStatus = useBtcCommandCenter();
             const moonbags = useMoonbagsRT();
                         const systemState = useSystemState();
-            const librarianIntel = useLibrarianIntelRT();
+            const librarianIntel = useLibrarianRT();
 
             // V110.32.1: Robust Telemetry Fallback for Cockpit UI
             const btcCtx = pulseData?.market_context || btcCommandStatus || {};
