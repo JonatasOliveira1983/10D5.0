@@ -106,6 +106,8 @@ class BybitREST:
                         local_symbols = {p.get("symbol") for p in self.paper_positions}
                         for f_slot in firestore_slots:
                             symbol = f_slot.get("symbol")
+                            if symbol and "FARTCOIN" in symbol:
+                                continue # FARTCOIN is dead, never recover it
                             if symbol and symbol not in local_symbols:
                                 logger.warning(f"🚑 [V110.61 AMNESIA-GUARD] Recuperando ordem órfã do Firestore: {symbol}")
                                 # Reconstuir objeto de posição Paper compatível com Bybit v5 Schema Fake
