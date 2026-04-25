@@ -37,6 +37,7 @@ class FlowSentinel(AIOSAgent):
         while self.is_running:
             try:
                 await self.perform_integrity_audit()
+                await self.perform_self_healing() # [V110.230] Continuous Sync Guard
             except Exception as e:
                 logger.error(f"FlowSentinel Audit Error: {e}")
             await asyncio.sleep(self.audit_interval)
@@ -91,6 +92,40 @@ class FlowSentinel(AIOSAgent):
         for s in slots:
             if s.get("symbol") and not s.get("genesis_id"):
                 logger.warning(f"⚠️ FlowSentinel: Slot {s['id']} ({s['symbol']}) is active but lacks a Genesis ID!")
+
+    async def perform_self_healing(self):
+        """
+        [V110.230] SELF-HEALING: Compara a memória (cache) com o banco de dados.
+        Se houver divergência, o banco manda na memória e o WebSocket atualiza a UI.
+        """
+        try:
+            db_slots = await database_service.get_active_slots()
+            if not db_slots: return
+            
+            mem_slots = sovereign_service.slots_cache
+            divergence = False
+            
+            for db_s in db_slots:
+                slot_id = db_s.get("id")
+                # Encontra o slot correspondente na memória
+                mem_s = next((s for s in mem_slots if s["id"] == slot_id), None)
+                
+                if mem_s:
+                    # Compara o símbolo (o indicador mais básico de ocupação)
+                    if mem_s.get("symbol") != db_s.get("symbol"):
+                        logger.warning(f"🔧 FlowSentinel: DIVERGENCE DETECTED on Slot {slot_id}! Memory: {mem_s.get('symbol')} vs DB: {db_s.get('symbol')}")
+                        divergence = True
+                        break
+            
+            if divergence:
+                logger.info("🛠️ FlowSentinel: Executing Self-Healing Sync...")
+                await sovereign_service.initialize() # Recarrega do banco
+                from services.websocket_service import websocket_service
+                await websocket_service.emit_slots(sovereign_service.slots_cache)
+                logger.info("✅ FlowSentinel: System state healed and broadcasted.")
+                
+        except Exception as e:
+            logger.error(f"FlowSentinel Self-Healing Error: {e}")
 
 # Singleton
 flow_sentinel = FlowSentinel()

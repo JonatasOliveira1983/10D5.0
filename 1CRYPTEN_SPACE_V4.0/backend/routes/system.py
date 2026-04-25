@@ -164,3 +164,54 @@ async def get_system_settings():
         "testnet": settings.BYBIT_TESTNET,
         "server_time": datetime.datetime.now(datetime.timezone.utc).isoformat()
     }
+
+@router.post("/system/nuclear-reset", dependencies=[Depends(verify_api_key)])
+async def nuclear_reset():
+    """
+    [V110.230] NUCLEAR RESET: Limpa TODAS as ordens e reseta a banca para $100.
+    Garante sincronia total entre Postgres, Memória e UI.
+    """
+    try:
+        from services.sovereign_service import sovereign_service
+        from services.database_service import database_service
+        from services.websocket_service import websocket_service
+        
+        logger.warning("☢️ NUCLEAR RESET TRIGGERED! Cleaning all layers...")
+        
+        # 1. Reset Postgres (Banca)
+        await database_service.update_banca_status({
+            "saldo_total": 100.0,
+            "risco_real_percent": 0.0,
+            "slots_disponiveis": 4,
+            "status": "OPERATIONAL"
+        })
+        
+        # 2. Reset Postgres (Slots)
+        for i in range(1, 5):
+            await database_service.update_slot(i, {
+                "symbol": None,
+                "entry_price": 0,
+                "current_stop": 0,
+                "status_risco": "LIVRE",
+                "pnl_percent": 0,
+                "genesis_id": None
+            })
+            
+        # 3. Reset Memória (Sovereign Cache)
+        await sovereign_service.initialize()
+        
+        # 4. Broadcast via WebSocket
+        await websocket_service.emit_slots(sovereign_service.slots_cache)
+        await websocket_service.emit_banca_status({
+            "saldo_total": 100.0,
+            "risco_real_percent": 0.0,
+            "slots_disponiveis": 4,
+            "status": "OPERATIONAL"
+        })
+        
+        logger.info("✅ NUCLEAR RESET COMPLETE. System at baseline.")
+        return {"status": "success", "message": "Nuclear Reset Complete. All systems at baseline."}
+        
+    except Exception as e:
+        logger.error(f"❌ Nuclear Reset Failed: {e}")
+        return {"status": "error", "message": str(e)}
