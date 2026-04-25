@@ -433,7 +433,7 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                             <h2 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">Patrimônio Líquido</h2>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-3xl font-black text-white font-mono">${liveEquity.toFixed(2)}</span>
-                                <span className={`text-xs font-bold ${liveTotalPnL >= 0 ? 'text-white' : 'text-orange-400'}`}>
+                                <span className={`text-xs font-bold ${liveTotalPnL >= 0 ? 'text-green-500' : 'text-orange-400'}`}>
                                     {liveTotalPnL >= 0 ? '+' : ''}{liveTotalPnL.toFixed(2)}
                                 </span>
                             </div>
@@ -448,7 +448,7 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
                             <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Resultado Global</span>
-                            <p className={`text-lg font-black font-mono ${liveTotalProfit >= 0 ? 'text-white' : 'text-orange-400'}`}>
+                            <p className={`text-lg font-black font-mono ${liveTotalProfit >= 0 ? 'text-green-500' : 'text-orange-400'}`}>
                                 ${liveTotalProfit >= 0 ? '+' : ''}{liveTotalProfit.toFixed(2)}
                             </p>
                         </div>
@@ -456,7 +456,7 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                             <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Integridade</span>
                             <div className="flex items-center justify-end gap-2">
                                 <span className="text-lg font-black font-mono text-white">{hullIntegrityPct.toFixed(1)}%</span>
-                                <div className={`w-2 h-2 rounded-full ${isDrawdown ? 'bg-orange-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 'bg-lime-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'}`}></div>
+                                <div className={`w-2 h-2 rounded-full ${isDrawdown ? 'bg-orange-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]'}`}></div>
                             </div>
                         </div>
                     </div>
@@ -468,7 +468,7 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                         </div>
                         <div className="w-full bg-gray-900 h-1.5 rounded-full overflow-hidden p-[1px]">
                             <div 
-                                className={`h-full transition-all duration-1000 ${isDrawdown ? 'bg-orange-500' : 'bg-lime-500'}`} 
+                                className={`h-full transition-all duration-1000 ${isDrawdown ? 'bg-orange-500' : 'bg-green-500'}`} 
                                 style={{ width: `${hullIntegrityPct}%` }}
                             ></div>
                         </div>
@@ -2809,10 +2809,10 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                         </div>
                         
                         <div className="flex flex-col items-end">
-                            <span className={`text-3xl font-black font-mono leading-none ${isProfit ? 'text-accent' : 'text-danger'}`} style={{ textShadow: isProfit ? '0 0 15px rgba(217,249,157,0.3)' : '0 0 15px rgba(239,68,68,0.2)' }}>
+                            <span className={`text-3xl font-black font-mono leading-none ${isProfit ? 'text-green-500' : 'text-danger'}`} style={{ textShadow: isProfit ? '0 0 15px rgba(34,197,94,0.3)' : '0 0 15px rgba(239,68,68,0.2)' }}>
                                 {isProfit ? '+' : ''}{displayPnl.toFixed(1)}%
                             </span>
-                            <span className={`text-[11px] font-bold font-mono mt-1 ${isProfit ? 'text-accent' : 'text-danger'} opacity-80`}>
+                            <span className={`text-[11px] font-bold font-mono mt-1 ${isProfit ? 'text-green-500' : 'text-danger'} opacity-80`}>
                                 {isProfit ? '+' : '-'}${Math.abs((displayPnl / 100) * (s.margin || (s.bankroll * 0.1) || 10)).toFixed(2)}
                             </span>
                         </div>
@@ -2840,11 +2840,10 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                         </div>
                     </div>
 
-                    {/* Progress Bar (Wick) */}
                     {isActive && (
                         <div className="absolute bottom-0 left-0 h-1 bg-white/5 w-full">
                             <div 
-                                className="h-full transition-all duration-1000 bg-accent shadow-[0_0_8px_#d9f99d]" 
+                                className="h-full transition-all duration-1000 bg-green-500 shadow-[0_0_8px_#22c55e]" 
                                 style={{ width: `${Math.min(wickIntensity * 100, 100)}%` }}
                             ></div>
                         </div>
@@ -3316,9 +3315,9 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                     
                     <div className="flex items-center gap-8">
                         {/* BTC & REGIME CORE */}
-                        <div className="flex items-center gap-3 bg-white/[0.02] px-4 py-1.5 rounded-xl border border-white/5 hover:border-accent/20 transition-all">
-                             <div className={`w-7 h-7 rounded-full flex items-center justify-center border transition-all duration-1000 ${isStabilizing ? 'bg-amber-500/10 border-amber-500/20' : 'bg-accent/5 border-accent/10'}`}>
-                                <span className={`material-icons-round text-sm ${isStabilizing ? 'text-amber-500 animate-spin' : 'text-accent drop-shadow-[0_0_5px_rgba(217,249,157,0.4)]'}`}>
+                        <div className="flex items-center gap-3 bg-white/[0.02] px-4 py-1.5 rounded-xl border border-white/5 hover:border-green-500/20 transition-all">
+                             <div className={`w-7 h-7 rounded-full flex items-center justify-center border transition-all duration-1000 ${isStabilizing ? 'bg-amber-500/10 border-amber-500/20' : 'bg-green-500/5 border-green-500/10'}`}>
+                                <span className={`material-icons-round text-sm ${isStabilizing ? 'text-amber-500 animate-spin' : 'text-green-500 drop-shadow-[0_0_5px_rgba(34,197,94,0.4)]'}`}>
                                     {isStabilizing ? 'hourglass_top' : 'auto_awesome'}
                                 </span>
                             </div>
@@ -3604,11 +3603,11 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                                         <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${rankColor} bg-white/5 border border-white/10`}>{fleetRank}</span>
                                     </div>
                                     <div className="relative z-10 space-y-1">
-                                        <span className={`text-4xl font-black font-display tracking-tighter ${liveTotalProfit >= 0 ? 'text-accent' : 'text-danger'}`} style={{ textShadow: liveTotalProfit >= 0 ? '0 0 15px rgba(217,249,157,0.3)' : '0 0 15px rgba(239,68,68,0.2)' }}>
+                                        <span className={`text-4xl font-black font-display tracking-tighter ${liveTotalProfit >= 0 ? 'text-green-500' : 'text-danger'}`} style={{ textShadow: liveTotalProfit >= 0 ? '0 0 15px rgba(34,197,94,0.3)' : '0 0 15px rgba(239,68,68,0.2)' }}>
                                             ${liveEquity.toFixed(2)}
                                         </span>
                                         <div className="flex items-center gap-2">
-                                            <span className={`text-xs font-bold ${liveTotalProfit >= 0 ? 'text-accent' : 'text-danger'}`}>
+                                            <span className={`text-xs font-bold ${liveTotalProfit >= 0 ? 'text-green-500' : 'text-danger'}`}>
                                                 {liveTotalProfit >= 0 ? '+' : '-'}${Math.abs(liveTotalProfit).toFixed(2)}
                                             </span>
                                             <span className="text-[10px] font-bold text-gray-600 uppercase tracking-tighter">Current Session</span>
