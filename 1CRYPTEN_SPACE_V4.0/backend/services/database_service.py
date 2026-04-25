@@ -177,7 +177,8 @@ class DatabaseService:
                     session.add(obj)
                 else:
                     for key, value in data.items():
-                        setattr(obj, key, value)
+                        if hasattr(obj, key):
+                            setattr(obj, key, value)
                 await session.commit()
                 
                 # V110.175: Broadcast imediato do saldo para o Cockpit

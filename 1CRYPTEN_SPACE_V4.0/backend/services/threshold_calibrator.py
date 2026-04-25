@@ -71,7 +71,7 @@ class ThresholdCalibrator:
                 await sovereign_service.initialize()
             
             if sovereign_service.is_active:
-                doc = sovereign_service.get_doc("system/thresholds")
+                doc = await sovereign_service.get_doc("system/thresholds")
                 if doc and doc.get("exists"):
                     data = doc.get("data", {})
                     self.active_thresholds = data.get("active", DEFAULT_THRESHOLDS)
@@ -98,7 +98,7 @@ class ThresholdCalibrator:
                 "updated_at": time.time()
             }
             
-            sovereign_service.set_doc("system/thresholds", data)
+            await sovereign_service.set_doc("system/thresholds", data)
             logger.info(f"💾 [THRESH-CAL] Thresholds persistidos no Firestore")
             return True
         except Exception as e:
@@ -127,7 +127,7 @@ class ThresholdCalibrator:
             
             # Buscar trade_history dos últimos 7 dias
             seven_days_go = now - (7 * 86400)
-            trades = sovereign_service.get_collection("trade_history")
+            trades = await sovereign_service.get_collection("trade_history")
             
             # Filtrar trades recentes
             recent_trades = []

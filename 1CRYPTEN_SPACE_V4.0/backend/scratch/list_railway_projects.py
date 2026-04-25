@@ -29,6 +29,6 @@ def list_projects(token):
         return {"error": str(e)}
 
 if __name__ == "__main__":
-    token = "5dee6975-be12-4a3a-ac53-6dc851c0bf13"
+    token = "c2b33c6a-5b96-4ec4-93a5-f79e0319eb6e"
     result = list_projects(token)
     print(json.dumps(result, indent=2))

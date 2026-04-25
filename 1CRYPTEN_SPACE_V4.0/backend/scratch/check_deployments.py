@@ -2,23 +2,23 @@
 import requests
 import json
 
-def query_railway(token, project_id):
+def get_latest_deployments(token, service_id):
     url = "https://backboard.railway.com/graphql/v2"
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json"
     }
     
-    # Query simplificada para v2
     query = """
-    query GetProject($id: String!) {
-      project(id: $id) {
+    query GetDeployments($serviceId: String!) {
+      service(id: $serviceId) {
         name
-        services {
+        deployments {
           edges {
             node {
               id
-              name
+              status
+              createdAt
             }
           }
         }
@@ -26,20 +26,17 @@ def query_railway(token, project_id):
     }
     """
     
-    variables = {"id": project_id}
+    variables = {"serviceId": service_id}
     
     try:
         response = requests.post(url, headers=headers, json={"query": query, "variables": variables})
-        if response.status_code == 200:
-            return response.json()
-        else:
-            return {"error": response.status_code, "text": response.text}
+        return response.json()
     except Exception as e:
         return {"error": str(e)}
 
 if __name__ == "__main__":
     token = "c2b33c6a-5b96-4ec4-93a5-f79e0319eb6e"
-    project_id = "9ba72cc0-165c-453d-a176-2b9711eb33eb"
+    service_id = "ce913a1d-f8e3-428e-b657-1f38506d29ce" # 10D5.0
     
-    result = query_railway(token, project_id)
+    result = get_latest_deployments(token, service_id)
     print(json.dumps(result, indent=2))

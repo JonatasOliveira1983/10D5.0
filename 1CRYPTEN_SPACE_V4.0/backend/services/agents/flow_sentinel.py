@@ -86,13 +86,6 @@ class FlowSentinel(AIOSAgent):
         for s_id in resolved_ids:
             del self.pending_slots[s_id]
 
-    async def validate_active_flow(self):
-        """Heuristic check on currently active slots."""
-        slots = await sovereign_service.get_active_slots()
-        for s in slots:
-            if s.get("symbol") and not s.get("genesis_id"):
-                logger.warning(f"⚠️ FlowSentinel: Slot {s['id']} ({s['symbol']}) is active but lacks a Genesis ID!")
-
     async def perform_self_healing(self):
         """
         [V110.230] SELF-HEALING: Compara a memória (cache) com o banco de dados.
@@ -126,6 +119,10 @@ class FlowSentinel(AIOSAgent):
                 
         except Exception as e:
             logger.error(f"FlowSentinel Self-Healing Error: {e}")
+
+    async def on_message(self, message: Any):
+        """Implementação obrigatória da classe abstrata AIOSAgent."""
+        pass
 
 # Singleton
 flow_sentinel = FlowSentinel()
