@@ -1,7 +1,15 @@
-# MASTER_ARCHITECTURE.md — 10D Sniper V110.203
+# MASTER_ARCHITECTURE.md — 10D Sniper V110.208
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.208: SELF-HEALING & BLACK BOX PERSISTENCE [APR 24]**
+    - **Auto-Migration:** Implementação de migração automática de esquema no boot para corrigir divergências de colunas no Postgres.
+    - **Black Box Protocol:** Backup de emergência em JSON (`emergency_trades.json`) para garantir 100% de persistência caso o banco falhe.
+
+*   **V110.207: BRANDING RESTORATION & CACHE SHIELD [APR 24]**
+    - **Logo Restoration:** Reintegração do logo oficial `logo10DTrasp.png` com transparência nativa.
+    - **Cache-Busting V4:** Implementação de sufixos de versão nas imagens para forçar atualização em todos os navegadores.
 
 *   **V110.203: DATA INTEGRITY & ATOMIC ARCHIVAL [APR 24]**
     - **Atomic free_slot:** Refatoração do método de liberação de slots para arquivar obrigatoriamente trades no histórico antes da limpeza.

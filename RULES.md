@@ -1,18 +1,18 @@
-# RULES.md — 10D Sniper V110.203 "Atomic Persistence Architecture"
-# Invariantes Tecnicas Inegociaveis — [BLINDAGEM DE DADOS DEFINITIVA]
+# RULES.md — 10D Sniper V110.208 "Self-Healing Architecture"
+# Invariantes Tecnicas Inegociaveis — [PERSISTÊNCIA ABSOLUTA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
 # Fonte da verdade: codigo real no Railway e PostgreSQL/WebSocket Nativo.
 
 ---
 
-## 🛡️ PROTOCOLO DE BLINDAGEM V110.203 (CRÍTICO)
-1. **ARQUIVAMENTO ATÔMICO:** É terminantemente proibido limpar um slot (`free_slot` / `hard_reset_slot`) sem antes arquivar o estado completo da ordem (PnL, Entry, Exit, Genesis ID) na tabela `trade_history`.
-2. **PERSISTÊNCIA DE BOOT:** O sistema DEVE sincronizar todos os slots ativos do banco de dados PostgreSQL durante a inicialização (`main.py`). Pular a sincronia de slots no boot é proibido para evitar perda de trades durante deploys.
-3. **SOVEREIGN SSOT:** O PostgreSQL (Railway) é a autoridade absoluta. Caches locais devem ser revalidados contra o DB em cada mudança de estado.
+## 🛡️ PROTOCOLO DE BLINDAGEM V110.208 (CRÍTICO)
+1. **AUTO-CURA DE BANCO:** O sistema deve realizar migrações automáticas de esquema no boot. Qualquer divergência de coluna deve ser corrigida via script `migrate_db.py` integrado ao `main.py`.
+2. **CAIXA PRETA DE EMERGÊNCIA:** Se o registro de um trade no banco de dados falhar, o sistema DEVE salvar o payload completo em `emergency_trades.json`. Perder dados de lucro por erro de DB é uma violação gravíssima.
+3. **ARQUIVAMENTO ATÔMICO:** É terminantemente proibido limpar um slot sem antes garantir o arquivamento (seja no DB ou na Caixa Preta).
 
 ---
 
-## ⚡ 10D BYBITY REAL 4.0 — PROTOCOLO DE ELITE — V110.203
+## ⚡ 10D BYBITY REAL 4.0 — PROTOCOLO DE ELITE — V110.208
 ## REGRA 00 — REPOSITÓRIO ÚNICO E OFICIAL
 1. **REPO ÚNICO:** O único repositório oficial para este sistema é: `https://github.com/JonatasOliveira1983/10D5.0/`.
 2. **DEPRECATED:** O repositório `10DBybityREAL` foi desativado e não deve mais ser utilizado para push ou sincronização.
