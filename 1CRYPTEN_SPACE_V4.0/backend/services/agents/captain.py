@@ -873,7 +873,7 @@ class CaptainAgent(AIOSAgent):
                     logger.warning(msg)
                     await sovereign_service.log_event("SENTINELA", msg, "WARNING")
                     await sovereign_service.update_signal_outcome(best_signal["id"], "LAZY_LATERAL_BLOCK")
-                    self.active_tocaias.discard((symbol or " \).replace(\.P\, \\).upper())
+                    self.active_tocaias.discard((symbol or "").replace(".P", "").upper())
                     return
 
             # --- [V110.100.1] WHALE BYPASS (APENAS SE MERCADO GLOBAL PERMITIR) ---
@@ -902,7 +902,7 @@ class CaptainAgent(AIOSAgent):
                     await sovereign_service.log_event("SENTINELA", msg, "WARNING")
                     if best_signal.get("id"):
                         await sovereign_service.update_signal_outcome(best_signal["id"], "ABSOLUTE_LATERAL_BLOCK")
-                    self.active_tocaias.discard((symbol or " \).replace(\.P\, \\).upper())
+                    self.active_tocaias.discard((symbol or "").replace(".P", "").upper())
                     return
 
 
@@ -918,7 +918,7 @@ class CaptainAgent(AIOSAgent):
                 await sovereign_service.log_event("CAPTAIN", msg, "INFO")
                 if best_signal.get("id"):
                     await sovereign_service.update_signal_outcome(best_signal["id"], "VANGUARD_LOW_SCORE")
-                self.active_tocaias.discard((symbol or " \).replace(\.P\, \\).upper())
+                self.active_tocaias.discard((symbol or "").replace(".P", "").upper())
                 return
             elif is_blitz and "VANGUARD" in nectar_seal:
                 logger.info(f"⚡ [BLITZ-VANGUARD-BYPASS] {symbol} ({score}) permitido apesar de ser Vanguard (Blitz Sniper prioritário).")
@@ -930,7 +930,7 @@ class CaptainAgent(AIOSAgent):
                 await sovereign_service.log_event("CAPTAIN", msg, "WARNING")
                 if best_signal.get("id"):
                     await sovereign_service.update_signal_outcome(best_signal["id"], "LIBRARIAN_TRAP_BLOCK")
-                self.active_tocaias.discard((symbol or " \).replace(\.P\, \\).upper())
+                self.active_tocaias.discard((symbol or "").replace(".P", "").upper())
                 return
 
             # --- [V110.135] QUARTERMASTER ARMORY CHECK ---
@@ -945,7 +945,7 @@ class CaptainAgent(AIOSAgent):
                 logger.warning(msg)
                 await sovereign_service.log_event("QUARTERMASTER", msg, "WARNING")
                 await sovereign_service.update_signal_outcome(best_signal["id"], "QUARTERMASTER_BLOCK")
-                self.active_tocaias.discard((symbol or " \).replace(\.P\, \\).upper())
+                self.active_tocaias.discard((symbol or "").replace(".P", "").upper())
                 return
             
             # Injeta parâmetros de alavancagem adaptativa no sinal
@@ -992,7 +992,7 @@ class CaptainAgent(AIOSAgent):
                     logger.warning(msg)
                     await sovereign_service.log_event("CAPTAIN", msg, "WARNING")
                     await sovereign_service.update_signal_outcome(best_signal["id"], "MACRO_3D_DIRECTION_BLOCK")
-                    self.active_tocaias.discard((symbol or " \).replace(\.P\, \\).upper())
+                    self.active_tocaias.discard((symbol or "").replace(".P", "").upper())
                     return
                 else:
                     logger.info(f"🎯 [V110.128 BYPASS] Permitindo {symbol} ({side}) contra-tendência por critérios de Elite (Score >= 95).")
@@ -1022,7 +1022,7 @@ class CaptainAgent(AIOSAgent):
                     if bybit_rest_service.execution_mode == "PAPER":
                         if any(p.get("symbol") == symbol for p in bybit_rest_service.paper_positions):
                             logger.error(f"🛑 [CRITICAL-DUP-SHIELD] {symbol} detectado em PaperPositions durante processamento. Abortando execuçao tardia.")
-                            self.active_tocaias.discard((symbol or " \).replace(\.P\, \\).upper())
+                            self.active_tocaias.discard((symbol or "").replace(".P", "").upper())
                             return
 
                     allow_momentum = False
@@ -1060,7 +1060,7 @@ class CaptainAgent(AIOSAgent):
                         msg = f"⏭️ {symbol} rejeitado: SCORE={score} em LAYER={signal_layer} | Regime: {market_regime} | ADX: {current_btc_adx:.1f}"
                         logger.info(msg)
                         await sovereign_service.update_signal_outcome(best_signal["id"], "MOMENTUM_BLOCKED")
-                        self.active_tocaias.discard((symbol or " \).replace(\.P\, \\).upper()) # [FIX] Liberar tocaia no descarte
+                        self.active_tocaias.discard((symbol or "").replace(".P", "").upper()) # [FIX] Liberar tocaia no descarte
                         return
 
             # --- [LATERALIZAÇÃO INJECTION V41.2] ---
@@ -1092,7 +1092,7 @@ class CaptainAgent(AIOSAgent):
                 else:
                     logger.info(f"⏱️ {symbol} no cooldown (score {score} < 95). Abortando.")
                     await sovereign_service.update_signal_outcome(best_signal["id"], "COOLDOWN_SKIP")
-                    self.active_tocaias.discard((symbol or " \).replace(\.P\, \\).upper())
+                    self.active_tocaias.discard((symbol or "").replace(".P", "").upper())
                     return
 
             # 1.2 [V43.0] Get Fleet Consensus
@@ -1123,7 +1123,7 @@ class CaptainAgent(AIOSAgent):
                 # [V110.27.0] Log critical rejection to events for user visibility
                 await sovereign_service.log_event("SENTINELA", f"Caçada abortada para {symbol}: {reason}", "WARNING")
                 await sovereign_service.update_signal_outcome(best_signal["id"], f"FLEET_REJECTED: {reason}")
-                self.active_tocaias.discard((symbol or " \).replace(\.P\, \\).upper())
+                self.active_tocaias.discard((symbol or "").replace(".P", "").upper())
                 return
             
             # Proceed with Whale-Bonus and Space Checks [V110.12.9]
@@ -1141,7 +1141,7 @@ class CaptainAgent(AIOSAgent):
                 logger.warning(msg)
                 await sovereign_service.log_event("CAPTAIN", msg, "WARNING")
                 await sovereign_service.update_signal_outcome(best_signal["id"], "TRAP_PRONE_MACRO_LOW")
-                self.active_tocaias.discard((symbol or " \).replace(\.P\, \\).upper())
+                self.active_tocaias.discard((symbol or "").replace(".P", "").upper())
                 return
 
             # 2. ASSET TREND GUARD: Verifica sincronia com a tendência H4 do próprio ativo
@@ -1156,7 +1156,7 @@ class CaptainAgent(AIOSAgent):
                 logger.warning(msg)
                 await sovereign_service.log_event("CAPTAIN", msg, "WARNING")
                 await sovereign_service.update_signal_outcome(best_signal["id"], "ASSET_COUNTER_TREND_BLOCK")
-                self.active_tocaias.discard((symbol or " \).replace(\.P\, \\).upper())
+                self.active_tocaias.discard((symbol or "").replace(".P", "").upper())
                 return
             
             # [V68.0] ENGINE SPACE CHECK (POTENTIAL AUDIT)
@@ -1170,7 +1170,7 @@ class CaptainAgent(AIOSAgent):
                     msg = f"🚫 [V68.0 ENGINE SPACE] Rejeitado: Espaço de manobra insuficiente."
                     logger.warning(msg)
                     await sovereign_service.update_signal_outcome(best_signal["id"], "ENGINE_SPACE_REJECTED")
-                    self.active_tocaias.discard((symbol or " \).replace(\.P\, \\).upper())
+                    self.active_tocaias.discard((symbol or "").replace(".P", "").upper())
                     return
 
             is_mean_rev = best_signal.get("is_mean_reversion", False)
@@ -1274,7 +1274,7 @@ class CaptainAgent(AIOSAgent):
                     logger.warning(msg)
                     await sovereign_service.update_signal_outcome(best_signal["id"], "AMBUSH_TIMEOUT")
                     # Liberamos o slot interno de monitoramento
-                    self.active_tocaias.discard((symbol or " \).replace(\.P\, \\).upper())
+                    self.active_tocaias.discard((symbol or "").replace(".P", "").upper())
                     return
                 
                 logger.info(f"🔥 [AMBUSH-TRIGGERED] {symbol} {side} lambeu a zona de emboscada! Prosseguindo para validação final.")
@@ -1304,7 +1304,7 @@ class CaptainAgent(AIOSAgent):
                     rejection = price_check.get("rejection_type", "UNKNOWN")
                     logger.info(f"⏭️ [PULLBACK HUNTER] {symbol} REJEITADO: {rejection}")
                     await sovereign_service.update_signal_outcome(best_signal["id"], f"{rejection}")
-                    self.active_tocaias.discard((symbol or " \).replace(\.P\, \\).upper())
+                    self.active_tocaias.discard((symbol or "").replace(".P", "").upper())
                     return
 
                 await sovereign_service.update_signal_outcome(
