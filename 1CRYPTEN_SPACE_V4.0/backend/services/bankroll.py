@@ -1871,32 +1871,28 @@ class BankrollManager:
             trades = await database_service.get_trade_history(limit=100)
             
             # Filtro das últimas 24h
-            from datetime import datetime, timezone, timedelta
-            start_24h = datetime.now(timezone.utc) - timedelta(hours=24)
+            from datetime import datetime, timedelta
+            # SSOT: Usamos naive UTC para bater com o banco de dados
+            start_24h = datetime.utcnow() - timedelta(hours=24)
             
             recent_trades = []
             for t in trades:
                 t_time = t.get("timestamp")
                 if isinstance(t_time, str):
-                    t_time = datetime.fromisoformat(t_time.replace('Z', '+00:00'))
+                    try:
+                        # Convert string to aware then remove tzinfo to make it naive
+                        from datetime import timezone
+                        t_time = datetime.fromisoformat(t_time.replace('Z', '+00:00')).replace(tzinfo=None)
+                    except:
+                        continue
                 
+                # Comparação entre naive datetimes
                 if t_time and t_time >= start_24h:
                     recent_trades.append(t)
             
             gains_count = sum(1 for t in recent_trades if float(t.get("pnl", 0)) > 0)
             loss_count = sum(1 for t in recent_trades if float(t.get("pnl", 0)) < 0)
             total_pnl = sum(float(t.get("pnl", 0)) for t in recent_trades)
-            
-            return {
-                "gains_count": gains_count,
-                "loss_count": loss_count,
-                "total_pnl": round(total_pnl, 2),
-                "target_gains": 10,
-                "progress_pct": min(round((gains_count / 10) * 100, 1), 100)
-            }
-        except Exception as e:
-            logger.error(f"Error calculating daily performance: {e}")
-            return {"gains_count": 0, "loss_count": 0, "total_pnl": 0, "target_gains": 10, "progress_pct": 0}
             
             return {
                 "gains_count": gains_count,

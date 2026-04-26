@@ -2512,7 +2512,7 @@ class SignalGenerator:
                     "IMXUSDT.P", "FTMUSDT.P", "STXUSDT.P", "BEAMUSDT.P", "PYTHUSDT.P",
                     # Expanded Elite +20
                     "SOLUSDT.P", "ETHUSDT.P", "XRPUSDT.P", "XLMUSDT.P", "WIFUSDT.P",
-                    "BONKUSDT.P", "SHIB1000USDT.P", "ATOMUSDT.P", "FILUSDT.P", "STMXUSDT.P",
+                    "SHIB1000USDT.P", "ATOMUSDT.P", "FILUSDT.P", "STMXUSDT.P",
                     "JUPUSDT.P", "STRKUSDT.P", "DYDXUSDT.P", "GMXUSDT.P", "CRVUSDT.P",
                     "LUNA2USDT.P", "EGLDUSDT.P", "GRTUSDT.P", "THETAUSDT.P", "VETUSDT.P"
                 ]

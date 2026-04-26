@@ -66,6 +66,9 @@ class BybitWS:
     def handle_trade_message(self, message):
         """[V110.50] Decoupled: Only injects into queue to keep WS thread fast."""
         try:
+            if not isinstance(message, dict):
+                logger.warning(f"⚠️ [BYBIT-WS] Received non-dict trade message: {message}")
+                return
             if self.loop and self.loop.is_running():
                 message["_type"] = "trade"
                 self.loop.call_soon_threadsafe(self.msg_queue.put_nowait, message)
@@ -121,6 +124,9 @@ class BybitWS:
     def handle_orderbook_message(self, message):
         """[V110.50] Decoupled into queue."""
         try:
+            if not isinstance(message, dict):
+                logger.warning(f"⚠️ [BYBIT-WS] Received non-dict orderbook message: {message}")
+                return
             if self.loop and self.loop.is_running():
                 message["_type"] = "orderbook"
                 self.loop.call_soon_threadsafe(self.msg_queue.put_nowait, message)
@@ -171,6 +177,9 @@ class BybitWS:
     def handle_ticker_message(self, message):
         """[V110.50] Decoupled into queue."""
         try:
+            if not isinstance(message, dict):
+                logger.warning(f"⚠️ [BYBIT-WS] Received non-dict ticker message: {message}")
+                return
             if self.loop and self.loop.is_running():
                 message["_type"] = "ticker"
                 self.loop.call_soon_threadsafe(self.msg_queue.put_nowait, message)
@@ -478,6 +487,13 @@ class BybitWS:
         monitored_symbols = symbols[:95]
         for symbol in monitored_symbols:
             api_symbol = symbol.replace(".P", "")
+            norm_sym = api_symbol.upper()
+            
+            # [V110.261] Blocklist Guard for WS subscriptions
+            if norm_sym in settings.ASSET_BLOCKLIST and norm_sym != "BTCUSDT":
+                logger.debug(f"🚫 [BYBIT-WS] Skipping subscription for {api_symbol} (Blocklisted)")
+                continue
+
             # Subscribe to trades for CVD calculation (V5 Public Linear)
             self.ws.trade_stream(symbol=api_symbol, callback=self.handle_trade_message)
             # Ticker stream for real-time price & normalization
@@ -522,6 +538,11 @@ class BybitWS:
         for s in to_add:
             try:
                 api_symbol = s.replace(".P", "")
+                norm_sym = api_symbol.upper()
+                
+                if norm_sym in settings.ASSET_BLOCKLIST and norm_sym != "BTCUSDT":
+                    continue
+
                 self.ws.trade_stream(symbol=api_symbol, callback=self.handle_trade_message)
                 self.ws.ticker_stream(symbol=api_symbol, callback=self.handle_ticker_message)
                 # [V55.0] Subscribe to orderbook
