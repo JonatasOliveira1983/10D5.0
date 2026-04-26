@@ -6,7 +6,7 @@
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
         name="viewport" />
 
-    <title>Sniper V110.125 — ELITE COMMAND</title>
+    <title>Sniper V110.182.4 — ELITE COMMAND</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="logo10DTrasp.png?v=4">
     <link rel="shortcut icon" type="image/png" href="logo10DTrasp.png?v=4">
@@ -596,6 +596,32 @@
 
         .custom-scrollbar::-webkit-scrollbar-track {
             background: transparent;
+        }
+
+        /* [V110.182.4] Eagle Vision PRO Animations */
+        @keyframes scanningLine {
+            0% { left: -10%; opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { left: 110%; opacity: 0; }
+        }
+        .scanning-effect {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.8), transparent);
+            animation: scanningLine 5s linear infinite;
+            pointer-events: none;
+            z-index: 50;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+        .telemetry-hud {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 4px 10px;
+            border-radius: 8px;
         }
 
         .custom-scrollbar::-webkit-scrollbar-thumb {
@@ -5137,7 +5163,7 @@
             const realAdx = btcAdx; 
             const dominance = btcCtx?.btc_dominance !== undefined ? btcCtx.btc_dominance : 45.0;
             const realDecorrelation = btcCtx?.decorrelation_avg !== undefined ? btcCtx.decorrelation_avg : null;
-            const protocolLabel = btcCommandStatus?.protocol || (systemState && systemState.protocol) || "Sniper V110.127";
+            const protocolLabel = btcCommandStatus?.protocol || (systemState && systemState.protocol) || "Sniper V110.182.4";
 
             // V110.34: Regime agora espelha EXATAMENTE a lógica do Capitão
             // Backend calcula: ADX >= 30 + convergência 15m/1h = UP/DOWN, senão LATERAL
@@ -6427,7 +6453,7 @@
 
             useEffect(() => {
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('/sw.js?v=110.182.3').then(reg => {
+                    navigator.serviceWorker.register('/sw.js?v=110.182.4').then(reg => {
                         // Detect updates
                         reg.addEventListener('updatefound', () => {
                             const newWorker = reg.installing;
@@ -6483,7 +6509,7 @@
                         <NavBar onLogout={handleLogout} />
                     </div>
                     
-                    {/* [V110.182.3] PWA Update Toast */}
+                    {/* [V110.182.4] PWA Update Toast */}
                     {showUpdate && (
                         <div className="fixed bottom-24 left-4 right-4 z-[100] animate-bounce">
                             <div className="glass border border-primary/40 p-4 rounded-2xl flex items-center justify-between shadow-2xl">
@@ -6492,7 +6518,7 @@
                                         <span className="material-icons-round text-white text-sm">system_update</span>
                                     </div>
                                     <div>
-                                        <h4 className="text-xs font-black text-white uppercase">Update Sniper V110.182.3</h4>
+                                        <h4 className="text-xs font-black text-white uppercase">Update Sniper V110.182.4</h4>
                                         <p className="text-[9px] text-gray-400 font-bold uppercase">Novas inteligências detectadas!</p>
                                     </div>
                                 </div>
