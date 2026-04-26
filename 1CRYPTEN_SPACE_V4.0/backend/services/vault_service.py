@@ -329,7 +329,8 @@ class VaultService:
             # V11.0: WIN_ROI_THRESHOLD define o mínimo para contar como vitória de ELITE
             win_threshold = getattr(settings, 'WIN_ROI_THRESHOLD', 80.0)
             is_high_roi_win = (roi or 0) >= win_threshold
-            is_pnl_positive = (pnl or 0) > 0
+            # [V4.0 FIX] User Rule: Only count as WIN if profit >= $10.0
+            is_pnl_positive = (pnl or 0) >= 10.0
             
             new_wins_count = current.get("cycle_gains_count", 0)
             new_losses_count = current.get("cycle_losses_count", 0)
@@ -543,7 +544,7 @@ class VaultService:
                 "sniper_wins": new_wins,
                 "cycle_profit": new_profit,
                 "cycle_losses": new_losses,
-                "cycle_gains_count": total_mega_wins % 10, # Align with 10-win cycle
+                "cycle_gains_count": len([t for t in trades if (t.get('pnl') or 0) >= 10.0]) % 10, # [V4.0 FIX] Align with $10 win rule
                 "cycle_losses_count": len([t for t in trades if (t.get('pnl') or 0) <= 0]),
                 "total_trades_cycle": total_trades_capped,
                 "used_symbols_in_cycle": list(used_symbols),

@@ -242,6 +242,9 @@ class DatabaseService:
                     sym = trade_data.get("symbol", "UNK")
                     genesis_id = f"RECOVERY-{sym[:4].upper()}-{int(now.timestamp())}"
                     logger.warning(f"⚠️ [GENESIS-GUARD] genesis_id ausente para {sym}. Usando fallback: {genesis_id}")
+                    # [V4.0 FIX] Preencher relatórios para evitar 'Relatório Inexistente' na UI
+                    trade_data["pensamento"] = "Protocolo de Emergência: Ordem sem DNA de Inteligência."
+                    trade_data["reasoning_report"] = "Esta ordem foi capturada pelo Sentinela via Protocolo de Recuperação. Devido a uma dessincronização ou fechamento manual, os dados originais do Oracle não foram vinculados."
                 
                 new_trade = TradeHistory(
                     order_id=str(trade_data.get("order_id") or f"ORD-{int(now.timestamp())}"),

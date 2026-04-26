@@ -1,39 +1,27 @@
-# RULES.md — 10D Sniper V110.256 "Sovereign Identifier & Syntax Recovery"
+# RULES.md — 10D Sniper V4.0 "Adaptive Intelligence"
 # Invariantes Tecnicas Inegociaveis — [PERSISTÊNCIA ABSOLUTA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
 # Fonte da verdade: codigo real no Railway e PostgreSQL/WebSocket Nativo.
 
 ---
 
-## 🛡️ PROTOCOLO DE BLINDAGEM V110.253 (CRÍTICO)
+## 🛡️ PROTOCOLO DE BLINDAGEM V4.0 (CRÍTICO)
 1. **AUTO-CURA DE BANCO:** O sistema realiza migrações automáticas de esquema no boot. Qualquer divergência de coluna deve ser corrigida via script integrado ao `database_service.py`.
-2. **TIMEZONE INTEGRITY (CRÍTICO):** É obrigatório o uso de `datetime.utcnow().replace(tzinfo=None)` ou `datetime.utcnow()` para todas as interações e comparações com o Postgres. **NUNCA** use `datetime.now(timezone.utc)` para comparações diretas com timestamps do banco, pois isso gera erro de "offset-naive vs offset-aware". SSOT: Naive UTC.
+2. **TIMEZONE INTEGRITY (CRÍTICO):** É obrigatório o uso de `datetime.utcnow().replace(tzinfo=None)` ou `datetime.utcnow()` para todas as interações e comparações com o Postgres. **NUNCA** use `datetime.now(timezone.utc)` para comparações diretas com timestamps do banco.
 3. **ARQUIVAMENTO ATÔMICO:** É terminantemente proibido limpar um slot sem antes garantir o arquivamento no Postgres via `database_service.log_trade`.
-4. **PAPER MODE ENFORCEMENT:** Em modo de teste, a variável `BYBIT_EXECUTION_MODE` deve ser injetada como `PAPER` no Railway para garantir o saldo simulado de $100.
+4. **META DE LUCRO 10/10:** O contador de progresso diário (Dashboard) e o contador de ciclos do Vault só incrementam se o lucro líquido da ordem (PNL) for **>= $10.00**.
 
 ---
 
-## ⚡ 10D BYBITY REAL 4.0 — PROTOCOLO DE ELITE — V110.251
+## ⚡ 10D BYBITY REAL 4.0 — PROTOCOLO DE ELITE
 ## REGRA 00 — REPOSITÓRIO ÚNICO E OFICIAL
-1. **REPO ÚNICO:** O único repositório oficial para este sistema é: `https://github.com/JonatasOliveira1983/10D5.0/`.
+1. **REPO ÚNICO:** O único repositório oficial para este sistema é: `https://github.com/JonatasOliveira1983/10DBybityREAL/`. (Nota: O usuário solicitou o push para `https://github.com/JonatasOliveira1983/10DBybityREAL/commits/main/`)
 2. **PUSH OBRIGATÓRIO:** Todo commit deve ser enviado para o branch `main` deste repositório para deploy automático no Railway.
 3. **URL DE COMANDO:** A UI oficial é acessível via `https://1crypten.space/`.
 
-### 5. PROTOCOLO DE INTEGRIDADE (V110.251)
-- **FlowSentinel**: Monitoramento contínuo de sinais e ordens via WebSocket nativo.
-- **Persistence First**: O saldo total é calculado como: `configured_balance (100) + sum(trade_history)`.
-- **Genesis Lock**: Nenhum trade pode existir sem um `genesis_id` válido (ex: `BLZ-PAPER-VIRTUAL-123`).
-
-## REGRA 0 — PROTOCOLO DE INFRAESTRUTURA RAILWAY (SOVEREIGN)
-1. **SSOT (Source of Truth):** O banco de dados primário é o **PostgreSQL (Railway)**. O `SovereignService` é o único orquestrador autorizado de persistência.
-2. **BROADCAST:** Toda comunicação com a UI é feita via **WebSocket Nativo (/ws/cockpit)**.
-3. **VAULT HISTORY:** O histórico de trades deve ser recuperado via `database_service` e exposto pela API `/api/history`. Retornar listas vazias na UI por falha de serviço soberano é inaceitável.
-4. **EMANCIPAÇÃO TOTAL:** O uso de Firebase/Firestore/RTDB foi **EXTINTO**. O sistema opera de forma 100% autônoma.
-
 ---
 
-## 1. SISTEMA DE SLOTS — ATRIBUICAO FIXA (V110.251)
-
+## 1. SISTEMA DE SLOTS — ATRIBUICAO FIXA
 | Slot | Tipo       | Estrategia   | Moonbag?                     | Leverage      |
 |------|------------|--------------|------------------------------|---------------|
 | 1    | BLITZ_30M  | BlitzSniper  | Condicional (pos 300% ROI)   | 50x fixo      |
@@ -41,138 +29,21 @@
 | 3    | SWING      | Harvester    | SIM (emancipa em 150% ROI)   | 50x fixo      |
 | 4    | SWING      | Harvester    | SIM (emancipa em 150% ROI)   | 50x fixo      |
 
-**REGRA:** Alavancagem de 50x é OBRIGATÓRIA para todos os slots para maximizar o potencial da banca Sniper.
-
-**Arquivo:** `bankroll.py::get_slot_type()`
-**REGRA:** Slots 1 e 2 sao EXCLUSIVOS para BlitzSniper. Nunca atribua outro tipo.
-**REGRA:** Sinais SWING nunca vao para Slots 1-2. Blitz nunca vai para Slots 3-4.
-**REGRA:** Collision Guard impede o mesmo ativo em mais de um slot simultaneamente via `paper_positions` e Postgres.
-
 ---
 
-## 2. GENESIS ID — PASSAPORTE DA ORDEM (V110.175 SOVEREIGN)
-
-**Arquivo:** `bankroll.py::open_position()`, `bybit_rest.py::place_atomic_order()`
-
-- **Geracao Instantanea:** O `genesis_id` e gerado no momento do nascimento da ordem, inclusive em Paper Mode.
-- **Formato Atomico:** `BLZ-{UUID6}-{SYM4}` (Blitz) / `SWG-{UUID6}-{SYM4}` (Swing)
-- **REGRA:** O `genesis_id` e persistido no **PostgreSQL** e transmitido via **WebSocket** imediatamente.
-- **REGRA:** genesis_id deve acompanhar a ordem ate o fechamento (inclusive no Moonbag se houver).
-- **REGRA [V110.175]:** Se as chaves Bybit estiverem ausentes, o sistema entra em **AUTO-PAPER MODE** e usa o ID local.
+## 2. DNA SPECIALIST & RESPIRO ADAPTATIVO (NOVO V4.0)
+1. **DNA Specialist:** O Bibliotecário (`Librarian`) analisa a intensidade de pavios (Wick Intensity) e a propensão de reteste.
+2. **Respiro de ROI:** Ativos "nervosos" possuem um buffer de respiro de até **25% de ROI**. O sistema não fecha a ordem imediatamente ao tocar o Stop se o Gás (CVD) estiver favorável e o desvio estiver dentro do buffer.
+3. **Breakeven Inteligente:** O gatilho para mover o Stop para a entrada (Risk-Free) é retardado em ativos com pavios longos. Em vez de 30% ROI, o sistema espera 50-60% ROI para evitar ser ejetado na "violinada" inicial.
+4. **Paciência Diplomática:** O Sentinela concede até 90 segundos de carência se o fluxo monetário sustentar a posição, mesmo com o preço abaixo do Stop técnico.
 
 ---
-
-## 3. BLITZ SNIPER — DOUTRINA DAS 10 (V110.175)
-
-**Doutrina Blitz Sniper (Slots 1 e 2 — v110.175)**
-*Status: OPERATIONAL | Mode: RAILWAY STRIKE*
-
-1. **Momento Mola**: Prioridade absoluta para sinais "Mola" identificados pelo Librarian.
-2. **Spring Shield (Bypass)**: Sinais de Mola possuem bypass total da Guilhotina Lateral (ADX < 18) e do Trap-Prone Shield.
-3. **Strike Entry**: Sinais com Score >= 70 executam entrada imediata no modo Blitz.
-4. **Paper Freedom**: No modo PAPER, o Capitão ignora bloqueios de "Bull Trap" e "Baixa Confiança" para permitir a validação da execução.
-
----
-
-## 4. RADAR DE INTELIGÊNCIA — BROADCAST LOCAL (V110.175)
-
-**Arquivo:** `signal_generator.py`, `websocket_service.py`
-
-- **Sincronizacao:** Os sinais sao enviados via WebSocket para a UI em tempo real (`type: radar_pulse`).
-- **ESTRUTURA DE DADOS [V110.192]:** O pacote de radar_pulse DEVE ser um objeto completo `{signals, decisions, market_context}`. O frontend rejeita arrays puros para evitar quebra de HUD.
-- **Filtro de Swing:** Sinais de Swing (Harvester) sao exibidos nos Slots 3-4 e no Radar com badge AMBAR.
-- **Filtro de Blitz:** Sinais de Blitz (BlitzSniper) sao exibidos nos Slots 1-2 e no Radar com badge BRANCA.
-
----
-
-## 5. ORÁCULO DE MERCADO — ESTABILIZAÇÃO ÁGIL (V110.175)
-
-**Arquivo:** `oracle_agent.py`
-
-- **Boot Time:** Reduzido para **15-30 segundos** no Railway.
-- **Fallback ADX:** Se o Oráculo estiver estabilizando, o sistema usa o ADX bruto do WebSocket para não travar o Radar.
-- **Intelligence:** ADX, Preço e Dominância são transmitidos via `SYSTEM_STATE` no WebSocket nativo.
-
----
-
-## 6. GESTAO DE RISCO — BANKROLL RAILWAY
-
-**Arquivo:** `bankroll.py`, `database_service.py`
-
-- **Banca Padrao:** **$100.00** (Simulado/Paper).
-- **Margem por slot:** **10% da banca** ($10.00 por ordem).
-- **Persistencia:** O saldo e o historico sao salvos no **PostgreSQL**. O reset de banca limpa o banco de dados local do Railway.
-
----
-
-## 7. HIERARQUIA DE AGENTES (SOBERANIA RAILWAY)
-
-```
-Captain (Orquestrador Central)
-  ├── BlitzSniper   -> Monitor M30 (Slots 1-2)
-  ├── Harvester     -> Monitor H1/H4 (Slots 3-4 - SWING)
-  ├── Oracle        -> Inteligencia de Mercado (ADX/BTC Pulse)
-  ├── Librarian     -> DNA do Ativo (Mola/Trap/Wick)
-  └── WebSocket     -> Broadcast de Estado para o Cockpit UI
-```
-
-**REGRA:** Nenhum agente deve depender do Firebase para funcionar.
-**REGRA:** O sistema deve ser auto-suficiente dentro do container Railway.
-
----
-
-## 8. DESIGN INVARIANTE — SEAMLESS PREMIUM (V110.175)
-- **Estética:** Grayscale Premium (Preto, Branco, Cinza e Lima).
-- **Glassmorphism:** Uso obrigatório de `backdrop-blur-xl` em todos os painéis.
-- **Badge Contrast:** `BLITZ_30M` (Branco) | `SWING` (Ambar).
-
-## 9. MAPA DE ESTADO SOBERANO (SOVEREIGN STATE MAP)
-Para evitar surpresas de dessincronização, o estado completo do sistema foi migrado do Firebase para o **PostgreSQL**. A memória RAM dos containers é **EFÊMERA**, o que significa que o banco de dados dita as regras em todo deploy/restart.
-
-| Componente | Localização Primária (SSOT) | Descrição |
-|---|---|---|
-| **Slots Ativos** | Tabela `slots` (Postgres) | Guarda a "Inteligência" da ordem (Genesis ID, Score, Pensamento). |
-| **Moonbags** | Tabela `moonbags` (Postgres) | Posições emancipadas (ROI > 150%). |
-| **Histórico Vault** | Tabela `trade_history` (Postgres) | Registro permanente de PNL e motivos de saída. |
-| **Motor Paper** | Tabela `system_state` (Postgres) | Chave `paper_engine_state` guarda o Array JSON com as ordens simuladas ativas, recriando o ambiente da Bybit. |
-| **Log Local** | `paper_positions.v110.json` | Apenas um backup local para ambiente de desenvolvimento. O Railway o ignora. |
 
 ## 10. PROTOCOLO DE EXPURGO DE FANTASMAS (GHOST PURGE)
-Quando uma ordem desincronizar e ficar presa como "fantasma" no slot ou no histórico sem ID, siga um destes 3 caminhos para limpar. Como estamos na nuvem, edições de arquivos locais (JSON) **não funcionam** sem push.
-
-**CAMINHO 1: O Exorcismo Absoluto (Filtro no Código - Auto-Purge)**
-- A forma mais segura de destruir um fantasma que não quer morrer no Railway.
-- **Ação:** Adicione o nome da moeda na list comprehension do arquivo `bybit_rest.py` (dentro da função `_load_paper_state`), faça commit e push. Quando o Railway reiniciar, o próprio robô barra o fantasma ao ler do Banco de Dados e salva o banco limpo.
-
-**CAMINHO 2: Quebra do Ciclo de Ressurreição (Hard Block no AMNESIA-GUARD)**
-- **O Bug da Ressurreição:** Se uma ordem fantasma estiver no banco de dados (`slots`) e na memória RAM da Railway ao mesmo tempo, apagar do banco via script não funciona! O servidor velho vai recriar o slot antes de morrer, e o `AMNESIA-GUARD` do servidor novo vai puxá-la de volta do banco pra memória.
-- **Ação:** No arquivo `bybit_rest.py`, dentro de `_load_paper_state` (seção do Amnesia-Guard), adicione um `if "MOEDA" in symbol: continue` para forçar o sistema a ignorar a existência da moeda no banco de dados.
-
-**CAMINHO 3: Limpeza do Slot Ativo (Para Ordens Simples Fora de Loop)**
-- Se a ordem estiver ocupando o slot na UI mas não existe mais na exchange:
-- **Ação:** Conecte no banco de dados PostgreSQL e rode:
-  `UPDATE slots SET symbol = NULL, status_risco = 'LIVRE', qty = 0, order_id = NULL, genesis_id = NULL WHERE symbol LIKE '%MOEDA%';`
-
-**CAMINHO 4: Limpeza da Matriz (Postgres `system_state`)**
-- Se a ordem estiver "ressuscitando" em modo simulado.
-- **Ação:** Delete o JSON do banco ou atualize:
-  `UPDATE system_state SET state_data = '[json_limpo]' WHERE key = 'paper_engine_state';`
-
-**CAMINHO 5: Limpeza do Histórico da Vault**
-- Para limpar lixo visual (`RECOVERY` ou PNL $0):
-- **Ação:** `DELETE FROM trade_history WHERE genesis_id LIKE 'RECOVERY-%' OR pnl = 0;`
-
-*Dica:* Sempre priorize deletar fantasmas no banco ou via código (Auto-Purge) quando em produção.
+- **Regra 10:** Registros com PNL $0 são filtrados do histórico da Vault para manter a limpeza visual.
+- **Genesis Guard:** Ordens de emergência (RECOVERY) recebem automaticamente um relatório de telemetria padrão: "Protocolo de Emergência - Ordem sem DNA de Inteligência".
 
 ---
 
-## 11. INTEGRIDADE DE ASSINATURA WEBSOCKET (BYBIT-WS)
-Para evitar falhas de conexão e crashs silenciosos no backend:
-1. **Blocklist Guard:** Antes de assinar qualquer tópico (`trade_stream`, `ticker_stream`), o sistema deve verificar se o ativo está na `settings.ASSET_BLOCKLIST`. Ativos problemáticos (ex: `BONKUSDT` que falha em V5 Linear) devem ser bloqueados na origem.
-2. **Exceção BTC:** O `BTCUSDT` é a única exceção permitida na blocklist do WebSocket, pois é necessário para o Command Center (CVD/Preço).
-3. **Type Safety:** Todo handler de callback (`handle_trade_message`, etc.) deve validar se a mensagem é um dicionário (`isinstance(message, dict)`) antes de processar. Isso blinda o worker contra strings de erro da exchange.
-
----
-
-*Versão: V110.261 "Sovereign Stability & WS Guard" | Atualizado: 2026-04-26*
-*Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10D5.0.*
+*Versão: V4.0 "Adaptive Intelligence" | Atualizado: 2026-04-26*
+*Este arquivo é a ÚNICA FONTE DA VERDADE.*

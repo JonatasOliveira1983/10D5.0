@@ -1,21 +1,18 @@
+
 import asyncio
-import sys
 import os
-import json
+import sys
+sys.path.append(os.getcwd())
+from services.database_service import database_service
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from config import settings
-from services.sovereign_service import sovereign_service
-
-async def check_db_slots():
-    print(f"Checking RTDB slots at: {settings.FIREBASE_DATABASE_URL}")
-    slots = sovereign_service.db.reference('slots').get()
-    print("\n--- RTDB SLOTS ---")
-    print(json.dumps(slots, indent=2))
+async def check():
+    status = await database_service.get_banca_status()
+    print(f"BANCA: ${status.get('saldo_total')}")
     
-    positions = sovereign_service.db.reference('positions').get()
-    print("\n--- RTDB POSITIONS ---")
-    print(json.dumps(positions, indent=2))
+    history = await database_service.get_trade_history(limit=5)
+    print(f"HISTORY COUNT: {len(history)}")
+    for t in history:
+        print(f" - {t.get('symbol')}: {t.get('pnl')}")
 
 if __name__ == "__main__":
-    asyncio.run(check_db_slots())
+    asyncio.run(check())

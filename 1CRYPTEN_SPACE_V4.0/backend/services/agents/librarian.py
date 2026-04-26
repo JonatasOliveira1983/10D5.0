@@ -311,12 +311,21 @@ class LibrarianAgent(AIOSAgent):
                         
                         vol_class = "STABLE"
                         ambush_buffer = 0.0012 # 0.12%
+                        respiro_roi = 10.0      # [V4.0] 10% ROI buffer default
+                        rf_delay = 1.0          # [V4.0] RF trigger delay default
+
                         if vol_val > 1.5:
                             vol_class = "EXTREME"
                             ambush_buffer = 0.0045 # 0.45% (Ambush Profundo)
+                            respiro_roi = 25.0      # [V4.0] 25% ROI for wicky assets
                         elif vol_val > 0.8:
                             vol_class = "VOLATILE"
                             ambush_buffer = 0.0025 # 0.25%
+                            respiro_roi = 15.0      # [V4.0] 15% ROI for volatile assets
+                        
+                        # [V4.0] RF Delay for Retest Heavy assets
+                        if is_retest_heavy:
+                            rf_delay = 1.5 # Wait for 1.5x target before moving SL to RF
                         
                         # [V2.1] Nectar Seal logic (Auditoria de Elite restrita por amostragem)
                         trades_count = res.get("trades_count", 0)
@@ -364,6 +373,8 @@ class LibrarianAgent(AIOSAgent):
                             "compression_score": round(compression_score, 3),
                             "wick_intensity": avg_wick,
                             "wick_multiplier": round(avg_wick, 2),
+                            "respiro_roi_buffer": respiro_roi, # [V4.0] Specialist Respiro
+                            "rf_trigger_delay": rf_delay,       # [V4.0] Specialist RF Delay
                             "trend_4h": trend_4h,
                             "last_update": time.time()
                         }

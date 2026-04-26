@@ -1898,7 +1898,8 @@ class BankrollManager:
                 if t_time and t_time >= start_24h:
                     recent_trades.append(t)
             
-            gains_count = sum(1 for t in recent_trades if float(t.get("pnl", 0)) > 0)
+            # [V110.145] User Rule: Only count gains >= $10.0 (100% ROI on $10 margin)
+            gains_count = sum(1 for t in recent_trades if float(t.get("pnl", 0)) >= 10.0)
             loss_count = sum(1 for t in recent_trades if float(t.get("pnl", 0)) < 0)
             total_pnl = sum(float(t.get("pnl", 0)) for t in recent_trades)
             

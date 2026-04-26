@@ -35,9 +35,9 @@ def execute_nuclear_reset():
         
         cur.close()
         conn.close()
-        print("✅ RESET NUCLEAR CONCLUÍDO COM SUCESSO VIA SQL.")
+        print("RESET NUCLEAR CONCLUIDO COM SUCESSO VIA SQL.")
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
 
 if __name__ == "__main__":
     execute_nuclear_reset()

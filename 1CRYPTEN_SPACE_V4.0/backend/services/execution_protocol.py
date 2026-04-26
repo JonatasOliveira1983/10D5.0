@@ -387,29 +387,46 @@ class ExecutionProtocol:
                 sentinel_hit = slot_data.get("sentinel_first_hit_at", 0)
                 now = time.time()
                 
+                # [V4.0] SPECIALIST RESPIRO: ROI-based deviation tolerance
+                try:
+                    from services.agents.librarian import librarian_agent
+                    dna = await librarian_agent.get_asset_dna(symbol)
+                    respiro_buffer = dna.get("respiro_roi_buffer", 10.0)
+                except:
+                    respiro_buffer = 10.0
+
                 if sentinel_hit == 0:
-                    # Primeira vez que toca o SL: Checamos o Gás
+                    # Primeira vez que toca o SL: Checamos o Gás e a Tolerância de ROI
                     is_gas_favorable = await self._check_gas_favorable(symbol, side)
-                    if is_gas_favorable:
-                        logger.info(f"🛡️ [SENTINEL-HOLD] {symbol} SL atingido mas Gás favorável. Iniciando paciência diplomática ({base_respir}s).")
-                        # Retornamos False (não fechar) e sinalizamos para salvar o timestamp
+                    
+                    # Se o Gás for favorável, verificamos se a "violada" está dentro do limite de respiro
+                    # (Ex: se o stop é 0% e o ROI é -5%, e o buffer é 15%, nós mantemos)
+                    # Calcula o ROI relativo ao Stop
+                    side_val = 1 if side_norm == "buy" else -1
+                    price_rel_sl_pct = (current_price - current_sl) / current_sl * 100 * side_val * leverage
+                    
+                    if is_gas_favorable and abs(price_rel_sl_pct) < respiro_buffer:
+                        logger.info(f"🛡️ [SENTINEL-RESPIRO] {symbol} atingiu SL mas Gás favorável e desvio ({abs(price_rel_sl_pct):.1f}%) < Buffer ({respiro_buffer}%). Iniciando paciência diplomática ({base_respir}s).")
                         return False, "SENTINEL_ACTIVATE", now
                     else:
-                        logger.info(f"🛑 [SENTINEL-DENIED] {symbol} SL atingido e Gás desfavorável. Fechando imediatamente.")
+                        logger.info(f"🛑 [SENTINEL-DENIED] {symbol} SL atingido. Gás desfavorável ou desvio muito alto. Fechando imediatamente.")
                 else:
                     # Já estamos sob proteção do Sentinel: Verificamos o tempo e o Gás atual
                     elapsed = now - sentinel_hit
                     if elapsed > base_respir:
                         logger.warning(f"🛑 [SENTINEL-TIMEOUT] {symbol} Paciência diplomática esgotada ({elapsed:.1f}s/{base_respir}s). Fechando ordem.")
                     else:
-                        # Ainda dentro do prazo, re-checa o gás para ver se a força continua
+                        # Ainda dentro do prazo, re-checa o gás e o limite de respiro
                         still_favorable = await self._check_gas_favorable(symbol, side)
-                        if still_favorable:
+                        side_val = 1 if side_norm == "buy" else -1
+                        price_rel_sl_pct = (current_price - current_sl) / current_sl * 100 * side_val * leverage
+                        
+                        if still_favorable and abs(price_rel_sl_pct) < respiro_buffer:
                             if int(elapsed) % 10 == 0: # Log a cada 10s
-                                logger.info(f"🛡️ [SENTINEL-WAITING] {symbol} mantido por Gás favorável ({elapsed:.1f}s/{base_respir}s).")
+                                logger.info(f"🛡️ [SENTINEL-WAITING] {symbol} mantido por Gás e Respiro ({elapsed:.1f}s/{base_respir}s).")
                             return False, "SENTINEL_WAITING", None
                         else:
-                            logger.warning(f"🛑 [SENTINEL-GAS-FLIP] {symbol} Gás virou contra a posição durante carência. Fechando agora.")
+                            logger.warning(f"🛑 [SENTINEL-BREAK] {symbol} Gás virou ou desvio excedeu buffer durante carência. Fechando agora.")
 
                 # Se chegou aqui, é fechamento real
                 logger.info(f"🛑 SNIPER SL HIT: {symbol} Price={current_price} | SL={current_sl} | Phase={phase}")
@@ -532,18 +549,20 @@ class ExecutionProtocol:
             # 30%+  → Break-Even (SL em 0%)    🆕
             # [V110.134] ESCADINHA ADAPTATIVA:
             # Se o ativo é RETEST_HEAVY, damos mais fôlego na primeira fase para não ser stopado no fingimento.
+            # [V4.0] DNA-ADAPTIVE BREAKEVEN:
+            # Ativos "nervosos" ou com pavios históricos demoram mais para travar o lucro na entrada.
             try:
                 from services.agents.librarian import librarian_agent
                 dna = await librarian_agent.get_asset_dna(symbol)
+                rf_delay_mult = dna.get("rf_trigger_delay", 1.0)
                 is_retest_heavy = dna.get("is_retest_heavy", False)
-                wick_mult = dna.get("wick_multiplier", 1.0)
             except:
+                rf_delay_mult = 1.0
                 is_retest_heavy = False
-                wick_mult = 1.0
 
-            # Gatilhos dinâmicos: moedas traiçoeiras precisam de 50% ROI para travar o stop, moedas diretas 30%.
-            breakeven_trigger = 30.0 * (1.2 if is_retest_heavy else 1.0)
-            if wick_mult > 3.0: breakeven_trigger = 50.0 # Pavios extremos = Respiro extremo
+            # Gatilhos dinâmicos baseados no DNA do Bibliotecário
+            breakeven_trigger = 30.0 * rf_delay_mult
+            if is_retest_heavy and rf_delay_mult < 1.5: breakeven_trigger = 50.0 
 
             if roi >= 150.0:     # Degrau 5: Emancipação
                 target_stop_roi_trend = 110.0
