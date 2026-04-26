@@ -169,38 +169,53 @@ async def get_system_settings():
 async def nuclear_reset():
     """
     [V110.230] NUCLEAR RESET: Limpa TODAS as ordens e reseta a banca para $100.
-    Garante sincronia total entre Postgres, Memória e UI.
+    Garante sincronia total entre Postgres, Memória (Paper) e UI.
     """
     try:
         from services.sovereign_service import sovereign_service
         from services.database_service import database_service
         from services.websocket_service import websocket_service
+        from services.bybit_rest import bybit_rest_service
+        from sqlalchemy import text
         
         logger.warning("☢️ NUCLEAR RESET TRIGGERED! Cleaning all layers...")
         
-        # 1. Reset Postgres (Banca)
-        await database_service.update_banca_status({
-            "saldo_total": 100.0,
-            "risco_real_percent": 0.0,
-            "slots_disponiveis": 4,
-            "status": "OPERATIONAL"
-        })
-        
-        # 2. Reset Postgres (Slots)
-        for i in range(1, 5):
-            await database_service.update_slot(i, {
-                "symbol": None,
-                "entry_price": 0,
-                "current_stop": 0,
-                "status_risco": "LIVRE",
-                "pnl_percent": 0,
-                "genesis_id": None
-            })
+        # 1. Reset Postgres (Banca, Vault e Histórico)
+        async with database_service.AsyncSessionLocal() as session:
+            # Banca e Vault
+            await session.execute(text("UPDATE banca_status SET saldo_total = 100.0, risco_real_percent = 0.0, slots_disponiveis = 4, status = 'ONLINE' WHERE id = 1"))
+            await session.execute(text("UPDATE vault_cycles SET sniper_wins = 0, cycle_number = 1, cycle_profit = 0.0, cycle_losses = 0.0, mega_cycle_wins = 0, mega_cycle_number = 1, accumulated_vault = 0.0, vault_total = 0.0, used_symbols_in_cycle = '[]', cycle_start_bankroll = 100.0 WHERE id = 1"))
+            
+            # Slots (Truncate e Reset)
+            await session.execute(text("TRUNCATE TABLE slots RESTART IDENTITY"))
+            from services.database_service import Slot
+            for i in range(1, 5):
+                session.add(Slot(id=i, status_risco="LIVRE", leverage=50.0))
+            
+            # Outras Tabelas
+            await session.execute(text("TRUNCATE TABLE trade_history RESTART IDENTITY CASCADE"))
+            await session.execute(text("TRUNCATE TABLE moonbags RESTART IDENTITY CASCADE"))
+            await session.execute(text("TRUNCATE TABLE order_genesis RESTART IDENTITY CASCADE"))
+            await session.execute(text("TRUNCATE TABLE system_state RESTART IDENTITY CASCADE"))
+            
+            await session.commit()
+            logger.info("✅ Postgres Atomic Purge Complete.")
+
+        # 2. Reset Memória (Bybit Paper Engine)
+        if bybit_rest_service:
+            bybit_rest_service.paper_positions = []
+            bybit_rest_service.paper_moonbags = []
+            bybit_rest_service.paper_balance = 100.0
+            if hasattr(bybit_rest_service, 'PAPER_STORAGE_FILE') and os.path.exists(bybit_rest_service.PAPER_STORAGE_FILE):
+                try: os.remove(bybit_rest_service.PAPER_STORAGE_FILE)
+                except: pass
+            logger.info("✅ Bybit Paper Memory Purged.")
             
         # 3. Reset Memória (Sovereign Cache)
+        # Forçamos o reload do DB (que agora está limpo) para a memória
         await sovereign_service.initialize()
         
-        # 4. Broadcast via WebSocket
+        # 4. Broadcast via WebSocket para UI
         await websocket_service.emit_slots(sovereign_service.slots_cache)
         await websocket_service.emit_banca_status({
             "saldo_total": 100.0,
@@ -209,8 +224,8 @@ async def nuclear_reset():
             "status": "OPERATIONAL"
         })
         
-        logger.info("✅ NUCLEAR RESET COMPLETE. System at baseline.")
-        return {"status": "success", "message": "Nuclear Reset Complete. All systems at baseline."}
+        logger.info("✨ NUCLEAR RESET COMPLETE. System at absolute baseline.")
+        return {"status": "success", "message": "Nuclear Reset Complete. All layers at baseline."}
         
     except Exception as e:
         logger.error(f"❌ Nuclear Reset Failed: {e}")
