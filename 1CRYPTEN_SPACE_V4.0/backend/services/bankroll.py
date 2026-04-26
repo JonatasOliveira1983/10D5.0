@@ -1119,6 +1119,14 @@ class BankrollManager:
                     if _ssym and _ssym == norm_chk and _s.get("status") != "EMANCIPATED":
                         logger.warning(f"[V110.137 COLLISION] {symbol} ja ativo em Slot {_s.get('id')}. Bloqueando.")
                         return None
+                
+                # [V110.262] MOTOR-COLLISION-GUARD: Verifica memória local do motor (Verdade Absoluta)
+                for _pp in bybit_rest_service.paper_positions:
+                    _psym = (_pp.get("symbol") or "").replace(".P", "").upper()
+                    if _psym == norm_chk:
+                        logger.warning(f"[V110.262 COLLISION] {symbol} ja ativo no motor Paper. Bloqueando duplicata.")
+                        return None
+
                 for _pm in bybit_rest_service.paper_moonbags:
                     _msym = (_pm.get("symbol") or "").replace(".P", "").upper()
                     if _msym == norm_chk:

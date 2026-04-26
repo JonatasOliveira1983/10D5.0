@@ -237,7 +237,14 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
     async def get_chat_status(self): return {"is_thinking": False}
     async def get_librarian_intel(self): return {}
     async def get_radar_grid(self): return {}
-    async def get_active_slots(self, **kwargs): return self.slots_cache
+    async def get_active_slots(self, **kwargs):
+        # [V110.262] FORCE REFRESH: Ignora o cache e busca direto do DB para casos críticos (ex: Collision Guard)
+        if kwargs.get("force_refresh"):
+            try:
+                self.slots_cache = await database_service.get_active_slots()
+            except Exception as e:
+                logger.error(f"Error in force_refresh slots: {e}")
+        return self.slots_cache
     async def get_trade_history(self, limit: int = 50, **kwargs):
         """Busca o histórico de trades do Postgres."""
         return await database_service.get_trade_history(limit=limit)
