@@ -1047,14 +1047,21 @@ class BybitREST:
             logger.error(f"Error fetching orderbook for {symbol}: {e}")
             return {}
 
-    async def get_klines(self, symbol: str, interval: str = "60", limit: int = 20):
-        """Fetches historical klines for ATR and variation calculations."""
+    async def get_klines(self, symbol: str, interval: str = "60", limit: int = 20, kline_type: str = "mark"):
+        """
+        Fetches historical klines. 
+        Use kline_type='mark' for Mark Price (no volume, safer for triggers)
+        Use kline_type='last' for Last Price (includes volume, better for UI)
+        """
         async with self._http_semaphore:
             try:
                 # [V110.12.11] ENSURE NO .P SUFFIX for Market Data
                 api_symbol = self._strip_p(symbol).replace(".P", "")
+                
+                method = self.session.get_mark_price_kline if kline_type == "mark" else self.session.get_kline
+                
                 # V5.2.4.3: Added 5s timeout
-                response = await asyncio.wait_for(asyncio.to_thread(self.session.get_mark_price_kline,
+                response = await asyncio.wait_for(asyncio.to_thread(method,
                     category=self.category,
                     symbol=api_symbol,
                     interval=interval,
@@ -1062,7 +1069,7 @@ class BybitREST:
                 ), timeout=5.0)
                 return response.get("result", {}).get("list", [])
             except Exception as e:
-                logger.error(f"Error fetching klines for {symbol}: {e}")
+                logger.error(f"Error fetching klines for {symbol} ({kline_type}): {e}")
                 return []
 
     async def get_open_interest(self, symbol: str, interval: str = "1h") -> float:

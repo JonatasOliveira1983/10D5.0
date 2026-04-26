@@ -6,7 +6,7 @@
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
         name="viewport" />
 
-    <title>Sniper V110.182.7 — ELITE COMMAND</title>
+    <title>Sniper V110.182.8 — ELITE COMMAND</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="logo10DTrasp.png?v=4">
     <link rel="shortcut icon" type="image/png" href="logo10DTrasp.png?v=4">
@@ -3773,7 +3773,7 @@
                                     ))}
                                 </div>
                                 <div className="mt-auto pt-8 border-t v5-border-subtle">
-                                    <p className="text-[10px] text-gray-600 uppercase tracking-[0.3em] text-center font-bold">Protocol JARVIS V110.182.7</p>
+                                    <p className="text-[10px] text-gray-600 uppercase tracking-[0.3em] text-center font-bold">Protocol JARVIS V110.182.8</p>
                                 </div>
                             </div>
                         </div>
@@ -3886,7 +3886,7 @@
                                     </div>
                                     <span className="text-[9px] text-white font-black uppercase tracking-[0.4em]">Sincronização Ativa</span>
                                 </div>
-                                <p className="text-[9px] text-gray-500 font-mono uppercase tracking-[0.3em] font-bold">Neural Link v110.182.7</p>
+                                <p className="text-[9px] text-gray-500 font-mono uppercase tracking-[0.3em] font-bold">Neural Link v110.182.8</p>
                             </div>
                         </div>
                     </footer>
@@ -4862,7 +4862,7 @@
                                 <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1 leading-none">Protocol</span>
                                 <span className="flex items-center gap-2 text-white font-black uppercase tracking-tighter leading-none">
                                     <span className="material-icons-round text-xs">local_fire_department</span>
-                                    {protocolLabel || 'Sniper V110.182.7'}
+                                    {protocolLabel || 'Sniper V110.182.8'}
                                 </span>
                             </div>
                         </div>
@@ -5268,7 +5268,7 @@
             const realAdx = btcAdx; 
             const dominance = btcCtx?.btc_dominance !== undefined ? btcCtx.btc_dominance : 45.0;
             const realDecorrelation = btcCtx?.decorrelation_avg !== undefined ? btcCtx.decorrelation_avg : null;
-            const protocolLabel = btcCommandStatus?.protocol || (systemState && systemState.protocol) || "Sniper V110.182.7";
+            const protocolLabel = btcCommandStatus?.protocol || (systemState && systemState.protocol) || "Sniper V110.182.8";
 
             // V110.34: Regime agora espelha EXATAMENTE a lógica do Capitão
             // Backend calcula: ADX >= 30 + convergência 15m/1h = UP/DOWN, senão LATERAL
@@ -6558,7 +6558,7 @@
 
             useEffect(() => {
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('/sw.js?v=110.182.7').then(reg => {
+                    navigator.serviceWorker.register('/sw.js?v=110.182.8').then(reg => {
                         // Detect updates
                         reg.addEventListener('updatefound', () => {
                             const newWorker = reg.installing;
@@ -6614,7 +6614,7 @@
                         <NavBar onLogout={handleLogout} />
                     </div>
                     
-                    {/* [V110.182.7] PWA Update Toast */}
+                    {/* [V110.182.8] PWA Update Toast */}
                     {showUpdate && (
                         <div className="fixed bottom-24 left-4 right-4 z-[100] animate-bounce">
                             <div className="glass border border-primary/40 p-4 rounded-2xl flex items-center justify-between shadow-2xl">
@@ -6623,7 +6623,7 @@
                                         <span className="material-icons-round text-white text-sm">system_update</span>
                                     </div>
                                     <div>
-                                        <h4 className="text-xs font-black text-white uppercase">Update Sniper V110.182.7</h4>
+                                        <h4 className="text-xs font-black text-white uppercase">Update Sniper V110.182.8</h4>
                                         <p className="text-[9px] text-gray-400 font-bold uppercase">Novas inteligências detectadas!</p>
                                     </div>
                                 </div>

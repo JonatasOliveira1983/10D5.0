@@ -130,7 +130,8 @@ async def get_klines_proxy(symbol: str, interval: str = "60", limit: int = 200):
     try:
         int_map = {"15m": "15", "1h": "60", "4h": "240"}
         bybit_interval = int_map.get(str(interval), str(interval))
-        data = await bybit_rest_service.get_klines(symbol=symbol, interval=bybit_interval, limit=limit)
+        # [V110.182.8] Use 'last' to include volume for UI charts
+        data = await bybit_rest_service.get_klines(symbol=symbol, interval=bybit_interval, limit=limit, kline_type="last")
         if data: data.reverse()
         return data
     except Exception as e:
