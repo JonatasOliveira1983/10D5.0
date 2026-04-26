@@ -7,7 +7,7 @@
  * - Stale-While-Revalidate: Manifest & CDNs
  */
 
-const CACHE_NAME = '1crypten-sniper-v110.182.4';
+const CACHE_NAME = '1crypten-sniper-v110.182.5';
 const OFFLINE_URL = '/offline.html';
 
 // Assets that must be available offline
@@ -48,7 +48,7 @@ self.addEventListener('activate', (event) => {
             );
         })
     );
-    console.log('[SW] V110.182.4 Activated ✅');
+    console.log('[SW] V110.182.5 Activated ✅');
     return self.clients.claim();
 });
 
