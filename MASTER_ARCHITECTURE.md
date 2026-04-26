@@ -3,6 +3,13 @@
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
 
+*   **V4.0: ADAPTIVE INTELLIGENCE [APR 26]**
+    - **Librarian DNA Specialist:** Implementação da análise de pavios (Wick Intensity) e propensão de reteste para injetar "paciência" específica por ativo.
+    - **Adaptive Respiro:** Buffer de tolerância de até 25% de ROI abaixo do Stop Loss, permitindo "breathing room" se o Gás (CVD) estiver favorável.
+    - **Intelligent Breakeven:** Gatilho de Risk-Free dinâmico (50-60% ROI) para ativos de alta volatilidade, evitando saídas em "violinadas".
+    - **$10 Profit Rule:** Meta diária 10/10 e ciclos de progresso agora exigem lucro líquido >= $10.00 por ordem.
+    - **Genesis Recovery Guard:** Injeção de relatórios padrão para ordens de recuperação, eliminando erros de visualização no Cockpit.
+
 *   **V110.256: SOVEREIGN IDENTIFIER & SYNTAX RECOVERY [APR 25]**
     - **Syntax Error Resolution:** Correção de fechamentos prematuros de hooks no `cockpit.html` (especialmente `useSlotsRT` e `useBancaRT`) que causavam falha de carregamento da UI.
     - **Identifier De-confliction:** Renomeação global de `rtdb` para `sovereign_rtdb` no frontend para evitar erros de redeclaração (`Identifier already declared`) causados pelo Babel-standalone em scripts inline.
@@ -148,5 +155,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-25 (V110.255) Sincronizado*
+*Documento atualizado em: 2026-04-26 (V4.0) Sincronizado*
 *Este documento reflete a estabilização final do ambiente Soberano com alavancagem de 50x.*
