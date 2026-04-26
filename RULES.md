@@ -7,7 +7,7 @@
 
 ## 🛡️ PROTOCOLO DE BLINDAGEM V110.253 (CRÍTICO)
 1. **AUTO-CURA DE BANCO:** O sistema realiza migrações automáticas de esquema no boot. Qualquer divergência de coluna deve ser corrigida via script integrado ao `database_service.py`.
-2. **TIMEZONE INTEGRITY:** É obrigatório o uso de `datetime.utcnow().replace(tzinfo=None)` para todas as interações com o Postgres (WITHOUT TIME ZONE).
+2. **TIMEZONE INTEGRITY (CRÍTICO):** É obrigatório o uso de `datetime.utcnow().replace(tzinfo=None)` ou `datetime.utcnow()` para todas as interações e comparações com o Postgres. **NUNCA** use `datetime.now(timezone.utc)` para comparações diretas com timestamps do banco, pois isso gera erro de "offset-naive vs offset-aware". SSOT: Naive UTC.
 3. **ARQUIVAMENTO ATÔMICO:** É terminantemente proibido limpar um slot sem antes garantir o arquivamento no Postgres via `database_service.log_trade`.
 4. **PAPER MODE ENFORCEMENT:** Em modo de teste, a variável `BYBIT_EXECUTION_MODE` deve ser injetada como `PAPER` no Railway para garantir o saldo simulado de $100.
 
@@ -166,5 +166,13 @@ Quando uma ordem desincronizar e ficar presa como "fantasma" no slot ou no hist�
 
 ---
 
-*Versão: V110.256 "Sovereign Sync & Recovery" | Atualizado: 2026-04-25*
+## 11. INTEGRIDADE DE ASSINATURA WEBSOCKET (BYBIT-WS)
+Para evitar falhas de conexão e crashs silenciosos no backend:
+1. **Blocklist Guard:** Antes de assinar qualquer tópico (`trade_stream`, `ticker_stream`), o sistema deve verificar se o ativo está na `settings.ASSET_BLOCKLIST`. Ativos problemáticos (ex: `BONKUSDT` que falha em V5 Linear) devem ser bloqueados na origem.
+2. **Exceção BTC:** O `BTCUSDT` é a única exceção permitida na blocklist do WebSocket, pois é necessário para o Command Center (CVD/Preço).
+3. **Type Safety:** Todo handler de callback (`handle_trade_message`, etc.) deve validar se a mensagem é um dicionário (`isinstance(message, dict)`) antes de processar. Isso blinda o worker contra strings de erro da exchange.
+
+---
+
+*Versão: V110.261 "Sovereign Stability & WS Guard" | Atualizado: 2026-04-26*
 *Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10D5.0.*
