@@ -3,11 +3,11 @@
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
 
-*   **V4.0: SPECIALIST MATRIX & SNIPER PATIENCE [APR 26]**
+*   **V4.0: SPECIALIST MATRIX & EAGLE VISION PRO [APR 26]**
     - **Specialist Brain (40 Pairs):** Implementação de matriz fixa no `librarian.py` para 40 ativos de elite. Injeção de DNA com buffers de respiro (8-25%) e atrasos de RF baseados em volatilidade.
+    - **Eagle Vision PRO (Desktop UI):** Refinamento ultra-premium da sessão de gráficos com animação de *Scanning Line*, HUD de telemetria interna (RSI/ADX), Floating Tooltip OHLCV e Badges de "Tocaia Ativa".
     - **Sniper Patience (Violinada Hunter):** Novo protocolo no `AmbushAgent` que aguarda absorção no gráfico de 1m (pavios/rejeição) antes de disparar a ordem.
     - **Intelligent Breakeven (ADX-Aware):** Gatilhos de Risk-Free dinâmicos. Tendência forte (ADX > 40) trava em 20% ROI; Lateralização (ADX < 22) aguarda 40% ROI para evitar stop por ruído.
-    - **UI Feedback - Respiro Activo:** Visualização em tempo real nos cards de ordens quando a posição entra em fase de carência tática.
     - **Standard Green (#22c55e):** Unificação da cor verde em todo o ecossistema, eliminando tons "limão" e placeholders brancos no histórico.
     - **Official Repo Sync:** Migração final do pipeline de deploy para `10D5.0`.
 

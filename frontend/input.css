@@ -96,10 +96,38 @@ body {
     100% { opacity: 0.4; transform: scale(0.9); }
 }
 
+@keyframes scanningLine {
+    0% { left: -10%; opacity: 0; }
+    10% { opacity: 0.2; }
+    90% { opacity: 0.2; }
+    100% { left: 110%; opacity: 0; }
+}
+
+@keyframes pulseGlow {
+    0% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.1); }
+    50% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.3); }
+    100% { box-shadow: 0 0 5px rgba(255, 255, 255, 0.1); }
+}
+
+.scanning-effect {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: scanningLine 4s linear infinite;
+    pointer-events: none;
+    z-index: 5;
+}
+
 .tocaia-glow {
     animation: tocaiaPulse 2s infinite ease-in-out;
     @apply text-white;
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.chart-maximize-btn {
+    @apply opacity-0 group-hover:opacity-100 transition-opacity duration-300;
 }
 
 #boot-shield {
