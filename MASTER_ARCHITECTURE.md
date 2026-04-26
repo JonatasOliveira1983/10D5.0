@@ -9,7 +9,7 @@
     - **Intelligent Breakeven (ADX-Aware):** Gatilhos de Risk-Free dinâmicos. Tendência forte (ADX > 40) trava em 20% ROI; Lateralização (ADX < 22) aguarda 40% ROI para evitar stop por ruído.
     - **UI Feedback - Respiro Activo:** Visualização em tempo real nos cards de ordens quando a posição entra em fase de carência tática.
     - **Standard Green (#22c55e):** Unificação da cor verde em todo o ecossistema, eliminando tons "limão" e placeholders brancos no histórico.
-    - **Official Repo Sync:** Migração final do pipeline de deploy para `10DBybityREAL`.
+    - **Official Repo Sync:** Migração final do pipeline de deploy para `10D5.0`.
 
 *   **V110.256: SOVEREIGN IDENTIFIER & SYNTAX RECOVERY [APR 25]**
     - **Syntax Error Resolution:** Correção de fechamentos prematuros de hooks no `cockpit.html` (especialmente `useSlotsRT` e `useBancaRT`) que causavam falha de carregamento da UI.
