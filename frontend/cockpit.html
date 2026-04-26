@@ -6,7 +6,7 @@
     <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
         name="viewport" />
 
-    <title>Sniper V110.182.6 — ELITE COMMAND</title>
+    <title>Sniper V110.182.7 — ELITE COMMAND</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="logo10DTrasp.png?v=4">
     <link rel="shortcut icon" type="image/png" href="logo10DTrasp.png?v=4">
@@ -3773,7 +3773,7 @@
                                     ))}
                                 </div>
                                 <div className="mt-auto pt-8 border-t v5-border-subtle">
-                                    <p className="text-[10px] text-gray-600 uppercase tracking-[0.3em] text-center font-bold">Protocol JARVIS V19.0</p>
+                                    <p className="text-[10px] text-gray-600 uppercase tracking-[0.3em] text-center font-bold">Protocol JARVIS V110.182.7</p>
                                 </div>
                             </div>
                         </div>
@@ -3886,7 +3886,7 @@
                                     </div>
                                     <span className="text-[9px] text-white font-black uppercase tracking-[0.4em]">Sincronização Ativa</span>
                                 </div>
-                                <p className="text-[9px] text-gray-500 font-mono uppercase tracking-[0.3em] font-bold">Neural Link v19.0.2</p>
+                                <p className="text-[9px] text-gray-500 font-mono uppercase tracking-[0.3em] font-bold">Neural Link v110.182.7</p>
                             </div>
                         </div>
                     </footer>
@@ -4327,7 +4327,7 @@
                         const volumes = formatted.map(d => ({
                             time: d.time,
                             value: d.volume,
-                            color: d.close >= d.open ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)'
+                            color: d.close >= d.open ? 'rgba(34, 197, 94, 0.5)' : 'rgba(239, 68, 68, 0.5)'
                         }));
                         setHistoricalData({ candles: formatted, volumes });
 
@@ -4335,18 +4335,19 @@
                         if (formatted.length > 20) {
                             const last = formatted[formatted.length - 1];
                             const vol = ((last.high - last.low) / last.low * 100).toFixed(2);
-                            // Calculate CVD Proxy (Cumulative Volume Delta)
-                            let currentCvd = telemetry.cvd || 0;
-                            formatted.slice(-20).forEach(c => {
-                                const delta = c.close >= c.open ? c.volume * 0.1 : -c.volume * 0.1;
-                                currentCvd += delta;
+                            
+                            // Calculate CVD properly from the whole set
+                            let cumulativeDelta = 0;
+                            formatted.forEach(c => {
+                                const delta = c.close >= c.open ? c.volume : -c.volume;
+                                cumulativeDelta += delta;
                             });
 
                             setTelemetry({
                                 rsi: Math.floor(40 + Math.random() * 30),
                                 adx: Math.floor(20 + Math.random() * 25),
                                 volatility: vol,
-                                cvd: currentCvd
+                                cvd: cumulativeDelta
                             });
                         }
                     } catch (e) {
@@ -4390,9 +4391,12 @@
                 
                 const volSeries = chart.addHistogramSeries({
                     priceFormat: { type: 'volume' },
-                    priceScaleId: '',
+                    priceScaleId: 'vol', // Separated scale
                 });
-                volSeries.priceScale().applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
+                chart.priceScale('vol').applyOptions({
+                    scaleMargins: { top: 0.7, bottom: 0 },
+                    visible: false
+                });
 
                 sma8SeriesRef.current = chart.addLineSeries({ color: 'rgba(255, 255, 255, 0.6)', lineWidth: 1, title: 'SMA 8', visible: eagleMode });
                 sma21SeriesRef.current = chart.addLineSeries({ color: 'rgba(34, 211, 238, 0.5)', lineWidth: 1, title: 'SMA 21', visible: eagleMode });
@@ -4568,7 +4572,7 @@
                         </div>
                     )}
 
-                    <div className="absolute top-3 right-3 z-40 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                    <div className="absolute top-3 right-3 z-40 flex items-center gap-2 opacity-40 hover:opacity-100 transition-all">
                         <div className="relative">
                             <select 
                                 value={localTimeframe} 
@@ -4858,7 +4862,7 @@
                                 <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1 leading-none">Protocol</span>
                                 <span className="flex items-center gap-2 text-white font-black uppercase tracking-tighter leading-none">
                                     <span className="material-icons-round text-xs">local_fire_department</span>
-                                    {protocolLabel || 'Sniper V6.0 Elite'}
+                                    {protocolLabel || 'Sniper V110.182.7'}
                                 </span>
                             </div>
                         </div>
@@ -5264,7 +5268,7 @@
             const realAdx = btcAdx; 
             const dominance = btcCtx?.btc_dominance !== undefined ? btcCtx.btc_dominance : 45.0;
             const realDecorrelation = btcCtx?.decorrelation_avg !== undefined ? btcCtx.decorrelation_avg : null;
-            const protocolLabel = btcCommandStatus?.protocol || (systemState && systemState.protocol) || "Sniper V110.182.6";
+            const protocolLabel = btcCommandStatus?.protocol || (systemState && systemState.protocol) || "Sniper V110.182.7";
 
             // V110.34: Regime agora espelha EXATAMENTE a lógica do Capitão
             // Backend calcula: ADX >= 30 + convergência 15m/1h = UP/DOWN, senão LATERAL
@@ -6554,7 +6558,7 @@
 
             useEffect(() => {
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('/sw.js?v=110.182.6').then(reg => {
+                    navigator.serviceWorker.register('/sw.js?v=110.182.7').then(reg => {
                         // Detect updates
                         reg.addEventListener('updatefound', () => {
                             const newWorker = reg.installing;
@@ -6610,7 +6614,7 @@
                         <NavBar onLogout={handleLogout} />
                     </div>
                     
-                    {/* [V110.182.6] PWA Update Toast */}
+                    {/* [V110.182.7] PWA Update Toast */}
                     {showUpdate && (
                         <div className="fixed bottom-24 left-4 right-4 z-[100] animate-bounce">
                             <div className="glass border border-primary/40 p-4 rounded-2xl flex items-center justify-between shadow-2xl">
@@ -6619,7 +6623,7 @@
                                         <span className="material-icons-round text-white text-sm">system_update</span>
                                     </div>
                                     <div>
-                                        <h4 className="text-xs font-black text-white uppercase">Update Sniper V110.182.6</h4>
+                                        <h4 className="text-xs font-black text-white uppercase">Update Sniper V110.182.7</h4>
                                         <p className="text-[9px] text-gray-400 font-bold uppercase">Novas inteligências detectadas!</p>
                                     </div>
                                 </div>
