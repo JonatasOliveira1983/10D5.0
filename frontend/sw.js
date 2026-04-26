@@ -1,13 +1,13 @@
 /**
  * 1CRYPTEN SNIPER PWA SERVICE WORKER
- * Version: V110.182.1
+ * Version: V110.182.2
  * Strategies: 
  * - Network-First: Main Logic & HTML (Always fresh if online)
  * - Cache-First: Static Assets & Vendor (Instant load)
  * - Stale-While-Revalidate: Manifest & CDNs
  */
 
-const CACHE_NAME = '1crypten-sniper-v110.182.1';
+const CACHE_NAME = '1crypten-sniper-v110.182.2';
 const OFFLINE_URL = '/offline.html';
 
 // Assets that must be available offline
@@ -48,7 +48,7 @@ self.addEventListener('activate', (event) => {
             );
         })
     );
-    console.log('[SW] V110.182.1 Activated ✅');
+    console.log('[SW] V110.182.2 Activated ✅');
     return self.clients.claim();
 });
 
