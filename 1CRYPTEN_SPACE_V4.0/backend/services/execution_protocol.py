@@ -560,9 +560,20 @@ class ExecutionProtocol:
                 rf_delay_mult = 1.0
                 is_retest_heavy = False
 
-            # Gatilhos dinâmicos baseados no DNA do Bibliotecário
-            breakeven_trigger = 30.0 * rf_delay_mult
-            if is_retest_heavy and rf_delay_mult < 1.5: breakeven_trigger = 50.0 
+            # [V4.0] DNA-ADAPTIVE BREAKEVEN (ADX Aware): 
+            # Ajusta o gatilho de Risk-Free pela força da tendência e DNA do ativo.
+            current_adx = slot_data.get("current_adx", 25.0)
+            
+            # Se ADX > 40 (Tendência Forte), travamos mais cedo (20% ROI). 
+            # Se ADX < 22 (Ranging), aguardamos mais (40% ROI) para evitar violadas.
+            base_trigger = 30.0
+            if current_adx >= 40:
+                base_trigger = 20.0
+            elif current_adx <= 22:
+                base_trigger = 40.0
+
+            breakeven_trigger = base_trigger * rf_delay_mult
+            if is_retest_heavy and rf_delay_mult < 1.5: breakeven_trigger = max(breakeven_trigger, 50.0)
 
             if roi >= 150.0:     # Degrau 5: Emancipação
                 target_stop_roi_trend = 110.0

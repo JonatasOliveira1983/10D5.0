@@ -107,27 +107,34 @@ class AmbushAgent:
                             zone_reached = True
 
                     if zone_reached:
+                        # [V4.0] PACIÊNCIA DO SNIPER: Espera uma pequena 'absorção' ou rejeição no 1m
+                        # Isso evita entrar "na frente do trem" e garante a violinada.
+                        absorption = await self._check_entry_absorption(symbol, side_norm, current_price)
+                        if not absorption["ready"]:
+                            await asyncio.sleep(1)
+                            continue
+
                         # 2. Avaliação de Exaustão (CVD) e Momento (RSI)
                         cvd = await redis_service.get_cvd(symbol)
                         rsi = bybit_ws_service.rsi_cache.get(symbol, 50.0)
                         
-                        logger.info(f"🥷 [AMBUSH-ZONE] {symbol} tocou a zona ({current_price:.6f}). Flow Institucional -> CVD: {cvd}, RSI: {rsi:.1f}")
+                        logger.info(f"🥷 [AMBUSH-ZONE] {symbol} detectou {absorption['reason']} ({current_price:.6f}). Flow -> CVD: {cvd}, RSI: {rsi:.1f}")
 
                         if side_norm == "buy":
                             if cvd < -150000:
                                 logger.warning(f"🛑 [AMBUSH-ABORT] Faca caindo! {symbol} violou suporte com CVD Extremo ({cvd:.0f}). Abortando emboscada Long.")
                                 return {"action": "ABORT", "reason": "CRITICAL_DUMP", "price": current_price}
                             
-                            logger.info(f"🚀 [AMBUSH-TRIGGER] Absorção e Exaustão confirmadas em {symbol} ({current_price:.6f})! Executando Bote Long.")
-                            return {"action": "TRIGGER", "reason": "DIP_BOUGHT", "price": current_price}
+                            logger.info(f"🚀 [AMBUSH-TRIGGER] Absorção e Violinada confirmadas em {symbol}! Executando Bote Long.")
+                            return {"action": "TRIGGER", "reason": f"DIP_ABSORBED_{absorption['reason']}", "price": current_price}
                             
                         else:
                             if cvd > 150000:
                                 logger.warning(f"🛑 [AMBUSH-ABORT] Foguete subindo! {symbol} violou teto com CVD Extremo ({cvd:.0f}). Abortando emboscada Short.")
                                 return {"action": "ABORT", "reason": "CRITICAL_PUMP", "price": current_price}
 
-                            logger.info(f"🚀 [AMBUSH-TRIGGER] Rejeição de Topo confirmada em {symbol} ({current_price:.6f})! Executando Bote Short.")
-                            return {"action": "TRIGGER", "reason": "RALLY_SOLD", "price": current_price}
+                            logger.info(f"🚀 [AMBUSH-TRIGGER] Rejeição e Violinada confirmadas em {symbol}! Executando Bote Short.")
+                            return {"action": "TRIGGER", "reason": f"RALLY_ABSORBED_{absorption['reason']}", "price": current_price}
 
                     # [V110.150] BREAKOUT DETECTION (MODO STRIKE EMERGÊNCIAL)
                     # Se o preço não lambeu a fibo mas está rompendo o topo/fundo local com CVD explosivo
@@ -146,5 +153,40 @@ class AmbushAgent:
         except Exception as e:
             logger.error(f"❌ [AMBUSH-ERROR] Falha na tocaia de {symbol}: {e}")
             return {"action": "ABORT", "reason": "SYSTEM_ERROR"}
+
+    async def _check_entry_absorption(self, symbol: str, side: str, current_price: float) -> dict:
+        """
+        [V4.0] PACIÊNCIA DO SNIPER: Valida se houve uma 'violinada' e rejeição.
+        Analisa as últimas velas de 1m para confirmar pavio e exaustão.
+        """
+        from services.bybit_ws import bybit_ws_service
+        
+        klines = bybit_ws_service.get_klines(symbol, "1")
+        if not klines or len(klines) < 2:
+            return {"ready": True, "reason": "NO_DATA_BYPASS"} # Fallback se não tiver dados
+        
+        last_k = klines[-1] # Vela atual (em formação)
+        
+        # Lógica de Absorção (Vela 1m com pavio significativo ou reversão)
+        high = float(last_k.get('high', 0))
+        low = float(last_k.get('low', 0))
+        open_p = float(last_k.get('open', 0))
+        close_p = float(last_k.get('close', 0))
+        
+        if side == "buy":
+            # Rejeição de Fundo: Preço furou a zona mas está fechando acima da abertura ou com pavio inferior longo
+            lower_wick = min(open_p, close_p) - low
+            body = abs(close_p - open_p)
+            # Se pavio inferior > 1.2x corpo, ou se já está revertendo (close > open)
+            if lower_wick > body * 1.2 or close_p > open_p:
+                return {"ready": True, "reason": "ABSORPTION_LONG"}
+        else:
+            # Rejeição de Topo: Pavio superior longo ou fechamento negativo
+            upper_wick = high - max(open_p, close_p)
+            body = abs(close_p - open_p)
+            if upper_wick > body * 1.2 or close_p < open_p:
+                return {"ready": True, "reason": "ABSORPTION_SHORT"}
+                
+        return {"ready": False}
 
 ambush_agent = AmbushAgent()

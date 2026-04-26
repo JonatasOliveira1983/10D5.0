@@ -2844,7 +2844,7 @@
                         )}
 
                         <div className="flex justify-between w-full px-0.5 mt-0.5">
-                            <span className={`text-[7px] font-bold ${data.rsi > 70 ? 'text-red-400' : data.rsi < 30 ? 'text-green-400' : 'text-gray-500'}`}>
+                            <span className={`text-[7px] font-bold ${data.rsi > 70 ? 'text-red-400' : data.rsi < 30 ? 'text-success' : 'text-gray-500'}`}>
                                 RSI {Math.round(data.rsi)}
                             </span>
                             <span className="material-icons-round text-[8px] text-gray-600">
@@ -4114,6 +4114,34 @@
                     ${isActive ? (isProfit ? 'profit-glow' : 'loss-glow') : 'opacity-30 grayscale'}
                     ${isSelected ? 'scale-[1.02] border-white shadow-white/10' : ''}`}
                 >
+                    {/* [V4.0] Respiro Badge - Dynamic Visibility */}
+                    {(() => {
+                        const dna = librarianIntel && librarianIntel[cleanSymbol]?.dna;
+                        const respiroBuffer = dna?.respiro_roi_buffer || 10.0;
+                        const currentSl = s.current_stop || s.stop_loss;
+                        const leverage = s.leverage || 50;
+                        const sideVal = s.side === 'Buy' ? 1 : -1;
+                        
+                        let priceRelSlPct = 0;
+                        if (currentSl > 0 && lastValidPrice.current > 0) {
+                            priceRelSlPct = (lastValidPrice.current - currentSl) / currentSl * 100 * sideVal * leverage;
+                        }
+                        
+                        const isRespirando = isActive && priceRelSlPct < 0 && Math.abs(priceRelSlPct) < respiroBuffer;
+                        
+                        if (isRespirando) {
+                            return (
+                                <div className="absolute top-2 left-2 z-30 animate-pulse">
+                                    <div className="bg-success/20 border border-success/40 text-success text-[8px] font-black px-2 py-0.5 rounded-full flex items-center gap-1 shadow-[0_0_10px_rgba(34,197,94,0.2)]">
+                                        <span className="material-icons-round text-[10px]">shield</span>
+                                        RESPIRO ATIVO
+                                    </div>
+                                </div>
+                            );
+                        }
+                        return null;
+                    })()}
+
                     {/* [V110.173] Strategy Badge - Dynamic Injection */}
                     <div className={`strategy-badge-elite !rounded-bl-3xl ${
                         (s.strategy === 'BLITZ_30M' || (!s.strategy && s.id <= 2)) 
@@ -5494,7 +5522,7 @@
                                                     </div>
                                                     <div className="text-right">
                                                         <span className={`text-xs font-mono font-black ${isProfit ? 'text-success' : 'text-red-400'}`}>
-                                                            {isProfit ? '+' : '-'}${Math.abs(log.pnl || 0).toFixed(2)}
+                                                            {isProfit ? '+' : '-'}${Math.abs(log.pnl || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                         </span>
                                                         <div className="text-[7px] text-gray-600 uppercase font-black">{new Date(log.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
                                                     </div>

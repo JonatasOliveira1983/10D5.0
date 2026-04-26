@@ -43,6 +43,49 @@ class LibrarianAgent(AIOSAgent):
         self.negative_patterns = {} # V2.0: ML Feedback Loop
         self.consecutive_losses = {} # [V110.128] Super Quarantine Tracker
         self.spring_elite_list = [] # [V110.165] Top 20 Mola Elite Pairs
+        # [V4.0] MATRIZ DE ESPECIALISTA: DNA Sniper para 40 pares principais.
+        self.SPECIALIST_MATRIX = {
+            "AVAXUSDT": {"respiro": 25, "rf_delay": 1.4, "beta": 1.5, "profile": "EXTREME"},
+            "NEARUSDT": {"respiro": 22, "rf_delay": 1.3, "beta": 1.3, "profile": "VOLATILE"},
+            "APTUSDT":  {"respiro": 25, "rf_delay": 1.4, "beta": 1.6, "profile": "EXTREME"},
+            "SUIUSDT":  {"respiro": 25, "rf_delay": 1.4, "beta": 1.6, "profile": "EXTREME"},
+            "OPUSDT":   {"respiro": 22, "rf_delay": 1.3, "beta": 1.4, "profile": "VOLATILE"},
+            "ARBUSDT":  {"respiro": 20, "rf_delay": 1.2, "beta": 1.3, "profile": "VOLATILE"},
+            "RENDERUSDT":{"respiro": 25, "rf_delay": 1.5, "beta": 1.7, "profile": "EXTREME"},
+            "FETUSDT":  {"respiro": 25, "rf_delay": 1.5, "beta": 1.7, "profile": "EXTREME"},
+            "INJUSDT":  {"respiro": 22, "rf_delay": 1.3, "beta": 1.4, "profile": "VOLATILE"},
+            "TIAUSDT":  {"respiro": 25, "rf_delay": 1.4, "beta": 1.5, "profile": "EXTREME"},
+            "LINKUSDT": {"respiro": 15, "rf_delay": 1.0, "beta": 1.0, "profile": "STABLE"},
+            "DOTUSDT":  {"respiro": 12, "rf_delay": 1.0, "beta": 0.9, "profile": "STABLE"},
+            "ADAUSDT":  {"respiro": 10, "rf_delay": 1.0, "beta": 0.8, "profile": "STABLE"},
+            "MATICUSDT":{"respiro": 15, "rf_delay": 1.1, "beta": 1.1, "profile": "STABLE"},
+            "ATOMUSDT": {"respiro": 15, "rf_delay": 1.0, "beta": 1.0, "profile": "STABLE"},
+            "LTCUSDT":  {"respiro": 10, "rf_delay": 1.0, "beta": 0.7, "profile": "STABLE"},
+            "BCHUSDT":  {"respiro": 18, "rf_delay": 1.2, "beta": 1.2, "profile": "VOLATILE"},
+            "XLMUSDT":  {"respiro": 10, "rf_delay": 1.0, "beta": 0.7, "profile": "STABLE"},
+            "XRPUSDT":  {"respiro": 10, "rf_delay": 1.0, "beta": 0.6, "profile": "STABLE"},
+            "TRXUSDT":  {"respiro": 8,  "rf_delay": 1.0, "beta": 0.4, "profile": "STABLE"},
+            "ALGOUSDT": {"respiro": 10, "rf_delay": 1.0, "beta": 0.8, "profile": "STABLE"},
+            "ETCUSDT":  {"respiro": 12, "rf_delay": 1.1, "beta": 1.0, "profile": "STABLE"},
+            "FILUSDT":  {"respiro": 18, "rf_delay": 1.2, "beta": 1.2, "profile": "VOLATILE"},
+            "STXUSDT":  {"respiro": 22, "rf_delay": 1.3, "beta": 1.4, "profile": "VOLATILE"},
+            "ICPUSDT":  {"respiro": 20, "rf_delay": 1.2, "beta": 1.3, "profile": "VOLATILE"},
+            "HBARUSDT": {"respiro": 15, "rf_delay": 1.1, "beta": 1.0, "profile": "STABLE"},
+            "KASUSDT":  {"respiro": 25, "rf_delay": 1.4, "beta": 1.5, "profile": "EXTREME"},
+            "LDOUSDT":  {"respiro": 20, "rf_delay": 1.2, "beta": 1.3, "profile": "VOLATILE"},
+            "AAVEUSDT": {"respiro": 18, "rf_delay": 1.2, "beta": 1.1, "profile": "VOLATILE"},
+            "RUNEUSDT": {"respiro": 25, "rf_delay": 1.4, "beta": 1.6, "profile": "EXTREME"},
+            "GRTUSDT":  {"respiro": 20, "rf_delay": 1.2, "beta": 1.3, "profile": "VOLATILE"},
+            "EGLDUSDT": {"respiro": 15, "rf_delay": 1.1, "beta": 1.0, "profile": "STABLE"},
+            "SANDUSDT": {"respiro": 18, "rf_delay": 1.2, "beta": 1.2, "profile": "VOLATILE"},
+            "MANAUSDT": {"respiro": 18, "rf_delay": 1.2, "beta": 1.2, "profile": "VOLATILE"},
+            "THETAUSDT":{"respiro": 15, "rf_delay": 1.1, "beta": 1.1, "profile": "STABLE"},
+            "VETUSDT":  {"respiro": 12, "rf_delay": 1.0, "beta": 0.9, "profile": "STABLE"},
+            "EOSUSDT":  {"respiro": 10, "rf_delay": 1.0, "beta": 0.8, "profile": "STABLE"},
+            "CHZUSDT":  {"respiro": 15, "rf_delay": 1.1, "beta": 1.1, "profile": "STABLE"},
+            "FTMUSDT":  {"respiro": 22, "rf_delay": 1.3, "beta": 1.4, "profile": "VOLATILE"},
+            "UNIUSDT":  {"respiro": 15, "rf_delay": 1.1, "beta": 1.1, "profile": "STABLE"},
+        }
         self.memecoin_blacklist = ["PEPE", "DOGE", "SHIB", "FLOKI", "BONK", "WIF", "MYRO", "1000SATS", "ORDI", "MEME", "TURBO", "PEOPLE"]
 
     async def on_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
@@ -118,8 +161,29 @@ class LibrarianAgent(AIOSAgent):
             "nectar_seal": "🛡️ VANGUARD",
             "ambush_buffer": 0.0016, 
             "is_trap_prone": False,
-            "is_spring_moment": False
+            "is_spring_moment": False,
+            "respiro_roi_buffer": 10.0,
+            "rf_trigger_delay": 1.0
         })
+        
+        # 5. [V4.0] SOBREPOSIÇÃO DE ESPECIALISTA: Injeta parâmetros da Matriz de 40 Pares
+        if symbol in self.SPECIALIST_MATRIX:
+            matrix = self.SPECIALIST_MATRIX[symbol]
+            dna["respiro_roi_buffer"] = matrix["respiro"]
+            dna["rf_trigger_delay"] = matrix["rf_delay"]
+            dna["beta_correlation"] = matrix["beta"]
+            dna["specialist_profile"] = matrix["profile"]
+            
+            # Sincroniza classes de volatilidade com a matriz
+            if matrix["profile"] == "EXTREME":
+                dna["volatility_class"] = "EXTREME"
+                dna["ambush_buffer"] = max(dna.get("ambush_buffer", 0), 0.0040)
+            elif matrix["profile"] == "VOLATILE":
+                dna["volatility_class"] = "VOLATILE"
+                dna["ambush_buffer"] = max(dna.get("ambush_buffer", 0), 0.0025)
+            else:
+                dna["volatility_class"] = "STABLE"
+                dna["ambush_buffer"] = min(dna.get("ambush_buffer", 0.0016), 0.0012)
         
         return dna
 
