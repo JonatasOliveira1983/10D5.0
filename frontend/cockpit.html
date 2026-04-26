@@ -69,11 +69,11 @@
                     colors: {
                         primary: "#f3f4f6", // Light Gray for Main Text
                         secondary: "#a3a3a3", // Medium Gray
-                        accent: "#d9f99d", // Lime Green for Profit/Status
+                        accent: "#22c55e", // Normal Green for Profit/Status
                         "obsidian": "#050505", // Deep Grayscale
                         "gray-950": "#050505",
                         danger: "#EF4444",
-                        success: "#d9f99d", 
+                        success: "#22c55e", 
                         card: "rgba(30, 30, 30, 0.6)", 
                         gold: "#ffffff" // Replaced with pure white
                     },
@@ -140,8 +140,8 @@
             border-radius: 2rem !important;
         }
         .profit-glow { 
-            border-color: rgba(217, 249, 157, 0.3) !important; 
-            box-shadow: inset 0 0 20px rgba(217, 249, 157, 0.05), 0 12px 32px -8px rgba(0, 0, 0, 0.8) !important; 
+            border-color: rgba(34, 197, 94, 0.3) !important; 
+            box-shadow: inset 0 0 20px rgba(34, 197, 94, 0.05), 0 12px 32px -8px rgba(0, 0, 0, 0.8) !important; 
         }
         .loss-glow { 
             border-color: rgba(239, 68, 68, 0.35) !important; 
@@ -1149,7 +1149,7 @@
 
         .status-badge.scanning {
             background: rgba(255, 255, 255, 0.1);
-            color: #d9f99d;
+            color: #22c55e;
         }
 
         .status-badge.in-trade {
@@ -1734,7 +1734,7 @@
 
             return (
                 <div className="flex flex-col items-center gap-0.5 group relative">
-                    <div className="w-6 h-6 flex items-center justify-center rounded-md bg-white/[0.02] border border-white/5 transition-all group-hover:border-lime-500/30" 
+                    <div className="w-6 h-6 flex items-center justify-center rounded-md bg-white/[0.02] border border-white/5 transition-all group-hover:border-green-500/30" 
                          style={isActive ? { boxShadow: `inset 0 0 8px ${color}20`, borderColor: `${color}40` } : {}}>
                         {renderIconContent()}
                     </div>
@@ -1776,7 +1776,7 @@
             const progress = Math.min(100, (gains / target) * 100);
 
             return (
-                <div className="mb-4 p-4 rounded-2xl bg-gradient-to-br from-lime-500/10 to-white/10 border border-lime-500/20 overflow-hidden relative group">
+                <div className="mb-4 p-4 rounded-2xl bg-gradient-to-br from-green-500/10 to-white/10 border border-green-500/20 overflow-hidden relative group">
                     <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
                         <span className="material-icons-round text-3xl">track_changes</span>
                     </div>
@@ -1797,7 +1797,7 @@
                         {/* Progress Bar */}
                         <div className="w-full bg-black/40 h-2.5 rounded-full overflow-hidden border border-white/5 p-[1px]">
                             <div 
-                                className="h-full bg-gradient-to-r from-lime-600 via-white to-gray-400 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(255,255,255,0.2)]"
+                                className="h-full bg-gradient-to-r from-green-600 via-white to-gray-400 rounded-full transition-all duration-1000 shadow-[0_0_10px_rgba(255,255,255,0.2)]"
                                 style={{ width: `${progress}%` }}
                             ></div>
                         </div>
@@ -1825,8 +1825,8 @@
             if (!info) return null;
 
             const wr = info.win_rate || 0;
-            const color = wr >= 65 ? 'text-white border-lime-400/30 bg-lime-400/10' : 
-                         wr >= 55 ? 'text-white border-lime-400/30 bg-lime-400/10' : 
+            const color = wr >= 65 ? 'text-white border-green-400/30 bg-green-400/10' : 
+                         wr >= 55 ? 'text-white border-green-400/30 bg-green-400/10' : 
                          'text-amber-400 border-amber-400/30 bg-amber-400/10';
 
             return (
@@ -1848,7 +1848,7 @@
                             <h2 className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em]">Patrimônio Líquido</h2>
                             <div className="flex items-baseline gap-2">
                                 <span className="text-3xl font-black text-white font-mono">${liveEquity.toFixed(2)}</span>
-                                <span className={`text-xs font-bold ${liveTotalPnL >= 0 ? 'text-white' : 'text-orange-400'}`}>
+                                <span className={`text-xs font-bold ${liveTotalPnL >= 0 ? 'text-success' : 'text-orange-400'}`}>
                                     {liveTotalPnL >= 0 ? '+' : ''}{liveTotalPnL.toFixed(2)}
                                 </span>
                             </div>
@@ -1871,7 +1871,7 @@
                             <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Integridade</span>
                             <div className="flex items-center justify-end gap-2">
                                 <span className="text-lg font-black font-mono text-white">{hullIntegrityPct.toFixed(1)}%</span>
-                                <div className={`w-2 h-2 rounded-full ${isDrawdown ? 'bg-orange-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 'bg-lime-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'}`}></div>
+                                <div className={`w-2 h-2 rounded-full ${isDrawdown ? 'bg-orange-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]' : 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]'}`}></div>
                             </div>
                         </div>
                     </div>
@@ -1883,7 +1883,7 @@
                         </div>
                         <div className="w-full bg-gray-900 h-1.5 rounded-full overflow-hidden p-[1px]">
                             <div 
-                                className={`h-full transition-all duration-1000 ${isDrawdown ? 'bg-orange-500' : 'bg-lime-500'}`} 
+                                className={`h-full transition-all duration-1000 ${isDrawdown ? 'bg-orange-500' : 'bg-green-500'}`} 
                                 style={{ width: `${hullIntegrityPct}%` }}
                             ></div>
                         </div>
@@ -1902,7 +1902,7 @@
                 if (pulseStatus === 'OFFLINE') return 'bg-red-500';
                 if (pulseStatus === 'WARNING') return 'bg-orange-500';
                 if (pulseStatus === 'DEGRADED') return 'bg-gray-400';
-                return latency < 3000 ? 'bg-lime-500' : 'bg-orange-400';
+                return latency < 3000 ? 'bg-green-500' : 'bg-orange-400';
             };
             
             const MarketMetric = ({ label, value, subValue, color = 'text-white' }) => (
@@ -1934,7 +1934,7 @@
 
                     {/* V39.2: Wealth Intel Card - Agrupamento Premium de Métricas BTC */}
                     <div className="px-4 py-3">
-                        <div className="premium-card bg-gradient-to-br from-lime-500/[0.05] to-transparent p-3 relative overflow-hidden group">
+                        <div className="premium-card bg-gradient-to-br from-green-500/[0.05] to-transparent p-3 relative overflow-hidden group">
                             {/* Scanning Light Effect */}
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.02] to-transparent -trangray-x-full group-hover:trangray-x-full transition-transform duration-1000"></div>
                             
@@ -1942,7 +1942,7 @@
                                 <div className="flex flex-col">
                                     <div className="flex items-center gap-2">
                                         <span className="text-base font-black text-white font-mono tracking-tighter">${formatPrice(btc?.btc_price || 0)}</span>
-                                        <div className={`text-[9px] font-black px-1.5 py-0.5 rounded flex items-center gap-1 ${btc?.btc_variation_24h >= 0 ? 'bg-lime-500/10 text-white' : 'bg-red-500/10 text-red-400'}`}>
+                                        <div className={`text-[9px] font-black px-1.5 py-0.5 rounded flex items-center gap-1 ${btc?.btc_variation_24h >= 0 ? 'bg-green-500/10 text-white' : 'bg-red-500/10 text-red-400'}`}>
                                             <span className="material-icons-round text-[10px]">{btc?.btc_variation_24h >= 0 ? 'trending_up' : 'trending_down'}</span>
                                             {btc?.btc_variation_24h >= 0 ? '+' : ''}{Number(btc?.btc_variation_24h || 0).toFixed(2)}%
                                         </div>
@@ -1951,7 +1951,7 @@
                                 </div>
                                 <div className="text-right">
                                     <p className={`text-[10px] font-black px-2 py-0.5 rounded-md border ${
-                                        unifiedRegime === 'UP' ? 'bg-lime-500/10 text-white border-lime-500/20' : 
+                                        unifiedRegime === 'UP' ? 'bg-green-500/10 text-white border-green-500/20' : 
                                         unifiedRegime === 'DOWN' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 
                                         'bg-orange-500/10 text-orange-400 border-orange-500/20'
                                     }`}>
@@ -2530,7 +2530,7 @@
 
         // --- V42.9: ADX Visibiliy Helpers ---
         const getAdxStyle = (adx) => {
-            if (adx >= 40) return 'text-white font-extrabold drop-shadow-[0_0_8px_rgba(190,242,100,0.8)]';
+            if (adx >= 40) return 'text-white font-extrabold drop-shadow-[0_0_8px_rgba(34,197,94,0.8)]';
             if (adx >= 25) return 'text-white font-bold';
             if (adx >= 20) return 'text-amber-400 opacity-90';
             return 'text-gray-500 opacity-60 font-medium';
@@ -2647,7 +2647,7 @@
                             <div className="flex items-center gap-2 opacity-60">
                                 <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">{protocolLabel}</span>
                                 <div className="flex items-center gap-1.5 bg-black/30 px-1.5 py-0.5 rounded-md border border-white/5">
-                                    <div className={`w-1.5 h-1.5 rounded-full ${pulseStatus === 'ONLINE' && !isStale ? 'bg-lime-500 shadow-[0_0_5px_rgba(16,185,129,1)] animate-pulse' : isStale ? 'bg-amber-500' : 'bg-red-500'}`}></div>
+                                    <div className={`w-1.5 h-1.5 rounded-full ${pulseStatus === 'ONLINE' && !isStale ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,1)] animate-pulse' : isStale ? 'bg-amber-500' : 'bg-red-500'}`}></div>
                                     <span className={`text-[8px] font-mono font-bold ${isStale ? 'text-amber-500' : 'text-white'}`}>
                                         {latencyMs < 1000 ? '<1s' : `${Math.floor(latencyMs / 1000)}s`}
                                     </span>
@@ -2708,7 +2708,7 @@
                                         const isUp = btc.btc_direction === 'UP';
 
                                         if (isTrending && isUp) {
-                                            return <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest bg-lime-500 text-black shadow-[0_0_10px_rgba(16,185,129,0.5)]">MERCADO EM ALTA</span>;
+                                            return <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest bg-green-500 text-black shadow-[0_0_10px_rgba(34,197,94,0.5)]">MERCADO EM ALTA</span>;
                                         } else if (isTrending && !isUp) {
                                             return <span className="px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-widest bg-red-500 text-white shadow-[0_0_10px_rgba(239,68,68,0.5)]">MERCADO EM BAIXA</span>;
                                         } else {
@@ -2737,7 +2737,7 @@
                                                 <div 
                                                     className={`h-full transition-all duration-1000 ${
                                                         btc.btc_adx >= 40 ? 'bg-gray-400 shadow-[0_0_8px_rgba(34,211,238,0.6)]' :
-                                                        btc.btc_adx >= 25 ? 'bg-lime-400' :
+                                                        btc.btc_adx >= 25 ? 'bg-green-400' :
                                                         btc.btc_adx >= 20 ? 'bg-amber-400' : 'bg-gray-500'
                                                     }`} 
                                                     style={{ width: `${Math.min(btc.btc_adx, 100)}%` }}
@@ -2834,7 +2834,7 @@
                         {data.decorrelation && (
                             <div className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[8px] font-black uppercase tracking-tighter transition-all duration-500
                                 ${data.decorrelation.is_active ? 
-                                    (data.decorrelation.score >= 80 ? 'bg-white/10 border-white/20 text-white shadow-[0_0_10px_rgba(16,185,129,0.3)] animate-pulse' : 'bg-lime-500/10 border-lime-500/20 text-white/80') : 
+                                    (data.decorrelation.score >= 80 ? 'bg-white/10 border-white/20 text-white shadow-[0_0_10px_rgba(34,197,94,0.3)] animate-pulse' : 'bg-green-500/10 border-green-500/20 text-white/80') : 
                                     'bg-gray-500/10 border-white/10 text-gray-500'}`}>
                                 <span className="material-icons-round text-[10px]">
                                     {data.decorrelation.is_active ? 'link_off' : 'link'}
@@ -3209,7 +3209,7 @@
                             const target150 = normSide === 'BUY' ? ne * 1.03 : ne * 0.97;
                             try {
                                 linesRef.current.push(seriesRef.current.createPriceLine({
-                                    price: target150, color: '#10b981', lineWidth: 2, lineStyle: LightweightCharts.LineStyle.Dashed,
+                                    price: target150, color: '#22c55e', lineWidth: 2, lineStyle: LightweightCharts.LineStyle.Dashed,
                                     axisLabelVisible: true, title: 'TARGET (150%)'
                                 }));
                             } catch (e) { }
@@ -3312,7 +3312,7 @@
                             </div>
                         )}
                         {/* V9.0 Trend Indicator */}
-                        <div className={`mt-1 px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 ${trendData.trend === 'bullish' ? 'bg-white/10 text-white border border-lime-500/30' :
+                        <div className={`mt-1 px-2 py-0.5 rounded text-[9px] font-bold flex items-center gap-1 ${trendData.trend === 'bullish' ? 'bg-white/10 text-white border border-green-500/30' :
                             trendData.trend === 'bearish' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
                                 'bg-gray-500/20 text-gray-400 border border-gray-500/30'
                             }`}>
@@ -3722,7 +3722,7 @@
                 <div className="flex flex-col h-screen theme-jarvis v5-bg-deep v5-text-main lg:pt-20 overflow-hidden relative">
                     {/* Background Glows */}
                     <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
-                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-lime-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+                    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-green-500/5 rounded-full blur-[120px] pointer-events-none"></div>
 
                     {/* Sidebar Menu - V4.9.4.2 */}
                     {isMenuOpen && (
@@ -3906,7 +3906,7 @@
             return (
                 <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden mt-0.5 border border-white/5 p-[0.5px]">
                     <div
-                        className={`h-full transition-all duration-1000 ${isBuy ? 'bg-lime-400 shadow-[0_0_8px_rgba(52,211,153,0.5)]' : 'bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.5)]'}`}
+                        className={`h-full transition-all duration-1000 ${isBuy ? 'bg-green-400 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.5)]'}`}
                         style={{ width: `${ratio}%` }}
                     ></div>
                 </div>
@@ -4159,10 +4159,10 @@
                         </div>
                         
                         <div className="flex flex-col items-end">
-                            <span className={`text-3xl font-black font-mono leading-none ${isProfit ? 'text-accent' : 'text-danger'}`} style={{ textShadow: isProfit ? '0 0 15px rgba(217,249,157,0.3)' : '0 0 15px rgba(239,68,68,0.2)' }}>
+                            <span className={`text-3xl font-black font-mono leading-none ${isProfit ? 'text-success' : 'text-danger'}`} style={{ textShadow: isProfit ? '0 0 15px rgba(34, 197, 94, 0.3)' : '0 0 15px rgba(239, 68, 68, 0.2)' }}>
                                 {isProfit ? '+' : ''}{displayPnl.toFixed(1)}%
                             </span>
-                            <span className={`text-[11px] font-bold font-mono mt-1 ${isProfit ? 'text-accent' : 'text-danger'} opacity-80`}>
+                            <span className={`text-[11px] font-bold font-mono mt-1 ${isProfit ? 'text-success' : 'text-danger'} opacity-80`}>
                                 {isProfit ? '+' : '-'}${Math.abs((displayPnl / 100) * (s.margin || (s.bankroll * 0.1) || 10)).toFixed(2)}
                             </span>
                         </div>
@@ -4194,7 +4194,7 @@
                     {isActive && (
                         <div className="absolute bottom-0 left-0 h-1 bg-white/5 w-full">
                             <div 
-                                className="h-full transition-all duration-1000 bg-accent shadow-[0_0_8px_#d9f99d]" 
+                                className="h-full transition-all duration-1000 bg-success shadow-[0_0_8px_#22c55e]" 
                                 style={{ width: `${Math.min(wickIntensity * 100, 100)}%` }}
                             ></div>
                         </div>
@@ -4320,7 +4320,7 @@
                 });
                 
                 const series = chart.addCandlestickSeries({
-                    upColor: '#10B981', downColor: '#EF4444', borderVisible: true, borderColor: '#000000', wickUpColor: '#10B981', wickDownColor: '#EF4444'
+                    upColor: '#22c55e', downColor: '#EF4444', borderVisible: true, borderColor: '#000000', wickUpColor: '#22c55e', wickDownColor: '#EF4444'
                 });
                 
                 const volSeries = chart.addHistogramSeries({
@@ -4433,7 +4433,7 @@
                 }
                 if (target > 0) {
                     priceLinesRef.current.tp = candlestickSeries.current.createPriceLine({
-                        price: target, color: '#d9f99d', lineWidth: 2, lineStyle: 0, title: 'ALVO 150%',
+                        price: target, color: '#22c55e', lineWidth: 2, lineStyle: 0, title: 'ALVO 150%',
                     });
                 }
             }, [slots, localSymbol, focusedAsset]);
@@ -4518,7 +4518,7 @@
             const getSealColor = (seal) => {
                 const s = (seal || '').toUpperCase();
                 if (s.includes('NECTAR') || s.includes('ELITE')) return 'text-amber-400 bg-amber-500/10 border-amber-500/20';
-                if (s.includes('VANGUARD') || s.includes('SHIELD')) return 'text-white bg-lime-500/10 border-lime-500/20';
+                if (s.includes('VANGUARD') || s.includes('SHIELD')) return 'text-white bg-green-500/10 border-green-500/20';
                 if (s.includes('TRAP')) return 'text-red-400 bg-red-500/10 border-red-500/20';
                 return 'text-gray-500 bg-white/5 border-white/10';
             };
@@ -4539,7 +4539,7 @@
                             <span className="material-icons-round text-amber-400 text-lg">auto_stories</span>
                             Intelligence Librarian
                         </h2>
-                        <span className={`text-[8px] font-black uppercase px-2 py-1 rounded border tracking-widest ${isScanning ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse' : 'bg-lime-500/10 text-white border-lime-500/20'}`}>
+                        <span className={`text-[8px] font-black uppercase px-2 py-1 rounded border tracking-widest ${isScanning ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse' : 'bg-green-500/10 text-white border-green-500/20'}`}>
                             {isScanning ? 'STUDYING' : 'READY'}
                         </span>
                     </div>
@@ -4668,7 +4668,7 @@
                         {/* BTC & REGIME CORE */}
                         <div className="flex items-center gap-3 bg-white/[0.02] px-4 py-1.5 rounded-xl border border-white/5 hover:border-accent/20 transition-all">
                              <div className={`w-7 h-7 rounded-full flex items-center justify-center border transition-all duration-1000 ${isStabilizing ? 'bg-amber-500/10 border-amber-500/20' : 'bg-accent/5 border-accent/10'}`}>
-                                <span className={`material-icons-round text-sm ${isStabilizing ? 'text-amber-500 animate-spin' : 'text-accent drop-shadow-[0_0_5px_rgba(217,249,157,0.4)]'}`}>
+                                <span className={`material-icons-round text-sm ${isStabilizing ? 'text-amber-500 animate-spin' : 'text-success drop-shadow-[0_0_5px_rgba(34,197,94,0.4)]'}`}>
                                     {isStabilizing ? 'hourglass_top' : 'auto_awesome'}
                                 </span>
                             </div>
@@ -4954,18 +4954,18 @@
                                         <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded ${rankColor} bg-white/5 border border-white/10`}>{fleetRank}</span>
                                     </div>
                                     <div className="relative z-10 space-y-1">
-                                        <span className={`text-4xl font-black font-display tracking-tighter ${liveTotalProfit >= 0 ? 'text-accent' : 'text-danger'}`} style={{ textShadow: liveTotalProfit >= 0 ? '0 0 15px rgba(217,249,157,0.3)' : '0 0 15px rgba(239,68,68,0.2)' }}>
+                                        <span className={`text-4xl font-black font-display tracking-tighter ${liveTotalProfit >= 0 ? 'text-success' : 'text-danger'}`} style={{ textShadow: liveTotalProfit >= 0 ? '0 0 15px rgba(34, 197, 94, 0.3)' : '0 0 15px rgba(239,68,68,0.2)' }}>
                                             ${liveEquity.toFixed(2)}
                                         </span>
                                         <div className="flex items-center gap-2">
-                                            <span className={`text-xs font-bold ${liveTotalProfit >= 0 ? 'text-accent' : 'text-danger'}`}>
+                                            <span className={`text-xs font-bold ${liveTotalProfit >= 0 ? 'text-success' : 'text-danger'}`}>
                                                 {liveTotalProfit >= 0 ? '+' : '-'}${Math.abs(liveTotalProfit).toFixed(2)}
                                             </span>
                                             <span className="text-[10px] font-bold text-gray-600 uppercase tracking-tighter">Current Session</span>
                                         </div>
                                     </div>
                                     <div className="mt-6 w-full bg-black/50 h-2 rounded-full overflow-hidden border border-white/5">
-                                        <div className={`h-full bg-gradient-to-r from-accent to-white shadow-[0_0_10px_rgba(217,249,157,0.3)] transition-all duration-1000`} style={{ width: `${hullIntegrityPct}%` }}></div>
+                                        <div className={`h-full bg-gradient-to-r from-accent to-white shadow-[0_0_10px_rgba(34,197,94,0.3)] transition-all duration-1000`} style={{ width: `${hullIntegrityPct}%` }}></div>
                                     </div>
                                 </div>
                             </section>
@@ -5058,7 +5058,7 @@
                                                         <div className="text-[8px] text-gray-600 uppercase font-black">{log.close_reason || 'Manual'}</div>
                                                     </td>
                                                     <td className="p-3 text-right">
-                                                        <div className={`font-black font-mono ${log.pnl >= 0 ? 'text-white' : 'text-red-400'}`}>
+                                                        <div className={`font-black font-mono ${log.pnl >= 0 ? 'text-success' : 'text-red-400'}`}>
                                                             {log.pnl >= 0 ? '+' : '-'}${Math.abs(log.pnl).toFixed(1)}
                                                         </div>
                                                         <div className="text-[8px] text-gray-700">{new Date(log.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
@@ -5306,8 +5306,8 @@
             const getPulseColor = () => {
                 if (pulseStatus === 'OFFLINE') return 'bg-red-500';
                 if (pulseStatus === 'WARNING') return 'bg-amber-500';
-                if (pulseStatus === 'DEGRADED') return 'bg-lime-400';
-                if (latency < 3000) return 'bg-lime-500';
+                if (pulseStatus === 'DEGRADED') return 'bg-green-400';
+                if (latency < 3000) return 'bg-green-500';
                 if (latency < 10000) return 'bg-amber-400';
                 return 'bg-amber-600';
             };
@@ -5493,7 +5493,7 @@
                                                         <span className="text-[8px] text-gray-500 uppercase font-bold">{log.side}</span>
                                                     </div>
                                                     <div className="text-right">
-                                                        <span className={`text-xs font-mono font-black ${isProfit ? 'text-white' : 'text-red-400'}`}>
+                                                        <span className={`text-xs font-mono font-black ${isProfit ? 'text-success' : 'text-red-400'}`}>
                                                             {isProfit ? '+' : '-'}${Math.abs(log.pnl || 0).toFixed(2)}
                                                         </span>
                                                         <div className="text-[7px] text-gray-600 uppercase font-black">{new Date(log.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
@@ -5522,9 +5522,9 @@
                                     onClick={e => e.stopPropagation()}
                                 >
                                     {/* Header de Triunfo */}
-                                    <div className={`p-6 border-b border-white/5 flex items-center justify-between ${isAstronomical ? 'bg-lime-900/20' : isProfit ? 'bg-lime-900/10' : 'bg-white/5'}`}>
+                                    <div className={`p-6 border-b border-white/5 flex items-center justify-between ${isAstronomical ? 'bg-green-900/20' : isProfit ? 'bg-green-900/10' : 'bg-white/5'}`}>
                                         <div className="flex items-center gap-3">
-                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${isAstronomical ? 'bg-white/20 border-white/30' : 'bg-white/10 border-lime-500/30'}`}>
+                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center border ${isAstronomical ? 'bg-white/20 border-white/30' : 'bg-white/10 border-green-500/30'}`}>
                                                 <span className={`material-icons-round ${isAstronomical ? 'text-white' : 'text-white'}`}>
                                                     {isAstronomical ? 'auto_awesome' : 'military_tech'}
                                                 </span>
@@ -5544,7 +5544,7 @@
                                     <div className="p-6 overflow-y-auto custom-scrollbar flex flex-col gap-6">
                                         {/* BANNER DE RESULTADO */}
                                         <div className="relative group p-6 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-col items-center justify-center text-center overflow-hidden">
-                                            <div className="absolute inset-0 bg-gradient-to-b from-lime-500/[0.03] to-transparent"></div>
+                                            <div className="absolute inset-0 bg-gradient-to-b from-green-500/[0.03] to-transparent"></div>
                                             
                                             <span className="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-2">Conquista Financeira</span>
                                             <div className="flex items-center gap-3">
@@ -5558,9 +5558,9 @@
 
                                             {/* ROI BADGES */}
                                             <div className="flex gap-2 mt-4">
-                                                {finalRoi >= 20 && <span className="px-2 py-0.5 rounded-full bg-white/10 border border-lime-500/30 text-[8px] font-black text-white uppercase tracking-widest">🌊 WAVE</span>}
-                                                {finalRoi >= 50 && <span className="px-2 py-0.5 rounded-full bg-white/10 border border-lime-500/30 text-[8px] font-black text-white uppercase tracking-widest">⚡ VOLT</span>}
-                                                {finalRoi >= 100 && <span className="px-2 py-0.5 rounded-full bg-white/10 border border-lime-500/30 text-[8px] font-black text-white uppercase tracking-widest">🚀 ROCKET</span>}
+                                                {finalRoi >= 20 && <span className="px-2 py-0.5 rounded-full bg-white/10 border border-green-500/30 text-[8px] font-black text-white uppercase tracking-widest">🌊 WAVE</span>}
+                                                {finalRoi >= 50 && <span className="px-2 py-0.5 rounded-full bg-white/10 border border-green-500/30 text-[8px] font-black text-white uppercase tracking-widest">⚡ VOLT</span>}
+                                                {finalRoi >= 100 && <span className="px-2 py-0.5 rounded-full bg-white/10 border border-green-500/30 text-[8px] font-black text-white uppercase tracking-widest">🚀 ROCKET</span>}
                                                 {finalRoi >= 300 && <span className="px-2 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-[8px] font-black text-amber-300 uppercase tracking-widest">👑 CROWN</span>}
                                                 {isAstronomical && <span className="px-2 py-0.5 rounded-full bg-white/20 border border-white/30 text-[8px] font-black text-white uppercase tracking-widest animate-pulse">🌌 GOD MODE</span>}
                                             </div>
@@ -5733,8 +5733,8 @@
                 chartRef.current = chart;
 
                 const candlestickSeries = chart.addCandlestickSeries({
-                    upColor: '#10b981', downColor: '#ef4444', borderVisible: false,
-                    wickUpColor: '#10b981', wickDownColor: '#ef4444'
+                    upColor: '#22c55e', downColor: '#ef4444', borderVisible: false,
+                    wickUpColor: '#22c55e', wickDownColor: '#ef4444'
                 });
                 candlestickSeries.setData(klines);
 
@@ -5752,7 +5752,7 @@
                         markers.push({
                             time: intTime(t.entry_time),
                             position: t.side === 'Long' ? 'belowBar' : 'aboveBar',
-                            color: t.side === 'Long' ? '#10b981' : '#f59e0b',
+                            color: t.side === 'Long' ? '#22c55e' : '#f59e0b',
                             shape: t.side === 'Long' ? 'arrowUp' : 'arrowDown',
                             text: `${t.side} Entry`
                         });
@@ -5760,7 +5760,7 @@
                             markers.push({
                                 time: intTime(t.exit_time),
                                 position: 'inBar',
-                                color: (t.pnl || 0) >= 0 ? '#10b981' : '#f43f5e',
+                                color: (t.pnl || 0) >= 0 ? '#22c55e' : '#f43f5e',
                                 shape: 'circle',
                                 text: `EXIT ($${(t.pnl || 0).toFixed(1)})`
                             });
@@ -5922,7 +5922,7 @@
                                                 {data.klines.filter(k => k.adx > 40).length > 0 && (
                                                     <span className="text-[8px] font-black px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20 uppercase">Trend Explosion</span>
                                                 )}
-                                                <span className="text-[8px] font-black px-2 py-0.5 rounded bg-lime-500/10 text-white border border-lime-500/20 uppercase">Volatility Guard</span>
+                                                <span className="text-[8px] font-black px-2 py-0.5 rounded bg-green-500/10 text-white border border-green-500/20 uppercase">Volatility Guard</span>
                                             </div>
                                         </div>
                                     </div>
@@ -5983,7 +5983,7 @@
                 <Link
                     to={to}
                     className={`flex flex-col items-center gap-1 py-3 px-2 rounded-xl transition-all w-full ${isActive
-                        ? 'text-white bg-white/10 border border-white/20 shadow-[0_0_15px_rgba(190,242,100,0.15)]'
+                        ? 'text-white bg-white/10 border border-white/20 shadow-[0_0_15px_rgba(34,197,94,0.15)]'
                         : 'text-gray-400 hover:text-white hover:bg-white/5'
                         }`}
                 >
@@ -6006,7 +6006,7 @@
                             <Link
                                 to="/chat"
                                 className={`flex items-center justify-center w-14 h-14 lg:w-12 lg:h-12 lg:-mt-0 -mt-6 rounded-full transition-all ${location.pathname === '/chat'
-                                    ? 'bg-white text-black shadow-[0_0_30px_rgba(190,242,100,0.4)]'
+                                    ? 'bg-white text-black shadow-[0_0_30px_rgba(34,197,94,0.4)]'
                                     : 'v5-bg-card text-white border border-white/10 hover:border-white/20'
                                     }`}
                             >
@@ -6141,7 +6141,7 @@
                                     {check.status === 'pending' ? (
                                         <div className="w-5 h-5 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></div>
                                     ) : check.status === 'success' ? (
-                                        <div className="w-6 h-6 rounded-full bg-lime-500/10 flex items-center justify-center border border-lime-500/30">
+                                        <div className="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center border border-green-500/30">
                                             <span className="material-icons-round text-white" style={{ fontSize: '16px' }}>check</span>
                                         </div>
                                     ) : (
@@ -6171,7 +6171,7 @@
                 <div className="flex flex-col h-full bg-black relative lg:pt-20 overflow-hidden" style={{ paddingBottom: '90px' }}>
                     <div className="absolute top-0 left-0 w-full z-10 p-4 flex justify-between items-center pointer-events-none">
                         <div className="bg-black/40 backdrop-blur-md border border-white/5 rounded-full px-3 py-1 flex items-center gap-2">
-                             <div className="w-1.5 h-1.5 bg-lime-500 rounded-full animate-pulse"></div>
+                             <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
                              <span className="text-[8px] text-white uppercase tracking-widest font-bold font-mono">Neural Link: V20.5 Shadow Active</span>
                         </div>
                     </div>
