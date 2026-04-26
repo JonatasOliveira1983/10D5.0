@@ -4512,19 +4512,6 @@
                 </div>
             );
         };
-                        <button 
-                            onClick={() => setEagleMode(!eagleMode)}
-                            className={`p-1 rounded border transition-all ${eagleMode ? 'bg-white/10 text-white border-white/20' : 'bg-white/5 text-gray-500 border-white/10'}`}
-                            title={eagleMode ? "Eagle Vision: Analytic" : "Eagle Vision: Simple"}
-                        >
-                            <span className="material-icons-round text-[12px]">{eagleMode ? 'visibility' : 'visibility_off'}</span>
-                        </button>
-                        <span className="text-[10px] font-black text-white/50 uppercase tracking-tighter">#{index+1}</span>
-                    </div>
-                    <div ref={chartContainerRef} className="flex-1 w-full" />
-                </div>
-            );
-        };
 
         // =========================================================================
         // [V110.115] Intelligence Librarian Panel — Top Ranks no Dashboard
@@ -6440,7 +6427,7 @@
 
             useEffect(() => {
                 if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('/sw.js?v=110.182.2').then(reg => {
+                    navigator.serviceWorker.register('/sw.js?v=110.182.3').then(reg => {
                         // Detect updates
                         reg.addEventListener('updatefound', () => {
                             const newWorker = reg.installing;
@@ -6496,7 +6483,7 @@
                         <NavBar onLogout={handleLogout} />
                     </div>
                     
-                    {/* [V110.182.2] PWA Update Toast */}
+                    {/* [V110.182.3] PWA Update Toast */}
                     {showUpdate && (
                         <div className="fixed bottom-24 left-4 right-4 z-[100] animate-bounce">
                             <div className="glass border border-primary/40 p-4 rounded-2xl flex items-center justify-between shadow-2xl">
@@ -6505,7 +6492,7 @@
                                         <span className="material-icons-round text-white text-sm">system_update</span>
                                     </div>
                                     <div>
-                                        <h4 className="text-xs font-black text-white uppercase">Update Sniper V110.182.2</h4>
+                                        <h4 className="text-xs font-black text-white uppercase">Update Sniper V110.182.3</h4>
                                         <p className="text-[9px] text-gray-400 font-bold uppercase">Novas inteligências detectadas!</p>
                                     </div>
                                 </div>
