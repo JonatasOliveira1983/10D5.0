@@ -16,7 +16,7 @@
 
 ## ⚡ 10D BYBITY REAL 4.0 — PROTOCOLO DE ELITE
 ## REGRA 00 — REPOSITÓRIO ÚNICO E OFICIAL
-1. **REPO ÚNICO:** O único repositório oficial para este sistema é: `https://github.com/JonatasOliveira1983/10D5.0/`.
+1. **REPO ÚNICO:** O único repositório oficial para este sistema é: `https://github.com/JonatasOliveira1983/10DBybityREAL/`.
 2. **PUSH OBRIGATÓRIO:** Todo commit deve ser enviado para o branch `main` deste repositório para deploy automático no Railway.
 3. **URL DE COMANDO:** A UI oficial é acessível via `https://1crypten.space/`.
 
@@ -53,11 +53,11 @@
 ---
 
 ## 3. BLITZ SNIPER & DNA SPECIALIST (V4.0 ADAPTIVE)
-1. **Momento Mola**: Prioridade absoluta para sinais "Mola" identificados pelo Librarian.
-2. **Spring Shield (Bypass)**: Sinais de Mola possuem bypass total da Guilhotina Lateral (ADX < 18) e do Trap-Prone Shield.
-3. **Adaptive Respiro (V4.0):** O sistema tolera desvios de até **25% de ROI** abaixo do Stop Loss se o fluxo monetário (CVD) estiver favorável e o ativo for classificado como Especialista.
-4. **Breakeven Inteligente (V4.0):** Ativos com histórico de pavios (Retest Heavy) retardam o movimento de Stop Loss para a entrada. O gatilho padrão de 30% ROI sobe para 50-60% para evitar ser ejetado na "violinada" inicial.
-5. **Paciência Diplomática (V4.0):** O Sentinela concede até 90 segundos de carência se o fluxo monetário (CVD) sustentar a posição, mesmo com o preço abaixo do Stop técnico.
+1. **Matriz de Especialista (40 Pares):** O Bibliotecário possui um DNA fixo para 40 ativos selecionados (sem Memecoins, sem BTC/ETH/SOL). Cada ativo tem seu buffer de respiro e atraso de RF configurados.
+2. **Paciência do Sniper (Violinada):** O `AmbushAgent` não executa sinais no toque cego. Ele aguarda uma "absorção" (pavio/wick) no gráfico de 1m para garantir a rejeição de preço antes do "Strike".
+3. **Adaptive Respiro (V4.0):** Tolerância de desvio de ROI específica por ativo (de 8% a 25%) se o fluxo (CVD) estiver a favor.
+4. **Breakeven Inteligente (ADX-Aware):** Gatilho de Risk-Free ajustado pela força da tendência. ADX > 40 = Trava em 20% ROI. ADX < 22 = Trava em 40% ROI.
+5. **Paciência Diplomática (V4.0):** O Sentinela concede até 90 segundos de carência se o fluxo monetário (CVD) sustentar a posição.
 
 ---
 
@@ -93,8 +93,9 @@ Captain (Orquestrador Central)
 ---
 
 ## 8. DESIGN INVARIANTE — SEAMLESS PREMIUM
-- **Estética:** Grayscale Premium (Preto, Branco, Cinza e Lima).
-- **Glassmorphism:** Uso obrigatório de `backdrop-blur-xl` em todos os painéis.
+1. **Estética:** Grayscale Premium (Preto, Branco, Cinza e Verde Normal `#22c55e`). **PROIBIDO LIMA.**
+2. **Glassmorphism:** Uso obrigatório de `backdrop-blur-xl` em todos os painéis.
+3. **Labels de Histórico:** Devem seguir o padrão `+R$ 0,00` com vírgula para decimais.
 
 ---
 

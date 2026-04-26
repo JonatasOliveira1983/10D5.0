@@ -3,12 +3,13 @@
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
 
-*   **V4.0: ADAPTIVE INTELLIGENCE [APR 26]**
-    - **Librarian DNA Specialist:** Implementação da análise de pavios (Wick Intensity) e propensão de reteste para injetar "paciência" específica por ativo.
-    - **Adaptive Respiro:** Buffer de tolerância de até 25% de ROI abaixo do Stop Loss, permitindo "breathing room" se o Gás (CVD) estiver favorável.
-    - **Intelligent Breakeven:** Gatilho de Risk-Free dinâmico (50-60% ROI) para ativos de alta volatilidade, evitando saídas em "violinadas".
-    - **$10 Profit Rule:** Meta diária 10/10 e ciclos de progresso agora exigem lucro líquido >= $10.00 por ordem.
-    - **Genesis Recovery Guard:** Injeção de relatórios padrão para ordens de recuperação, eliminando erros de visualização no Cockpit.
+*   **V4.0: SPECIALIST MATRIX & SNIPER PATIENCE [APR 26]**
+    - **Specialist Brain (40 Pairs):** Implementação de matriz fixa no `librarian.py` para 40 ativos de elite. Injeção de DNA com buffers de respiro (8-25%) e atrasos de RF baseados em volatilidade.
+    - **Sniper Patience (Violinada Hunter):** Novo protocolo no `AmbushAgent` que aguarda absorção no gráfico de 1m (pavios/rejeição) antes de disparar a ordem.
+    - **Intelligent Breakeven (ADX-Aware):** Gatilhos de Risk-Free dinâmicos. Tendência forte (ADX > 40) trava em 20% ROI; Lateralização (ADX < 22) aguarda 40% ROI para evitar stop por ruído.
+    - **UI Feedback - Respiro Activo:** Visualização em tempo real nos cards de ordens quando a posição entra em fase de carência tática.
+    - **Standard Green (#22c55e):** Unificação da cor verde em todo o ecossistema, eliminando tons "limão" e placeholders brancos no histórico.
+    - **Official Repo Sync:** Migração final do pipeline de deploy para `10DBybityREAL`.
 
 *   **V110.256: SOVEREIGN IDENTIFIER & SYNTAX RECOVERY [APR 25]**
     - **Syntax Error Resolution:** Correção de fechamentos prematuros de hooks no `cockpit.html` (especialmente `useSlotsRT` e `useBancaRT`) que causavam falha de carregamento da UI.
