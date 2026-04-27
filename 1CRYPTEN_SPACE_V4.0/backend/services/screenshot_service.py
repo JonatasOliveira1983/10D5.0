@@ -15,10 +15,9 @@ class ScreenshotService:
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir, exist_ok=True)
         
-        # Base URL for the chart widget (TradingView Embed)
-        # Includes SMA 21 and 100 as requested by the user
+        # [V4.4] MODERN WIDGET URL: Using s.tradingview.com and fixed studies format
         self.base_url = (
-            "https://tradingview.com/widgetembed/?"
+            "https://s.tradingview.com/widgetembed/?"
             "symbol=BYBIT:{symbol}.P&"
             "interval={interval}&"
             "hidesidetoolbar=1&"
@@ -28,7 +27,7 @@ class ScreenshotService:
             "theme=dark&"
             "style=1&"
             "timezone=Etc%2FUTC&"
-            "studies=SMA@tv-basicstudies%20%7B%22length%22%3A21%7D%2CSMA@tv-basicstudies%20%7B%22length%22%3A100%7D"
+            "studies=SMA@tv-basicstudies%7B%22length%22%3A21%7D%2CSMA@tv-basicstudies%7B%22length%22%3A100%7D"
         )
 
     async def capture_chart(self, symbol: str, interval: str = "30") -> str:
@@ -56,8 +55,9 @@ class ScreenshotService:
                 # Navigate to the chart
                 await page.goto(url, wait_until="networkidle", timeout=60000)
                 
-                # Wait for the chart to render indicators (approx 5s)
-                await asyncio.sleep(5)
+                # Wait for the chart to render indicators (approx 8s)
+                # [V4.4] Increased from 5s to 8s for reliable indicator rendering
+                await asyncio.sleep(8)
                 
                 # Take the screenshot
                 await page.screenshot(path=filepath)
