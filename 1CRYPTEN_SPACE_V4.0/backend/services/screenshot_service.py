@@ -8,7 +8,10 @@ logger = logging.getLogger("ScreenshotService")
 
 class ScreenshotService:
     def __init__(self):
-        self.output_dir = os.path.join(os.getcwd(), "1CRYPTEN_SPACE_V4.0", "backend", "assets", "vision_proofs")
+        # [V4.3] FIXED PATHING: Use file-relative paths instead of getcwd() to avoid duplication on Railway
+        self.base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.output_dir = os.path.join(self.base_dir, "assets", "vision_proofs")
+        
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir, exist_ok=True)
         
