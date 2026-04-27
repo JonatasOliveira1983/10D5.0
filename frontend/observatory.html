@@ -230,24 +230,8 @@ function loadChart(symbol){
     gridColor: "rgba(255,255,255,0.03)",
     autosize: true,
     studies: [
-      // SMA 21 — Branca
-      {
-        id: "MASimple@tv-basicstudies",
-        inputs: { length: 21 },
-        override: { "Plot.color": "rgba(255,255,255,0.9)", "Plot.linewidth": 2 }
-      },
-      // SMA 100 — Amarela
-      {
-        id: "MASimple@tv-basicstudies",
-        inputs: { length: 100 },
-        override: { "Plot.color": "rgba(245,158,11,0.9)", "Plot.linewidth": 2 }
-      },
-      // SuperTrend (built-in)
-      {
-        id: "STD;Supertrend",
-        inputs: { ATR_Period: 10, Source: "hl2", ATR_Multiplier: 3.0, "Change ATR Calculation Method ?": true, "Show Buy/Sell Signals ?": true }
-      },
-      // Volume
+      { id: "MASimple@tv-basicstudies", inputs: { length: 21 } },
+      { id: "MASimple@tv-basicstudies", inputs: { length: 100 } },
       "Volume@tv-basicstudies"
     ],
     overrides: {
