@@ -15,7 +15,8 @@ class ScreenshotService:
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir, exist_ok=True)
         
-        # [V4.4] MODERN WIDGET URL: Using s.tradingview.com and fixed studies format
+        # [V4.5] FINAL VALIDATED URL: Using JSON array for indicators (MASimple@tv-basicstudies)
+        # This format is confirmed to show MA 21 and MA 100 on the chart.
         self.base_url = (
             "https://s.tradingview.com/widgetembed/?"
             "symbol=BYBIT:{symbol}.P&"
@@ -27,7 +28,7 @@ class ScreenshotService:
             "theme=dark&"
             "style=1&"
             "timezone=Etc%2FUTC&"
-            "studies=SMA@tv-basicstudies%7B%22length%22%3A21%7D%2CSMA@tv-basicstudies%7B%22length%22%3A100%7D"
+            "studies=%5B%7B%22id%22%3A%22MASimple%40tv-basicstudies%22%2C%22inputs%22%3A%7B%22length%22%3A21%7D%7D%2C%7B%22id%22%3A%22MASimple%40tv-basicstudies%22%2C%22inputs%22%3A%7B%22length%22%3A100%7D%7D%5D"
         )
 
     async def capture_chart(self, symbol: str, interval: str = "30") -> str:
