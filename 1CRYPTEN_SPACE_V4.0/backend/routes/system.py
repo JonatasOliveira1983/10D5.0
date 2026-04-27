@@ -230,3 +230,26 @@ async def nuclear_reset():
     except Exception as e:
         logger.error(f"❌ Nuclear Reset Failed: {e}")
         return {"status": "error", "message": str(e)}
+
+@router.post("/system/librarian-visual-scan", dependencies=[Depends(verify_api_key)])
+async def trigger_librarian_visual_scan():
+    """
+    [V1.0] Dispara o Scan Visual Global das 40 moedas da Matriz do Bibliotecário.
+    """
+    from services.kernel.dispatcher import kernel
+    try:
+        logger.info("👁️ Manual Global Visual Scan Triggered via API")
+        await kernel.dispatch({
+            "sender": "Admin",
+            "receiver": "librarian",
+            "type": "START_VISUAL_SCAN"
+        })
+        return {"status": "success", "message": "Scan Visual Global iniciado. Acompanhe no Collective Intelligence Flow."}
+    except Exception as e:
+        logger.error(f"Visual Scan Trigger error: {e}")
+        return {"status": "error", "message": str(e)}
+
+@router.get("/system/librarian-visual-scan")
+async def trigger_librarian_visual_scan_get():
+    """Versão GET para facilidade de uso via navegador."""
+    return await trigger_librarian_visual_scan()

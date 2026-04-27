@@ -2,6 +2,8 @@ import logging
 import asyncio
 import time
 import httpx
+import base64
+import os
 try:
     from zhipuai import ZhipuAI
 except Exception:
@@ -171,6 +173,113 @@ class AIService:
                         continue
         
         logger.error("❌ All AI providers failed or are in backoff.")
+        return None
+
+    async def generate_vision_content(self, prompt: str, image_path: str, system_instruction: str = "Você é um analista técnico de trading especializado em Visão Computacional."):
+        """
+        [V1.0] Generates content based on an image and a prompt.
+        Primarily uses Gemini 1.5 Pro, falls back to OpenRouter Multimodal.
+        """
+        if not os.path.exists(image_path):
+            logger.error(f"❌ Image path not found: {image_path}")
+            return None
+
+        now = time.time()
+        
+        # 1. Primary: Gemini 1.5 Pro (Native Vision is best)
+        if self.gemini_model and now > self.gemini_backoff_until:
+            try:
+                logger.info(f"👁️ [VISION] Attempting Gemini 1.5 Pro for {os.path.basename(image_path)}...")
+                
+                # Load image
+                with open(image_path, "rb") as f:
+                    image_data = f.read()
+                
+                # Construct parts
+                contents = [
+                    system_instruction,
+                    {"mime_type": "image/png", "data": image_data},
+                    prompt
+                ]
+                
+                # Gemini 1.5 Flash is more accessible
+                vision_model = genai.GenerativeModel('gemini-1.5-flash')
+                
+                def _gemini_vision_sync():
+                    return vision_model.generate_content(contents)
+                
+                response = await asyncio.wait_for(asyncio.to_thread(_gemini_vision_sync), timeout=30.0)
+                
+                if response and hasattr(response, 'text'):
+                    logger.info(f"✅ Gemini Vision Success")
+                    return response.text.strip()
+                else:
+                    logger.warning(f"⚠️ Gemini Vision returned no text: {response}")
+            except Exception as e:
+                import traceback
+                logger.warning(f"❌ Gemini Vision failed: {str(e)}")
+                logger.error(traceback.format_exc())
+                # Don't backoff yet, try OpenRouter
+
+        # 2. Fallback: OpenRouter Multimodal (GPT-4o or Gemini via OR)
+        if self.openrouter_key and now > self.openrouter_backoff_until:
+            try:
+                logger.info(f"👁️ [VISION] Falling back to OpenRouter Multimodal...")
+                
+                # Encode image to base64
+                with open(image_path, "rb") as f:
+                    encoded_image = base64.b64encode(f.read()).decode('utf-8')
+                
+                image_url = f"data:image/png;base64,{encoded_image}"
+                
+                # Best multimodal models on OpenRouter
+                vision_models = [
+                    "google/gemini-flash-1.5",
+                    "openai/gpt-4o-mini",
+                    "anthropic/claude-3-haiku"
+                ]
+                
+                for v_model in vision_models:
+                    try:
+                        async with httpx.AsyncClient(timeout=30.0) as client:
+                            response = await client.post(
+                                "https://openrouter.ai/api/v1/chat/completions",
+                                headers={
+                                    "Authorization": f"Bearer {self.openrouter_key}",
+                                    "HTTP-Referer": "https://1crypten.space", 
+                                    "X-Title": "1CRYPTEN Vision Agent",
+                                },
+                                json={
+                                    "model": v_model,
+                                    "messages": [
+                                        {
+                                            "role": "user",
+                                            "content": [
+                                                {"type": "text", "text": f"{system_instruction}\n\n{prompt}"},
+                                                {
+                                                    "type": "image_url",
+                                                    "image_url": {"url": image_url}
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "temperature": 0.3 # Lower temperature for analysis
+                                }
+                            )
+                            
+                            if response.status_code == 200:
+                                data = response.json()
+                                text = data.get('choices', [{}])[0].get('message', {}).get('content')
+                                if text:
+                                    logger.info(f"✅ OpenRouter Vision Success using {v_model}")
+                                    return text.strip()
+                    except Exception as ve:
+                        logger.warning(f"OpenRouter Vision failed with {v_model}: {ve}")
+                        continue
+            except Exception as e:
+                logger.error(f"OpenRouter Vision Fallback failed: {e}")
+
+        logger.error("❌ All Vision providers failed.")
         return None
 
 

@@ -109,8 +109,14 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
         await websocket_service.emit_radar_pulse(list(self.signal_buffer)[:50])
         return signal_data["id"]
 
-    async def log_event(self, agent: str, message: str, level: str = "INFO"):
-        data = {"agent": agent, "message": message, "level": level, "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat()}
+    async def log_event(self, agent: str, message: str, level: str = "INFO", payload: dict = None):
+        data = {
+            "agent": agent, 
+            "message": message, 
+            "level": level, 
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "payload": payload or {}
+        }
         self.log_buffer.appendleft(data)
         await websocket_service.broadcast({"type": "SYSTEM_EVENT", "data": data})
         return data

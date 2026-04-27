@@ -122,5 +122,12 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versão: V4.0 "Adaptive Intelligence" | Atualizado: 2026-04-26*
+## 12. INTELIGÊNCIA COLETIVA E AGENTE VISÃO (V4.1)
+1. **Poder de Veto Visual:** O **Agente Visão** é a última linha de defesa. Ele captura um *screenshot* real do gráfico (30m) e analisa a ação do preço e indicadores (SMA) visualmente usando IA Multimodal (Gemini/OpenRouter). Ele tem autoridade para **vetar entradas** (Confidence > 70%) que pareçam armadilhas de liquidez (ex: pavios falsos).
+2. **Scan Global:** O Bibliotecário realiza um mapeamento visual rotativo das 40 moedas de elite no fundo, alimentando a frota com contexto atualizado (TRENDING, RANGE, etc.).
+3. **UI Sovereign Intelligence:** Todas as convocações do Capitão, scans do Bibliotecário e vetos do Visão (incluindo as capturas de tela) são transmitidos via WebSocket em tempo real para a barra esquerda do painel Desktop (`Collective Intelligence Card`).
+
+---
+
+*Versão: V4.1 "Visionary Intelligence" | Atualizado: 2026-04-27*
 *Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10D5.0.*

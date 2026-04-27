@@ -487,6 +487,12 @@ app.add_middleware(
 
 app.add_middleware(NoCacheMiddleware)
 
+# [V1.0] Servir provas visuais do Agente Visão
+ASSETS_DIR = os.path.join(BASE_DIR, "assets")
+if not os.path.exists(ASSETS_DIR):
+    os.makedirs(ASSETS_DIR, exist_ok=True)
+app.mount("/assets", StaticFiles(directory=ASSETS_DIR), name="assets")
+
 # =================================================================
 # ROUTES & MODULARIZATION (V110.25.0)
 # =================================================================

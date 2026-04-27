@@ -22,6 +22,7 @@ from services.google_calendar_service import google_calendar_service
 from config import settings
 from services.agents.librarian import librarian_agent # [V2.0] Librarian DNA Profile Engine
 from services.agents.quartermaster import quartermaster_agent # [V110.135]
+from services.agents.vision_agent import vision_agent # [V1.0] Agente Visão
 try:
     from duckduckgo_search import DDGS
 except ImportError:
@@ -119,6 +120,16 @@ class CaptainAgent(AIOSAgent):
         logger.info(f"⚓ [FLEET] Requesting consensus for {symbol} {side}...")
         
         try:
+            # [V1.0] Inteligência Coletiva: Capitão inicia o Conselho
+            try:
+                from services.sovereign_service import sovereign_service
+                await sovereign_service.log_event(
+                    agent="Captain",
+                    message=f"Convocando conselho de agentes para {symbol} ({side}).",
+                    payload={"symbol": symbol, "side": side, "score": signal.get("score")}
+                )
+            except: pass
+
             # 1. Macro Bias
             macro = await kernel.dispatch({"sender": self.agent_id, "receiver": "macro_analyst", "type": "GET_MACRO_BIAS"})
             risk_score = macro.get("data", {}).get("risk_score", 5) if macro else 5
@@ -163,6 +174,13 @@ class CaptainAgent(AIOSAgent):
             
             # SMC Score (Original Signal)
             smc_score = signal.get("score", 70)
+            
+            # 4. Agente Visão [V1.0] - O Filtro Final de Intenção (chamado APÓS smc_score estar disponível)
+            vision_result = await vision_agent.confirm_entry(symbol, side, smc_score)
+            vision_approved = vision_result.get("approved", True)
+            vision_confidence = vision_result.get("confidence", 50)
+            vision_thoughts = vision_result.get("thoughts", "")
+            logger.info(f"👁️ [FLEET-VISION] {symbol}: Approved={vision_approved} | Confidence={vision_confidence}%")
             
             # On-Chain Score (Extracted from Sentiment)
             on_chain_score = sentiment.get("data", {}).get("onchain_score", 50) if sentiment else 50
@@ -245,6 +263,18 @@ class CaptainAgent(AIOSAgent):
                     reasons.append(f"🐳🚫 ANTI-TRAP BLOCK: {trap_reason}")
                     unified_score = 10 # Force low score if trap detected
                     logger.warning(f"🛡️ [V110.100] {symbol} {side} BLOCKED by ANTI-TRAP: {trap_reason}")
+            
+            # [VISION BLOCK] Agente Visão Veto
+            if not vision_approved:
+                # Se a confiança for alta (>70%), o Visão tem poder de VETO absoluto
+                if vision_confidence >= 70:
+                    approved = False
+                    reasons.append(f"👁️🚫 VISION VETO: {vision_result.get('reason')}")
+                    logger.warning(f"🛡️ [VISION-VETO] {symbol} bloqueado pelo Agente Visão: {vision_result.get('reason')}")
+                else:
+                    # Confiança baixa: Apenas penaliza o score
+                    unified_score -= 20
+                    logger.info(f"⚠️ [VISION-WARNING] {symbol} Visão duvidoso. Penalidade de -20 pts aplicada.")
 
             if risk_score > 8:
                 if bybit_rest_service.execution_mode == "PAPER":
@@ -286,6 +316,22 @@ class CaptainAgent(AIOSAgent):
                     reasons.append(f"LOW_FLEET_CONFIDENCE: {unified_score:.1f}% < 50.0%")
                     logger.warning(f"🛡️ [V110.100] {symbol} {side} BLOCKED by Low Confidence ({unified_score:.1f}%)")
                 
+            # [V1.0] Decisão Final do Capitão
+            try:
+                from services.sovereign_service import sovereign_service
+                await sovereign_service.log_event(
+                    agent="Captain",
+                    message=f"Decisão Final para {symbol}: {'APROVADO' if approved else 'REJEITADO'}.",
+                    payload={
+                        "symbol": symbol, 
+                        "approved": approved, 
+                        "score": round(unified_score, 1), 
+                        "reasons": reasons,
+                        "vision_approved": vision_approved
+                    }
+                )
+            except: pass
+
             return {
                 "approved": approved,
                 "reason": ", ".join(reasons) if reasons else "Approved by Fleet",
@@ -309,7 +355,14 @@ class CaptainAgent(AIOSAgent):
                     "suggested_side": whale_data.get("suggested_side"),
                     "nectar_seal": nectar_seal, # [V2.0] Selo do Bibliotecário para a UI
                     "dna": lib_dna, # Objeto completo para o Front
-                    "pain_points": sentiment.get("data", {}).get("pain_points", {}) if sentiment else {}
+                    "pain_points": sentiment.get("data", {}).get("pain_points", {}) if sentiment else {},
+                    "vision": {
+                        "approved": vision_approved,
+                        "confidence": vision_confidence,
+                        "reason": vision_result.get("reason"),
+                        "thoughts": vision_thoughts,
+                        "screenshot": vision_result.get("screenshot_url")
+                    }
                 }
             }
         except Exception as e:
@@ -1338,6 +1391,11 @@ class CaptainAgent(AIOSAgent):
             elif best_signal.get("is_reverse_sniper"):
                 pensamento = f"🔄 REVERSE SNIPER (Fading): {pensamento}"
 
+            # [V1.0] AGENTE VISÃO: Injetar pensamentos visuais no relatório final
+            vision_data = fleet_intel.get("vision", {})
+            if vision_data and vision_data.get("approved"):
+                pensamento += f" | 👁️ VISÃO: {vision_data.get('reason')} ({vision_data.get('confidence')}%)"
+
             norm_symbol_ac = normalize_symbol(symbol)
             sym_trades = self.daily_symbol_trades.get(norm_symbol_ac, {'count': 0, 'first_trade_at': 0})
             if time.time() - sym_trades.get('first_trade_at', 0) > 86400:
@@ -1390,7 +1448,8 @@ class CaptainAgent(AIOSAgent):
                 "layer": signal_layer,
                 "agent_captain": "v110.137.Elite",
                 "market_regime": market_regime,
-                "btc_adx_at_entry": current_btc_adx
+                "btc_adx_at_entry": current_btc_adx,
+                "vision": vision_data # [V1.0] Inclui prova visual e análise no Genesis
             }
             best_signal["genesis_payload"] = genesis_payload
                 

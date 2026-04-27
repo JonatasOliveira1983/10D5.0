@@ -12,6 +12,7 @@ from services.agents.quartermaster import quartermaster_agent # [V110.135]
 from services.sovereign_service import sovereign_service
 from services.kernel.dispatcher import kernel
 from services.agents.market_data import get_sector
+from services.agents.vision_agent import vision_agent # [V1.0]
 from config import settings
 
 logger = logging.getLogger("LibrarianAgent")
@@ -93,9 +94,64 @@ class LibrarianAgent(AIOSAgent):
         if msg_type == "START_STUDY":
             asyncio.create_task(self.perform_full_market_study())
             return {"status": "started"}
+        elif msg_type == "START_VISUAL_SCAN":
+            asyncio.create_task(self.perform_global_visual_scan())
+            return {"status": "started_visual_scan"}
         elif msg_type == "GET_RANKINGS":
             return {"status": "success", "rankings": self.rankings}
         return {"status": "error", "message": f"Unknown command: {msg_type}"}
+
+    async def perform_global_visual_scan(self):
+        """[V1.0] SCAN VISUAL GLOBAL: Solicita prints de todas as 40 moedas da Matriz."""
+        logger.info("👁️ [LIBRARIAN] Iniciando Scan Visual Global das 40 moedas da Matriz...")
+        
+        await sovereign_service.log_event(
+            agent="Librarian",
+            message="Iniciando Scan Visual Global das 40 moedas da Matriz para análise de contexto.",
+            payload={"action": "GLOBAL_VISUAL_SCAN_START", "count": len(self.SPECIALIST_MATRIX)}
+        )
+
+        symbols = list(self.SPECIALIST_MATRIX.keys())
+        total = len(symbols)
+        
+        for i, symbol in enumerate(symbols):
+            try:
+                # Progress update to UI
+                if sovereign_service.rtdb:
+                    try:
+                        await asyncio.to_thread(
+                            sovereign_service.rtdb.child("librarian_intelligence").update,
+                            {
+                                "status": "VISUAL_SCAN", 
+                                "current_symbol": symbol,
+                                "progress": round(((i+1)/total)*100, 1),
+                                "updated_at": int(time.time() * 1000)
+                            }
+                        )
+                    except: pass
+
+                logger.info(f"👁️ [LIBRARIAN] Scan {i+1}/{total}: {symbol}")
+                # Solicita ao Visão uma análise silenciosa de contexto
+                await vision_agent.analyze_market_context(symbol)
+                
+                # Pequeno delay para não sobrecarregar a API Vision/Screenshot
+                await asyncio.sleep(1.5) 
+            except Exception as e:
+                logger.error(f"Erro no scan visual de {symbol}: {e}")
+
+        await sovereign_service.log_event(
+            agent="Librarian",
+            message="Scan Visual Global Concluído. Contexto visual mapeado para a Frota Elite.",
+            payload={"action": "GLOBAL_VISUAL_SCAN_END"}
+        )
+        
+        if sovereign_service.rtdb:
+            try:
+                await asyncio.to_thread(
+                    sovereign_service.rtdb.child("librarian_intelligence").update,
+                    {"status": "COMPLETED", "updated_at": int(time.time() * 1000)}
+                )
+            except: pass
 
     async def run_loop(self):
         """Loop principal do Bibliotecário."""
@@ -466,6 +522,13 @@ class LibrarianAgent(AIOSAgent):
                         }
                         
                         total_ghost_insights += len(result_entry["ghost_insights"])
+                        
+                        # [V1.0] AGENTE VISÃO: Contexto Visual (Apenas se for Elite ou SpecOps para otimizar)
+                        if "ELITE" in nectar_seal or "SpecOps" in seal:
+                            logger.info(f"👁️ [LIBRARIAN-VISION] Solicitando contexto visual para {symbol}...")
+                            vision_ctx = await vision_agent.analyze_market_context(symbol)
+                            dna_entry["visual_context"] = vision_ctx.get("visual_context", "NEUTRAL")
+                            result_entry["visual_thoughts"] = vision_ctx.get("visual_context")
 
                         all_results.append(result_entry)
                         

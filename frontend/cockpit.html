@@ -396,6 +396,67 @@
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
         }
 
+        /* [V1.0] Intelligence Flow Timeline */
+        .intel-line {
+            position: absolute;
+            left: 17px;
+            top: 24px;
+            bottom: 0;
+            width: 1px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent);
+        }
+        .intel-node {
+            position: relative;
+            padding-left: 36px;
+            padding-bottom: 16px;
+        }
+        .intel-avatar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .intel-avatar:hover {
+            border-color: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.08);
+            transform: scale(1.1);
+        }
+        .intel-bubble {
+            background: rgba(255,255,255,0.01);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 0 1rem 1rem 1rem;
+            padding: 10px;
+            transition: all 0.3s;
+        }
+        .intel-bubble:hover {
+            background: rgba(255,255,255,0.03);
+            border-color: rgba(255,255,255,0.1);
+        }
+        .vision-proof-thumb {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin-top: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .vision-proof-thumb:hover {
+            border-color: #22c55e;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        }
+
         /* Firefox */
         * {
             scrollbar-width: thin;
@@ -2500,6 +2561,120 @@
             }, [sovereign_rtdb]);
 
             return data;
+        };
+
+        // --- Hook: [V1.0] Intelligence Flow Engine ---
+        const useIntelligenceFlowRT = () => {
+            const [events, setEvents] = React.useState(() => {
+                try {
+                    const cached = localStorage.getItem('intel_flow_cache');
+                    return cached ? JSON.parse(cached) : [];
+                } catch(e) { return []; }
+            });
+
+            React.useEffect(() => {
+                const handlePacket = (e) => {
+                    const message = e.detail;
+                    if (message.type === 'SYSTEM_EVENT' && message.data) {
+                        setEvents(prev => {
+                            const newList = [message.data, ...prev].slice(0, 30);
+                            localStorage.setItem('intel_flow_cache', JSON.stringify(newList));
+                            return newList;
+                        });
+                    }
+                };
+                window.addEventListener('sovereign-packet', handlePacket);
+                return () => window.removeEventListener('sovereign-packet', handlePacket);
+            }, []);
+
+            return events;
+        };
+
+        // --- Component: [V1.0] Intelligence Flow Card ---
+        const IntelligenceFlowCard = () => {
+            const events = useIntelligenceFlowRT();
+            const containerRef = React.useRef(null);
+
+            const getAgentIcon = (agent) => {
+                switch(agent?.toLowerCase()) {
+                    case 'captain': return { icon: 'military_tech', color: 'text-white' };
+                    case 'vision': return { icon: 'visibility', color: 'text-green-400' };
+                    case 'librarian': return { icon: 'menu_book', color: 'text-amber-400' };
+                    case 'guardian': return { icon: 'shield', color: 'text-blue-400' };
+                    case 'macro': return { icon: 'public', color: 'text-purple-400' };
+                    default: return { icon: 'psychology', color: 'text-gray-400' };
+                }
+            };
+
+            if (events.length === 0) return null;
+
+            return (
+                <div className="space-y-4">
+                    <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-white flex items-center gap-2">
+                        <span className="material-icons-round text-sm">hub</span>
+                        Collective Intelligence
+                    </h3>
+                    <div className="relative glass-card p-4 rounded-3xl border border-white/5 bg-black/20 overflow-hidden">
+                        <div className="intel-line"></div>
+                        <div className="max-h-[400px] overflow-y-auto no-scrollbar space-y-2 pr-1" ref={containerRef}>
+                            {events.map((ev, i) => {
+                                const agentCfg = getAgentIcon(ev.agent);
+                                return (
+                                    <div 
+                                        key={ev.timestamp || i}
+                                        className="intel-node"
+                                    >
+                                        <div className="intel-avatar">
+                                            <span className={`material-icons-round text-base ${agentCfg.color}`}>{agentCfg.icon}</span>
+                                        </div>
+                                        <div className="intel-bubble">
+                                            <div className="flex justify-between items-start mb-1">
+                                                <span className="text-[9px] font-black uppercase tracking-widest text-white/60">{ev.agent}</span>
+                                                <span className="text-[7px] font-mono text-gray-600">{new Date(ev.timestamp).toLocaleTimeString()}</span>
+                                            </div>
+                                            <p className="text-[10px] text-gray-300 leading-tight font-medium">{ev.message}</p>
+                                            
+                                            {/* Vision Specific Content */}
+                                            {ev.payload && ev.payload.image_url && (
+                                                <div className="mt-2 group relative">
+                                                    <img 
+                                                        src={ev.payload.image_url} 
+                                                        className="vision-proof-thumb" 
+                                                        alt="Vision Proof"
+                                                        onClick={() => window.open(ev.payload.image_url, '_blank')}
+                                                    />
+                                                    <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-black/60 backdrop-blur-md border border-white/10 text-[8px] font-black text-white uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        View Full Chart
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Decision Badges */}
+                                            {ev.payload && ev.payload.decision && (
+                                                <div className="mt-2 flex items-center gap-2">
+                                                    <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter ${ev.payload.decision === 'APPROVED' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                                                        {ev.payload.decision}
+                                                    </span>
+                                                    {ev.payload.confidence && (
+                                                        <span className="text-[8px] font-bold text-gray-500 uppercase">Confidence: {ev.payload.confidence}%</span>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {/* Thoughts */}
+                                            {ev.payload && ev.payload.thoughts && (
+                                                <p className="mt-2 text-[9px] text-gray-500 italic border-l border-white/10 pl-2">
+                                                    "{ev.payload.thoughts}"
+                                                </p>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            );
         };
 
         // --- Hook: Market Radar Real-time (V12.3) ---
@@ -4978,23 +5153,9 @@
                                 </div>
                             </section>
 
-                            {/* 3. AI AGENT STATUS */}
-                            <section className="space-y-4">
-                                <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-white flex items-center gap-2">
-                                    <span className="material-icons-round text-sm">diversity_3</span>
-                                    AI Agent Status
-                                </h3>
-                                <div className="space-y-2">
-                                    <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-6 h-6 rounded bg-white/10 flex items-center justify-center border border-white/20">
-                                                <span className="material-icons-round text-[12px] text-white">stadium</span>
-                                            </div>
-                                            <span className="text-[10px] font-black text-gray-300">CAPTAIN</span>
-                                        </div>
-                                        <span className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.4)]"></span>
-                                    </div>
-                                </div>
+                            {/* 3. COLLECTIVE INTELLIGENCE FLOW [V1.0] */}
+                            <section>
+                                <IntelligenceFlowCard />
                             </section>
 
                             {/* 4. INTELLIGENCE LIBRARIAN (Expansive) */}
