@@ -202,19 +202,25 @@ class AIService:
                     prompt
                 ]
                 
-                # Gemini 1.5 Flash is more accessible
-                vision_model = genai.GenerativeModel('gemini-1.5-flash')
+                models_to_try = ['gemini-2.0-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-pro-latest', 'gemini-1.5-flash']
                 
-                def _gemini_vision_sync():
-                    return vision_model.generate_content(contents)
+                for m_name in models_to_try:
+                    try:
+                        vision_model = genai.GenerativeModel(m_name)
+                        def _gemini_vision_sync():
+                            return vision_model.generate_content(contents)
+                        
+                        response = await asyncio.wait_for(asyncio.to_thread(_gemini_vision_sync), timeout=30.0)
+                        
+                        if response and hasattr(response, 'text'):
+                            logger.info(f"✅ Gemini Vision Success using {m_name}")
+                            return response.text.strip()
+                    except Exception as loop_e:
+                        if "404" in str(loop_e) or "Not Found" in str(loop_e):
+                            continue # Tenta o próximo
+                        raise loop_e # Se for Rate Limit (429) ou erro interno, sobe pro fallback do OpenRouter
                 
-                response = await asyncio.wait_for(asyncio.to_thread(_gemini_vision_sync), timeout=30.0)
-                
-                if response and hasattr(response, 'text'):
-                    logger.info(f"✅ Gemini Vision Success")
-                    return response.text.strip()
-                else:
-                    logger.warning(f"⚠️ Gemini Vision returned no text: {response}")
+                logger.warning(f"⚠️ Gemini Vision returned no text or exhausted models.")
             except Exception as e:
                 import traceback
                 logger.warning(f"❌ Gemini Vision failed: {str(e)}")
