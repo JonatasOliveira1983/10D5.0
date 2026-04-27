@@ -120,6 +120,16 @@ class CaptainAgent(AIOSAgent):
         logger.info(f"⚓ [FLEET] Requesting consensus for {symbol} {side}...")
         
         try:
+            # 0. [V4.2] MATRIX VETO: Absolute Specialist Guard
+            if not librarian_agent.is_specialist_asset(symbol):
+                logger.warning(f"🛡️🚫 [MATRIX-VETO] {symbol} REJEITADO: Ativo não pertence à Matriz Especialista (DNA Sniper).")
+                return {
+                    "approved": False,
+                    "confidence": 0,
+                    "reasons": ["Não pertence à Matriz Especialista."],
+                    "fleet_intel": {"matrix_status": "OUTSIDER"}
+                }
+
             # [V1.0] Inteligência Coletiva: Capitão inicia o Conselho
             try:
                 from services.sovereign_service import sovereign_service

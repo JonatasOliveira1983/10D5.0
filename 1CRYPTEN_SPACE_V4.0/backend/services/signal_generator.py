@@ -12,6 +12,7 @@ from services.bybit_ws import bybit_ws_service
 from services.vault_service import vault_service
 from services.execution_protocol import execution_protocol
 from services.agents.oracle_agent import oracle_agent
+from services.agents.librarian import librarian_agent
 from config import settings
 
 logging.basicConfig(level=logging.INFO)
@@ -2498,68 +2499,41 @@ class SignalGenerator:
                     self._last_ws_rebalance = 0  # Force immediate rebalance
                     logger.info(f"🔄 [V75.2 HYSTERESIS] Radar switched to SCAVENGER_RANGE after {self._RADAR_HYSTERESIS_THRESHOLD} consecutive RANGING readings.")
 
-                # [V71.0] HYBRID FUNNEL: Global Radar (600) -> Focused WS (90) OR Elite 30
-                all_liquid_symbols = await bybit_rest_service.get_elite_50x_pairs() # Now returns 600
+                # [V4.2] STRICT SPECIALIST MATRIX BLINDAGE
+                # Instead of scanning all liquid symbols, we lock to the 40 Specialist Pairs.
+                all_liquid_symbols = librarian_agent.get_specialist_symbols()
                 
-                # [V75.2] Elite 50 — Almirante's Selection (Expanded for Variety)
-                ELITE_50_PAIRS = [
-                    # Original Elite 30
-                    "ADAUSDT.P", "DOGEUSDT.P", "AAVEUSDT.P", "POLUSDT.P", "GALAUSDT.P",
-                    "LINKUSDT.P", "AVAXUSDT.P", "NEARUSDT.P", "APTUSDT.P", "SUIUSDT.P",
-                    "DOTUSDT.P", "INJUSDT.P", "LTCUSDT.P", "BCHUSDT.P", "ICPUSDT.P",
-                    "LDOUSDT.P", "RENDERUSDT.P", "ENAUSDT.P", "OPUSDT.P", "ARBUSDT.P",
-                    "TIAUSDT.P", "SEIUSDT.P", "AXSUSDT.P", "FETUSDT.P", "TAOUSDT.P",
-                    "IMXUSDT.P", "FTMUSDT.P", "STXUSDT.P", "BEAMUSDT.P", "PYTHUSDT.P",
-                    # Expanded Elite +20
-                    "SOLUSDT.P", "ETHUSDT.P", "XRPUSDT.P", "XLMUSDT.P", "WIFUSDT.P",
-                    "SHIB1000USDT.P", "ATOMUSDT.P", "FILUSDT.P", "STMXUSDT.P",
-                    "JUPUSDT.P", "STRKUSDT.P", "DYDXUSDT.P", "GMXUSDT.P", "CRVUSDT.P",
-                    "LUNA2USDT.P", "EGLDUSDT.P", "GRTUSDT.P", "THETAUSDT.P", "VETUSDT.P"
-                ]
-
                 # Periodic rebalance of WebSocket (every 60s)
                 if now - getattr(self, '_last_ws_rebalance', 0) > 60:
                     try:
-                        if self.current_radar_mode == "ELITE_30_TREND":
-                            # [V71.0] If trending, lock to the Majors. No need to rank decorrelation.
-                            top_90 = ELITE_50_PAIRS
-                            logger.info(f"📡 [V71.0 DYNAMIC RADAR] BTC TRENDING! Locking WebSocket to ELITE 50 Majors.")
-                        else:
-                            # 1. Fetch Tickers for ALL symbols to identify laggards/leaders vs BTC
-                            ticker_resp = await asyncio.to_thread(bybit_rest_service.session.get_tickers, category="linear")
-                            tickers = ticker_resp.get("result", {}).get("list", [])
+                        # [V4.2] Always use Specialist Matrix. 
+                        # We still rank them to prioritize the top 40 in the WS if needed,
+                        # but we only monitor what the Librarian knows.
+                        
+                        ticker_resp = await asyncio.to_thread(bybit_rest_service.session.get_tickers, category="linear")
+                        tickers = ticker_resp.get("result", {}).get("list", [])
+                        
+                        scored_symbols = []
+                        for t in tickers:
+                            sym = f"{t.get('symbol')}.P"
+                            if sym not in all_liquid_symbols: continue
                             
-                            btc_ticker = next((t for t in tickers if t.get("symbol") == "BTCUSDT"), {})
-                            btc_change = float(btc_ticker.get("price24hPcnt", 0)) if btc_ticker else 0
-                            
-                            scored_symbols = []
-                            for t in tickers:
-                                sym = f"{t.get('symbol')}.P"
-                                if sym not in all_liquid_symbols: continue
-                                
-                                change = float(t.get("price24hPcnt", 0))
-                                turnover = float(t.get("turnover24h", 0))
-                                # [V110.186] Populate turnover cache for all assets using bulk data
-                                bybit_ws_service.turnover_24h_cache[sym] = turnover
-                                
-                                # Descorrelation Score: How much it differs from BTC
-                                decor_score = abs(change - btc_change)
-                                # Plus some volume weight to prefer liquid ones
-                                final_rank_score = decor_score * 0.7 + (math.log10(turnover) if turnover > 0 else 0) * 0.3
-                                
-                                scored_symbols.append({"symbol": sym, "score": final_rank_score})
-                            
-                            scored_symbols.sort(key=lambda x: x["score"], reverse=True)
-                            top_90 = [x["symbol"] for x in scored_symbols[:90]]
-                            
-                            # Ensure BTC is always there
-                            if "BTCUSDT.P" not in top_90: top_90.insert(0, "BTCUSDT.P")
-                            logger.info(f"📡 [V71.0 DYNAMIC RADAR] BTC RANGING! Rebalanced WebSocket with Top 90 Descorrelated Assets (SCAVENGER MODE).")
-                            
-                        await bybit_ws_service.sync_topics(top_90)
+                            turnover = float(t.get("turnover24h", 0))
+                            bybit_ws_service.turnover_24h_cache[sym] = turnover
+                            scored_symbols.append(sym)
+                        
+                        # [V4.2] No need to rank by descorrelation if we only have 40 pairs.
+                        # We monitor ALL of them (40 is well within WS limits of 95).
+                        top_topics = scored_symbols if scored_symbols else all_liquid_symbols
+                        
+                        # Ensure BTC is always there
+                        if "BTCUSDT.P" not in top_topics: top_topics.insert(0, "BTCUSDT.P")
+                        
+                        logger.info(f"📡 [V4.2 MATRIX-BLINDAGE] Radar locked to {len(top_topics)} Specialist Assets. External noise eliminated.")
+                        await bybit_ws_service.sync_topics(top_topics)
                         self._last_ws_rebalance = now
                     except Exception as rb_err:
-                        logger.error(f"Failed to rebalance WS: {rb_err}")
+                        logger.error(f"Failed to rebalance specialist WS: {rb_err}")
 
                 active_symbols_ws = bybit_ws_service.active_symbols
                 

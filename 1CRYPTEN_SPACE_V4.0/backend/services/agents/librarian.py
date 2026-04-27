@@ -59,7 +59,7 @@ class LibrarianAgent(AIOSAgent):
             "LINKUSDT": {"respiro": 15, "rf_delay": 1.0, "beta": 1.0, "profile": "STABLE"},
             "DOTUSDT":  {"respiro": 12, "rf_delay": 1.0, "beta": 0.9, "profile": "STABLE"},
             "ADAUSDT":  {"respiro": 10, "rf_delay": 1.0, "beta": 0.8, "profile": "STABLE"},
-            "MATICUSDT":{"respiro": 15, "rf_delay": 1.1, "beta": 1.1, "profile": "STABLE"},
+            "POLUSDT":  {"respiro": 15, "rf_delay": 1.1, "beta": 1.1, "profile": "STABLE"},
             "ATOMUSDT": {"respiro": 15, "rf_delay": 1.0, "beta": 1.0, "profile": "STABLE"},
             "LTCUSDT":  {"respiro": 10, "rf_delay": 1.0, "beta": 0.7, "profile": "STABLE"},
             "BCHUSDT":  {"respiro": 18, "rf_delay": 1.2, "beta": 1.2, "profile": "VOLATILE"},
@@ -88,6 +88,15 @@ class LibrarianAgent(AIOSAgent):
             "UNIUSDT":  {"respiro": 15, "rf_delay": 1.1, "beta": 1.1, "profile": "STABLE"},
         }
         self.memecoin_blacklist = ["PEPE", "DOGE", "SHIB", "FLOKI", "BONK", "WIF", "MYRO", "1000SATS", "ORDI", "MEME", "TURBO", "PEOPLE"]
+
+    def is_specialist_asset(self, symbol: str) -> bool:
+        """Verifica se o ativo pertence à Matriz de Especialistas (DNA Sniper)."""
+        norm_symbol = symbol.replace(".P", "").upper()
+        return norm_symbol in self.SPECIALIST_MATRIX
+
+    def get_specialist_symbols(self, suffix: str = ".P") -> list:
+        """Retorna a lista de símbolos da Matriz com o sufixo desejado."""
+        return [f"{s}{suffix}" for s in self.SPECIALIST_MATRIX.keys()]
 
     async def on_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
         msg_type = message.get("type")

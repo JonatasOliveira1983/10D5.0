@@ -327,6 +327,7 @@ class BybitREST:
             
             final_candidates.sort(key=lambda x: x["turnover"], reverse=True)
             # [V110.173] Foco reduzido de 100 para 40 pares para precisão extrema
+            # [V4.2] Radar Blindage will handle the final filtering, but we keep this as a sane fallback.
             final_symbols = [f"{x['symbol']}.P" for x in final_candidates][:40]
             
             logger.info(f"BybitREST: Mass Sniper Elite Scan Successful. Monitoring Top {len(final_symbols)} pairs.")
