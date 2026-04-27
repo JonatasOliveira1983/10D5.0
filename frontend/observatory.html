@@ -51,7 +51,7 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',s
 .btn-green:hover{background:rgba(34,197,94,0.2)}
 
 .chart-area{flex:1;position:relative;overflow:hidden;background:#050505}
-#tv_chart_container{width:100%;height:100%}
+#tv_chart_container{position:absolute;top:0;left:0;right:0;bottom:0}
 
 .loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:var(--bg);z-index:10;transition:opacity .5s}
 .loading.hidden{opacity:0;pointer-events:none}
@@ -228,8 +228,7 @@ function loadChart(symbol){
     save_image: false,
     backgroundColor: "rgba(5,5,5,1)",
     gridColor: "rgba(255,255,255,0.03)",
-    width: "100%",
-    height: "100%",
+    autosize: true,
     studies: [
       // SMA 21 — Branca
       {
