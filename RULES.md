@@ -122,12 +122,19 @@ Captain (Orquestrador Central)
 
 ---
 
-## 12. INTELIGÊNCIA COLETIVA E AGENTE VISÃO (V4.1)
-1. **Poder de Veto Visual:** O **Agente Visão** é a última linha de defesa. Ele captura um *screenshot* real do gráfico (30m) e analisa a ação do preço e indicadores (SMA) visualmente usando IA Multimodal (Gemini/OpenRouter). Ele tem autoridade para **vetar entradas** (Confidence > 70%) que pareçam armadilhas de liquidez (ex: pavios falsos).
-2. **Scan Global:** O Bibliotecário realiza um mapeamento visual rotativo das 40 moedas de elite no fundo, alimentando a frota com contexto atualizado (TRENDING, RANGE, etc.).
-3. **UI Sovereign Intelligence:** Todas as convocações do Capitão, scans do Bibliotecário e vetos do Visão (incluindo as capturas de tela) são transmitidos via WebSocket em tempo real para a barra esquerda do painel Desktop (`Collective Intelligence Card`).
+## 12. INTELIGÊNCIA COLETIVA E AGENTE VISÃO (V4.2)
+1. **Poder de Veto Visual (Sniper Padrão):** O **Agente Visão** é a última linha de defesa para ordens de Sniper Padrão (prefixos `LBR` e `CAP`). Ele captura um *screenshot* real do gráfico e analisa a ação do preço e indicadores (SMA 21, SMA 100) visualmente usando IA Multimodal.
+2. **Exceção do Blitz Sniper:** O **Blitz Sniper (`BLZ`)** ignora intencionalmente o Agente Visão. Por ser um agente de Forças Especiais projetado para execuções sub-segundo baseadas em Momentum Matemático e CVD Institucional, ele não pode arcar com o delay de 10-15s da análise visual.
+3. **UI Sovereign Intelligence:** Todas as convocações do Capitão, scans do Bibliotecário e vetos do Visão são transmitidos via WebSocket em tempo real para a barra esquerda do painel Desktop (`Collective Intelligence Card`).
 
 ---
 
-*Versão: V4.1 "Visionary Intelligence" | Atualizado: 2026-04-27*
+## 13. OBSERVATORY (VISUAL HQ) & SERVICE WORKER
+1. **Observatory (V5.8):** O sistema possui um hub visual dedicado (`/observatory`) embutindo gráficos nativos do TradingView via `widgetembed` iframe. É a zona estéril onde as SMAs (21/100) e o Volume são expostos em tempo real para a frota e para o operador humano.
+2. **Rota Isolada:** A rota `/observatory` não deve cair no catch-all de SPA do FastAPI. Ela retorna o arquivo `observatory.html` fisicamente.
+3. **Service Worker (PWA):** O arquivo `sw.js` **obrigatoriamente** utiliza estratégia `Network-First` para a rota `/observatory` e `/cockpit.html`. O fallback do Service Worker jamais deve devolver o Cockpit em chamadas para o Observatory, devendo o cache versionado (`CACHE_NAME`) ser elevado em caso de conflitos de roteamento.
+
+---
+
+*Versão: V4.2 "Visual Observatory Elite" | Atualizado: 2026-04-27*
 *Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10D5.0.*
