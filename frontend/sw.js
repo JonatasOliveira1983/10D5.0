@@ -7,7 +7,7 @@
  * - Stale-While-Revalidate: Manifest & CDNs
  */
 
-const CACHE_NAME = '1crypten-sniper-v110.182.9';
+const CACHE_NAME = '1crypten-sniper-v110.182.10';
 const OFFLINE_URL = '/offline.html';
 
 // Assets that must be available offline
@@ -69,7 +69,7 @@ self.addEventListener('fetch', (event) => {
 
     // 2. Network-First para a página principal e manifest
     // Isso garante que se houver internet, o usuário pegue a versão mais nova.
-    if (url.pathname === '/' || url.pathname === '/cockpit.html' || url.pathname === '/manifest.json') {
+    if (url.pathname === '/' || url.pathname === '/cockpit.html' || url.pathname === '/observatory' || url.pathname === '/observatory.html' || url.pathname === '/manifest.json') {
         event.respondWith(
             fetch(event.request)
                 .then((response) => {
