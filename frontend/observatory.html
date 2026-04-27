@@ -8,92 +8,63 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#050505;--card:rgba(255,255,255,0.03);--border:rgba(255,255,255,0.07);--bh:rgba(255,255,255,0.15);--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--t1:#fff;--t2:#9ca3af;--t3:#4b5563}
+:root{--bg:#050505;--border:rgba(255,255,255,0.07);--bh:rgba(255,255,255,0.15);--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--t1:#fff;--t2:#9ca3af;--t3:#4b5563}
 html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;overflow:hidden}
-.layout{display:grid;grid-template-columns:220px 1fr;height:100vh}
+.layout{display:grid;grid-template-columns:200px 1fr;height:100vh}
 
-/* SIDEBAR */
-.sidebar{background:rgba(0,0,0,0.7);border-right:1px solid var(--border);display:flex;flex-direction:column;backdrop-filter:blur(20px)}
-.sb-head{padding:14px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
-.sb-logo{display:flex;align-items:center;gap:10px}
-.logo-icon{width:30px;height:30px;border-radius:8px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);display:flex;align-items:center;justify-content:center}
-.logo-icon .material-icons-round{font-size:15px;color:var(--green)}
-.logo-t{font-size:11px;font-weight:900;letter-spacing:.2em;text-transform:uppercase}
-.logo-s{font-size:8px;color:var(--t3);font-family:'JetBrains Mono',monospace}
+.sidebar{background:rgba(0,0,0,0.8);border-right:1px solid var(--border);display:flex;flex-direction:column;backdrop-filter:blur(20px)}
+.sb-head{padding:12px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+.sb-logo{display:flex;align-items:center;gap:8px}
+.logo-icon{width:28px;height:28px;border-radius:8px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);display:flex;align-items:center;justify-content:center}
+.logo-icon .material-icons-round{font-size:14px;color:var(--green)}
+.logo-t{font-size:10px;font-weight:900;letter-spacing:.2em;text-transform:uppercase}
+.logo-s{font-size:7px;color:var(--t3);font-family:'JetBrains Mono',monospace}
 .sb-search{position:relative}
-.sb-search input{width:100%;padding:7px 10px 7px 28px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;color:var(--t1);font-size:10px;font-family:'JetBrains Mono',monospace;outline:none;transition:.2s}
+.sb-search input{width:100%;padding:6px 8px 6px 26px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;color:var(--t1);font-size:10px;font-family:'JetBrains Mono',monospace;outline:none;transition:.2s}
 .sb-search input:focus{border-color:var(--bh)}
-.sb-search .material-icons-round{position:absolute;left:7px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--t3)}
-.pair-list{flex:1;overflow-y:auto;padding:5px}
+.sb-search .material-icons-round{position:absolute;left:6px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--t3)}
+.pair-list{flex:1;overflow-y:auto;padding:4px}
 .pair-list::-webkit-scrollbar{width:2px}
 .pair-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
-.pair-item{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;cursor:pointer;transition:.15s;margin-bottom:2px;border:1px solid transparent}
+.pair-item{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-radius:7px;cursor:pointer;transition:.15s;margin-bottom:1px;border:1px solid transparent}
 .pair-item:hover{background:rgba(255,255,255,0.04);border-color:var(--border)}
 .pair-item.active{background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.25)}
-.pair-name{font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace}
-.badge{font-size:7px;font-weight:800;padding:2px 5px;border-radius:4px;text-transform:uppercase;letter-spacing:.05em}
+.pair-name{font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.badge{font-size:7px;font-weight:800;padding:2px 4px;border-radius:3px;text-transform:uppercase}
 .bx{background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.2)}
 .bv{background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.2)}
 .bs{background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.15)}
-.sb-foot{padding:10px 14px;border-top:1px solid var(--border)}
-.status-dot{display:flex;align-items:center;gap:6px;font-size:8px;color:var(--t3);font-family:'JetBrains Mono',monospace}
+.sb-foot{padding:8px 12px;border-top:1px solid var(--border)}
+.status-dot{display:flex;align-items:center;gap:5px;font-size:8px;color:var(--t3);font-family:'JetBrains Mono',monospace}
 .dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* MAIN */
 .main{display:flex;flex-direction:column;overflow:hidden}
-.topbar{height:50px;background:rgba(0,0,0,0.6);border-bottom:1px solid var(--border);padding:0 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;backdrop-filter:blur(20px)}
-.sym{font-size:15px;font-weight:900;font-family:'JetBrains Mono',monospace}
-.tf-badge{font-size:8px;font-weight:800;padding:3px 7px;border-radius:5px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.2);text-transform:uppercase;letter-spacing:.1em;margin-left:10px}
+.topbar{height:48px;background:rgba(0,0,0,0.7);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;backdrop-filter:blur(20px)}
+.sym{font-size:14px;font-weight:900;font-family:'JetBrains Mono',monospace}
+.tf-badge{font-size:8px;font-weight:800;padding:2px 7px;border-radius:5px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.2);text-transform:uppercase;letter-spacing:.1em;margin-left:8px}
 .topbar-right{display:flex;align-items:center;gap:8px}
-.btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--t2);cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;transition:.15s;font-family:'Inter',sans-serif}
+.btn{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:7px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--t2);cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;transition:.15s;font-family:'Inter',sans-serif}
 .btn:hover{background:rgba(255,255,255,0.07);border-color:var(--bh);color:var(--t1)}
-.btn .material-icons-round{font-size:13px}
+.btn .material-icons-round{font-size:12px}
 .btn-green{background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.25);color:var(--green)}
 .btn-green:hover{background:rgba(34,197,94,0.2)}
-.btn-blue{background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.25);color:#60a5fa}
-.btn-blue:hover{background:rgba(59,130,246,0.2)}
 
-/* CONTENT AREA */
-.content{flex:1;display:grid;grid-template-rows:1fr auto;overflow:hidden;position:relative}
-.vision-area{overflow:hidden;display:flex;flex-direction:column;position:relative}
+.chart-area{flex:1;position:relative;overflow:hidden;background:#050505}
+#tv_chart_container{width:100%;height:100%}
 
-/* No screenshot state */
-.no-shot{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:radial-gradient(ellipse at 50% 0%, rgba(34,197,94,0.04) 0%, transparent 70%)}
-.no-shot-icon{width:64px;height:64px;border-radius:20px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);display:flex;align-items:center;justify-content:center}
-.no-shot-icon .material-icons-round{font-size:32px;color:var(--green);opacity:.7}
-.no-shot h2{font-size:14px;font-weight:800;color:rgba(255,255,255,0.4);text-align:center}
-.no-shot p{font-size:10px;color:var(--t3);text-align:center;max-width:300px;line-height:1.6}
-.open-tv-btn{display:flex;align-items:center;gap:8px;padding:12px 24px;border-radius:12px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:var(--green);cursor:pointer;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;transition:.2s}
-.open-tv-btn:hover{background:rgba(34,197,94,0.2);box-shadow:0 0 30px rgba(34,197,94,0.15)}
-.open-tv-btn .material-icons-round{font-size:18px}
-
-/* Screenshot display */
-.shot-container{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:16px;gap:12px}
-.shot-header{display:flex;align-items:center;justify-content:space-between}
-.shot-meta{display:flex;flex-direction:column;gap:2px}
-.shot-sym{font-size:12px;font-weight:900;font-family:'JetBrains Mono',monospace}
-.shot-time{font-size:8px;color:var(--t3);font-family:'JetBrains Mono',monospace}
-.decision-badge{font-size:9px;font-weight:800;padding:4px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:.05em}
-.dec-approved{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
-.dec-rejected{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3)}
-.shot-img-wrap{flex:1;border-radius:12px;border:1px solid var(--border);overflow:hidden;background:#000;position:relative;min-height:0}
-.shot-img{width:100%;height:100%;object-fit:contain;display:block}
-.shot-analysis{padding:10px 12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;font-size:9px;color:var(--t2);line-height:1.6;font-style:italic}
-
-/* Loading spinner */
-.spinner{width:24px;height:24px;border:2px solid rgba(255,255,255,0.05);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
+.loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:var(--bg);z-index:10;transition:opacity .5s}
+.loading.hidden{opacity:0;pointer-events:none}
+.spinner{width:28px;height:28px;border:2px solid rgba(255,255,255,0.06);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace}
 
-/* INFOBAR */
-.infobar{height:38px;background:rgba(0,0,0,0.5);border-top:1px solid var(--border);padding:0 18px;display:flex;align-items:center;gap:20px;flex-shrink:0}
-.info-item{display:flex;align-items:center;gap:5px}
-.info-label{font-size:8px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.infobar{height:36px;background:rgba(0,0,0,0.6);border-top:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:16px;flex-shrink:0}
+.info-item{display:flex;align-items:center;gap:4px}
+.info-label{font-size:7px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
 .info-val{font-size:9px;font-weight:700;font-family:'JetBrains Mono',monospace}
-.sep{width:1px;height:14px;background:var(--border)}
-
-/* Scan line */
-.scan-line{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(34,197,94,0.3),transparent);animation:scan 5s ease-in-out infinite;pointer-events:none}
+.sep{width:1px;height:12px;background:var(--border)}
+.scan-line{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(34,197,94,0.25),transparent);animation:scan 5s ease-in-out infinite;pointer-events:none;z-index:5}
 @keyframes scan{0%{top:0;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:100%;opacity:0}}
 </style>
 </head>
@@ -107,7 +78,7 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',s
       </div>
       <div class="sb-search">
         <span class="material-icons-round">search</span>
-        <input type="text" id="searchInput" placeholder="Filtrar pares..." oninput="filterPairs(this.value)">
+        <input type="text" id="searchInput" placeholder="Filtrar..." oninput="filterPairs(this.value)">
       </div>
     </div>
     <div class="pair-list" id="pairList"></div>
@@ -121,67 +92,41 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',s
       <div style="display:flex;align-items:center">
         <span class="sym" id="symDisplay">AVAXUSDT</span>
         <span class="tf-badge">30M · Perpetual</span>
-        <span id="profBadge" class="badge bx" style="margin-left:10px">EXT</span>
+        <span id="profBadge" class="badge bx" style="margin-left:8px">EXT</span>
       </div>
       <div class="topbar-right">
-        <button class="btn btn-blue" onclick="openTV()">
-          <span class="material-icons-round">show_chart</span>Ver no TradingView
-        </button>
         <button class="btn btn-green" onclick="capture()" id="capBtn">
           <span class="material-icons-round">photo_camera</span>Capturar Visão
         </button>
       </div>
     </div>
 
-    <div class="content">
-      <div class="vision-area" id="visionArea">
-        <div class="scan-line"></div>
-        <!-- No-screenshot state (default) -->
-        <div class="no-shot" id="noShot">
-          <div class="no-shot-icon"><span class="material-icons-round">visibility</span></div>
-          <h2>Aguardando análise visual</h2>
-          <p id="noShotMsg">Clique em "Capturar Visão" para o Agente Visão analisar este par no TF de 30M</p>
-          <button class="open-tv-btn" onclick="openTV()">
-            <span class="material-icons-round">open_in_new</span>
-            Abrir Gráfico no TradingView
-          </button>
-        </div>
-        <!-- Screenshot display (hidden by default) -->
-        <div class="shot-container" id="shotContainer" style="display:none">
-          <div class="shot-header">
-            <div class="shot-meta">
-              <div class="shot-sym" id="shotSym">—</div>
-              <div class="shot-time" id="shotTime">—</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px">
-              <span class="decision-badge dec-approved" id="decBadge" style="display:none">APPROVED</span>
-              <button class="btn" onclick="clearShot()"><span class="material-icons-round">close</span></button>
-            </div>
-          </div>
-          <div class="shot-img-wrap">
-            <img id="shotImg" class="shot-img" src="" alt="Vision Screenshot">
-          </div>
-          <div class="shot-analysis" id="shotAnalysis" style="display:none"></div>
-        </div>
+    <div class="chart-area">
+      <div class="scan-line"></div>
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div class="loading-txt" id="loadingTxt">Carregando gráfico...</div>
       </div>
+      <div id="tv_chart_container"></div>
+    </div>
 
-      <div class="infobar">
-        <div class="info-item"><span class="info-label">Par</span><span class="info-val" id="infoSym">—</span></div>
-        <div class="sep"></div>
-        <div class="info-item"><span class="info-label">Perfil</span><span class="info-val" id="infoPerfil">—</span></div>
-        <div class="sep"></div>
-        <div class="info-item"><span class="info-label">Respiro ROI</span><span class="info-val" id="infoRespiro">—</span></div>
-        <div class="sep"></div>
-        <div class="info-item"><span class="info-label">RF Delay</span><span class="info-val" id="infoRf">—</span></div>
-        <div class="sep"></div>
-        <div class="info-item"><span class="info-label">Visão</span><span class="info-val" id="infoVision" style="color:var(--t3)">Aguardando</span></div>
-      </div>
+    <div class="infobar">
+      <div class="info-item"><span class="info-label">Par</span><span class="info-val" id="infoSym">—</span></div>
+      <div class="sep"></div>
+      <div class="info-item"><span class="info-label">Perfil</span><span class="info-val" id="infoPerfil">—</span></div>
+      <div class="sep"></div>
+      <div class="info-item"><span class="info-label">Respiro ROI</span><span class="info-val" id="infoRespiro">—</span></div>
+      <div class="sep"></div>
+      <div class="info-item"><span class="info-label">RF Delay</span><span class="info-val" id="infoRf">—</span></div>
+      <div class="sep"></div>
+      <div class="info-item"><span class="info-label">Visão</span><span class="info-val" id="infoVision" style="color:var(--t3)">Aguardando</span></div>
     </div>
   </main>
 </div>
 
+<!-- TradingView Widget Script -->
+<script src="https://s3.tradingview.com/tv.js"></script>
 <script>
-const TV_CHART = "https://www.tradingview.com/chart/gXpimIZU/";
 const MATRIX = {
   "AVAXUSDT":{r:25,d:1.4,p:"EXTREME"},"NEARUSDT":{r:22,d:1.3,p:"VOLATILE"},
   "APTUSDT":{r:25,d:1.4,p:"EXTREME"},"SUIUSDT":{r:25,d:1.4,p:"EXTREME"},
@@ -206,27 +151,25 @@ const MATRIX = {
 };
 
 let cur = null;
+let tvWidget = null;
 
 function init(){
   const p = new URLSearchParams(location.search);
   const s = p.get('symbol')||p.get('s');
   renderList(Object.keys(MATRIX));
   select(s ? s.toUpperCase().replace('.P','') : 'AVAXUSDT');
-  loadLastVision();
-  setInterval(loadLastVision, 30000);
 }
 
 function renderList(syms){
   const el = document.getElementById('pairList');
   el.innerHTML='';
   syms.forEach(s=>{
-    const d = MATRIX[s]; if(!d) return;
-    const bc = d.p==='EXTREME'?'bx':d.p==='VOLATILE'?'bv':'bs';
-    const short = d.p.substring(0,3);
-    const div = document.createElement('div');
+    const d=MATRIX[s]; if(!d) return;
+    const bc=d.p==='EXTREME'?'bx':d.p==='VOLATILE'?'bv':'bs';
+    const div=document.createElement('div');
     div.className='pair-item'+(s===cur?' active':'');
     div.id='p-'+s; div.onclick=()=>select(s);
-    div.innerHTML=`<span class="pair-name">${s.replace('USDT','')}</span><span class="badge ${bc}">${short}</span>`;
+    div.innerHTML=`<span class="pair-name">${s.replace('USDT','')}</span><span class="badge ${bc}">${d.p.substring(0,3)}</span>`;
     el.appendChild(div);
   });
 }
@@ -244,32 +187,107 @@ function select(s){
   document.getElementById('infoPerfil').textContent=d.p;
   document.getElementById('infoRespiro').textContent=d.r+'% ROI';
   document.getElementById('infoRf').textContent=d.d+'x';
-  document.getElementById('noShotMsg').textContent=`Clique em "Capturar Visão" para analisar ${s} no TF de 30M`;
-  clearShot(); loadLastVision();
+  document.getElementById('infoVision').textContent='Aguardando';
+  document.getElementById('infoVision').style.color='var(--t3)';
+  loadChart(s);
 }
 
-function openTV(){
-  if(!cur) return;
-  window.open(`${TV_CHART}?symbol=BYBIT:${cur}.P`,'_blank');
+function showLoading(txt){
+  const l=document.getElementById('loading');
+  document.getElementById('loadingTxt').textContent=txt||'Carregando...';
+  l.classList.remove('hidden');
+}
+
+function hideLoading(){
+  document.getElementById('loading').classList.add('hidden');
+}
+
+function loadChart(symbol){
+  showLoading('Carregando '+symbol+'...');
+
+  // Destroy previous widget
+  if(tvWidget){
+    try{ tvWidget.remove(); } catch(e){}
+    tvWidget=null;
+  }
+  document.getElementById('tv_chart_container').innerHTML='';
+
+  // TradingView Widget with all indicators
+  tvWidget = new TradingView.widget({
+    container_id: "tv_chart_container",
+    symbol: "BYBIT:" + symbol + ".P",
+    interval: "30",
+    timezone: "America/Sao_Paulo",
+    theme: "dark",
+    style: "1",
+    locale: "br",
+    toolbar_bg: "#050505",
+    enable_publishing: false,
+    hide_top_toolbar: false,
+    hide_legend: false,
+    save_image: false,
+    backgroundColor: "rgba(5,5,5,1)",
+    gridColor: "rgba(255,255,255,0.03)",
+    width: "100%",
+    height: "100%",
+    studies: [
+      // SMA 21 — Branca
+      {
+        id: "MASimple@tv-basicstudies",
+        inputs: { length: 21 },
+        override: { "Plot.color": "rgba(255,255,255,0.9)", "Plot.linewidth": 2 }
+      },
+      // SMA 100 — Amarela
+      {
+        id: "MASimple@tv-basicstudies",
+        inputs: { length: 100 },
+        override: { "Plot.color": "rgba(245,158,11,0.9)", "Plot.linewidth": 2 }
+      },
+      // SuperTrend (built-in)
+      {
+        id: "STD;Supertrend",
+        inputs: { ATR_Period: 10, Source: "hl2", ATR_Multiplier: 3.0, "Change ATR Calculation Method ?": true, "Show Buy/Sell Signals ?": true }
+      },
+      // Volume
+      "Volume@tv-basicstudies"
+    ],
+    overrides: {
+      "paneProperties.background": "#050505",
+      "paneProperties.backgroundType": "solid",
+      "scalesProperties.textColor": "#6b7280",
+      "mainSeriesProperties.candleStyle.upColor": "#22c55e",
+      "mainSeriesProperties.candleStyle.downColor": "#ef4444",
+      "mainSeriesProperties.candleStyle.borderUpColor": "#22c55e",
+      "mainSeriesProperties.candleStyle.borderDownColor": "#ef4444",
+      "mainSeriesProperties.candleStyle.wickUpColor": "rgba(34,197,94,0.6)",
+      "mainSeriesProperties.candleStyle.wickDownColor": "rgba(239,68,68,0.6)"
+    },
+    loading_screen: { backgroundColor: "#050505", foregroundColor: "#22c55e" },
+    onready: function(){
+      setTimeout(hideLoading, 1500);
+    }
+  });
 }
 
 async function capture(){
   if(!cur) return;
   const btn=document.getElementById('capBtn');
   btn.disabled=true;
-  btn.innerHTML='<span class="material-icons-round" style="animation:spin .7s linear infinite">refresh</span> Capturando...';
+  btn.innerHTML='<span class="material-icons-round" style="animation:spin .7s linear infinite;display:inline-block">refresh</span> Capturando...';
   document.getElementById('infoVision').textContent='Capturando...';
   document.getElementById('infoVision').style.color='var(--amber)';
   try{
-    const r = await fetch('/api/vision/capture',{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({symbol:cur, interval:'30'})
+    const r=await fetch('/api/vision/capture',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({symbol:cur,interval:'30'})
     });
     if(r.ok){
       const data=await r.json();
-      showShot(data);
+      const dec=data.decision||'OK';
+      document.getElementById('infoVision').textContent=dec+' ('+data.confidence+'%)';
+      document.getElementById('infoVision').style.color=dec==='APPROVED'?'var(--green)':'var(--red)';
     } else {
-      document.getElementById('infoVision').textContent='Erro na captura';
+      document.getElementById('infoVision').textContent='Erro na API';
       document.getElementById('infoVision').style.color='var(--red)';
     }
   } catch(e){
@@ -280,49 +298,6 @@ async function capture(){
     btn.disabled=false;
     btn.innerHTML='<span class="material-icons-round">photo_camera</span>Capturar Visão';
   },3000);
-}
-
-function showShot(data){
-  if(!data) return;
-  document.getElementById('noShot').style.display='none';
-  document.getElementById('shotContainer').style.display='flex';
-  document.getElementById('shotSym').textContent=data.symbol||cur;
-  document.getElementById('shotTime').textContent=new Date().toLocaleTimeString();
-  if(data.image_url){
-    document.getElementById('shotImg').src=data.image_url;
-  }
-  const dec=document.getElementById('decBadge');
-  if(data.decision){
-    dec.style.display='inline-block';
-    dec.textContent=data.decision;
-    dec.className='decision-badge '+(data.decision==='APPROVED'?'dec-approved':'dec-rejected');
-    document.getElementById('infoVision').textContent=data.decision;
-    document.getElementById('infoVision').style.color=data.decision==='APPROVED'?'var(--green)':'var(--red)';
-  }
-  if(data.analysis){
-    const an=document.getElementById('shotAnalysis');
-    an.style.display='block';
-    an.textContent='"'+data.analysis+'"';
-  }
-}
-
-function clearShot(){
-  document.getElementById('noShot').style.display='flex';
-  document.getElementById('shotContainer').style.display='none';
-  document.getElementById('infoVision').textContent='Aguardando';
-  document.getElementById('infoVision').style.color='var(--t3)';
-}
-
-async function loadLastVision(){
-  if(!cur) return;
-  try{
-    const r=await fetch('/api/radar/librarian');
-    if(!r.ok) return;
-    const data=await r.json();
-    const status=data.study_status||'IDLE';
-    document.getElementById('statusTxt').textContent=
-      status==='STUDYING'?`Estudando ${data.processed_count||0}/${data.total_assets||40}`:'40 pares monitorados';
-  } catch(e){}
 }
 
 function filterPairs(q){
