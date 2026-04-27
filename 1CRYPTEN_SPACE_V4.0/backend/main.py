@@ -542,6 +542,12 @@ async def serve_index():
 async def cockpit_redirect():
     return RedirectResponse(url="/")
 
+@app.get("/observatory")
+@app.get("/observatory.html")
+async def serve_observatory():
+    """[V5.0] Sala de Observação Visual — 40 Elite Pairs"""
+    return FileResponse(os.path.join(FRONTEND_DIR, "observatory.html"))
+
 @app.get("/{full_path:path}")
 async def catch_all(full_path: str):
     # Search for physical file first (crucial for manifest.json, sw.js, etc.)

@@ -253,3 +253,36 @@ async def trigger_librarian_visual_scan():
 async def trigger_librarian_visual_scan_get():
     """Versão GET para facilidade de uso via navegador."""
     return await trigger_librarian_visual_scan()
+
+@router.post("/vision/capture")
+async def vision_capture(payload: dict):
+    """
+    [V5.0] OBSERVATORY: Dispara captura e análise visual de um par pelo Agente Visão.
+    Chamado pelo botão 'Capturar Visão' na página Observatory.
+    """
+    symbol = payload.get("symbol", "BTCUSDT").upper().replace(".P", "")
+    interval = payload.get("interval", "30")
+    side = payload.get("side", "Buy")
+
+    logger.info(f"👁️ [OBSERVATORY] Manual vision capture triggered for {symbol}")
+
+    try:
+        from services.agents.vision_agent import vision_agent
+        result = await vision_agent.confirm_entry(
+            symbol=symbol,
+            side=side,
+            signal_score=75  # Score padrão para análise de contexto manual
+        )
+
+        return {
+            "status": "ok",
+            "symbol": symbol,
+            "decision": "APPROVED" if result.get("approved") else "REJECTED",
+            "confidence": result.get("confidence", 0),
+            "analysis": result.get("reason", ""),
+            "thoughts": result.get("thoughts", ""),
+            "image_url": result.get("screenshot_url", "")
+        }
+    except Exception as e:
+        logger.error(f"❌ [OBSERVATORY] Vision capture error: {e}")
+        return {"status": "error", "message": str(e)}

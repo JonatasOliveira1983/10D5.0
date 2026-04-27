@@ -2,569 +2,336 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Observatory — 10D Sniper Elite 40</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 <style>
-  :root {
-    --bg: #050505;
-    --bg2: #0a0a0a;
-    --border: rgba(255,255,255,0.06);
-    --border-hover: rgba(255,255,255,0.15);
-    --green: #22c55e;
-    --amber: #f59e0b;
-    --red: #ef4444;
-    --text: #ffffff;
-    --text2: #9ca3af;
-    --text3: #4b5563;
-    --extreme: #ef4444;
-    --volatile: #f59e0b;
-    --stable: #22c55e;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#050505;--card:rgba(255,255,255,0.03);--border:rgba(255,255,255,0.07);--bh:rgba(255,255,255,0.15);--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--t1:#fff;--t2:#9ca3af;--t3:#4b5563}
+html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;overflow:hidden}
+.layout{display:grid;grid-template-columns:220px 1fr;height:100vh}
 
-  /* Layout */
-  .layout { display: grid; grid-template-columns: 220px 1fr; height: 100vh; }
+/* SIDEBAR */
+.sidebar{background:rgba(0,0,0,0.7);border-right:1px solid var(--border);display:flex;flex-direction:column;backdrop-filter:blur(20px)}
+.sb-head{padding:14px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:10px}
+.sb-logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:30px;height:30px;border-radius:8px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);display:flex;align-items:center;justify-content:center}
+.logo-icon .material-icons-round{font-size:15px;color:var(--green)}
+.logo-t{font-size:11px;font-weight:900;letter-spacing:.2em;text-transform:uppercase}
+.logo-s{font-size:8px;color:var(--t3);font-family:'JetBrains Mono',monospace}
+.sb-search{position:relative}
+.sb-search input{width:100%;padding:7px 10px 7px 28px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;color:var(--t1);font-size:10px;font-family:'JetBrains Mono',monospace;outline:none;transition:.2s}
+.sb-search input:focus{border-color:var(--bh)}
+.sb-search .material-icons-round{position:absolute;left:7px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--t3)}
+.pair-list{flex:1;overflow-y:auto;padding:5px}
+.pair-list::-webkit-scrollbar{width:2px}
+.pair-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
+.pair-item{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;border-radius:8px;cursor:pointer;transition:.15s;margin-bottom:2px;border:1px solid transparent}
+.pair-item:hover{background:rgba(255,255,255,0.04);border-color:var(--border)}
+.pair-item.active{background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.25)}
+.pair-name{font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.badge{font-size:7px;font-weight:800;padding:2px 5px;border-radius:4px;text-transform:uppercase;letter-spacing:.05em}
+.bx{background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.2)}
+.bv{background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.2)}
+.bs{background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.15)}
+.sb-foot{padding:10px 14px;border-top:1px solid var(--border)}
+.status-dot{display:flex;align-items:center;gap:6px;font-size:8px;color:var(--t3);font-family:'JetBrains Mono',monospace}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-  /* Sidebar */
-  .sidebar {
-    background: rgba(0,0,0,0.6);
-    border-right: 1px solid var(--border);
-    display: flex; flex-direction: column;
-    backdrop-filter: blur(20px);
-  }
-  .sidebar-header {
-    padding: 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex; flex-direction: column; gap: 12px;
-  }
-  .sidebar-logo {
-    display: flex; align-items: center; gap: 10px;
-  }
-  .logo-icon {
-    width: 32px; height: 32px; border-radius: 10px;
-    background: linear-gradient(135deg, #22c55e20, #22c55e05);
-    border: 1px solid rgba(34,197,94,0.3);
-    display: flex; align-items: center; justify-content: center;
-  }
-  .logo-icon .material-icons-round { font-size: 16px; color: var(--green); }
-  .logo-title { font-size: 12px; font-weight: 900; letter-spacing: 0.2em; text-transform: uppercase; }
-  .logo-sub { font-size: 9px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
-  .search-box {
-    position: relative;
-  }
-  .search-box input {
-    width: 100%; padding: 8px 10px 8px 30px;
-    background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-    border-radius: 10px; color: var(--text); font-size: 11px;
-    font-family: 'JetBrains Mono', monospace; outline: none;
-    transition: border-color 0.2s;
-  }
-  .search-box input:focus { border-color: var(--border-hover); }
-  .search-box .material-icons-round {
-    position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
-    font-size: 14px; color: var(--text3);
-  }
+/* MAIN */
+.main{display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:50px;background:rgba(0,0,0,0.6);border-bottom:1px solid var(--border);padding:0 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;backdrop-filter:blur(20px)}
+.sym{font-size:15px;font-weight:900;font-family:'JetBrains Mono',monospace}
+.tf-badge{font-size:8px;font-weight:800;padding:3px 7px;border-radius:5px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.2);text-transform:uppercase;letter-spacing:.1em;margin-left:10px}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.btn{display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--t2);cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;transition:.15s;font-family:'Inter',sans-serif}
+.btn:hover{background:rgba(255,255,255,0.07);border-color:var(--bh);color:var(--t1)}
+.btn .material-icons-round{font-size:13px}
+.btn-green{background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.25);color:var(--green)}
+.btn-green:hover{background:rgba(34,197,94,0.2)}
+.btn-blue{background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.25);color:#60a5fa}
+.btn-blue:hover{background:rgba(59,130,246,0.2)}
 
-  /* Pair list */
-  .pair-list {
-    flex: 1; overflow-y: auto; padding: 6px;
-  }
-  .pair-list::-webkit-scrollbar { width: 3px; }
-  .pair-list::-webkit-scrollbar-track { background: transparent; }
-  .pair-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+/* CONTENT AREA */
+.content{flex:1;display:grid;grid-template-rows:1fr auto;overflow:hidden;position:relative}
+.vision-area{overflow:hidden;display:flex;flex-direction:column;position:relative}
 
-  .pair-item {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 10px; border-radius: 10px; cursor: pointer;
-    transition: all 0.15s; margin-bottom: 2px;
-    border: 1px solid transparent;
-  }
-  .pair-item:hover { background: rgba(255,255,255,0.04); border-color: var(--border); }
-  .pair-item.active {
-    background: rgba(34,197,94,0.08);
-    border-color: rgba(34,197,94,0.25);
-  }
-  .pair-name { font-size: 11px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
-  .pair-badge {
-    font-size: 8px; font-weight: 800; padding: 2px 6px; border-radius: 4px;
-    text-transform: uppercase; letter-spacing: 0.05em;
-  }
-  .badge-extreme { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); }
-  .badge-volatile { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); }
-  .badge-stable { background: rgba(34,197,94,0.1); color: #22c55e; border: 1px solid rgba(34,197,94,0.15); }
+/* No screenshot state */
+.no-shot{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;background:radial-gradient(ellipse at 50% 0%, rgba(34,197,94,0.04) 0%, transparent 70%)}
+.no-shot-icon{width:64px;height:64px;border-radius:20px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);display:flex;align-items:center;justify-content:center}
+.no-shot-icon .material-icons-round{font-size:32px;color:var(--green);opacity:.7}
+.no-shot h2{font-size:14px;font-weight:800;color:rgba(255,255,255,0.4);text-align:center}
+.no-shot p{font-size:10px;color:var(--t3);text-align:center;max-width:300px;line-height:1.6}
+.open-tv-btn{display:flex;align-items:center;gap:8px;padding:12px 24px;border-radius:12px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:var(--green);cursor:pointer;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;transition:.2s}
+.open-tv-btn:hover{background:rgba(34,197,94,0.2);box-shadow:0 0 30px rgba(34,197,94,0.15)}
+.open-tv-btn .material-icons-round{font-size:18px}
 
-  /* Sidebar footer */
-  .sidebar-footer {
-    padding: 12px 16px;
-    border-top: 1px solid var(--border);
-  }
-  .status-dot {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 9px; color: var(--text3); font-family: 'JetBrains Mono', monospace;
-  }
-  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+/* Screenshot display */
+.shot-container{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:16px;gap:12px}
+.shot-header{display:flex;align-items:center;justify-content:space-between}
+.shot-meta{display:flex;flex-direction:column;gap:2px}
+.shot-sym{font-size:12px;font-weight:900;font-family:'JetBrains Mono',monospace}
+.shot-time{font-size:8px;color:var(--t3);font-family:'JetBrains Mono',monospace}
+.decision-badge{font-size:9px;font-weight:800;padding:4px 10px;border-radius:6px;text-transform:uppercase;letter-spacing:.05em}
+.dec-approved{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
+.dec-rejected{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3)}
+.shot-img-wrap{flex:1;border-radius:12px;border:1px solid var(--border);overflow:hidden;background:#000;position:relative;min-height:0}
+.shot-img{width:100%;height:100%;object-fit:contain;display:block}
+.shot-analysis{padding:10px 12px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;font-size:9px;color:var(--t2);line-height:1.6;font-style:italic}
 
-  /* Main area */
-  .main { display: flex; flex-direction: column; overflow: hidden; }
+/* Loading spinner */
+.spinner{width:24px;height:24px;border:2px solid rgba(255,255,255,0.05);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  /* Top bar */
-  .topbar {
-    height: 52px; background: rgba(0,0,0,0.5); border-bottom: 1px solid var(--border);
-    padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
-    backdrop-filter: blur(20px); flex-shrink: 0;
-  }
-  .topbar-left { display: flex; align-items: center; gap: 16px; }
-  .symbol-display { font-size: 16px; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
-  .tf-badge {
-    font-size: 9px; font-weight: 800; padding: 3px 8px; border-radius: 6px;
-    background: rgba(34,197,94,0.1); color: var(--green); border: 1px solid rgba(34,197,94,0.2);
-    text-transform: uppercase; letter-spacing: 0.1em;
-  }
-  .topbar-right { display: flex; align-items: center; gap: 10px; }
-  .btn {
-    display: flex; align-items: center; gap: 6px;
-    padding: 6px 14px; border-radius: 8px; border: 1px solid var(--border);
-    background: rgba(255,255,255,0.03); color: var(--text2); cursor: pointer;
-    font-size: 10px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
-    transition: all 0.15s; font-family: 'Inter', sans-serif;
-  }
-  .btn:hover { background: rgba(255,255,255,0.07); border-color: var(--border-hover); color: var(--text); }
-  .btn .material-icons-round { font-size: 14px; }
-  .btn-green { background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.25); color: var(--green); }
-  .btn-green:hover { background: rgba(34,197,94,0.2); }
+/* INFOBAR */
+.infobar{height:38px;background:rgba(0,0,0,0.5);border-top:1px solid var(--border);padding:0 18px;display:flex;align-items:center;gap:20px;flex-shrink:0}
+.info-item{display:flex;align-items:center;gap:5px}
+.info-label{font-size:8px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.info-val{font-size:9px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.sep{width:1px;height:14px;background:var(--border)}
 
-  /* Chart area */
-  .chart-area { flex: 1; position: relative; overflow: hidden; }
-  .chart-frame {
-    width: 100%; height: 100%; border: none; display: block;
-    background: #050505;
-  }
-
-  /* Loading state */
-  .loading-overlay {
-    position: absolute; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    background: var(--bg); flex-direction: column; gap: 16px;
-    z-index: 10; transition: opacity 0.5s;
-  }
-  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-  .loading-ring {
-    width: 40px; height: 40px; border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.05);
-    border-top-color: var(--green);
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
-
-  /* Info bar below chart */
-  .infobar {
-    height: 40px; background: rgba(0,0,0,0.4); border-top: 1px solid var(--border);
-    padding: 0 20px; display: flex; align-items: center; gap: 24px; flex-shrink: 0;
-  }
-  .info-item { display: flex; align-items: center; gap: 6px; }
-  .info-label { font-size: 9px; color: var(--text3); font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
-  .info-value { font-size: 10px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
-  .info-sep { width: 1px; height: 16px; background: var(--border); }
-
-  /* Scanning line animation */
-  .scan-line {
-    position: absolute; top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(34,197,94,0.4), transparent);
-    animation: scan 4s ease-in-out infinite;
-    pointer-events: none; z-index: 5;
-  }
-  @keyframes scan {
-    0% { top: 0; opacity: 0; }
-    10% { opacity: 1; }
-    90% { opacity: 1; }
-    100% { top: 100%; opacity: 0; }
-  }
+/* Scan line */
+.scan-line{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(34,197,94,0.3),transparent);animation:scan 5s ease-in-out infinite;pointer-events:none}
+@keyframes scan{0%{top:0;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:100%;opacity:0}}
 </style>
 </head>
 <body>
-
 <div class="layout">
-  <!-- Sidebar: 40 Pairs -->
   <aside class="sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-logo">
-        <div class="logo-icon">
-          <span class="material-icons-round">satellite_alt</span>
-        </div>
-        <div>
-          <div class="logo-title">Observatory</div>
-          <div class="logo-sub">Elite 40 Pairs</div>
-        </div>
+    <div class="sb-head">
+      <div class="sb-logo">
+        <div class="logo-icon"><span class="material-icons-round">satellite_alt</span></div>
+        <div><div class="logo-t">Observatory</div><div class="logo-s">Elite 40 Pairs</div></div>
       </div>
-      <div class="search-box">
+      <div class="sb-search">
         <span class="material-icons-round">search</span>
         <input type="text" id="searchInput" placeholder="Filtrar pares..." oninput="filterPairs(this.value)">
       </div>
     </div>
-
     <div class="pair-list" id="pairList"></div>
-
-    <div class="sidebar-footer">
-      <div class="status-dot">
-        <div class="dot"></div>
-        <span id="statusText">Conectado · 40 pares</span>
-      </div>
+    <div class="sb-foot">
+      <div class="status-dot"><div class="dot"></div><span id="statusTxt">40 pares monitorados</span></div>
     </div>
   </aside>
 
-  <!-- Main: Chart -->
   <main class="main">
     <div class="topbar">
-      <div class="topbar-left">
-        <span class="symbol-display" id="symbolDisplay">AVAXUSDT</span>
+      <div style="display:flex;align-items:center">
+        <span class="sym" id="symDisplay">AVAXUSDT</span>
         <span class="tf-badge">30M · Perpetual</span>
-        <span id="profileBadge" class="pair-badge badge-extreme">EXTREME</span>
+        <span id="profBadge" class="badge bx" style="margin-left:10px">EXT</span>
       </div>
       <div class="topbar-right">
-        <button class="btn" onclick="openInTradingView()">
-          <span class="material-icons-round">open_in_new</span>
-          TradingView
+        <button class="btn btn-blue" onclick="openTV()">
+          <span class="material-icons-round">show_chart</span>Ver no TradingView
         </button>
-        <button class="btn btn-green" onclick="triggerVisionCapture()" id="captureBtn">
-          <span class="material-icons-round">photo_camera</span>
-          Capturar
+        <button class="btn btn-green" onclick="capture()" id="capBtn">
+          <span class="material-icons-round">photo_camera</span>Capturar Visão
         </button>
       </div>
     </div>
 
-    <div class="chart-area">
-      <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-ring"></div>
-        <div class="loading-text" id="loadingText">Carregando gráfico...</div>
+    <div class="content">
+      <div class="vision-area" id="visionArea">
+        <div class="scan-line"></div>
+        <!-- No-screenshot state (default) -->
+        <div class="no-shot" id="noShot">
+          <div class="no-shot-icon"><span class="material-icons-round">visibility</span></div>
+          <h2>Aguardando análise visual</h2>
+          <p id="noShotMsg">Clique em "Capturar Visão" para o Agente Visão analisar este par no TF de 30M</p>
+          <button class="open-tv-btn" onclick="openTV()">
+            <span class="material-icons-round">open_in_new</span>
+            Abrir Gráfico no TradingView
+          </button>
+        </div>
+        <!-- Screenshot display (hidden by default) -->
+        <div class="shot-container" id="shotContainer" style="display:none">
+          <div class="shot-header">
+            <div class="shot-meta">
+              <div class="shot-sym" id="shotSym">—</div>
+              <div class="shot-time" id="shotTime">—</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="decision-badge dec-approved" id="decBadge" style="display:none">APPROVED</span>
+              <button class="btn" onclick="clearShot()"><span class="material-icons-round">close</span></button>
+            </div>
+          </div>
+          <div class="shot-img-wrap">
+            <img id="shotImg" class="shot-img" src="" alt="Vision Screenshot">
+          </div>
+          <div class="shot-analysis" id="shotAnalysis" style="display:none"></div>
+        </div>
       </div>
-      <div class="scan-line"></div>
-      <iframe
-        id="chartFrame"
-        class="chart-frame"
-        src=""
-        onload="onChartLoad()"
-        allowfullscreen
-      ></iframe>
-    </div>
 
-    <div class="infobar">
-      <div class="info-item">
-        <span class="info-label">Par</span>
-        <span class="info-value" id="infoSymbol">—</span>
-      </div>
-      <div class="info-sep"></div>
-      <div class="info-item">
-        <span class="info-label">Perfil</span>
-        <span class="info-value" id="infoPerfil">—</span>
-      </div>
-      <div class="info-sep"></div>
-      <div class="info-item">
-        <span class="info-label">Respiro ROI</span>
-        <span class="info-value" id="infoRespiro">—</span>
-      </div>
-      <div class="info-sep"></div>
-      <div class="info-item">
-        <span class="info-label">RF Delay</span>
-        <span class="info-value" id="infoRfDelay">—</span>
-      </div>
-      <div class="info-sep"></div>
-      <div class="info-item">
-        <span class="info-label">Última análise</span>
-        <span class="info-value" id="infoLastAnalysis">—</span>
-      </div>
-      <div class="info-sep"></div>
-      <div class="info-item">
-        <span class="info-label">Visão</span>
-        <span class="info-value" id="infoVisionStatus" style="color: var(--text3);">Aguardando...</span>
+      <div class="infobar">
+        <div class="info-item"><span class="info-label">Par</span><span class="info-val" id="infoSym">—</span></div>
+        <div class="sep"></div>
+        <div class="info-item"><span class="info-label">Perfil</span><span class="info-val" id="infoPerfil">—</span></div>
+        <div class="sep"></div>
+        <div class="info-item"><span class="info-label">Respiro ROI</span><span class="info-val" id="infoRespiro">—</span></div>
+        <div class="sep"></div>
+        <div class="info-item"><span class="info-label">RF Delay</span><span class="info-val" id="infoRf">—</span></div>
+        <div class="sep"></div>
+        <div class="info-item"><span class="info-label">Visão</span><span class="info-val" id="infoVision" style="color:var(--t3)">Aguardando</span></div>
       </div>
     </div>
   </main>
 </div>
 
 <script>
-// =============================================
-// SPECIALIST MATRIX — 40 Elite Pairs
-// =============================================
-const SPECIALIST_MATRIX = {
-  "AVAXUSDT":   { respiro: 25, rf_delay: 1.4, profile: "EXTREME" },
-  "NEARUSDT":   { respiro: 22, rf_delay: 1.3, profile: "VOLATILE" },
-  "APTUSDT":    { respiro: 25, rf_delay: 1.4, profile: "EXTREME" },
-  "SUIUSDT":    { respiro: 25, rf_delay: 1.4, profile: "EXTREME" },
-  "OPUSDT":     { respiro: 22, rf_delay: 1.3, profile: "VOLATILE" },
-  "ARBUSDT":    { respiro: 20, rf_delay: 1.2, profile: "VOLATILE" },
-  "RENDERUSDT": { respiro: 25, rf_delay: 1.5, profile: "EXTREME" },
-  "FETUSDT":    { respiro: 25, rf_delay: 1.5, profile: "EXTREME" },
-  "INJUSDT":    { respiro: 22, rf_delay: 1.3, profile: "VOLATILE" },
-  "TIAUSDT":    { respiro: 25, rf_delay: 1.4, profile: "EXTREME" },
-  "LINKUSDT":   { respiro: 15, rf_delay: 1.0, profile: "STABLE" },
-  "DOTUSDT":    { respiro: 12, rf_delay: 1.0, profile: "STABLE" },
-  "ADAUSDT":    { respiro: 10, rf_delay: 1.0, profile: "STABLE" },
-  "POLUSDT":    { respiro: 15, rf_delay: 1.1, profile: "STABLE" },
-  "ATOMUSDT":   { respiro: 15, rf_delay: 1.0, profile: "STABLE" },
-  "LTCUSDT":    { respiro: 10, rf_delay: 1.0, profile: "STABLE" },
-  "BCHUSDT":    { respiro: 18, rf_delay: 1.2, profile: "VOLATILE" },
-  "XLMUSDT":    { respiro: 10, rf_delay: 1.0, profile: "STABLE" },
-  "XRPUSDT":    { respiro: 10, rf_delay: 1.0, profile: "STABLE" },
-  "TRXUSDT":    { respiro: 8,  rf_delay: 1.0, profile: "STABLE" },
-  "ALGOUSDT":   { respiro: 10, rf_delay: 1.0, profile: "STABLE" },
-  "ETCUSDT":    { respiro: 12, rf_delay: 1.1, profile: "STABLE" },
-  "FILUSDT":    { respiro: 18, rf_delay: 1.2, profile: "VOLATILE" },
-  "STXUSDT":    { respiro: 22, rf_delay: 1.3, profile: "VOLATILE" },
-  "ICPUSDT":    { respiro: 20, rf_delay: 1.2, profile: "VOLATILE" },
-  "HBARUSDT":   { respiro: 15, rf_delay: 1.1, profile: "STABLE" },
-  "KASUSDT":    { respiro: 25, rf_delay: 1.4, profile: "EXTREME" },
-  "LDOUSDT":    { respiro: 20, rf_delay: 1.2, profile: "VOLATILE" },
-  "AAVEUSDT":   { respiro: 18, rf_delay: 1.2, profile: "VOLATILE" },
-  "RUNEUSDT":   { respiro: 25, rf_delay: 1.4, profile: "EXTREME" },
-  "GRTUSDT":    { respiro: 20, rf_delay: 1.2, profile: "VOLATILE" },
-  "EGLDUSDT":   { respiro: 15, rf_delay: 1.1, profile: "STABLE" },
-  "SANDUSDT":   { respiro: 18, rf_delay: 1.2, profile: "VOLATILE" },
-  "MANAUSDT":   { respiro: 18, rf_delay: 1.2, profile: "VOLATILE" },
-  "THETAUSDT":  { respiro: 15, rf_delay: 1.1, profile: "STABLE" },
-  "VETUSDT":    { respiro: 12, rf_delay: 1.0, profile: "STABLE" },
-  "EOSUSDT":    { respiro: 10, rf_delay: 1.0, profile: "STABLE" },
-  "CHZUSDT":    { respiro: 15, rf_delay: 1.1, profile: "STABLE" },
-  "FTMUSDT":    { respiro: 22, rf_delay: 1.3, profile: "VOLATILE" },
-  "UNIUSDT":    { respiro: 15, rf_delay: 1.1, profile: "STABLE" },
+const TV_CHART = "https://www.tradingview.com/chart/gXpimIZU/";
+const MATRIX = {
+  "AVAXUSDT":{r:25,d:1.4,p:"EXTREME"},"NEARUSDT":{r:22,d:1.3,p:"VOLATILE"},
+  "APTUSDT":{r:25,d:1.4,p:"EXTREME"},"SUIUSDT":{r:25,d:1.4,p:"EXTREME"},
+  "OPUSDT":{r:22,d:1.3,p:"VOLATILE"},"ARBUSDT":{r:20,d:1.2,p:"VOLATILE"},
+  "RENDERUSDT":{r:25,d:1.5,p:"EXTREME"},"FETUSDT":{r:25,d:1.5,p:"EXTREME"},
+  "INJUSDT":{r:22,d:1.3,p:"VOLATILE"},"TIAUSDT":{r:25,d:1.4,p:"EXTREME"},
+  "LINKUSDT":{r:15,d:1.0,p:"STABLE"},"DOTUSDT":{r:12,d:1.0,p:"STABLE"},
+  "ADAUSDT":{r:10,d:1.0,p:"STABLE"},"POLUSDT":{r:15,d:1.1,p:"STABLE"},
+  "ATOMUSDT":{r:15,d:1.0,p:"STABLE"},"LTCUSDT":{r:10,d:1.0,p:"STABLE"},
+  "BCHUSDT":{r:18,d:1.2,p:"VOLATILE"},"XLMUSDT":{r:10,d:1.0,p:"STABLE"},
+  "XRPUSDT":{r:10,d:1.0,p:"STABLE"},"TRXUSDT":{r:8,d:1.0,p:"STABLE"},
+  "ALGOUSDT":{r:10,d:1.0,p:"STABLE"},"ETCUSDT":{r:12,d:1.1,p:"STABLE"},
+  "FILUSDT":{r:18,d:1.2,p:"VOLATILE"},"STXUSDT":{r:22,d:1.3,p:"VOLATILE"},
+  "ICPUSDT":{r:20,d:1.2,p:"VOLATILE"},"HBARUSDT":{r:15,d:1.1,p:"STABLE"},
+  "KASUSDT":{r:25,d:1.4,p:"EXTREME"},"LDOUSDT":{r:20,d:1.2,p:"VOLATILE"},
+  "AAVEUSDT":{r:18,d:1.2,p:"VOLATILE"},"RUNEUSDT":{r:25,d:1.4,p:"EXTREME"},
+  "GRTUSDT":{r:20,d:1.2,p:"VOLATILE"},"EGLDUSDT":{r:15,d:1.1,p:"STABLE"},
+  "SANDUSDT":{r:18,d:1.2,p:"VOLATILE"},"MANAUSDT":{r:18,d:1.2,p:"VOLATILE"},
+  "THETAUSDT":{r:15,d:1.1,p:"STABLE"},"VETUSDT":{r:12,d:1.0,p:"STABLE"},
+  "EOSUSDT":{r:10,d:1.0,p:"STABLE"},"CHZUSDT":{r:15,d:1.1,p:"STABLE"},
+  "FTMUSDT":{r:22,d:1.3,p:"VOLATILE"},"UNIUSDT":{r:15,d:1.1,p:"STABLE"}
 };
 
-// TradingView saved layout ID (with user's indicators: SMA white/yellow + SuperTrend Pivot + Volume)
-const TV_CHART_ID = "gXpimIZU";
-const TV_BASE = "https://www.tradingview.com/chart/" + TV_CHART_ID + "/";
+let cur = null;
 
-let currentSymbol = null;
-let librarianData = {};
-
-// =============================================
-// INIT
-// =============================================
-function init() {
-  // Check URL param for direct symbol access (for Playwright/Vision Agent)
-  const params = new URLSearchParams(window.location.search);
-  const sym = params.get('symbol') || params.get('s');
-  
-  renderPairList(Object.keys(SPECIALIST_MATRIX));
-  
-  // Select from URL or first pair
-  const target = sym ? sym.toUpperCase().replace('.P','') : 'AVAXUSDT';
-  selectPair(target);
-  
-  // Load librarian data for enrichment
-  loadLibrarianData();
-  setInterval(loadLibrarianData, 60000);
+function init(){
+  const p = new URLSearchParams(location.search);
+  const s = p.get('symbol')||p.get('s');
+  renderList(Object.keys(MATRIX));
+  select(s ? s.toUpperCase().replace('.P','') : 'AVAXUSDT');
+  loadLastVision();
+  setInterval(loadLastVision, 30000);
 }
 
-// =============================================
-// RENDER PAIR LIST
-// =============================================
-function renderPairList(symbols) {
-  const list = document.getElementById('pairList');
-  list.innerHTML = '';
-  
-  symbols.forEach(sym => {
-    const dna = SPECIALIST_MATRIX[sym];
-    if (!dna) return;
-    
-    const badgeClass = dna.profile === 'EXTREME' ? 'badge-extreme' : 
-                       dna.profile === 'VOLATILE' ? 'badge-volatile' : 'badge-stable';
-    
-    const item = document.createElement('div');
-    item.className = 'pair-item' + (sym === currentSymbol ? ' active' : '');
-    item.id = 'pair-' + sym;
-    item.onclick = () => selectPair(sym);
-    item.innerHTML = `
-      <span class="pair-name">${sym.replace('USDT','')}</span>
-      <span class="pair-badge ${badgeClass}">${dna.profile.substring(0,3)}</span>
-    `;
-    list.appendChild(item);
+function renderList(syms){
+  const el = document.getElementById('pairList');
+  el.innerHTML='';
+  syms.forEach(s=>{
+    const d = MATRIX[s]; if(!d) return;
+    const bc = d.p==='EXTREME'?'bx':d.p==='VOLATILE'?'bv':'bs';
+    const short = d.p.substring(0,3);
+    const div = document.createElement('div');
+    div.className='pair-item'+(s===cur?' active':'');
+    div.id='p-'+s; div.onclick=()=>select(s);
+    div.innerHTML=`<span class="pair-name">${s.replace('USDT','')}</span><span class="badge ${bc}">${short}</span>`;
+    el.appendChild(div);
   });
 }
 
-// =============================================
-// SELECT PAIR
-// =============================================
-function selectPair(symbol) {
-  // Clean up
-  if (currentSymbol) {
-    const prev = document.getElementById('pair-' + currentSymbol);
-    if (prev) prev.classList.remove('active');
-  }
-  
-  currentSymbol = symbol;
-  const dna = SPECIALIST_MATRIX[symbol] || { respiro: 10, rf_delay: 1.0, profile: 'STABLE' };
-  
-  // Update active state
-  const el = document.getElementById('pair-' + symbol);
-  if (el) el.classList.add('active');
-  
-  // Update header
-  document.getElementById('symbolDisplay').textContent = symbol;
-  const badgeClass = dna.profile === 'EXTREME' ? 'badge-extreme' : 
-                     dna.profile === 'VOLATILE' ? 'badge-volatile' : 'badge-stable';
-  const badge = document.getElementById('profileBadge');
-  badge.className = 'pair-badge ' + badgeClass;
-  badge.textContent = dna.profile;
-  
-  // Update infobar
-  document.getElementById('infoSymbol').textContent = symbol;
-  document.getElementById('infoPerfil').textContent = dna.profile;
-  document.getElementById('infoRespiro').textContent = dna.respiro + '% ROI';
-  document.getElementById('infoRfDelay').textContent = dna.rf_delay + 'x';
-  
-  // Enrich with librarian data
-  enrichInfobar(symbol);
-  
-  // Show loading and load chart
-  showLoading('Carregando ' + symbol + '...');
-  loadChart(symbol);
+function select(s){
+  if(cur){ const e=document.getElementById('p-'+cur); if(e)e.classList.remove('active'); }
+  cur=s;
+  const d=MATRIX[s]||{r:10,d:1.0,p:'STABLE'};
+  const e=document.getElementById('p-'+s); if(e)e.classList.add('active');
+  const bc=d.p==='EXTREME'?'bx':d.p==='VOLATILE'?'bv':'bs';
+  document.getElementById('symDisplay').textContent=s;
+  const pb=document.getElementById('profBadge');
+  pb.className='badge '+bc; pb.textContent=d.p.substring(0,3);
+  document.getElementById('infoSym').textContent=s;
+  document.getElementById('infoPerfil').textContent=d.p;
+  document.getElementById('infoRespiro').textContent=d.r+'% ROI';
+  document.getElementById('infoRf').textContent=d.d+'x';
+  document.getElementById('noShotMsg').textContent=`Clique em "Capturar Visão" para analisar ${s} no TF de 30M`;
+  clearShot(); loadLastVision();
 }
 
-// =============================================
-// LOAD CHART — TradingView Saved Layout
-// =============================================
-function loadChart(symbol) {
-  const frame = document.getElementById('chartFrame');
-  const tvSymbol = 'BYBIT:' + symbol + '.P';
-  const url = TV_BASE + '?symbol=' + encodeURIComponent(tvSymbol);
-  frame.src = url;
+function openTV(){
+  if(!cur) return;
+  window.open(`${TV_CHART}?symbol=BYBIT:${cur}.P`,'_blank');
 }
 
-function onChartLoad() {
-  // Small delay to let TradingView render
-  setTimeout(() => hideLoading(), 2000);
-}
-
-function showLoading(text) {
-  const overlay = document.getElementById('loadingOverlay');
-  document.getElementById('loadingText').textContent = text || 'Carregando...';
-  overlay.classList.remove('hidden');
-}
-
-function hideLoading() {
-  document.getElementById('loadingOverlay').classList.add('hidden');
-}
-
-// =============================================
-// OPEN IN TRADINGVIEW
-// =============================================
-function openInTradingView() {
-  if (!currentSymbol) return;
-  const tvSymbol = 'BYBIT:' + currentSymbol + '.P';
-  const url = TV_BASE + '?symbol=' + encodeURIComponent(tvSymbol);
-  window.open(url, '_blank');
-}
-
-// =============================================
-// TRIGGER VISION CAPTURE (manual)
-// =============================================
-async function triggerVisionCapture() {
-  if (!currentSymbol) return;
-  const btn = document.getElementById('captureBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="material-icons-round" style="animation:spin 0.8s linear infinite">refresh</span> Capturando...';
-  
-  document.getElementById('infoVisionStatus').textContent = 'Capturando...';
-  document.getElementById('infoVisionStatus').style.color = 'var(--amber)';
-  
-  try {
-    const resp = await fetch('/api/vision/capture', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ symbol: currentSymbol, interval: '30' })
+async function capture(){
+  if(!cur) return;
+  const btn=document.getElementById('capBtn');
+  btn.disabled=true;
+  btn.innerHTML='<span class="material-icons-round" style="animation:spin .7s linear infinite">refresh</span> Capturando...';
+  document.getElementById('infoVision').textContent='Capturando...';
+  document.getElementById('infoVision').style.color='var(--amber)';
+  try{
+    const r = await fetch('/api/vision/capture',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({symbol:cur, interval:'30'})
     });
-    const data = await resp.json();
-    
-    if (data.status === 'ok') {
-      document.getElementById('infoVisionStatus').textContent = data.decision || 'Concluído';
-      document.getElementById('infoVisionStatus').style.color = 
-        data.decision === 'APPROVED' ? 'var(--green)' : 'var(--red)';
+    if(r.ok){
+      const data=await r.json();
+      showShot(data);
     } else {
-      document.getElementById('infoVisionStatus').textContent = 'Erro na captura';
-      document.getElementById('infoVisionStatus').style.color = 'var(--red)';
+      document.getElementById('infoVision').textContent='Erro na captura';
+      document.getElementById('infoVision').style.color='var(--red)';
     }
-  } catch(e) {
-    document.getElementById('infoVisionStatus').textContent = 'Erro de conexão';
-    document.getElementById('infoVisionStatus').style.color = 'var(--red)';
+  } catch(e){
+    document.getElementById('infoVision').textContent='Offline';
+    document.getElementById('infoVision').style.color='var(--red)';
   }
-  
-  setTimeout(() => {
-    btn.disabled = false;
-    btn.innerHTML = '<span class="material-icons-round">photo_camera</span> Capturar';
-  }, 3000);
+  setTimeout(()=>{
+    btn.disabled=false;
+    btn.innerHTML='<span class="material-icons-round">photo_camera</span>Capturar Visão';
+  },3000);
 }
 
-// =============================================
-// FILTER PAIRS
-// =============================================
-function filterPairs(query) {
-  const q = query.toUpperCase().replace('USDT','');
-  const filtered = Object.keys(SPECIALIST_MATRIX).filter(s => 
-    s.replace('USDT','').includes(q)
-  );
-  renderPairList(filtered);
-  // Re-mark active
-  if (currentSymbol) {
-    const el = document.getElementById('pair-' + currentSymbol);
-    if (el) el.classList.add('active');
+function showShot(data){
+  if(!data) return;
+  document.getElementById('noShot').style.display='none';
+  document.getElementById('shotContainer').style.display='flex';
+  document.getElementById('shotSym').textContent=data.symbol||cur;
+  document.getElementById('shotTime').textContent=new Date().toLocaleTimeString();
+  if(data.image_url){
+    document.getElementById('shotImg').src=data.image_url;
   }
-}
-
-// =============================================
-// LOAD LIBRARIAN DATA
-// =============================================
-async function loadLibrarianData() {
-  try {
-    const resp = await fetch('/api/radar/librarian');
-    if (!resp.ok) return;
-    const data = await resp.json();
-    
-    if (data.rankings) {
-      data.rankings.forEach(r => {
-        if (r.symbol) librarianData[r.symbol] = r;
-      });
-    }
-    
-    // Update status
-    const status = data.study_status || 'IDLE';
-    const count = Object.keys(SPECIALIST_MATRIX).length;
-    document.getElementById('statusText').textContent = 
-      status === 'STUDYING' ? `Estudando... ${data.processed_count||0}/${data.total_assets||count}` :
-      `Conectado · ${count} pares`;
-    
-    // Enrich current symbol info
-    if (currentSymbol) enrichInfobar(currentSymbol);
-  } catch(e) {}
-}
-
-function enrichInfobar(symbol) {
-  const lib = librarianData[symbol];
-  if (!lib) return;
-  
-  // Last analysis time
-  if (lib.updated_at) {
-    const ago = Math.floor((Date.now()/1000) - lib.updated_at);
-    const label = ago < 60 ? 'Agora mesmo' : 
-                  ago < 3600 ? `${Math.floor(ago/60)}min atrás` : 
-                  `${Math.floor(ago/3600)}h atrás`;
-    document.getElementById('infoLastAnalysis').textContent = label;
+  const dec=document.getElementById('decBadge');
+  if(data.decision){
+    dec.style.display='inline-block';
+    dec.textContent=data.decision;
+    dec.className='decision-badge '+(data.decision==='APPROVED'?'dec-approved':'dec-rejected');
+    document.getElementById('infoVision').textContent=data.decision;
+    document.getElementById('infoVision').style.color=data.decision==='APPROVED'?'var(--green)':'var(--red)';
   }
-  
-  // Vision status from dna
-  if (lib.dna && lib.dna.visual_context) {
-    document.getElementById('infoVisionStatus').textContent = lib.dna.visual_context;
-    document.getElementById('infoVisionStatus').style.color = 'var(--green)';
+  if(data.analysis){
+    const an=document.getElementById('shotAnalysis');
+    an.style.display='block';
+    an.textContent='"'+data.analysis+'"';
   }
 }
 
-// =============================================
-// START
-// =============================================
+function clearShot(){
+  document.getElementById('noShot').style.display='flex';
+  document.getElementById('shotContainer').style.display='none';
+  document.getElementById('infoVision').textContent='Aguardando';
+  document.getElementById('infoVision').style.color='var(--t3)';
+}
+
+async function loadLastVision(){
+  if(!cur) return;
+  try{
+    const r=await fetch('/api/radar/librarian');
+    if(!r.ok) return;
+    const data=await r.json();
+    const status=data.study_status||'IDLE';
+    document.getElementById('statusTxt').textContent=
+      status==='STUDYING'?`Estudando ${data.processed_count||0}/${data.total_assets||40}`:'40 pares monitorados';
+  } catch(e){}
+}
+
+function filterPairs(q){
+  const u=q.toUpperCase().replace('USDT','');
+  const f=Object.keys(MATRIX).filter(s=>s.replace('USDT','').includes(u));
+  renderList(f);
+  if(cur){ const e=document.getElementById('p-'+cur); if(e)e.classList.add('active'); }
+}
+
 init();
 </script>
 </body>
