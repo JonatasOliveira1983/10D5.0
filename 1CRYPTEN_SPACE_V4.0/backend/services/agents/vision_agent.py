@@ -135,11 +135,19 @@ class VisionAgent:
             import json
             import re
             
-            # Clean possible markdown
-            clean_json = re.sub(r'```json\s*|\s*```', '', response_text).strip()
-            data = json.loads(clean_json)
-            
-            is_approved = data.get("decision") == "APPROVED"
+            try:
+                # Clean possible markdown
+                clean_json = re.sub(r'```json\s*|\s*```', '', response_text).strip()
+                data = json.loads(clean_json)
+                is_approved = data.get("decision") == "APPROVED"
+            except Exception as parse_err:
+                logger.error(f"❌ [VISION-PARSE-ERROR] {symbol}: Failed to parse AI response: {parse_err}")
+                return {
+                    "approved": False,
+                    "confidence": 0,
+                    "reason": "Erro de processamento da IA: Resposta mal-formatada.",
+                    "thoughts": f"Raw text: {response_text[:100]}..."
+                }
             
             # [V1.0] Broadcast de Inteligência para a UI
             try:

@@ -161,13 +161,23 @@ async def get_market_study(symbol: str, interval: str = "60", limit: int = 200):
                 float(row['open']), float(row['high']), float(row['low']), float(row['close']), float(row['volume'])
             ])
             
+        # [V110.330] Garantir que todos os dados sejam serializáveis (conversão de NumPy para nativo)
+        def _sanitize(obj):
+            if isinstance(obj, list):
+                return [_sanitize(x) for x in obj]
+            if isinstance(obj, dict):
+                return {k: _sanitize(v) for k, v in obj.items()}
+            if hasattr(obj, 'item'): # NumPy types have .item()
+                return obj.item()
+            return obj
+
         return {
             "symbol": symbol,
             "interval": interval,
             "klines": klines,
-            "obs": study.get('obs', []),
-            "fvgs": study.get('fvgs', []),
-            "patterns_123": study.get('patterns_123', [])
+            "obs": _sanitize(study.get('obs', [])),
+            "fvgs": _sanitize(study.get('fvgs', [])),
+            "patterns_123": _sanitize(study.get('patterns_123', []))
         }
     except HTTPException as he:
         raise he
