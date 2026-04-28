@@ -4,6 +4,7 @@ import os
 from typing import Dict, Any, Optional
 from services.agents.ai_service import ai_service
 from services.screenshot_service import screenshot_service
+from services.chart_renderer import chart_renderer # [V5.0]
 from config import settings
 
 logger = logging.getLogger("VisionAgent")
@@ -12,13 +13,14 @@ class VisionAgent:
     def __init__(self):
         self.role = "Vision Analyst"
         self.system_instruction = (
-            "Você é o Agente Visão, um analista técnico de trading de elite especializado em padrões visuais e SMC (Smart Money Concepts).\n"
-            "Sua especialidade é identificar armadilhas de liquidez e confirmar pullbacks em médias móveis (SMA 21/100).\n"
-            "DIRETRIZES:\n"
-            "1. Procure por exaustão: Pavios longos no topo de uma subida (em Short) ou no fundo de uma queda (em Long).\n"
-            "2. Confirmação de SMA: O preço deve cruzar ou testar a SMA 21 com corpo de candle decisivo.\n"
-            "3. Contexto: Diferencie um 'pulo' para liquidar stops de uma tendência real.\n"
-            "4. Respostas: Seja técnico, estóico e direto."
+            "Você é o Agente Visão 5.0, um analista técnico de trading especializado em SMC (Smart Money Concepts).\n"
+            "O gráfico que você recebe é anotado com indicadores e zonas institucionais:\n"
+            "1. SMA 21 (Branca) e SMA 100 (Amarela): Confirmam a tendência e pontos de suporte dinâmico.\n"
+            "2. CAIXAS/LINHAS: Representam Order Blocks (Zonas de baleias) e FVGs.\n"
+            "DIRETRIZES DE ANÁLISE:\n"
+            "A. Rejeição: O preço deve mostrar pavios longos ou falha de rompimento em uma das SMAs ou Blocos.\n"
+            "B. Liquidez: Identifique se o movimento atual busca capturar liquidez acima/abaixo dos pavios.\n"
+            "C. Veredito: Seja técnico, direto e estóico."
         )
 
     async def confirm_entry(self, symbol: str, side: str, signal_score: int, context_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -53,26 +55,45 @@ class VisionAgent:
                     "thoughts": "Economizando visão: DNA já rejeitado pelo Bibliotecário."
                 }
 
-        # 2. Capture the current chart (30m interval)
-        logger.info(f"📸 [VISION-GATE] {symbol}: Screenshot autorizado (Slots: {context_data.get('active_slots_count', '?')}/4 | DNA: OK)")
-        screenshot_path = await screenshot_service.capture_chart(symbol, interval="30")
+        # 2. Capture the current chart (Pure Python Renderer [V5.0])
+        logger.info(f"📸 [VISION-V5] {symbol}: Gerando gráfico anotado via Python Engine...")
+        try:
+            from services.agents.librarian import librarian_agent
+            visual_data = await librarian_agent.get_visual_data(symbol, interval="1h") # Usamos 1h para melhor definição de OB
+            
+            if visual_data and not visual_data['df'].empty:
+                screenshot_path = chart_renderer.render_chart(
+                    symbol=symbol, 
+                    df=visual_data['df'], 
+                    obs=visual_data['obs'], 
+                    fvgs=visual_data['fvgs']
+                )
+            else:
+                # Fallback to screenshot service if no data
+                logger.warning(f"⚠️ [VISION-V5] No local data for {symbol}. Falling back to ScreenshotService.")
+                screenshot_path = await screenshot_service.capture_chart(symbol, interval="30")
+        except Exception as e:
+            logger.error(f"❌ [VISION-V5] Pure Renderer failed: {e}")
+            screenshot_path = await screenshot_service.capture_chart(symbol, interval="30")
         
         if not screenshot_path:
             return {
                 "approved": True, # Fallback to true if capture fails but signal is strong
                 "confidence": 50,
-                "reason": "Vision Capture Failed: Infraestrutura indisponível.",
+                "reason": "Vision Engine Failed: Infraestrutura indisponível.",
                 "thoughts": "Falha na captura. Confiando nos dados quantitativos."
             }
 
         # 2. Prepare the prompt
         side_label = "COMPRA (Long)" if side.lower() == "buy" else "VENDA (Short)"
         prompt = (
-            f"Analise este gráfico de {symbol} para uma possível operação de {side_label}.\n"
-            f"O sinal matemático tem score de {signal_score}/100.\n"
-            "FOCO: Olhe para a SMA 21 (mais curta) e a SMA 100.\n"
-            "PERGUNTA: O preço está fazendo um pullback real ou é apenas um 'wick' (pavio) de liquidação de stops?\n"
-            "RESPONDA NO FORMATO JSON:\n"
+            f"Analise este gráfico de {symbol} para uma operação de {side_label}.\n"
+            "O gráfico foi pré-anotado com o Motor de Visão 5.0:\n"
+            "- LINHA BRANCA: SMA 21 (Tendência de curto prazo).\n"
+            "- LINHA AMARELA: SMA 100 (Tendência de médio prazo).\n"
+            "- CAIXAS COLORIDAS: Zonas de Order Block (Institucional).\n"
+            "PERGUNTA: O preço está respeitando ou rejeitando essas zonas? Existe confluência visual para a entrada?\n"
+            "RESPONDA EM JSON:\n"
             "{\n"
             '  "decision": "APPROVED" ou "REJECTED",\n'
             '  "confidence": 0-100,\n'
@@ -151,16 +172,33 @@ class VisionAgent:
 
     async def analyze_market_context(self, symbol: str) -> Dict[str, Any]:
         """
-        [LIBRARIAN STUDY] Realiza um estudo visual de contexto.
+        [LIBRARIAN STUDY] Realiza um estudo visual de contexto usando o Motor V5.
         """
-        screenshot_path = await screenshot_service.capture_chart(symbol, interval="60") # Contexto em 1h
+        logger.info(f"📸 [VISION-CONTEXT-V5] Analisando contexto de {symbol}...")
+        try:
+            from services.agents.librarian import librarian_agent
+            visual_data = await librarian_agent.get_visual_data(symbol, interval="1h")
+            
+            if visual_data and not visual_data['df'].empty:
+                screenshot_path = chart_renderer.render_chart(
+                    symbol=symbol, 
+                    df=visual_data['df'], 
+                    obs=visual_data['obs'], 
+                    fvgs=visual_data['fvgs']
+                )
+            else:
+                screenshot_path = await screenshot_service.capture_chart(symbol, interval="60")
+        except Exception as e:
+            logger.error(f"❌ [VISION-CONTEXT-V5] Pure Renderer failed: {e}")
+            screenshot_path = await screenshot_service.capture_chart(symbol, interval="60")
+
         if not screenshot_path: return {}
 
         prompt = (
-            f"Descreva o estado visual atual de {symbol} em 1 hora.\n"
-            "Ele está em uma tendência limpa, em um range lateral feio, ou perto de uma reversão na média?\n"
+            f"Descreva o estado visual atual de {symbol}.\n"
+            "O gráfico possui médias móveis e zonas de Order Block anotadas.\n"
             "Dê uma etiqueta curta: CLEAN_TREND, MESSY_RANGE, EXHAUSTION ou REVERSAL.\n"
-            "Justifique em uma frase curta."
+            "Analise se o preço está sendo repelido pelas zonas anotadas."
         )
 
         try:

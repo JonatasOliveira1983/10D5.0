@@ -98,6 +98,61 @@ class LibrarianAgent(AIOSAgent):
         """Retorna a lista de símbolos da Matriz com o sufixo desejado."""
         return [f"{s}{suffix}" for s in self.SPECIALIST_MATRIX.keys()]
 
+    def detect_fvg(self, df) -> List[Dict[str, Any]]:
+        """[SMC] Detecta Fair Value Gaps no DataFrame."""
+        fvgs = []
+        if len(df) < 3: return fvgs
+        
+        for i in range(1, len(df) - 1):
+            # Bullish FVG: Low(i+1) > High(i-1)
+            if df['low'].iloc[i+1] > df['high'].iloc[i-1]:
+                fvgs.append({
+                    "type": "BULLISH",
+                    "top": df['low'].iloc[i+1],
+                    "bottom": df['high'].iloc[i-1],
+                    "index": i,
+                    "timestamp": df.index[i]
+                })
+            # Bearish FVG: High(i+1) < Low(i-1)
+            elif df['high'].iloc[i+1] < df['low'].iloc[i-1]:
+                fvgs.append({
+                    "type": "BEARISH",
+                    "top": df['low'].iloc[i-1],
+                    "bottom": df['high'].iloc[i+1],
+                    "index": i,
+                    "timestamp": df.index[i]
+                })
+        return fvgs
+
+    def detect_order_blocks(self, df) -> List[Dict[str, Any]]:
+        """[SMC] Detecta Order Blocks baseados em quebra de estrutura e volume."""
+        obs = []
+        if len(df) < 5: return obs
+        
+        for i in range(2, len(df) - 2):
+            # Bullish OB: Última vela de baixa antes de um forte movimento de alta que supera a máxima anterior
+            if df['close'].iloc[i] < df['open'].iloc[i]: # Vela de baixa
+                strong_move = df['close'].iloc[i+1] > df['high'].iloc[i] and df['close'].iloc[i+2] > df['close'].iloc[i+1]
+                if strong_move:
+                    obs.append({
+                        "type": "BULLISH",
+                        "top": df['high'].iloc[i],
+                        "bottom": df['low'].iloc[i],
+                        "timestamp": df.index[i]
+                    })
+            
+            # Bearish OB: Última vela de alta antes de um forte movimento de baixa
+            elif df['close'].iloc[i] > df['open'].iloc[i]: # Vela de alta
+                strong_move = df['close'].iloc[i+1] < df['low'].iloc[i] and df['close'].iloc[i+2] < df['close'].iloc[i+1]
+                if strong_move:
+                    obs.append({
+                        "type": "BEARISH",
+                        "top": df['high'].iloc[i],
+                        "bottom": df['low'].iloc[i],
+                        "timestamp": df.index[i]
+                    })
+        return obs
+
     async def on_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
         msg_type = message.get("type")
         if msg_type == "START_STUDY":
@@ -141,6 +196,7 @@ class LibrarianAgent(AIOSAgent):
 
                 logger.info(f"👁️ [LIBRARIAN] Scan {i+1}/{total}: {symbol}")
                 # Solicita ao Visão uma análise silenciosa de contexto
+                # O Visão 5.0 já usará o novo motor anotado automaticamente
                 await vision_agent.analyze_market_context(symbol)
                 
                 # Pequeno delay para não sobrecarregar a API Vision/Screenshot
@@ -161,6 +217,38 @@ class LibrarianAgent(AIOSAgent):
                     {"status": "COMPLETED", "updated_at": int(time.time() * 1000)}
                 )
             except: pass
+
+    async def get_visual_data(self, symbol: str, interval: str = "1h") -> Dict[str, Any]:
+        """[V5.0] Prepara dados OHLCV + SMC para o Renderer."""
+        symbol = normalize_symbol(symbol)
+        try:
+            # 1. Pegar dados do banco local (Klines)
+            conn = data_extractor.get_db_connection()
+            # Pega as últimas 200 velas para ter histórico das médias
+            import pandas as pd
+            df = pd.read_sql_query(
+                "SELECT start_time, open, high, low, close, volume FROM klines WHERE symbol = ? AND interval = ? ORDER BY start_time DESC LIMIT 200",
+                conn, params=(symbol, interval)
+            )
+            conn.close()
+            
+            if df.empty: return {}
+            
+            df = df.sort_values('start_time')
+            df.set_index('start_time', inplace=True)
+            
+            # 2. Detectar SMC
+            obs = self.detect_order_blocks(df)
+            fvgs = self.detect_fvg(df)
+            
+            return {
+                "df": df,
+                "obs": obs,
+                "fvgs": fvgs
+            }
+        except Exception as e:
+            logger.error(f"Erro ao preparar dados visuais para {symbol}: {e}")
+            return {}
 
     async def run_loop(self):
         """Loop principal do Bibliotecário."""
