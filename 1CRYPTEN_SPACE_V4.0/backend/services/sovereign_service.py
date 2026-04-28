@@ -348,7 +348,9 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
         return {"macro_weight": 1.0, "whale_weight": 1.0, "smc_weight": 1.0}
 
     async def update_radar_batch(self, batch): 
-        await self.update_radar_pulse(batch, [], {})
+        # [V110.350] Garantir que o batch seja convertido para lista para evitar KeyError/SliceError no Capitão
+        signals_list = list(batch.values()) if isinstance(batch, dict) else batch
+        await self.update_radar_pulse(signals_list, [], {})
         return True
 
     async def update_system_state(self, key: str, value: any): 

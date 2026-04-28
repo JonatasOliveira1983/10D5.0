@@ -219,12 +219,12 @@ class AIService:
         asyncio.create_task(sovereign_service.update_ai_cascade(self.get_cascade_status()))
         
         # [V4.2] FREE VISION CASCADE MODELS (Ordered by quality)
-        # [V110.335] FREE VISION CASCADE MODELS (Updated IDs)
+        # [V110.350] FREE VISION CASCADE MODELS (Final stable IDs)
         FREE_VISION_MODELS = [
-            "google/gemini-2.0-flash-lite-preview-02-05:free",
+            "nvidia/nemotron-nano-12b-v2-vl:free", # WORKING ✅
+            "google/gemini-2.0-flash-exp:free",    # Stable backup
             "google/gemma-3-27b-it:free",
             "google/gemma-3-12b-it:free",
-            "nvidia/nemotron-nano-12b-v2-vl:free",
             "mistralai/pixtral-12b:free",
             "meta-llama/llama-3.2-11b-vision-instruct:free"
         ]
