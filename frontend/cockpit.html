@@ -4792,9 +4792,12 @@
             // Price Lines
             React.useEffect(() => {
                 if (!candlestickSeries.current) return;
-                [priceLinesRef.current.entry, priceLinesRef.current.sl, priceLinesRef.current.tp].forEach(l => {
-                    if (l) candlestickSeries.current.removePriceLine(l);
-                });
+                if (priceLinesRef.current.entry) { try { candlestickSeries.current.removePriceLine(priceLinesRef.current.entry); } catch(e){} }
+                if (priceLinesRef.current.sl) { try { candlestickSeries.current.removePriceLine(priceLinesRef.current.sl); } catch(e){} }
+                if (priceLinesRef.current.targets) {
+                    priceLinesRef.current.targets.forEach(l => { try { candlestickSeries.current.removePriceLine(l); } catch(e){} });
+                    priceLinesRef.current.targets = [];
+                }
 
                 const activeSlot = slots.find(s => s && s.symbol && s.symbol.replace('.P','').replace('.p','') === localSymbol);
                 let points = null;
@@ -4809,8 +4812,32 @@
                     const isLong = points.side === 'LONG' || points.side === 'Buy';
                     priceLinesRef.current.entry = candlestickSeries.current.createPriceLine({ price: points.entry, color: '#fff', lineWidth: 1, lineStyle: 2, title: 'ENTRY' });
                     if (points.sl > 0) priceLinesRef.current.sl = candlestickSeries.current.createPriceLine({ price: points.sl, color: '#ef4444', lineWidth: 2, lineStyle: 0, title: 'STOP' });
-                    const tp = isLong ? points.entry * 1.03 : points.entry * 0.97;
-                    priceLinesRef.current.tp = candlestickSeries.current.createPriceLine({ price: tp, color: '#10b981', lineWidth: 2, lineStyle: 0, title: 'TARGET' });
+                    
+                    // [V110.350] Escadinha Elite no Grid
+                    const escadinhaLevels = [
+                        { roi: 30, color: 'rgba(34, 197, 94, 0.3)', title: 'T1' },
+                        { roi: 50, color: 'rgba(34, 197, 94, 0.5)', title: 'T2' },
+                        { roi: 70, color: 'rgba(34, 197, 94, 0.7)', title: 'T3' },
+                        { roi: 110, color: 'rgba(234, 179, 8, 0.8)', title: 'T4' },
+                        { roi: 150, color: '#22c55e', title: 'T5' }
+                    ];
+
+                    if (!priceLinesRef.current.targets) priceLinesRef.current.targets = [];
+                    
+                    escadinhaLevels.forEach(lvl => {
+                        const move = lvl.roi / 5000;
+                        const p = isLong ? points.entry * (1 + move) : points.entry * (1 - move);
+                        try {
+                            priceLinesRef.current.targets.push(candlestickSeries.current.createPriceLine({
+                                price: p,
+                                color: lvl.color,
+                                lineWidth: lvl.roi === 150 ? 2 : 1,
+                                lineStyle: lvl.roi === 150 ? 0 : 2,
+                                axisLabelVisible: true,
+                                title: lvl.title
+                            }));
+                        } catch (e) {}
+                    });
                     
                     // [V110.182.6] Entry Candle Marker
                     if (historicalData.candles.length > 0) {
