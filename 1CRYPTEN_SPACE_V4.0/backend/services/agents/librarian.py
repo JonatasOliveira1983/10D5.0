@@ -218,24 +218,37 @@ class LibrarianAgent(AIOSAgent):
                 )
             except: pass
 
-    async def get_visual_data(self, symbol: str, interval: str = "1h") -> Dict[str, Any]:
+    async def get_visual_data(self, symbol: str, interval: str = "1h", limit: int = 200) -> Dict[str, Any]:
         """[V5.0] Prepara dados OHLCV + SMC para o Renderer."""
         symbol = normalize_symbol(symbol)
         try:
             # 1. Pegar dados do banco local (Klines)
             conn = data_extractor.get_db_connection()
-            # Pega as últimas 200 velas para ter histórico das médias
+            # Pega as últimas 'limit' velas para ter histórico das médias
             import pandas as pd
             df = pd.read_sql_query(
-                "SELECT start_time, open, high, low, close, volume FROM klines WHERE symbol = ? AND interval = ? ORDER BY start_time DESC LIMIT 200",
-                conn, params=(symbol, interval)
+                "SELECT start_time, open, high, low, close, volume FROM klines WHERE symbol = ? AND interval = ? ORDER BY start_time DESC LIMIT ?",
+                conn, params=(symbol, interval, limit)
             )
             conn.close()
             
-            if df.empty: return {}
+            # Fallback: Se o banco local estiver vazio, buscar via API (Bybit)
+            if df.empty:
+                logger.info(f"DB local vazio para {symbol} ({interval}). Buscando via REST API...")
+                from services.bybit_rest_service import bybit_rest_service
+                klines = await bybit_rest_service.get_klines(symbol, interval, limit=limit)
+                if klines:
+                    # Converter klines da Bybit para DataFrame compatível
+                    df = pd.DataFrame(klines, columns=['start_time', 'open', 'high', 'low', 'close', 'volume', 'turnover'])
+                    df['start_time'] = pd.to_datetime(df['start_time'].astype(float), unit='ms')
+                    df = df[['start_time', 'open', 'high', 'low', 'close', 'volume']]
+                    df[['open', 'high', 'low', 'close', 'volume']] = df[['open', 'high', 'low', 'close', 'volume']].apply(pd.to_numeric)
+                else:
+                    return {}
             
             df = df.sort_values('start_time')
-            df.set_index('start_time', inplace=True)
+            if not df.index.name == 'start_time':
+                df.set_index('start_time', inplace=True)
             
             # 2. Detectar SMC
             obs = self.detect_order_blocks(df)

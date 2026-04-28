@@ -146,7 +146,7 @@ async def get_market_study(symbol: str, interval: str = "60", limit: int = 200):
     services = get_services()
     librarian_agent = services[6]
     try:
-        study = await librarian_agent.get_visual_data(symbol, interval=interval)
+        study = await librarian_agent.get_visual_data(symbol, interval=interval, limit=limit)
         if not study or study.get('df') is None or study['df'].empty:
             raise HTTPException(status_code=404, detail="No market data found for study")
         
