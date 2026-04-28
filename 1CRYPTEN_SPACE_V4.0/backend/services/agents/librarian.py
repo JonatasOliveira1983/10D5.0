@@ -239,16 +239,24 @@ class LibrarianAgent(AIOSAgent):
                 from services.bybit_rest import bybit_rest_service
                 klines_raw = await bybit_rest_service.get_klines(symbol, interval, limit=limit, kline_type="last")
                 if klines_raw:
-                    df = pd.DataFrame(klines_raw, columns=['start_time', 'open', 'high', 'low', 'close', 'volume', 'turnover'])
-                    df['start_time'] = pd.to_datetime(df['start_time'].astype(float), unit='ms')
-                    df = df[['start_time', 'open', 'high', 'low', 'close', 'volume']]
+                    try:
+                        df = pd.DataFrame(klines_raw, columns=['start_time', 'open', 'high', 'low', 'close', 'volume', 'turnover'])
+                        df['start_time'] = pd.to_datetime(pd.to_numeric(df['start_time'], errors='coerce'), unit='ms')
+                        df = df[['start_time', 'open', 'high', 'low', 'close', 'volume']]
+                        df.dropna(subset=['start_time', 'close'], inplace=True)
+                    except Exception as e:
+                        logger.error(f"Erro ao converter klines da API para {symbol}: {e}")
+                        return {}
                 else:
                     return {}
             
             # Garantir tipos numéricos para evitar quebras em cálculos técnicos
             cols = ['open', 'high', 'low', 'close', 'volume']
-            df[cols] = df[cols].apply(pd.to_numeric, errors='coerce')
+            for col in cols:
+                df[col] = pd.to_numeric(df[col], errors='coerce')
             df.dropna(subset=['close'], inplace=True)
+            
+            if df.empty: return {}
             
             df = df.sort_values('start_time')
             if not df.index.name == 'start_time':
@@ -257,10 +265,19 @@ class LibrarianAgent(AIOSAgent):
             # Preparar klines formatados para detecção (lista de listas para compatibilidade)
             klines_list = []
             for ts, row in df.iterrows():
-                klines_list.append([
-                    int(ts.timestamp() * 1000) if hasattr(ts, 'timestamp') else ts,
-                    row['open'], row['high'], row['low'], row['close'], row['volume']
-                ])
+                try:
+                    # Garantir que ts é válido antes de chamar timestamp()
+                    if pd.isna(ts): continue
+                    
+                    t_ms = int(ts.timestamp() * 1000) if hasattr(ts, 'timestamp') else int(ts)
+                    klines_list.append([
+                        t_ms,
+                        float(row['open']), float(row['high']), float(row['low']), float(row['close']), float(row['volume'])
+                    ])
+                except:
+                    continue
+            
+            if not klines_list: return {}
             
             # 2. Detectar SMC
             obs = self.detect_order_blocks(df)
