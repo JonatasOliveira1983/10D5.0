@@ -283,10 +283,35 @@ async function loadData(s) {
       series.vol.setData(d.map(x => ({ time: x.time, value: x.volume, color: x.close >= x.open ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)' })));
       series.rsi.setData(calculateRSI(d));
       
+      // [V5.5.2] Force explicit resize after data load to prevent 0px height issues
+      Object.values(charts).forEach(c => {
+        const container = c.chartElement().parentElement;
+        if (container) {
+          c.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+        }
+      });
+      
       charts.rsi.timeScale().fitContent();
     }
-  } catch(e) {}
+  } catch(e) { console.error("LoadData Error:", e); }
   document.getElementById('loading').classList.add('hidden');
+}
+
+// [V5.5.2] Global Resize Handler for Triple-Pane Sync
+function setupResizeObserver() {
+    const panes = ['price-pane', 'volume-pane', 'rsi-pane'];
+    const ro = new ResizeObserver(() => {
+        Object.entries(charts).forEach(([key, chart]) => {
+            const container = document.getElementById(key + '-chart');
+            if (chart && container) {
+                chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+            }
+        });
+    });
+    panes.forEach(p => {
+        const el = document.getElementById(p);
+        if (el) ro.observe(el);
+    });
 }
 
 function select(s) {
@@ -317,6 +342,7 @@ function filterPairs(q) {
 // Init
 syncBTC(); setInterval(syncBTC, 5000);
 initCharts();
+setupResizeObserver();
 renderPairs(Object.keys(MATRIX));
 select('AVAXUSDT');
 
