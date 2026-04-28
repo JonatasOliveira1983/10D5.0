@@ -271,21 +271,44 @@ class BybitREST:
             )
         return self._session
     async def get_elite_focus_pairs(self):
-        """[V110.173] Retorna os Top 40 pares de Elite para foco total do sistema (Librarian DNA)."""
+        """
+        [V5.6] ESTRATÉGIA DE FOCO 20: 
+        Retorna os Top 20 pares de Elite + qualquer par que tenha uma Moonbag ativa.
+        Isso garante processamento ultra-rápido e foco total no capital investido.
+        """
         try:
-            # 1. Tenta carregar os rankings do Bibliotecário (se já estiverem prontos)
+            # 1. Obter Top 20 do Bibliotecário (ou fallback de volume)
             from services.agents.librarian import librarian_agent
+            elite_base = []
             if librarian_agent.rankings:
-                elite_list = [r["symbol"] for r in librarian_agent.rankings[:40]]
-                logger.info(f"🏆 [ELITE-FOCUS] {len(elite_list)} pares de Elite detectados no DNA do Bibliotecário.")
-                return elite_list
+                elite_base = [r["symbol"] for r in librarian_agent.rankings[:20]]
+                logger.info(f"🏆 [ELITE-FOCUS] {len(elite_base)} pares de Elite (Top 20) detectados.")
+            else:
+                # Fallback: Top 20 por volume
+                all_candidates = await self.get_elite_50x_pairs()
+                elite_base = all_candidates[:20]
+                logger.info(f"📡 [ELITE-COLD] Usando fallback de volume para Top 20.")
+
+            # 2. Obter símbolos de Moonbags ativas (Swing Trades)
+            # No modo PAPER, pegamos da memória. No REAL, pegamos do Vault/Bybit.
+            active_moon_symbols = set()
+            if self.execution_mode == "PAPER":
+                active_moon_symbols = {p["symbol"] for p in self.paper_moonbags}
+            else:
+                # Em modo REAL, as posições com status de EMANCIPATED ou tags específicas no Vault
+                # Por simplicidade e segurança, pegamos todos os pares com posição aberta que não estão no elite_base
+                active_positions = await self.get_active_positions()
+                active_moon_symbols = {p["symbol"] for p in active_positions}
+
+            # 3. União dos conjuntos para evitar duplicatas
+            final_set = set(elite_base) | active_moon_symbols
+            final_list = list(final_set)
             
-            # 2. Se não houver estudo (Cold Boot), usa o fallback de volume (Top 40)
-            all_pairs = await self.get_elite_50x_pairs()
-            logger.info(f"📡 [ELITE-COLD] Usando fallback de volume para os primeiros {len(all_pairs[:40])} ativos.")
-            return all_pairs[:40]
+            logger.info(f"🎯 [SNIPER-RADAR] Monitorando {len(final_list)} ativos (Top 20 + {len(active_moon_symbols - set(elite_base))} Moonbags extras).")
+            return final_list
+            
         except Exception as e:
-            logger.error(f"Erro ao obter pares de Elite: {e}")
+            logger.error(f"Erro ao obter pares de Elite Dinâmicos: {e}")
             return ["BTCUSDT.P", "ETHUSDT.P", "SOLUSDT.P"]
 
     async def get_elite_50x_pairs(self):

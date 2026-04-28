@@ -166,17 +166,18 @@ class LibrarianAgent(AIOSAgent):
         return {"status": "error", "message": f"Unknown command: {msg_type}"}
 
     async def perform_global_visual_scan(self):
-        """[V1.0] SCAN VISUAL GLOBAL: Solicita prints de todas as 40 moedas da Matriz."""
-        logger.info("👁️ [LIBRARIAN] Iniciando Scan Visual Global das 40 moedas da Matriz...")
+        """[V5.6] SCAN VISUAL GLOBAL: Foca nos Top 20 Elite + Moonbags."""
+        from services.bybit_rest import bybit_rest_service
+        symbols = await bybit_rest_service.get_elite_focus_pairs()
+        total = len(symbols)
+        
+        logger.info(f"👁️ [LIBRARIAN] Iniciando Scan Visual Global de {total} ativos de alta relevância...")
         
         await sovereign_service.log_event(
             agent="Librarian",
-            message="Iniciando Scan Visual Global das 40 moedas da Matriz para análise de contexto.",
-            payload={"action": "GLOBAL_VISUAL_SCAN_START", "count": len(self.SPECIALIST_MATRIX)}
+            message=f"Iniciando Scan Visual Global de {total} ativos (Elite + Moonbags).",
+            payload={"action": "GLOBAL_VISUAL_SCAN_START", "count": total}
         )
-
-        symbols = list(self.SPECIALIST_MATRIX.keys())
-        total = len(symbols)
         
         for i, symbol in enumerate(symbols):
             try:
@@ -435,18 +436,13 @@ class LibrarianAgent(AIOSAgent):
         try:
             data_extractor.init_db()
             
-            # Pega a frota do WebSocket (Ativos reais do Radar)
-            monitored = list(bybit_ws_service.active_symbols) if bybit_ws_service and bybit_ws_service.active_symbols else []
+            # [V5.6] Fonte de Verdade: Top 20 Elite + Moonbags
+            from services.bybit_rest import bybit_rest_service
+            monitored = await bybit_rest_service.get_elite_focus_pairs()
             
             if not monitored:
-                # Fallback 1: Tenta pegar do histórico do banco local
+                # Fallback: Se tudo falhar, tenta pegar do histórico do banco local
                 monitored = data_extractor.get_monitored_from_db()
-            
-            if not monitored:
-                # Fallback 2: Produção/Cold-Boot. Pega a lista de Elite (alavancagem >= 50x)
-                logger.info("📡 [LIBRARIAN] Cold-boot detectado. Buscando Eligible Elite Pairs...")
-                eligible = data_extractor.get_eligible_pairs()
-                monitored = [p[0] for p in eligible] if eligible else []
             
             if not monitored:
                 logger.warning("⚠️ [LIBRARIAN] Nenhum ativo encontrado para estudo (WebSocket/DB/Bybit Vazio).")
