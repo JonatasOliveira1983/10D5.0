@@ -105,4 +105,11 @@ class WebSocketService:
             "data": state
         })
 
+    async def emit_ai_cascade(self, data: dict):
+        """[V4.2.1] Envia o status da cascata de IA para a UI."""
+        await self.broadcast({
+            "type": "ai_cascade_status",
+            "data": data
+        })
+
 websocket_service = WebSocketService()

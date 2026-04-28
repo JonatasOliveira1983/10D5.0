@@ -49,6 +49,15 @@ class Slot(Base):
     pensamento = Column(String, nullable=True)
     timestamp_last_intel = Column(Float, default=0.0)
     sentinel_first_hit_at = Column(Float, default=0.0)
+    is_ranging_sniper = Column(Boolean, default=False)
+    v42_tag = Column(String, default="STANDARD")
+    move_room_pct = Column(Float, default=0.0)
+    is_reverse_sniper = Column(Boolean, default=False)
+    rescue_activated = Column(Boolean, default=False)
+    rescue_resolved = Column(Boolean, default=False)
+    is_shadow_strike = Column(Boolean, default=False)
+    is_spring_strike = Column(Boolean, default=False)
+    score = Column(Integer, default=0)
     timestamp_last_update = Column(Float, default=0.0)
     opened_at = Column(Float, default=0.0) # Timestamp float para paridade
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -208,7 +217,9 @@ class DatabaseService:
                 obj = await session.get(Slot, slot_id)
                 if not obj:
                     data.pop("id", None) # Evitar conflito de id
-                    obj = Slot(id=slot_id, **data)
+                    # [V110.198] Sanitização: Filtra apenas chaves que existem no modelo Slot
+                    valid_data = {k: v for k, v in data.items() if hasattr(Slot, k)}
+                    obj = Slot(id=slot_id, **valid_data)
                     session.add(obj)
                 else:
                     for key, value in data.items():

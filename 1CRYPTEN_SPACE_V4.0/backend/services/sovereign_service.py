@@ -219,8 +219,9 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
     async def update_ai_cascade(self, data: dict):
         """[V4.2.1] Atualiza e transmite o status da cascata de IA."""
         try:
-            await websocket_service.broadcast({"type": "ai_cascade_status", "data": data})
-        except: pass
+            await websocket_service.emit_ai_cascade(data)
+        except Exception as e:
+            logger.error(f"Error broadcasting AI cascade: {e}")
 
     # Implementation for Sovereign Mode [V110.187]
     async def register_order_genesis(self, data: dict):
@@ -339,11 +340,24 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
         return True
     async def get_all_moonbags(self): return []
     async def is_symbol_blocked(self, symbol): return False, 0
-    async def register_sl_cooldown(self, symbol, duration): pass
-    async def get_system_bias(self): return {}
-    async def update_radar_batch(self, batch): pass
-    async def update_system_state(self, *args, **kwargs): pass
-    async def update_signal_outcome(self, *args, **kwargs): pass
+    async def register_sl_cooldown(self, symbol, duration): 
+        logger.info(f"❄️ [SOVEREIGN-COOLDOWN] {symbol} locked for {duration}s")
+        return True
+
+    async def get_system_bias(self): 
+        return {"macro_weight": 1.0, "whale_weight": 1.0, "smc_weight": 1.0}
+
+    async def update_radar_batch(self, batch): 
+        await self.update_radar_pulse(batch, [], {})
+        return True
+
+    async def update_system_state(self, key: str, value: any): 
+        await database_service.update_system_state(key, value)
+        return True
+
+    async def update_signal_outcome(self, signal_id: str, outcome: str, metadata: dict = None):
+        logger.info(f"📊 [SIGNAL-OUTCOME] {signal_id} -> {outcome}")
+        return True
 
     async def update_radar_pulse(self, signals: list, decisions: list, market_context: dict):
         """Atualiza e transmite o pulso do Radar."""

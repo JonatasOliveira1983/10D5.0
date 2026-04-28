@@ -1684,11 +1684,15 @@ class BankrollManager:
                     logger.info(f"🧬 [GENESIS-GEN] Slot {slot_id} | {strategy_type} | ID: {genesis_id}")
                     opened_ts = time.time()
                     
-                    # [V110.197] Pre-declare control variables to avoid NameError
+                    # [V110.198] Pre-declare control variables with explicit defaults to avoid NameError
+                    # These must cover all fields added to the Slot model for consistency.
                     is_spring_strike = signal_data.get("is_spring_strike", False) if signal_data else False
                     is_ranging_sniper = signal_data.get("is_ranging_sniper", False) if signal_data else False
                     is_shadow_strike = signal_data.get("is_shadow_strike", False) if signal_data else False
                     is_reverse_sniper = signal_data.get("is_reverse_sniper", False) if signal_data else False
+                    v42_tag = signal_data.get("v42_tag", "STANDARD") if signal_data else "STANDARD"
+                    score = signal_data.get("score", 0) if signal_data else 0
+                    unified_confidence = signal_data.get("unified_confidence", 50) if signal_data else 50
 
                     await sovereign_service.update_slot(slot_id, {
                         "symbol": symbol,
@@ -1710,11 +1714,11 @@ class BankrollManager:
                         "liq_price": 0,
                         "structural_target": structural_target,
                         "target_extended": target_extended,
-                        "is_ranging_sniper": signal_data.get("is_ranging_sniper", False) if signal_data else False,
-                        "v42_tag": signal_data.get("v42_tag", "STANDARD") if signal_data else "STANDARD",
+                        "is_ranging_sniper": is_ranging_sniper,
+                        "v42_tag": v42_tag,
                         "move_room_pct": move_room_pct,
                         "pattern": pattern,
-                        "unified_confidence": signal_data.get("unified_confidence", 50) if signal_data else 50,
+                        "unified_confidence": unified_confidence,
                         "fleet_intel": signal_data.get("fleet_intel", {}) if signal_data else {},
                         "is_reverse_sniper": is_reverse_sniper,
                         "market_regime": "RANGING" if is_market_ranging else "TRENDING",
@@ -1722,7 +1726,7 @@ class BankrollManager:
                         "rescue_resolved": False,
                         "is_shadow_strike": is_shadow_strike,
                         "is_spring_strike": is_spring_strike,
-                        "score": signal_data.get("score", 0) if signal_data else 0,
+                        "score": score,
                         "strategy": strategy_type, # [V110.173] BLITZ_30M or SWING
                         "strategy_label": f"{strategy_type.replace('_', ' ')} | SPRING" if is_spring_strike else strategy_type.replace('_', ' '),
                         "timestamp_last_update": opened_ts

@@ -75,6 +75,7 @@ FRONTEND_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "..", "frontend"))
 if not os.path.exists(FRONTEND_DIR):
     # Fallback to current dir if not found (mostly for cloud deployments)
     FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+print(f"[DEBUG] FRONTEND_DIR: {FRONTEND_DIR}")
 
 # Global references
 sovereign_service = None

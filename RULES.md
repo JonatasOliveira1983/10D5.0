@@ -139,6 +139,14 @@ Captain (Orquestrador Central)
 
 ## 13. OBSERVATORY (VISUAL HQ) & SERVICE WORKER
 1. **Observatory (V5.8):** O sistema possui um hub visual dedicado (`/observatory`) embutindo gráficos nativos do TradingView via `widgetembed` iframe. É a zona estéril onde as SMAs (21/100) e o Volume são expostos em tempo real para a frota e para o operador humano.
+
+### 📜 Estabilidade Técnica (V4.2.1)
+- **Schema Parity**: Todo campo adicionado ao dicionário de atualização do Slot deve obrigatoriamente existir no modelo `Slot` do `database_service.py` e ser incluído no `migrate_db.py`.
+- **Atomic Initialization**: Flags de inteligência (`is_spring_strike`, `is_shadow_strike`, etc) devem ser pré-declaradas no início do método `open_position` com fallbacks seguros (`.get(key, default)`) para prevenir `NameError`.
+- **Sanitized Persist**: O método `update_slot` deve filtrar chaves do dicionário para garantir que apenas atributos válidos do modelo sejam passados ao construtor SQLAlchemy.
+- **Matrix Consistency**: 40 Ativos especialistas (SPECIALIST_MATRIX) exclusivamente no M30 para sinais.
+- **Broadcast Protocol**: WebSocket Soberano para broadcast em tempo real para a UI.
+- **Persistence Layer**: Persistência obrigatória em Postgres (Railway) com modelo SQLAlchemy sincronizado.
 2. **Rota Isolada:** A rota `/observatory` não deve cair no catch-all de SPA do FastAPI. Ela retorna o arquivo `observatory.html` fisicamente.
 3. **Service Worker (PWA):** O arquivo `sw.js` **obrigatoriamente** utiliza estratégia `Network-First` para a rota `/observatory` e `/cockpit.html`. O fallback do Service Worker jamais deve devolver o Cockpit em chamadas para o Observatory, devendo o cache versionado (`CACHE_NAME`) ser elevado em caso de conflitos de roteamento.
 
