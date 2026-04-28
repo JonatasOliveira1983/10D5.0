@@ -164,7 +164,7 @@ async def get_market_study(symbol: str, interval: str = "60", limit: int = 200):
             "klines": klines,
             "obs": study.get('obs', []),
             "fvgs": study.get('fvgs', []),
-            "pattern_123": study.get('pattern_123', {"detected": False})
+            "patterns_123": study.get('patterns_123', [])
         }
     except Exception as e:
         logger.error(f"Study Route Error for {symbol}: {e}")

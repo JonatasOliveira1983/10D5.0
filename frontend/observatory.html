@@ -246,17 +246,18 @@ function refreshLayers() {
     });
   }
 
-  if (document.getElementById('toggle-123').checked && curStudy.pattern_123?.detected) {
-    const p = curStudy.pattern_123;
-    const color = p.side === 'buy' ? '#10b981' : '#ef4444';
-    Object.entries(p.points).forEach(([num, data]) => {
-        const timestamp = d[data.idx]?.time;
-        if (timestamp) m.push({ time: timestamp, position: p.side === 'buy' ? 'belowBar' : 'aboveBar', color: color, shape: 'circle', text: num });
+  if (document.getElementById('toggle-123').checked && (curStudy.patterns_123 || []).length > 0) {
+    curStudy.patterns_123.forEach(p => {
+        const color = p.side === 'buy' ? '#10b981' : '#ef4444';
+        Object.entries(p.points).forEach(([num, data]) => {
+            const timestamp = d[data.idx]?.time;
+            if (timestamp) m.push({ time: timestamp, position: p.side === 'buy' ? 'belowBar' : 'aboveBar', color: color, shape: 'circle', text: num });
+        });
+        if (p.trigger_price) {
+            const tl = series.candle.createPriceLine({ price: p.trigger_price, color: 'rgba(255,255,255,0.4)', lineWidth: 1, lineStyle: 3, axisLabelVisible: true, title: 'STRIKE' });
+            obLines.push(tl);
+        }
     });
-    if (p.trigger_price) {
-        const tl = series.candle.createPriceLine({ price: p.trigger_price, color: '#ffffff', lineWidth: 1, lineStyle: 3, axisLabelVisible: true, title: 'STRIKE' });
-        obLines.push(tl);
-    }
   }
 
   if (document.getElementById('toggle-trend').checked) {
