@@ -1,66 +1,129 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Observatory — 10D Sniper Vision V5.6</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#050505;--border:rgba(255,255,255,0.07);--bh:rgba(255,255,255,0.12);--green:#10b981;--amber:#f59e0b;--red:#ef4444;--t1:#fff;--t2:#94a3b8;--t3:#475569;--primary:#10b981}
-html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;overflow:hidden}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10D SNIPER - OBSERVATÓRIO V5.6</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700;900&family=Material+Icons+Round" rel="stylesheet">
+    <style>
+:root {
+    --bg: #000000;
+    --card: #050505;
+    --border: rgba(255,255,255,0.08);
+    --green: #10b981;
+    --red: #ef4444;
+    --amber: #f59e0b;
+    --t1: #ffffff;
+    --t2: #94a3b8;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; -webkit-font-smoothing:antialiased; }
+body { background: var(--bg); color: var(--t1); font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; }
 
 /* Global HUD */
-.global-hud{height:64px;background:rgba(0,0,0,0.95);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:24px;backdrop-filter:blur(20px);z-index:100;position:relative}
-.hud-item{display:flex;flex-direction:column;gap:2px;min-width:80px}
-.hud-label{font-size:8px;font-weight:900;color:var(--t3);text-transform:uppercase;letter-spacing:.2em}
-.hud-val{font-size:13px;font-weight:900;font-family:'JetBrains Mono',monospace;letter-spacing:-0.03em}
-.hud-sep{width:1px;height:24px;background:var(--border)}
+.global-hud {
+    height: 40px;
+    background: #000;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    gap: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+}
+.hud-item { display: flex; align-items: center; gap: 8px; }
+.hud-label { color: var(--t2); text-transform: uppercase; }
+.hud-val { color: var(--t1); font-weight: 700; }
+.hud-sep { width: 1px; height: 16px; background: var(--border); }
 
-.layout{display:grid;grid-template-columns:200px 1fr;height:calc(100vh - 64px)}
+.layout { display: flex; height: calc(100vh - 40px); }
 
 /* Sidebar */
-.sidebar{background:rgba(0,0,0,0.8);border-right:1px solid var(--border);display:flex;flex-direction:column}
-.sb-search{padding:12px;border-bottom:1px solid var(--border)}
-.sb-search input{width:100%;padding:8px 12px 8px 32px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;color:var(--t1);font-size:11px;font-family:'JetBrains Mono',monospace;outline:none}
-.pair-list{flex:1;overflow-y:auto;padding:4px}
-.pair-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;cursor:pointer;transition:.15s;margin-bottom:2px}
-.pair-item:hover{background:rgba(255,255,255,0.04)}
-.pair-item.active{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2)}
-.pair-name{font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.sidebar {
+    width: 260px;
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+}
+.sb-search { padding: 15px; border-bottom: 1px solid var(--border); }
+.sb-search input {
+    width: 100%;
+    background: #000;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 8px 12px;
+    color: #fff;
+    font-size: 12px;
+}
+.pair-list { flex: 1; overflow-y: auto; padding: 5px; }
+.pair-item {
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+    transition: 0.2s;
+}
+.pair-item:hover { background: rgba(255,255,255,0.03); }
+.pair-item.active { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); }
+.pair-name { font-weight: 600; font-size: 13px; }
+.badge { font-size: 9px; padding: 2px 6px; border-radius: 3px; font-weight: 800; text-transform: uppercase; }
+.badge.bs { background: rgba(16,185,129,0.15); color: var(--green); }
+.badge.bx { background: rgba(239,68,68,0.15); color: var(--red); }
 
-/* Main Content */
-.main{display:flex;flex-direction:column;overflow:hidden}
-.pair-bar{height:40px;background:rgba(255,255,255,0.01);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.sym-name{font-size:14px;font-weight:900;font-family:'JetBrains Mono',monospace}
+/* Main Area */
+.main { flex: 1; display: flex; flex-direction: column; position: relative; }
+.pair-bar {
+    height: 50px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+}
+.sym-name { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
 
-/* Chart Stack - Nuclear VH units to guarantee visibility */
-.main{display:flex;flex-direction:column;overflow-y:auto;background:var(--bg)} /* Enable Scroll */
-.pair-bar{height:40px;flex-shrink:0;background:rgba(0,0,0,0.4)}
-.chart-stack{display:block;background:#050505;width:100%} 
-.pane{position:relative;width:100%;border-bottom:1px solid var(--border);display:block}
-#price-pane{height:52vh;min-height:400px}
-#volume-pane{height:20vh;min-height:150px}
-#rsi-pane{height:20vh;min-height:150px;border-bottom:none}
-.pane > div:last-child { width: 100%; height: 100%; } 
-.pane-label{position:absolute;top:8px;left:12px;z-index:20;font-size:8px;font-weight:900;color:var(--t3);text-transform:uppercase;background:rgba(0,0,0,0.6);padding:2px 6px;border-radius:4px;pointer-events:none}
+.chart-stack { flex: 1; display: flex; flex-direction: column; gap: 1px; background: var(--border); overflow: hidden; }
+.pane { flex: 1; background: var(--bg); position: relative; min-height: 100px; }
+.pane-label {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+    background: rgba(0,0,0,0.6);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--t2);
+    text-transform: uppercase;
+    pointer-events: none;
+}
 
-.loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--bg);z-index:200}
-.loading.hidden{opacity:0;pointer-events:none}
-.spinner{width:32px;height:32px;border:3px solid rgba(255,255,255,0.05);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-.badge{font-size:8px;font-weight:900;padding:2px 6px;border-radius:4px;text-transform:uppercase}
-.bx{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
-.bs{background:rgba(16,185,129,0.1);color:var(--green);border:1px solid rgba(16,185,129,0.2)}
-
-.btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--t2);cursor:pointer;font-size:9px;font-weight:800;text-transform:uppercase;transition:.15s}
-.btn-green{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.2);color:var(--green)}
+.btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--t2);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.btn:hover { border-color: var(--t2); color: #fff; }
+.btn-green { background: var(--green); color: #000; border: none; }
+.btn-green:hover { background: #059669; }
 
 /* Premium Boot Loader (V5.6 RELOADED) */
 .loading {
-    position: fixed;
+    position: absolute;
     inset: 0;
     display: flex;
     flex-direction: column;
@@ -201,6 +264,7 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',s
 <div class="layout">
   <aside class="sidebar">
     <div class="sb-search"><input type="text" id="searchInput" placeholder="BUSCAR..." oninput="filterPairs(this.value)"></div>
+    <div style="padding: 10px 15px; font-size: 10px; color: var(--t2); font-weight: 800; border-bottom: 1px solid var(--border)">20 ELITE PAIRS · VISUAL HQ</div>
     <div class="pair-list" id="pairList"></div>
   </aside>
 
@@ -212,19 +276,19 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',s
         <div class="hud-sep" style="height:16px"></div>
         <!-- Strategy Selector -->
         <div style="display:flex;align-items:center;gap:8px" id="strategySelector">
-          <label class="btn" style="padding:4px 8px; font-size:8px">
+          <label class="btn" style="padding:4px 8px; font-size:9px">
             <input type="checkbox" id="toggle-123" checked onchange="refreshLayers()"> 1-2-3
           </label>
-          <label class="btn" style="padding:4px 8px; font-size:8px">
+          <label class="btn" style="padding:4px 8px; font-size:9px">
             <input type="checkbox" id="toggle-smc" checked onchange="refreshLayers()"> SMC (OB/FVG)
           </label>
-          <label class="btn" style="padding:4px 8px; font-size:8px">
+          <label class="btn" style="padding:4px 8px; font-size:9px">
             <input type="checkbox" id="toggle-trend" checked onchange="refreshLayers()"> TENDÊNCIA
           </label>
         </div>
       </div>
       <button class="btn btn-green" onclick="capture()" id="capBtn">
-        <span class="material-icons-round">photo_camera</span>Capturar Visão
+        <span class="material-icons-round" style="font-size:16px">photo_camera</span>Capturar Visão
       </button>
     </div>
 
@@ -239,11 +303,10 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',s
         </div>
         
         <div class="candle-loader candle-animate"></div>
+        <div class="loading-txt">Sincronizando 20 Ativos de Elite...</div>
         
-        <div class="loading-txt">Sincronizando 40 Ativos de Elite...</div>
-        
-        <div class="asset-grid" id="assetGrid">
-          <!-- 40 dots injected via JS -->
+        <div class="asset-grid" id="asset-boot-grid">
+          <!-- 20 pixels de sincronização -->
         </div>
       </div>
       <div class="pane" id="price-pane"><div class="pane-label">Price Action</div><div id="price-chart" style="width:100%;height:100%"></div></div>
@@ -260,12 +323,7 @@ const MATRIX = {
   "OPUSDT":{p:"VOLATILE"},"ARBUSDT":{p:"VOLATILE"},"RENDERUSDT":{p:"EXTREME"},"FETUSDT":{p:"EXTREME"},
   "INJUSDT":{p:"VOLATILE"},"TIAUSDT":{p:"EXTREME"},"LINKUSDT":{p:"STABLE"},"DOTUSDT":{p:"STABLE"},
   "ADAUSDT":{p:"STABLE"},"POLUSDT":{p:"STABLE"},"ATOMUSDT":{p:"STABLE"},"LTCUSDT":{p:"STABLE"},
-  "BCHUSDT":{p:"VOLATILE"},"XLMUSDT":{p:"STABLE"},"XRPUSDT":{p:"STABLE"},"TRXUSDT":{p:"STABLE"},
-  "ALGOUSDT":{p:"STABLE"},"ETCUSDT":{p:"STABLE"},"FILUSDT":{p:"VOLATILE"},"STXUSDT":{p:"VOLATILE"},
-  "ICPUSDT":{p:"VOLATILE"},"HBARUSDT":{p:"STABLE"},"KASUSDT":{p:"EXTREME"},"LDOUSDT":{p:"VOLATILE"},
-  "AAVEUSDT":{p:"VOLATILE"},"RUNEUSDT":{p:"EXTREME"},"GRTUSDT":{p:"VOLATILE"},"EGLDUSDT":{p:"STABLE"},
-  "SANDUSDT":{p:"VOLATILE"},"MANAUSDT":{p:"VOLATILE"},"THETAUSDT":{p:"STABLE"},"VETUSDT":{p:"STABLE"},
-  "EOSUSDT":{p:"STABLE"},"CHZUSDT":{p:"STABLE"},"FTMUSDT":{p:"VOLATILE"},"UNIUSDT":{p:"STABLE"}
+  "BCHUSDT":{p:"VOLATILE"},"XLMUSDT":{p:"STABLE"},"XRPUSDT":{p:"STABLE"},"TRXUSDT":{p:"STABLE"}
 };
 
 let cur = null;
@@ -284,7 +342,7 @@ async function syncBTC() {
     const r = await fetch('/api/system/state?v=' + Date.now());
     if (!r.ok) return;
     const d = await r.json();
-    document.getElementById('btcP').textContent = d.btc_price.toLocaleString('en-US', {style:'currency', currency:'USD'});
+    document.getElementById('btcP').textContent = (d.btc_price || 0).toLocaleString('en-US', {style:'currency', currency:'USD'});
     const v = d.btc_variation_1h || 0;
     document.getElementById('btcV').textContent = (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
     document.getElementById('btcV').style.color = v >= 0 ? 'var(--green)' : 'var(--red)';
@@ -300,7 +358,7 @@ async function syncBTC() {
 
 function initCharts() {
   const common = {
-    layout: { background: { color: '#050505' }, textColor: '#94a3b8', fontFamily: 'Inter', fontSize: 11 },
+    layout: { background: { color: '#000000' }, textColor: '#94a3b8', fontFamily: 'Inter', fontSize: 11 },
     grid: { vertLines: { color: 'rgba(255,255,255,0.02)' }, horzLines: { color: 'rgba(255,255,255,0.02)' } },
     crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
     timeScale: { borderColor: 'rgba(255,255,255,0.08)', timeVisible: true }
@@ -332,10 +390,7 @@ async function loadData(s) {
     const r = await fetch(`/api/market/study?symbol=${s}.P&interval=30&limit=400&v=` + Date.now());
     if (r.ok) {
       const study = await r.json();
-      if (!study || !study.klines || !Array.isArray(study.klines)) {
-          console.warn("Incomplete study data received:", study);
-          return;
-      }
+      if (!study || !study.klines || !Array.isArray(study.klines)) return;
       curStudy = study;
       const d = study.klines.map(x => ({ time: x[0]/1000, open: x[1], high: x[2], low: x[3], close: x[4], volume: x[5] }));
       if (d.length === 0) return;
@@ -356,12 +411,9 @@ async function loadData(s) {
     }
   } catch(e) { console.error("Study Load Error:", e); }
   
-  // [V5.6] Guarantee at least 2.5s of premium loading time for UX feel
   const elapsed = Date.now() - start;
   const delay = Math.max(0, 2500 - elapsed);
-  setTimeout(() => {
-    document.getElementById('loading').classList.add('hidden');
-  }, delay);
+  setTimeout(() => { document.getElementById('loading').classList.add('hidden'); }, delay);
 }
 
 function refreshLayers() {
@@ -430,15 +482,20 @@ const ro = new ResizeObserver(() => {
 async function capture() {
   const b = document.getElementById('capBtn'); b.disabled = true; b.textContent = 'CAPTURANDO...';
   await fetch('/api/vision/capture', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({symbol:cur, interval:'30'}) });
-  setTimeout(() => { b.disabled = false; b.innerHTML = '<span class="material-icons-round">photo_camera</span>Capturar Visão'; }, 2000);
+  setTimeout(() => { b.disabled = false; b.innerHTML = '<span class="material-icons-round" style="font-size:16px">photo_camera</span>Capturar Visão'; }, 2000);
 }
 
 syncBTC(); setInterval(syncBTC, 5000);
 initCharts();
 renderPairs(Object.keys(MATRIX));
 
-const grid = document.getElementById('assetGrid');
-if (grid) { for (let i = 0; i < 40; i++) { const dot = document.createElement('div'); dot.className = 'asset-dot' + (Math.random() > 0.5 ? ' active' : ''); dot.style.animationDelay = (Math.random() * 2) + 's'; grid.appendChild(dot); } }
+const bootGrid = document.getElementById('asset-boot-grid');
+for(let i=0; i<20; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'asset-dot';
+    if (Math.random() > 0.5) dot.classList.add('active');
+    bootGrid.appendChild(dot);
+}
 
 select('AVAXUSDT');
 </script>

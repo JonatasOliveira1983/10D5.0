@@ -1083,7 +1083,10 @@ class SignalGenerator:
             # Chronological (Bybit returns newest first, so we reverse it)
             # But wait, if prefetched from Librarian's DF, it might already be chronological.
             # We assume Bybit format (newest first) for consistency if it's a list.
-            c = klines[::-1] if isinstance(klines[0], (list, tuple)) else klines
+            try:
+                c = klines[::-1] if isinstance(klines[0], (list, tuple)) else klines
+            except (IndexError, TypeError):
+                c = klines
             
             highs = []
             lows = []

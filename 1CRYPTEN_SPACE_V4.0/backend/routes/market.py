@@ -147,15 +147,18 @@ async def get_market_study(symbol: str, interval: str = "60", limit: int = 200):
     librarian_agent = services[6]
     try:
         study = await librarian_agent.get_visual_data(symbol, interval=interval, limit=limit)
-        if not study or study.get('df') is None or study['df'].empty:
-            raise HTTPException(status_code=404, detail="No market data found for study")
+        
+        # [V5.6] Se o estudo falhar mas tivermos klines básicos (ou erro silenciado no librarian), 
+        # garantimos que o frontend receba pelo menos os klines.
+        if not study or not isinstance(study, dict) or study.get('df') is None or study['df'].empty:
+             raise HTTPException(status_code=404, detail="No market data found for study")
         
         df = study['df']
         klines = []
         for index, row in df.iterrows():
             klines.append([
-                int(index.timestamp() * 1000),
-                row['open'], row['high'], row['low'], row['close'], row['volume']
+                int(index.timestamp() * 1000) if hasattr(index, 'timestamp') else int(index),
+                float(row['open']), float(row['high']), float(row['low']), float(row['close']), float(row['volume'])
             ])
             
         return {
@@ -169,7 +172,9 @@ async def get_market_study(symbol: str, interval: str = "60", limit: int = 200):
     except HTTPException as he:
         raise he
     except Exception as e:
-        logger.error(f"Study Route Error for {symbol}: {e}")
+        logger.error(f"🚨 CRITICAL STUDY ERROR for {symbol}: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
 _SYSTEM_STATE_CACHE = {"data": None, "ts": 0}
