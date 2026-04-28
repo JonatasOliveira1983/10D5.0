@@ -1418,7 +1418,21 @@ class CaptainAgent(AIOSAgent):
             # [V110.12.10] ATOMIC SLOT RE-VERIFICATION (Anti-Slot Overwrite)
             # Antes de enviar o sinal para o Bankroll, verificamos se o slot ainda está LIVRE no Firebase.
             # Isso evita que o sinal 'atropelado' substitua uma ordem que acabou de entrar.
-            slot_type = best_signal.get("slot_type", strategy)
+
+            # [V4.2 SLOT ROUTING] Determina o tipo de slot EXPLICITAMENTE antes de qualquer chamada ao Bankroll.
+            # Slots 1 & 2 → BLITZ_30M (sinais do Blitz Sniper)
+            # Slots 3 & 4 → SWING    (sinais do pipeline padrão)
+            _is_blitz_signal = (
+                best_signal.get("is_blitz", False) or
+                best_signal.get("timeframe") == "30" or
+                best_signal.get("layer") == "BLITZ" or
+                best_signal.get("slot_type") == "BLITZ_30M"
+            )
+            slot_type = "BLITZ_30M" if _is_blitz_signal else "SWING"
+            logger.info(
+                f"⚓ [V4.2 SLOT-ROUTING] {symbol} ({side}) → Slot Type: {slot_type} | "
+                f"is_blitz={_is_blitz_signal} | Score: {score} | Capitão autorizando abertura..."
+            )
             slot_id = await bankroll_manager.can_open_new_slot(symbol=symbol, slot_type=slot_type)
             if not slot_id:
                 logger.warning(f"🚨 [V110.12.10 ATOMIC LOCK] {symbol} finalizou Tocaia, mas slot ocupado ou indisponível. Abortando.")

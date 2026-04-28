@@ -621,20 +621,30 @@ class BlitzSniperAgent:
     async def scan_and_inject(self, signal_queue: asyncio.PriorityQueue):
         """
         [V110.136 BLITZ] Varre ativos de elite e injeta sinais qualificados na queue.
+        [V4.2] MATRIX-BLINDAGE: Usa exclusivamente os 40 Pares Especialistas do Bibliotecário.
         """
         try:
             from services.bybit_rest import bybit_rest_service
             from services.agents.oracle_agent import oracle_agent
+            from services.agents.librarian import librarian_agent
 
-            # 1. Obtém lista de ativos (Top 100 líquidos com 50x+)
-            symbols = await bybit_rest_service.get_elite_50x_pairs()
+            # 1. [V4.2] Usa SPECIALIST_MATRIX como fonte de ativos (40 Pares Especialistas)
+            # Garante que o scan BLITZ seja restrito aos mesmos ativos que o Radar e o Capitão monitoram.
+            specialist_syms = librarian_agent.get_specialist_symbols()  # Ex: ["AVAXUSDT.P", ...]
+            if specialist_syms:
+                symbols = specialist_syms
+                logger.info(f"⚡ [BLITZ-MATRIX] Usando {len(symbols)} Pares Especialistas (SPECIALIST_MATRIX) para scan BLITZ.")
+            else:
+                # Fallback se o Bibliotecário ainda não tiver inicializado
+                symbols = await bybit_rest_service.get_elite_50x_pairs()
+                logger.warning(f"⚠️ [BLITZ-MATRIX-FALLBACK] Bibliotecário vazio. Usando get_elite_50x_pairs() ({len(symbols)} pares).")
             
             # 2. Obtém contexto do BTC para filtragem
             ctx = oracle_agent.get_validated_context()
             btc_dir = ctx.get("btc_direction", "LATERAL")
             btc_adx = ctx.get("btc_adx", 0.0)
 
-            # 3. Varre a watchlist
+            # 3. Varre a watchlist (apenas os 40 Especialistas)
             signals = await self.scan_watchlist(symbols, btc_dir, btc_adx)
 
             # 4. Injeta na Queue com prioridade máxima e registra no Firebase (Radar)
@@ -644,7 +654,6 @@ class BlitzSniperAgent:
                     await sovereign_service.log_signal(sig)
                     logger.info(f"🚀 [FIREBASE-PUBLISH] Blitz signal for {sig['symbol']} published to Radar.")
                 except Exception as fe:
-
                     logger.warning(f"⚠️ [BLITZ-LOG-FAIL] Falha ao registrar sinal no Firebase: {fe}")
 
                 # Score de 100 vira -100 (mais prioritário)

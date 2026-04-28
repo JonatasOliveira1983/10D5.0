@@ -1,4 +1,4 @@
-# RULES.md — 10D Sniper V4.0 "Adaptive Intelligence"
+# RULES.md — 10D Sniper V4.2 "Unified Pipeline Elite"
 # Invariantes Tecnicas Inegociaveis — [PERSISTÊNCIA ABSOLUTA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
 # Fonte da verdade: codigo real no Railway e PostgreSQL/WebSocket Nativo.
@@ -122,10 +122,15 @@ Captain (Orquestrador Central)
 
 ---
 
-## 12. INTELIGÊNCIA COLETIVA E AGENTE VISÃO (V4.2)
-1. **Poder de Veto Visual (Sniper Padrão):** O **Agente Visão** é a última linha de defesa para ordens de Sniper Padrão (prefixos `LBR` e `CAP`). Ele captura um *screenshot* real do gráfico e analisa a ação do preço e indicadores (SMA 21, SMA 100) visualmente usando IA Multimodal.
-2. **Exceção do Blitz Sniper:** O **Blitz Sniper (`BLZ`)** ignora intencionalmente o Agente Visão. Por ser um agente de Forças Especiais projetado para execuções sub-segundo baseadas em Momentum Matemático e CVD Institucional, ele não pode arcar com o delay de 10-15s da análise visual.
-3. **UI Sovereign Intelligence:** Todas as convocações do Capitão, scans do Bibliotecário e vetos do Visão são transmitidos via WebSocket em tempo real para a barra esquerda do painel Desktop (`Collective Intelligence Card`).
+## 12. INTELIGÊNCIA COLETIVA E AGENTE VISÃO (V4.2 — PIPELINE UNIFICADO)
+1. **Veto Obrigatório Universal:** O **Agente Visão** e o **Bibliotecário** são filtros OBRIGATÓRIOS para **TODOS** os sinais — BLITZ e SWING. Nenhuma ordem pode ser aberta sem aprovação de ambos os agentes. Não existe mais exceção para o Blitz.
+2. **Fluxo Unificado (Lei Máxima):**
+   ```
+   Sinal (BLITZ ou SWING) → Bibliotecário (DNA/Nectar/Trap) → Visão (Screenshot + IA) → Capitão → Ordem
+   ```
+3. **Bibliotecário:** Valida DNA do ativo (Nectar Seal, Trap Zone, Super Quarantine, Specialist Matrix). Sinais de ativos fora da SPECIALIST_MATRIX são vetados via MATRIX-VETO antes de chegar ao Visão.
+4. **Agente Visão:** Captura screenshot real do gráfico (TradingView/Observatory) e analisa indicadores (SMA 21, SMA 100, Volume) via IA Multimodal. Retorna aprovação com nível de confiança.
+5. **UI Sovereign Intelligence:** Todas as convocações do Capitão, scans do Bibliotecário e vetos do Visão são transmitidos via WebSocket em tempo real para a barra esquerda do painel Desktop (`Collective Intelligence Card`).
 
 ---
 
@@ -136,5 +141,33 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versão: V4.2 "Visual Observatory Elite" | Atualizado: 2026-04-27*
+## 14. ARQUITETURA UNIFICADA DE SLOTS — PIPELINE V4.2 (LEI MÁXIMA)
+
+### 14.1 Roteamento de Slots — Regra Inegociável
+| Slot | Tipo       | Origem do Sinal | Biblioteca de Ativos        |
+|------|------------|-----------------|-----------------------------|
+| 1    | BLITZ_30M  | BlitzSniper M30 | 40 Pares SPECIALIST_MATRIX  |
+| 2    | BLITZ_30M  | BlitzSniper M30 | 40 Pares SPECIALIST_MATRIX  |
+| 3    | SWING      | SignalGenerator | 40 Pares SPECIALIST_MATRIX  |
+| 4    | SWING      | SignalGenerator | 40 Pares SPECIALIST_MATRIX  |
+
+### 14.2 Regras de Negócio do Pipeline Unificado
+1. **SPECIALIST_MATRIX é a única fonte de ativos.** Tanto o BlitzSniper (`scan_and_inject`) quanto o SignalGenerator (`monitor_and_generate`) operam **exclusivamente** sobre os 40 pares definidos em `LibrarianAgent.SPECIALIST_MATRIX`. Ativos fora da matriz não geram ordens.
+2. **BTC é referência, não alvo.** O `BTCUSDT.P` é monitorado pelo Radar para contexto (ADX, variação, direção) mas **nunca** é alvo de ordem nos slots.
+3. **O Capitão é o único autorizador.** Todo sinal (BLITZ ou SWING) deve passar pelo `CaptainAgent._process_single_signal` antes de virar ordem. Injeções diretas na exchange sem passar pelo Capitão são proibidas.
+4. **Slot-Type explícito obrigatório.** O campo `slot_type` deve ser determinado explicitamente antes da chamada a `bankroll_manager.can_open_new_slot()`:
+   - `is_blitz=True` / `layer=BLITZ` / `timeframe=30` → `slot_type = "BLITZ_30M"`
+   - Demais sinais → `slot_type = "SWING"`
+5. **MATRIX-VETO no Capitão:** Se o ativo não estiver na `SPECIALIST_MATRIX`, o `_get_fleet_consensus` retorna veto imediato (`approved: False`) sem consultar o Visão.
+
+### 14.3 Identificadores de Sinal para Diagnóstico nos Logs
+- `⚡ [BLITZ-MATRIX]` → BlitzSniper usando SPECIALIST_MATRIX corretamente
+- `⚡ [BLITZ-MATRIX-FALLBACK]` → BlitzSniper em fallback (Bibliotecário ainda inicializando)
+- `⚓ [V4.2 SLOT-ROUTING] ... → Slot Type: BLITZ_30M` → Capitão roteando para Slots 1&2
+- `⚓ [V4.2 SLOT-ROUTING] ... → Slot Type: SWING` → Capitão roteando para Slots 3&4
+- `🚫 [MATRIX-VETO]` → Ativo rejeitado por não estar na SPECIALIST_MATRIX
+
+---
+
+*Versão: V4.2 "Unified Pipeline Elite" | Atualizado: 2026-04-27*
 *Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10D5.0.*
