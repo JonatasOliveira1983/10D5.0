@@ -41,7 +41,8 @@
 - **REGRA:** Alavancagem de 50x é OBRIGATÓRIA para todos os slots para maximizar o potencial da banca Sniper.
 - **REGRA:** Slots 1 e 2 são EXCLUSIVOS para BlitzSniper (30M). Slots 3 e 4 para Swing e Moonbags.
 - **REGRA (MOONBAG EXPANSION):** Se uma Moonbag ocupar um slot de Swing, o sistema libera o slot lógico para um novo par da lista Elite, mantendo sempre o processamento focado nos 20 pares ativos.
-- **REGRA:** Collision Guard impede o mesmo ativo em mais de um slot simultaneamente via `paper_positions` e Postgres.
+- **REGRA (COLLISION GUARD):** Impede o mesmo ativo em mais de um slot simultaneamente via `paper_positions` e Postgres.
+- **REGRA (DEMANDA ADAPTATIVA - V110.350):** O sistema monitora as vagas nos slots em tempo real. Se os slots de um tipo (Blitz ou Swing) estiverem cheios, a busca por sinais desse tipo é SUSPENSA. Se os 4 slots estiverem cheios, os agentes Visão e Radar entram em STANDBY total para economizar créditos de IA até que ocorra uma liberação de vaga.
 
 ---
 
