@@ -99,6 +99,11 @@ class RedisService:
                     decode_responses=True
                 )
                 logger.info(f"🚀 Redis Connected: {self.host}:{self.port} (DB {self.db})")
+            
+            # [V110.351] MANDATORY PING: Test connection to trigger fallback if Redis is missing
+            await asyncio.wait_for(self.client.ping(), timeout=2.0)
+            self.is_connected = True
+            self.is_fallback = False
         except Exception as e:
             logger.warning(f"⚠️ Redis Connection Failed ({e}). Entering AIOS Fallback Mode (In-Memory + Disk).")
             self.client = MockRedis()
