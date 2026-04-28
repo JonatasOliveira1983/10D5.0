@@ -15,28 +15,13 @@ class ScreenshotService:
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir, exist_ok=True)
 
-        # [V5.0] OBSERVATORY UPGRADE: Usa o layout salvo do TradingView do usuário.
-        # O chart gXpimIZU já tem SMA branca (21), SMA amarela (100),
-        # Pivot Points SuperTrend e Volume configurados.
-        self.TV_CHART_ID = "gXpimIZU"
-        self.tv_base_url = f"https://www.tradingview.com/chart/{self.TV_CHART_ID}/"
-
-        # [V5.0] FALLBACK: Widget embed caso o layout salvo falhe
-        self.fallback_url = (
-            "https://s.tradingview.com/widgetembed/?"
-            "symbol=BYBIT:{symbol}.P&"
-            "interval={interval}&"
-            "hidesidetoolbar=1&symboledit=0&saveimage=0&"
-            "toolbarbg=111111&theme=dark&style=1&"
-            "timezone=Etc%2FUTC&"
-            "studies=%5B%7B%22id%22%3A%22MASimple%40tv-basicstudies%22%2C%22inputs%22%3A%7B%22length%22%3A21%7D%7D%2C%7B%22id%22%3A%22MASimple%40tv-basicstudies%22%2C%22inputs%22%3A%7B%22length%22%3A100%7D%7D%5D"
-        )
-
+        # [V5.0] PROPRIETARY ENGINE: Captura o Observatório local/produção
+        self.observatory_url = "https://1crypten.space/observatory"
+        
     async def capture_chart(self, symbol: str, interval: str = "30") -> str:
         """
-        [V5.0] Captures a screenshot using the user's saved TradingView layout.
-        The layout already has SMA 21 (white), SMA 100 (yellow), SuperTrend Pivot and Volume.
-        Falls back to widget embed if the layout URL fails.
+        [V5.0] Captura o gráfico usando o Motor Proprietário (Lightweight Charts).
+        O Observatório já calcula SMA 21, SMA 100 e SuperTrend localmente.
         Returns the absolute path to the saved image.
         """
         symbol = symbol.replace(".P", "").upper()
@@ -58,11 +43,9 @@ class ScreenshotService:
 
     async def _capture_saved_layout(self, symbol: str, filepath: str) -> str:
         """
-        Opens the user's saved TradingView layout with the target symbol.
-        This preserves all indicator settings (SMA, SuperTrend Pivot, Volume).
+        [V5.0] Abre o Observatório proprietário para capturar o gráfico com indicadores.
         """
-        tv_symbol = f"BYBIT:{symbol}.P"
-        url = f"{self.tv_base_url}?symbol={tv_symbol}"
+        url = f"{self.observatory_url}?symbol={symbol}&s={symbol}"
 
         try:
             async with async_playwright() as p:
@@ -76,41 +59,29 @@ class ScreenshotService:
                 )
                 page = await context.new_page()
 
-                await page.goto(url, wait_until="domcontentloaded", timeout=60000)
+                # Navega para o Observatório
+                await page.goto(url, wait_until="networkidle", timeout=60000)
 
-                # [V5.0] Wait for TradingView chart canvas to be rendered
+                # Aguarda o motor de gráfico renderizar (procura pelo canvas do Lightweight Charts)
                 try:
-                    await page.wait_for_selector("canvas", timeout=20000)
-                    await asyncio.sleep(6)  # Extra time for indicators to render
+                    await page.wait_for_selector("canvas", timeout=30000)
+                    await asyncio.sleep(5) # Tempo para os indicadores calcularem
                 except Exception:
-                    await asyncio.sleep(10)  # Fallback wait
+                    await asyncio.sleep(10)
 
-                await page.screenshot(path=filepath, full_page=False)
+                # Captura a visão do Observatório
+                await page.screenshot(path=filepath)
                 await browser.close()
 
-                logger.info(f"✅ [SCREENSHOT-V5] Saved layout screenshot: {filepath}")
+                logger.info(f"✅ [SCREENSHOT-V5] Observatory Proprietary screenshot: {filepath}")
                 return filepath
         except Exception as e:
-            logger.error(f"❌ [SCREENSHOT-V5] Saved layout error for {symbol}: {e}")
+            logger.error(f"❌ [SCREENSHOT-V5] Observatory capture error for {symbol}: {e}")
             return ""
 
     async def _capture_widget_embed(self, symbol: str, interval: str, filepath: str) -> str:
-        """[V5.0] Fallback: captures the TradingView widget embed."""
-        url = self.fallback_url.format(symbol=symbol, interval=interval)
-        try:
-            async with async_playwright() as p:
-                browser = await p.chromium.launch(headless=True)
-                context = await browser.new_context(viewport={'width': 1280, 'height': 720})
-                page = await context.new_page()
-                await page.goto(url, wait_until="networkidle", timeout=60000)
-                await asyncio.sleep(8)
-                await page.screenshot(path=filepath)
-                await browser.close()
-                logger.info(f"✅ [SCREENSHOT-FALLBACK] Widget embed screenshot: {filepath}")
-                return filepath
-        except Exception as e:
-            logger.error(f"❌ [SCREENSHOT-FALLBACK] Failed: {e}")
-            return ""
+        # Fallback removido: agora usamos apenas o motor proprietário
+        return await self._capture_saved_layout(symbol, filepath)
 
 screenshot_service = ScreenshotService()
 

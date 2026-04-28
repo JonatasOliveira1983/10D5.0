@@ -105,7 +105,7 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',s
       <div class="scan-line"></div>
       <div class="loading" id="loading">
         <div class="spinner"></div>
-        <div class="loading-txt" id="loadingTxt">Carregando gráfico...</div>
+        <div class="loading-txt" id="loadingTxt">Sincronizando motor...</div>
       </div>
       <div id="tv_chart_container"></div>
     </div>
@@ -124,8 +124,8 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',s
   </main>
 </div>
 
-<!-- TradingView Widget Script -->
-<script src="https://s3.tradingview.com/tv.js"></script>
+<!-- 10D Sniper Custom Engine (Lightweight Charts) -->
+<script src="vendor/lightweight-charts.standalone.production.js"></script>
 <script>
 const MATRIX = {
   "AVAXUSDT":{r:25,d:1.4,p:"EXTREME"},"NEARUSDT":{r:22,d:1.3,p:"VOLATILE"},
@@ -151,13 +151,84 @@ const MATRIX = {
 };
 
 let cur = null;
-let tvWidget = null;
+let chart = null;
+let candlestickSeries = null;
+let volumeSeries = null;
+let sma21Series = null;
+let sma100Series = null;
+let superTrendSeries = null;
+
+// Indicator Functions
+const calculateSMA = (data, period) => {
+    if (!data || data.length < period) return [];
+    let smas = [];
+    for (let i = 0; i < data.length; i++) {
+        if (i < period - 1) { smas.push(null); continue; }
+        let sum = 0;
+        for (let j = 0; j < period; j++) sum += data[i - j].close;
+        smas.push({ time: data[i].time, value: sum / period });
+    }
+    return smas.filter(d => d !== null);
+};
+
+const calculateATR = (data, period) => {
+    if (!data || data.length < period) return [];
+    let trs = [];
+    for (let i = 0; i < data.length; i++) {
+        const candle = data[i];
+        const prevCandle = data[i - 1];
+        let tr = !prevCandle ? candle.high - candle.low : Math.max(candle.high - candle.low, Math.abs(candle.high - prevCandle.close), Math.abs(candle.low - prevCandle.close));
+        trs.push(tr);
+    }
+    let atrs = [];
+    let sum = 0;
+    for (let i = 0; i < data.length; i++) {
+        if (i < period) {
+            sum += trs[i];
+            if (i === period - 1) atrs.push({ time: data[i].time, value: sum / period });
+            else atrs.push(null);
+            continue;
+        }
+        atrs.push({ time: data[i].time, value: (atrs[i - 1].value * (period - 1) + trs[i]) / period });
+    }
+    return atrs;
+};
+
+const calculateSuperTrend = (data, period, multiplier) => {
+    const atrs = calculateATR(data, period);
+    if (atrs.length === 0) return [];
+    let st = [];
+    let prevUpper = null, prevLower = null, trend = 1; 
+    for (let i = 0; i < data.length; i++) {
+        if (!atrs[i]) { st.push(null); continue; }
+        const atr = atrs[i].value, src = (data[i].high + data[i].low) / 2;
+        let upper = src + multiplier * atr, lower = src - multiplier * atr;
+        if (prevUpper !== null) {
+            upper = (upper < prevUpper || data[i - 1].close > prevUpper) ? upper : prevUpper;
+            lower = (lower > prevLower || data[i - 1].close < prevLower) ? lower : prevLower;
+        }
+        if (i > 0 && st[i-1]) {
+            if (trend === 1 && data[i].close < lower) trend = -1;
+            else if (trend === -1 && data[i].close > upper) trend = 1;
+        }
+        st.push({ time: data[i].time, value: trend === 1 ? lower : upper, color: trend === 1 ? '#22c55e' : '#ef4444' });
+        prevUpper = upper; prevLower = lower;
+    }
+    return st.filter(d => d !== null);
+};
 
 function init(){
   const p = new URLSearchParams(location.search);
   const s = p.get('symbol')||p.get('s');
   renderList(Object.keys(MATRIX));
   select(s ? s.toUpperCase().replace('.P','') : 'AVAXUSDT');
+  
+  window.addEventListener('resize', () => {
+    if(chart) {
+        const container = document.getElementById('tv_chart_container');
+        chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+    }
+  });
 }
 
 function renderList(syms){
@@ -202,31 +273,52 @@ function hideLoading(){
   document.getElementById('loading').classList.add('hidden');
 }
 
-function loadChart(symbol){
+async function loadChart(symbol){
   showLoading('Sincronizando ' + symbol + '...');
-
   const container = document.getElementById('tv_chart_container');
-  container.innerHTML = '';
   
-  // V5.0: Agora usa o Layout Salvo do Usuário (gXpimIZU)
-  // Isso traz Supertrend, SMAs Customizadas e Volume que foram configurados manualmente
-  const chartId = "gXpimIZU";
-  const iframe = document.createElement('iframe');
-  iframe.style.width = '100%';
-  iframe.style.height = '100%';
-  iframe.style.border = 'none';
+  if (!chart) {
+      chart = LightweightCharts.createChart(container, {
+          layout: { background: { color: '#050505' }, textColor: '#94a3b8', fontFamily: 'JetBrains Mono' },
+          grid: { vertLines: { color: 'rgba(255,255,255,0.03)' }, horzLines: { color: 'rgba(255,255,255,0.03)' } },
+          crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+          priceScale: { borderColor: 'rgba(255,255,255,0.1)' },
+          timeScale: { borderColor: 'rgba(255,255,255,0.1)', timeVisible: true },
+      });
+      candlestickSeries = chart.addCandlestickSeries({ upColor: '#22c55e', downColor: '#ef4444', borderVisible: false, wickUpColor: '#22c55e', wickDownColor: '#ef4444' });
+      volumeSeries = chart.addHistogramSeries({ color: '#26a69a', priceFormat: { type: 'volume' }, priceScaleId: '' });
+      volumeSeries.priceScale().applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
+      sma21Series = chart.addLineSeries({ color: 'rgba(255,255,255,0.6)', lineWidth: 1, title: 'SMA 21' });
+      sma100Series = chart.addLineSeries({ color: '#f59e0b', lineWidth: 1, title: 'SMA 100' });
+      superTrendSeries = chart.addLineSeries({ lineWidth: 2, lineStyle: 2, title: 'SuperTrend' });
+  }
+
+  try {
+      const res = await fetch(`/api/market/klines?symbol=${symbol}.P&interval=30&limit=500`);
+      if (res.ok) {
+          const data = await res.json();
+          const formatted = data.map(d => ({
+              time: d[0] / 1000,
+              open: parseFloat(d[1]),
+              high: parseFloat(d[2]),
+              low: parseFloat(d[3]),
+              close: parseFloat(d[4]),
+              volume: parseFloat(d[5])
+          }));
+          
+          candlestickSeries.setData(formatted);
+          volumeSeries.setData(formatted.map(d => ({ time: d.time, value: d.volume, color: d.close >= d.open ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)' })));
+          sma21Series.setData(calculateSMA(formatted, 21));
+          sma100Series.setData(calculateSMA(formatted, 100));
+          superTrendSeries.setData(calculateSuperTrend(formatted, 10, 3));
+          
+          chart.timeScale().fitContent();
+      }
+  } catch (e) {
+      console.error("Chart Error:", e);
+  }
   
-  // BYBIT:SYMBOL.P format
-  const tvSymbol = "BYBIT:" + symbol.replace('.P', '').toUpperCase() + ".P";
-  
-  // URL para carregar o layout compartilhado com o símbolo dinâmico
-  iframe.src = `https://www.tradingview.com/chart/${chartId}/?symbol=${tvSymbol}&interval=30&hidesidetoolbar=1&theme=dark`;
-  
-  iframe.onload = function() {
-    setTimeout(hideLoading, 1500); // Um pouco mais de tempo para renderizar os indicadores
-  };
-  
-  container.appendChild(iframe);
+  hideLoading();
 }
 
 async function capture(){
