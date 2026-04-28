@@ -24,7 +24,7 @@ class AIService:
         self.gemini_backoff_until = 0
         self.vision_model_backoffs = {} # [V4.2] Backoff individual por modelo vision
         self.vision_model_dead = set()    # [V4.2] Modelos que deram 402 (Payment Required)
-        self.last_vision_model = "None"
+        self.last_vision_model = "Standby"
         self.vision_requests_count = 0
         raw_key = settings.OPENROUTER_API_KEY.strip() if settings.OPENROUTER_API_KEY else None
         if raw_key and not raw_key.startswith("sk-or-v1-"):
@@ -214,6 +214,8 @@ class AIService:
 
         now = time.time()
         self.vision_requests_count += 1
+        # Broadcast initial "Checking" state
+        asyncio.create_task(sovereign_service.update_ai_cascade(self.get_cascade_status()))
         
         # [V4.2] FREE VISION CASCADE MODELS (Ordered by quality)
         FREE_VISION_MODELS = [
