@@ -188,12 +188,7 @@ class FleetAudit(AIOSAgent):
                     logger.error(f"[PAPER-AUDIT] Erro no ghost cleanup: {paper_err}")
 
             # Update system pulse
-            await sovereign_service.update_system_state(
-                "SCANNING",
-                0,
-                "Fleet Audit Complete",
-                last_reconciliation=now
-            )
+            await sovereign_service.update_system_state("AUDIT_LAST_BEAT", now)
             
         except Exception as e:
             logger.error(f"Audit execution error: {e}")
