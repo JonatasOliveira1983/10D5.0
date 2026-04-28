@@ -949,6 +949,10 @@
                             const normalized = Array.isArray(val)
                                 ? { signals: val, decisions: [], market_context: {}, updated_at: Date.now() / 1000 }
                                 : val;
+                            // V110.183: Final Safety Shield for signals array
+                            if (normalized && normalized.signals && !Array.isArray(normalized.signals)) {
+                                normalized.signals = [];
+                            }
                             setData(normalized);
                             window.dispatchEvent(new CustomEvent('radar-pulse-update'));
                         }
@@ -966,7 +970,12 @@
                         const res = await fetch(API_BASE + '/api/radar/pulse');
                         if (res.ok) {
                             const val = await res.json();
-                            setData(prev => ((!prev || !prev.signals || prev.signals.length === 0) || (val && val.updated_at > prev.updated_at)) ? val : prev);
+                            setData(prev => {
+                                if (!val) return prev;
+                                // Normalize val before setting
+                                if (val.signals && !Array.isArray(val.signals)) val.signals = [];
+                                return ((!prev || !prev.signals || !Array.isArray(prev.signals) || prev.signals.length === 0) || (val && val.updated_at > prev.updated_at)) ? val : prev;
+                            });
                         }
                     } catch (e) { }
                 };
@@ -3918,7 +3927,7 @@
                             <section className="space-y-4 pt-4 border-t border-white/5">
                                 <DailyGoalBanner context={pulseData?.market_context} title="Market Radar" />
                                 <div className="space-y-2.5">
-                                    {radarSignals && radarSignals.slice(0, 5).map((sig, idx) => (
+                                    {Array.isArray(radarSignals) && radarSignals.slice(0, 5).map((sig, idx) => (
                                         <div key={idx} className="p-3 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-between group hover:border-gray-500/30 transition-all">
                                             <div className="flex items-center gap-3">
                                                 <span className="text-xs font-black text-white">{sig.symbol.replace('.P', '')}</span>
@@ -3929,7 +3938,7 @@
                                             </span>
                                         </div>
                                     ))}
-                                    {(!radarSignals || radarSignals.length === 0) && (
+                                    {(!Array.isArray(radarSignals) || radarSignals.length === 0) && (
                                         <div className="py-8 text-center opacity-20 italic text-[10px] uppercase tracking-widest font-black">Scanning Signals...</div>
                                     )}
                                 </div>
