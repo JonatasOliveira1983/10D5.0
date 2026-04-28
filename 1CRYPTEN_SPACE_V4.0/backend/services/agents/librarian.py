@@ -235,8 +235,8 @@ class LibrarianAgent(AIOSAgent):
             # Fallback: Se o banco local estiver vazio, buscar via API (Bybit)
             if df.empty:
                 logger.info(f"DB local vazio para {symbol} ({interval}). Buscando via REST API...")
-                from services.bybit_rest_service import bybit_rest_service
-                klines = await bybit_rest_service.get_klines(symbol, interval, limit=limit)
+                from services.bybit_rest import bybit_rest_service
+                klines = await bybit_rest_service.get_klines(symbol, interval, limit=limit, kline_type="last")
                 if klines:
                     # Converter klines da Bybit para DataFrame compatível
                     df = pd.DataFrame(klines, columns=['start_time', 'open', 'high', 'low', 'close', 'volume', 'turnover'])
