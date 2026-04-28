@@ -137,8 +137,15 @@ Captain (Orquestrador Central)
 
 ---
 
-## 13. OBSERVATORY (VISUAL HQ) & SERVICE WORKER
-1. **Observatory (V5.8):** O sistema possui um hub visual dedicado (`/observatory`) embutindo gráficos nativos do TradingView via `widgetembed` iframe. É a zona estéril onde as SMAs (21/100) e o Volume são expostos em tempo real para a frota e para o operador humano.
+## 13. OBSERVATORY (VISUAL HQ) & VISION INTELLIGENCE (V5.6)
+1. **Motor Proprietário (S3):** O sistema utiliza uma engine de gráficos nativa (Lightweight Charts), eliminando 100% da dependência de iframes externos (TradingView) e resolvendo erros de CSP.
+2. **Master Context Layout:** O Observatório opera em uma arquitetura de 3 andares sincronizados:
+   - **Andar 1 (Price Action):** Candles + SMA 21/100 + SuperTrend + Ghost Markers.
+   - **Andar 2 (Volume Flow):** Histograma de volume puro e destacado.
+   - **Andar 3 (RSI 14):** Oscilador de força relativa para detecção de exaustão.
+3. **Global BTC HUD:** Uma barra fixa no topo transmite a telemetria mestre do mercado (Preço BTC, ADX, CVD, Dominância, Decorrelação e Direção Master) para todas as análises.
+4. **Ghost Markers (Treinamento de IA):** O sistema injeta marcadores históricos de "Entrada Perfeita" e "Rejeição" para que o Agente Visão aprenda com padrões de sucesso passados.
+5. **Captura Autônoma:** O `ScreenshotService` captura exclusivamente o Hub Proprietário, garantindo que a IA analise exatamente os mesmos indicadores que o operador humano.
 
 ### 📜 Estabilidade Técnica (V4.2.1)
 - **Schema Parity**: Todo campo adicionado ao dicionário de atualização do Slot deve obrigatoriamente existir no modelo `Slot` do `database_service.py` e ser incluído no `migrate_db.py`.
@@ -180,5 +187,5 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versão: V4.2.1 "Vision Cascade & Gate" | Atualizado: 2026-04-27*
+*Versão: V5.6 "Vision Intelligence & Master Context" | Atualizado: 2026-04-28*
 *Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10D5.0.*

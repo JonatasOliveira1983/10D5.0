@@ -1,7 +1,14 @@
-# MASTER_ARCHITECTURE.md — V110.256 "Sovereign Identifier & Syntax Recovery"
+# MASTER_ARCHITECTURE.md — V5.6 "Vision Intelligence & Master Context"
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V5.6: VISION INTELLIGENCE & MASTER CONTEXT [APR 28]**
+    - **Proprietary S3 Engine:** Migração total do TradingView Widget para o motor nativo Lightweight Charts, garantindo soberania visual e fim dos erros de CSP.
+    - **Triple-Pane Architecture:** Implementação de 3 painéis sincronizados (Preço, Volume Flow e RSI 14) para análise técnica profunda.
+    - **Global BTC HUD:** Integração de telemetria macro (ADX, CVD, Dominância, Decorrelação) em barra fixa no topo do Observatório.
+    - **Ghost Strategy Markers:** Sistema de anotação histórica para treinamento e validação do Agente Visão.
+    - **Autonomous Vision Capture:** Refatoração do `ScreenshotService` para operar 100% sobre o Hub Proprietário.
 
 *   **V4.0: SPECIALIST MATRIX & EAGLE VISION PRO [APR 26]**
     - **Specialist Brain (40 Pairs):** Implementação de matriz fixa no `librarian.py` para 40 ativos de elite. Injeção de DNA com buffers de respiro (8-25%) e atrasos de RF baseados em volatilidade.
@@ -156,5 +163,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-26 (V4.0) Sincronizado*
-*Este documento reflete a estabilização final do ambiente Soberano com alavancagem de 50x.*
+*Documento atualizado em: 2026-04-28 (V5.6) Sincronizado*
+*Este documento reflete a estabilização final do ambiente Soberano com Motor de Gráficos Proprietário e Vision Intelligence.*
