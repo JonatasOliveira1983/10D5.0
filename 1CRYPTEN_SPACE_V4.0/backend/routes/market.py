@@ -148,7 +148,7 @@ async def get_market_study(symbol: str, interval: str = "60", limit: int = 200):
     try:
         study = await librarian_agent.get_visual_data(symbol, interval=interval)
         if not study or study.get('df') is None or study['df'].empty:
-            return {"error": "No data found"}
+            raise HTTPException(status_code=404, detail="No market data found for study")
         
         df = study['df']
         klines = []
@@ -166,9 +166,11 @@ async def get_market_study(symbol: str, interval: str = "60", limit: int = 200):
             "fvgs": study.get('fvgs', []),
             "patterns_123": study.get('patterns_123', [])
         }
+    except HTTPException as he:
+        raise he
     except Exception as e:
         logger.error(f"Study Route Error for {symbol}: {e}")
-        return {"error": str(e)}
+        raise HTTPException(status_code=500, detail=str(e))
 
 _SYSTEM_STATE_CACHE = {"data": None, "ts": 0}
 

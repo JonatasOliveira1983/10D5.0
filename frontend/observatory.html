@@ -317,8 +317,13 @@ async function loadData(s) {
     const r = await fetch(`/api/market/study?symbol=${s}.P&interval=30&limit=400&v=` + Date.now());
     if (r.ok) {
       const study = await r.json();
+      if (!study || !study.klines || !Array.isArray(study.klines)) {
+          console.warn("Incomplete study data received:", study);
+          return;
+      }
       curStudy = study;
       const d = study.klines.map(x => ({ time: x[0]/1000, open: x[1], high: x[2], low: x[3], close: x[4], volume: x[5] }));
+      if (d.length === 0) return;
       series.candle.setData(d);
       if (document.getElementById('toggle-trend').checked) {
           series.sma21.setData(calculateSMA(d, 21));
