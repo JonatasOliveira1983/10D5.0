@@ -3004,6 +3004,7 @@ class SignalGenerator:
                     
                     # Market Regime Adjustment & V27.6 MTF Alignment Penalty
                     regime_penalty = 0
+                    is_spring = False
                     regime = market_regime.get('regime', 'TRANSITION')
                     if regime == 'RANGING':
                         regime_penalty = -10  # Ranging markets = more cautious

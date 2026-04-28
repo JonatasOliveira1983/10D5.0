@@ -22,6 +22,8 @@ class AIService:
         self.openrouter_backoff_until = 0
         self.glm_backoff_until = 0
         self.gemini_backoff_until = 0
+        self.vision_model_backoffs = {} # [V4.2] Backoff individual por modelo vision
+        self.vision_model_dead = set()    # [V4.2] Modelos que deram 402 (Payment Required)
         raw_key = settings.OPENROUTER_API_KEY.strip() if settings.OPENROUTER_API_KEY else None
         if raw_key and not raw_key.startswith("sk-or-v1-"):
             self.openrouter_key = f"sk-or-v1-{raw_key}"
@@ -172,13 +174,10 @@ class AIService:
                             self.gemini_backoff_until = now + 120
                         continue
         
-        logger.error("❌ All AI providers failed or are in backoff.")
-        return None
-
-    async def generate_vision_content(self, prompt: str, image_path: str, system_instruction: str = "Você é um analista técnico de trading especializado em Visão Computacional."):
+        logger.error("❌ All AI providers failed or are in back    async def generate_vision_content(self, prompt: str, image_path: str, system_instruction: str = "Você é um analista técnico de trading especializado em Visão Computacional."):
         """
-        [V1.0] Generates content based on an image and a prompt.
-        Primarily uses Gemini 1.5 Pro, falls back to OpenRouter Multimodal.
+        [V4.2 CASCATA FREE] Generates content based on an image and a prompt.
+        Uses a cascade of FREE models from OpenRouter to ensure no costs and high availability.
         """
         if not os.path.exists(image_path):
             logger.error(f"❌ Image path not found: {image_path}")
@@ -186,106 +185,103 @@ class AIService:
 
         now = time.time()
         
-        # 1. Primary: Gemini 1.5 Pro (Native Vision is best)
-        if self.gemini_model and now > self.gemini_backoff_until:
-            try:
-                logger.info(f"👁️ [VISION] Attempting Gemini 1.5 Pro for {os.path.basename(image_path)}...")
-                
-                # Load image
-                with open(image_path, "rb") as f:
-                    image_data = f.read()
-                
-                # Construct parts
-                contents = [
-                    system_instruction,
-                    {"mime_type": "image/png", "data": image_data},
-                    prompt
-                ]
-                
-                models_to_try = ['gemini-2.0-flash', 'gemini-1.5-flash-latest', 'gemini-1.5-pro-latest', 'gemini-1.5-flash']
-                
-                for m_name in models_to_try:
-                    try:
-                        vision_model = genai.GenerativeModel(m_name)
-                        def _gemini_vision_sync():
-                            return vision_model.generate_content(contents)
-                        
-                        response = await asyncio.wait_for(asyncio.to_thread(_gemini_vision_sync), timeout=30.0)
-                        
-                        if response and hasattr(response, 'text'):
-                            logger.info(f"✅ Gemini Vision Success using {m_name}")
-                            return response.text.strip()
-                    except Exception as loop_e:
-                        if "404" in str(loop_e) or "Not Found" in str(loop_e):
-                            continue # Tenta o próximo
-                        raise loop_e # Se for Rate Limit (429) ou erro interno, sobe pro fallback do OpenRouter
-                
-                logger.warning(f"⚠️ Gemini Vision returned no text or exhausted models.")
-            except Exception as e:
-                import traceback
-                logger.warning(f"❌ Gemini Vision failed: {str(e)}")
-                logger.error(traceback.format_exc())
-                # Don't backoff yet, try OpenRouter
+        # [V4.2] FREE VISION CASCADE MODELS (Ordered by quality)
+        FREE_VISION_MODELS = [
+            "google/gemini-2.0-flash-exp:free",
+            "google/gemini-2.0-flash-lite-preview-02-05:free",
+            "qwen/qwen2.5-vl-72b-instruct:free",
+            "nvidia/llama-3.1-nemotron-nano-vl-8b-v1:free",
+            "google/gemma-3-27b-it:free",
+            "mistralai/pixtral-12b:free"
+        ]
 
-        # 2. Fallback: OpenRouter Multimodal (GPT-4o or Gemini via OR)
-        if self.openrouter_key and now > self.openrouter_backoff_until:
+        if not self.openrouter_key:
+            logger.error("❌ No OpenRouter Key found for Vision Cascade.")
+            return None
+
+        # Encode image to base64 once
+        try:
+            with open(image_path, "rb") as f:
+                encoded_image = base64.b64encode(f.read()).decode('utf-8')
+            image_url = f"data:image/png;base64,{encoded_image}"
+        except Exception as e:
+            logger.error(f"❌ Failed to encode image for Vision: {e}")
+            return None
+
+        for idx, v_model in enumerate(FREE_VISION_MODELS):
+            # Skip if dead or in backoff
+            if v_model in self.vision_model_dead:
+                continue
+            if now < self.vision_model_backoffs.get(v_model, 0):
+                continue
+
             try:
-                logger.info(f"👁️ [VISION] Falling back to OpenRouter Multimodal...")
+                logger.info(f"👁️ [VISION-CASCADE] Trying model {idx+1}/{len(FREE_VISION_MODELS)}: {v_model}...")
                 
-                # Encode image to base64
-                with open(image_path, "rb") as f:
-                    encoded_image = base64.b64encode(f.read()).decode('utf-8')
-                
-                image_url = f"data:image/png;base64,{encoded_image}"
-                
-                # Best multimodal models on OpenRouter
-                vision_models = [
-                    "google/gemini-flash-1.5",
-                    "openai/gpt-4o-mini",
-                    "anthropic/claude-3-haiku"
-                ]
-                
-                for v_model in vision_models:
-                    try:
-                        async with httpx.AsyncClient(timeout=30.0) as client:
-                            response = await client.post(
-                                "https://openrouter.ai/api/v1/chat/completions",
-                                headers={
-                                    "Authorization": f"Bearer {self.openrouter_key}",
-                                    "HTTP-Referer": "https://1crypten.space", 
-                                    "X-Title": "1CRYPTEN Vision Agent",
-                                },
-                                json={
-                                    "model": v_model,
-                                    "messages": [
+                async with httpx.AsyncClient(timeout=45.0) as client:
+                    response = await client.post(
+                        "https://openrouter.ai/api/v1/chat/completions",
+                        headers={
+                            "Authorization": f"Bearer {self.openrouter_key}",
+                            "HTTP-Referer": "https://1crypten.space", 
+                            "X-Title": "1CRYPTEN Vision Cascade",
+                        },
+                        json={
+                            "model": v_model,
+                            "messages": [
+                                {
+                                    "role": "user",
+                                    "content": [
+                                        {"type": "text", "text": f"{system_instruction}\n\n{prompt}"},
                                         {
-                                            "role": "user",
-                                            "content": [
-                                                {"type": "text", "text": f"{system_instruction}\n\n{prompt}"},
-                                                {
-                                                    "type": "image_url",
-                                                    "image_url": {"url": image_url}
-                                                }
-                                            ]
+                                            "type": "image_url",
+                                            "image_url": {"url": image_url}
                                         }
-                                    ],
-                                    "temperature": 0.3 # Lower temperature for analysis
+                                    ]
                                 }
-                            )
-                            
-                            if response.status_code == 200:
-                                data = response.json()
-                                text = data.get('choices', [{}])[0].get('message', {}).get('content')
-                                if text:
-                                    logger.info(f"✅ OpenRouter Vision Success using {v_model}")
-                                    return text.strip()
-                    except Exception as ve:
-                        logger.warning(f"OpenRouter Vision failed with {v_model}: {ve}")
-                        continue
-            except Exception as e:
-                logger.error(f"OpenRouter Vision Fallback failed: {e}")
+                            ],
+                            "temperature": 0.2
+                        }
+                    )
+                    
+                    if response.status_code == 200:
+                        data = response.json()
+                        # Check for internal OpenRouter error even with 200
+                        if "error" in data:
+                            err_msg = str(data["error"])
+                            logger.warning(f"⚠️ [VISION-CASCADE] Model {v_model} returned error: {err_msg}")
+                            if "429" in err_msg or "rate" in err_msg.lower():
+                                self.vision_model_backoffs[v_model] = now + 60
+                            elif "402" in err_msg or "credit" in err_msg.lower():
+                                logger.error(f"💀 [VISION-CASCADE] Model {v_model} requires payment. Marking as DEAD.")
+                                self.vision_model_dead.add(v_model)
+                            continue
 
-        logger.error("❌ All Vision providers failed.")
+                        text = data.get('choices', [{}])[0].get('message', {}).get('content')
+                        if text:
+                            logger.info(f"✅ [VISION-CASCADE] Success using {v_model}")
+                            return text.strip()
+                        else:
+                            logger.warning(f"⚠️ [VISION-CASCADE] Model {v_model} returned empty response.")
+                    
+                    elif response.status_code == 429:
+                        logger.warning(f"⏳ [VISION-CASCADE] Rate limit (429) for {v_model}. Cooling down 60s.")
+                        self.vision_model_backoffs[v_model] = now + 60
+                    
+                    elif response.status_code == 402:
+                        logger.error(f"💀 [VISION-CASCADE] Payment Required (402) for {v_model}. Marking as DEAD.")
+                        self.vision_model_dead.add(v_model)
+                    
+                    else:
+                        logger.warning(f"❌ [VISION-CASCADE] HTTP {response.status_code} for {v_model}: {response.text}")
+
+            except Exception as e:
+                logger.warning(f"💥 [VISION-CASCADE] Exception with {v_model}: {e}")
+                self.vision_model_backoffs[v_model] = now + 30 # Short backoff on generic error
+                continue
+
+        logger.error("❌ [VISION-CASCADE] All free vision models exhausted or in backoff.")
+        return Noneror("❌ All Vision providers failed.")
         return None
 
 

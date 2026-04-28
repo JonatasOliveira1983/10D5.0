@@ -122,15 +122,17 @@ Captain (Orquestrador Central)
 
 ---
 
-## 12. INTELIGÊNCIA COLETIVA E AGENTE VISÃO (V4.2 — PIPELINE UNIFICADO)
-1. **Veto Obrigatório Universal:** O **Agente Visão** e o **Bibliotecário** são filtros OBRIGATÓRIOS para **TODOS** os sinais — BLITZ e SWING. Nenhuma ordem pode ser aberta sem aprovação de ambos os agentes. Não existe mais exceção para o Blitz.
-2. **Fluxo Unificado (Lei Máxima):**
+## 12. INTELIGÊNCIA COLETIVA E AGENTE VISÃO (V4.2.1 — CASCATA & GATE)
+1. **Vision Gate Inteligente:** O Agente Visão só captura screenshots e aciona a IA se: (a) houver slots livres (< 4), (b) o Bibliotecário não tiver vetado o ativo, e (c) o score inicial for >= 70. Isso economiza quota de API e foca no que importa.
+2. **Cascata de IA Gratuita:** O sistema utiliza uma cascata de modelos multimodal (vision) gratuitos via OpenRouter (Gemini 2.0 Flash Free, Llama 4 Scout, etc.).
+   - Se um modelo atinge rate-limit (429), o sistema tenta o próximo da lista.
+   - Se um modelo exige pagamento (402), ele é removido da lista permanentemente até o próximo reboot.
+3. **Veto Obrigatório Universal:** O **Agente Visão** e o **Bibliotecário** continuam sendo filtros OBRIGATÓRIOS. Se todos os modelos da cascata falharem, a ordem é bloqueada por segurança (`[VISION-OFFLINE-BLOCK]`).
+4. **Fluxo Otimizado:**
    ```
-   Sinal (BLITZ ou SWING) → Bibliotecário (DNA/Nectar/Trap) → Visão (Screenshot + IA) → Capitão → Ordem
+   Sinal → Bibliotecário (DNA) → [VISION GATE] → Visão (Cascata Free) → Capitão → Ordem
    ```
-3. **Bibliotecário:** Valida DNA do ativo (Nectar Seal, Trap Zone, Super Quarantine, Specialist Matrix). Sinais de ativos fora da SPECIALIST_MATRIX são vetados via MATRIX-VETO antes de chegar ao Visão.
-4. **Agente Visão:** Captura screenshot real do gráfico (TradingView/Observatory) e analisa indicadores (SMA 21, SMA 100, Volume) via IA Multimodal. Retorna aprovação com nível de confiança.
-5. **UI Sovereign Intelligence:** Todas as convocações do Capitão, scans do Bibliotecário e vetos do Visão são transmitidos via WebSocket em tempo real para a barra esquerda do painel Desktop (`Collective Intelligence Card`).
+5. **UI Sovereign Intelligence:** Todas as convocações do Capitão, scans do Bibliotecário e vetos do Visão são transmitidos via WebSocket em tempo real para o Cockpit.
 
 ---
 
@@ -169,5 +171,5 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versão: V4.2 "Unified Pipeline Elite" | Atualizado: 2026-04-27*
+*Versão: V4.2.1 "Vision Cascade & Gate" | Atualizado: 2026-04-27*
 *Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10D5.0.*

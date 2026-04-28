@@ -21,21 +21,48 @@ class VisionAgent:
             "4. Respostas: Seja técnico, estóico e direto."
         )
 
-    async def confirm_entry(self, symbol: str, side: str, signal_score: int) -> Dict[str, Any]:
+    async def confirm_entry(self, symbol: str, side: str, signal_score: int, context_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
-        Realiza a análise visual final para confirmar uma entrada.
+        [V4.2 VISION GATE] Realiza a análise visual final para confirmar uma entrada.
+        Otimizado para só agir se houver slots livres e DNA favorável.
         """
         logger.info(f"👁️ [VISION] Starting final visual confirmation for {symbol} {side}...")
         
-        # 1. Capture the current chart (30m interval as preferred by user)
+        # 1. [V4.2] VISION GATE: Verificações de Eficiência
+        if context_data:
+            # A. Verificação de Slots
+            active_slots = context_data.get("active_slots_count", 0)
+            if active_slots >= 4:
+                logger.info(f"⏭️ [VISION-GATE-SKIP] {symbol}: Todos os 4 slots ocupados. Ignorando análise visual.")
+                return {
+                    "approved": False,
+                    "confidence": 0,
+                    "reason": "SLOTS_FULL: Sistema operando em capacidade máxima (4/4).",
+                    "thoughts": "Aguardando liberação de slot para nova análise."
+                }
+            
+            # B. Verificação do Bibliotecário (DNA)
+            lib_dna = context_data.get("lib_dna", {})
+            nectar_seal = lib_dna.get("nectar_seal", "")
+            if lib_dna.get("status") == "REJECTED" or "TRAP" in nectar_seal or "QUARANTINE" in nectar_seal:
+                logger.info(f"⏭️ [VISION-GATE-SKIP] {symbol}: Bibliotecário já vetou o ativo. Ignorando análise visual.")
+                return {
+                    "approved": False,
+                    "confidence": 0,
+                    "reason": f"LIBRARIAN_VETO: {lib_dna.get('reason', 'Ativo não qualificado')}.",
+                    "thoughts": "Economizando visão: DNA já rejeitado pelo Bibliotecário."
+                }
+
+        # 2. Capture the current chart (30m interval)
+        logger.info(f"📸 [VISION-GATE] {symbol}: Screenshot autorizado (Slots: {context_data.get('active_slots_count', '?')}/4 | DNA: OK)")
         screenshot_path = await screenshot_service.capture_chart(symbol, interval="30")
         
         if not screenshot_path:
             return {
-                "approved": True, # Fallback to true if vision fails (don't block system)
+                "approved": True, # Fallback to true if capture fails but signal is strong
                 "confidence": 50,
-                "reason": "Vision Capture Failed: Procedendo com cautela baseada em dados numéricos.",
-                "thoughts": "Falha na captura visual. Confiando nos indicadores do Captain."
+                "reason": "Vision Capture Failed: Infraestrutura indisponível.",
+                "thoughts": "Falha na captura. Confiando nos dados quantitativos."
             }
 
         # 2. Prepare the prompt

@@ -185,8 +185,21 @@ class CaptainAgent(AIOSAgent):
             # SMC Score (Original Signal)
             smc_score = signal.get("score", 70)
             
-            # 4. Agente Visão [V1.0] - O Filtro Final de Intenção (chamado APÓS smc_score estar disponível)
-            vision_result = await vision_agent.confirm_entry(symbol, side, smc_score)
+            # [V4.2 LIBRARIAN-SYNC] Move DNA check BEFORE Vision for efficiency
+            lib_dna = await librarian_agent.get_asset_dna(symbol)
+            nectar_seal = lib_dna.get("nectar_seal", "🛡️ VANGUARD")
+            
+            # [V4.2 SLOT-SYNC] Check slot capacity before Vision
+            active_slots = await sovereign_service.get_active_slots(force_refresh=True)
+            active_slots_count = len(active_slots)
+            
+            # 4. Agente Visão [V1.0] - O Filtro Final de Intenção
+            # [V4.2] Vision Gate: Só tira print se houver vaga e DNA for promissor
+            vision_context = {
+                "lib_dna": lib_dna,
+                "active_slots_count": active_slots_count
+            }
+            vision_result = await vision_agent.confirm_entry(symbol, side, smc_score, context_data=vision_context)
             vision_approved = vision_result.get("approved", True)
             vision_confidence = vision_result.get("confidence", 50)
             vision_thoughts = vision_result.get("thoughts", "")
@@ -212,10 +225,6 @@ class CaptainAgent(AIOSAgent):
                 unified_score += 30
                 logger.info(f"🐋 [WHALE-BONUS] {symbol}: Fluxo institucional detectado! Score impulsionado para {unified_score}")
 
-            # [LIBRARIAN-SYNC] Applying V2.0 Asset DNA & Nectar
-            lib_dna = await librarian_agent.get_asset_dna(symbol)
-            nectar_seal = lib_dna.get("nectar_seal", "🛡️ VANGUARD")
-            
             # 1. Trava de Segurança Absoluta (Blacklist/Quarentena)
             if lib_dna.get("status") == "REJECTED":
                 approved = False
