@@ -87,9 +87,22 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',s
 
   <main class="main">
     <div class="pair-bar">
-      <div style="display:flex;align-items:center;gap:10px">
+      <div style="display:flex;align-items:center;gap:15px">
         <span class="sym-name" id="symDisplay">—</span>
         <span id="profBadge" class="badge bs">STABLE</span>
+        <div class="hud-sep" style="height:16px"></div>
+        <!-- Strategy Selector -->
+        <div style="display:flex;align-items:center;gap:8px" id="strategySelector">
+          <label class="btn" style="padding:4px 8px; font-size:8px">
+            <input type="checkbox" id="toggle-123" checked onchange="refreshLayers()"> 1-2-3
+          </label>
+          <label class="btn" style="padding:4px 8px; font-size:8px">
+            <input type="checkbox" id="toggle-smc" checked onchange="refreshLayers()"> SMC (OB/FVG)
+          </label>
+          <label class="btn" style="padding:4px 8px; font-size:8px">
+            <input type="checkbox" id="toggle-trend" checked onchange="refreshLayers()"> TENDÊNCIA
+          </label>
+        </div>
       </div>
       <button class="btn btn-green" onclick="capture()" id="capBtn">
         <span class="material-icons-round">photo_camera</span>Capturar Visão
@@ -121,8 +134,10 @@ const MATRIX = {
 };
 
 let cur = null;
+let curStudy = null;
 let charts = { price: null, volume: null, rsi: null };
 let series = { candle: null, sma21: null, sma100: null, st: null, vol: null, rsi: null };
+let obLines = [];
 let isSyncing = false;
 
 // Indicators
@@ -151,7 +166,7 @@ async function syncBTC() {
 
 function initCharts() {
   const common = {
-    layout: { background: { color: '#050505' }, textColor: '#94a3b8', fontFamily: 'JetBrains Mono', fontSize: 11 },
+    layout: { background: { color: '#050505' }, textColor: '#94a3b8', fontFamily: 'Inter', fontSize: 11 },
     grid: { vertLines: { color: 'rgba(255,255,255,0.02)' }, horzLines: { color: 'rgba(255,255,255,0.02)' } },
     crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
     timeScale: { borderColor: 'rgba(255,255,255,0.08)', timeVisible: true }
@@ -170,7 +185,6 @@ function initCharts() {
   charts.rsi.addLineSeries({ color: 'rgba(255,255,255,0.1)', lineWidth: 1, lineStyle: 2 }).setData([{time:0, value:70},{time:9999999999, value:70}]);
   charts.rsi.addLineSeries({ color: 'rgba(255,255,255,0.1)', lineWidth: 1, lineStyle: 2 }).setData([{time:0, value:30},{time:9999999999, value:30}]);
 
-  // V5.6 Improved Sync
   const sync = (src, r) => {
     if (!r || isSyncing) return;
     isSyncing = true;
@@ -185,26 +199,26 @@ function initCharts() {
 async function loadData(s) {
   document.getElementById('loading').classList.remove('hidden');
   try {
-    const r = await fetch(`/api/market/klines?symbol=${s}.P&interval=30&limit=400&v=` + Date.now());
+    const r = await fetch(`/api/market/study?symbol=${s}.P&interval=30&limit=400&v=` + Date.now());
     if (r.ok) {
-      const raw = await r.json();
-      const d = raw.map(x => ({ time: x[0]/1000, open: parseFloat(x[1]), high: parseFloat(x[2]), low: parseFloat(x[3]), close: parseFloat(x[4]), volume: parseFloat(x[5]) }));
+      const study = await r.json();
+      curStudy = study;
+      const d = study.klines.map(x => ({ time: x[0]/1000, open: x[1], high: x[2], low: x[3], close: x[4], volume: x[5] }));
       
       series.candle.setData(d);
-      series.sma21.setData(calculateSMA(d, 21));
-      series.sma100.setData(calculateSMA(d, 100));
-      const st = calculateST(d, 10, 3);
-      series.st.setData(st.map(x => ({ time: x.time, value: x.value })));
-      
-      let m = []; for (let i = 1; i < st.length; i++) {
-        if (st[i].trend === 1 && st[i-1].trend === -1) m.push({ time: st[i].time, position: 'belowBar', color: '#10b981', shape: 'arrowUp', text: 'PERFECT' });
-        if (st[i].trend === -1 && st[i-1].trend === 1) m.push({ time: st[i].time, position: 'aboveBar', color: '#f59e0b', shape: 'arrowDown', text: 'REJECT' });
-      } series.candle.setMarkers(m);
+      if (document.getElementById('toggle-trend').checked) {
+          series.sma21.setData(calculateSMA(d, 21));
+          series.sma100.setData(calculateSMA(d, 100));
+          const st = calculateST(d, 10, 3);
+          series.st.setData(st.map(x => ({ time: x.time, value: x.value })));
+      } else {
+          series.sma21.setData([]); series.sma100.setData([]); series.st.setData([]);
+      }
 
+      refreshLayers();
       series.vol.setData(d.map(x => ({ time: x.time, value: x.volume, color: x.close >= x.open ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)' })));
       series.rsi.setData(calculateRSI(d));
       
-      // Force resize to fix flexbox 0px issues
       Object.values(charts).forEach(c => {
         const parent = c.chartElement().parentElement;
         if (parent) c.applyOptions({ width: parent.clientWidth, height: parent.clientHeight });
@@ -213,6 +227,88 @@ async function loadData(s) {
     }
   } catch(e) {}
   document.getElementById('loading').classList.add('hidden');
+}
+
+function refreshLayers() {
+  if (!curStudy) return;
+  const d = curStudy.klines.map(x => ({ time: x[0]/1000, open: x[1], high: x[2], low: x[3], close: x[4] }));
+  let m = [];
+
+  obLines.forEach(l => series.candle.removePriceLine(l));
+  obLines = [];
+  
+  if (document.getElementById('toggle-smc').checked) {
+    (curStudy.obs || []).slice(-4).forEach(ob => {
+        const color = ob.type === 'BULLISH' ? '#10b981' : '#ef4444';
+        const lineTop = series.candle.createPriceLine({ price: ob.top, color: color + '88', lineWidth: 1, lineStyle: 0, axisLabelVisible: true, title: 'OB ' + ob.type[0] });
+        const lineBot = series.candle.createPriceLine({ price: ob.bottom, color: color + '44', lineWidth: 1, lineStyle: 2, axisLabelVisible: false });
+        obLines.push(lineTop, lineBot);
+    });
+  }
+
+  if (document.getElementById('toggle-123').checked && curStudy.pattern_123?.detected) {
+    const p = curStudy.pattern_123;
+    const color = p.side === 'buy' ? '#10b981' : '#ef4444';
+    Object.entries(p.points).forEach(([num, data]) => {
+        const timestamp = d[data.idx]?.time;
+        if (timestamp) m.push({ time: timestamp, position: p.side === 'buy' ? 'belowBar' : 'aboveBar', color: color, shape: 'circle', text: num });
+    });
+    if (p.trigger_price) {
+        const tl = series.candle.createPriceLine({ price: p.trigger_price, color: '#ffffff', lineWidth: 1, lineStyle: 3, axisLabelVisible: true, title: 'STRIKE' });
+        obLines.push(tl);
+    }
+  }
+
+  if (document.getElementById('toggle-trend').checked) {
+      const st = calculateST(d, 10, 3);
+      for (let i = 1; i < st.length; i++) {
+        if (st[i].trend === 1 && st[i-1].trend === -1) m.push({ time: st[i].time, position: 'belowBar', color: '#10b981', shape: 'arrowUp', text: 'ST+' });
+        if (st[i].trend === -1 && st[i-1].trend === 1) m.push({ time: st[i].time, position: 'aboveBar', color: '#f59e0b', shape: 'arrowDown', text: 'ST-' });
+      }
+  }
+
+  series.candle.setMarkers(m.sort((a,b) => a.time - b.time));
+}
+
+function select(s) {
+  if (cur) document.getElementById('p-'+cur)?.classList.remove('active');
+  cur = s; document.getElementById('p-'+s)?.classList.add('active');
+  document.getElementById('symDisplay').textContent = s;
+  const d = MATRIX[s] || {p:'STABLE'};
+  document.getElementById('profBadge').className = 'badge ' + (d.p === 'EXTREME' ? 'bx' : 'bs');
+  document.getElementById('profBadge').textContent = d.p;
+  loadData(s);
+}
+
+function renderPairs(list) {
+  const el = document.getElementById('pairList'); el.innerHTML = '';
+  list.forEach(s => {
+    const div = document.createElement('div'); div.className = 'pair-item' + (s === cur ? ' active' : '');
+    div.id = 'p-'+s; div.onclick = () => select(s);
+    div.innerHTML = `<span class="pair-name">${s.replace('USDT','')}</span><span class="badge ${MATRIX[s].p === 'EXTREME' ? 'bx' : 'bs'}">${MATRIX[s].p.substring(0,3)}</span>`;
+    el.appendChild(div);
+  });
+}
+
+function filterPairs(q) { renderPairs(Object.keys(MATRIX).filter(s => s.includes(q.toUpperCase()))); }
+
+const ro = new ResizeObserver(() => {
+    Object.entries(charts).forEach(([id, chart]) => {
+        const container = document.getElementById(id + '-chart');
+        if (chart && container) chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+    });
+});
+['price-pane', 'volume-pane', 'rsi-pane'].forEach(p => { const el = document.getElementById(p); if (el) ro.observe(el); });
+
+syncBTC(); setInterval(syncBTC, 5000);
+initCharts();
+renderPairs(Object.keys(MATRIX));
+select('AVAXUSDT');
+
+async function capture() {
+  const b = document.getElementById('capBtn'); b.disabled = true; b.textContent = 'CAPTURANDO...';
+  await fetch('/api/vision/capture', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({symbol:cur, interval:'30'}) });
+  setTimeout(() => { b.disabled = false; b.innerHTML = '<span class="material-icons-round">photo_camera</span>Capturar Visão'; }, 2000);
 }
 
 function select(s) {

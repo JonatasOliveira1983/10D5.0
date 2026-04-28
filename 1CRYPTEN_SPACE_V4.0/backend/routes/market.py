@@ -9,8 +9,8 @@ router = APIRouter(prefix="/api", tags=["Market"])
 logger = logging.getLogger("1CRYPTEN-MARKET")
 
 def get_services():
-    services = [None] * 6
-    service_names = ["BybitRest", "BybitWS", "Firebase", "SignalGen", "Captain", "Oracle"]
+    services = [None] * 7
+    service_names = ["BybitRest", "BybitWS", "Firebase", "SignalGen", "Captain", "Oracle", "Librarian"]
     
     try:
         from services.bybit_rest import bybit_rest_service
@@ -25,6 +25,8 @@ def get_services():
         services[4] = captain_agent
         from services.agents.oracle_agent import oracle_agent
         services[5] = oracle_agent
+        from services.agents.librarian import librarian_agent
+        services[6] = librarian_agent
     except Exception as e:
         logger.error(f"❌ Error loading one or more services in Market Route: {e}")
         # We continue with what we have instead of returning all as None
@@ -34,7 +36,7 @@ def get_services():
 @router.get("/elite-pairs")
 async def get_elite_pairs():
     try:
-        bybit_rest_service, _, _, _, _, _ = get_services()
+        bybit_rest_service, _, _, _, _, _, _ = get_services()
         if not bybit_rest_service: return {"symbols": ["BTCUSDT.P", "ETHUSDT.P", "SOLUSDT.P"], "count": 3}
         symbols = await bybit_rest_service.get_elite_50x_pairs()
         return {"symbols": symbols, "count": len(symbols)}
@@ -126,17 +128,47 @@ async def get_trend_analysis(symbol: str):
 
 @router.get("/market/klines")
 async def get_klines_proxy(symbol: str, interval: str = "60", limit: int = 200):
-    bybit_rest_service, _, _, _, _, _ = get_services()
+    services = get_services()
+    bybit_rest_service = services[0]
     try:
         int_map = {"15m": "15", "1h": "60", "4h": "240"}
         bybit_interval = int_map.get(str(interval), str(interval))
-        # [V110.182.8] Use 'last' to include volume for UI charts
         data = await bybit_rest_service.get_klines(symbol=symbol, interval=bybit_interval, limit=limit, kline_type="last")
         if data: data.reverse()
         return data
     except Exception as e:
         logger.error(f"Klines Proxy Error: {e}")
         return []
+
+@router.get("/market/study")
+async def get_market_study(symbol: str, interval: str = "60", limit: int = 200):
+    """[V5.6] Returns Klines + SMC + Pattern Analysis for high-precision UI."""
+    services = get_services()
+    librarian_agent = services[6]
+    try:
+        study = await librarian_agent.get_visual_data(symbol, interval=interval)
+        if not study or study.get('df') is None or study['df'].empty:
+            return {"error": "No data found"}
+        
+        df = study['df']
+        klines = []
+        for index, row in df.iterrows():
+            klines.append([
+                int(index.timestamp() * 1000),
+                row['open'], row['high'], row['low'], row['close'], row['volume']
+            ])
+            
+        return {
+            "symbol": symbol,
+            "interval": interval,
+            "klines": klines,
+            "obs": study.get('obs', []),
+            "fvgs": study.get('fvgs', []),
+            "pattern_123": study.get('pattern_123', {"detected": False})
+        }
+    except Exception as e:
+        logger.error(f"Study Route Error for {symbol}: {e}")
+        return {"error": str(e)}
 
 _SYSTEM_STATE_CACHE = {"data": None, "ts": 0}
 
