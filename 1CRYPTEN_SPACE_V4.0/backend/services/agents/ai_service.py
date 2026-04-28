@@ -200,7 +200,10 @@ class AIService:
                             self.gemini_backoff_until = now + 120
                         continue
         
-        logger.error("❌ All AI providers failed or are in back    async def generate_vision_content(self, prompt: str, image_path: str, system_instruction: str = "Você é um analista técnico de trading especializado em Visão Computacional."):
+        logger.error("❌ All AI providers failed or are in backoff.")
+        return None
+
+    async def generate_vision_content(self, prompt: str, image_path: str, system_instruction: str = "Você é um analista técnico de trading especializado em Visão Computacional."):
         """
         [V4.2 CASCATA FREE] Generates content based on an image and a prompt.
         Uses a cascade of FREE models from OpenRouter to ensure no costs and high availability.
