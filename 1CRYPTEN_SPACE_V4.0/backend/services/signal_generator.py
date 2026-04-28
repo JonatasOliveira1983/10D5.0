@@ -104,6 +104,7 @@ class SignalGenerator:
         # [V110.7] Anticipation Radar (Shadow Mode)
         self.anticipation_signals = []  # List of dicts: {'symbol', 'side', 'score', 'reason', 'timestamp'}
         self.last_anticipation_sync = 0
+        self.last_deep_dive_log = 0 # [V110.350] Deep Dive Logger
     
     def _classify_strategy(self, move_room_pct, pattern, trend_1h, trend_2h, abs_cvd, market_regime='TRANSITION'):
         """
@@ -2366,6 +2367,39 @@ class SignalGenerator:
             "all_defaults": True
         }
 
+    async def _deep_dive_log_loop(self):
+        """[V110.350] Periodic high-verbosity log for the 20 monitored pairs."""
+        logger.info("📡 [V110.350] Deep Dive Logger ACTIVE (10m interval).")
+        while self.is_running:
+            try:
+                await asyncio.sleep(600) # Every 10 minutes
+                logger.info("🔭 [DEEP-DIVE-START] Initializing analysis for 20 Elite Pairs...")
+                
+                # Use current monitored assets from BybitWS if available
+                assets = []
+                if bybit_ws_service:
+                    assets = bybit_ws_service.monitored_symbols
+                
+                if not assets:
+                    from services.bybit_rest import bybit_rest_service
+                    assets = await bybit_rest_service.get_elite_focus_pairs()
+                
+                for symbol in assets[:20]:
+                    try:
+                        cvd = bybit_ws_service.get_cvd_score(symbol)
+                        cvd_5m = bybit_ws_service.get_cvd_score_time(symbol, 300)
+                        rsi = bybit_ws_service.rsi_cache.get(symbol, 50)
+                        regime_data = self.market_regime_cache.get(symbol, {"regime": "UNKNOWN", "adx": 0})
+                        trend_data = self.trend_cache.get(symbol, {"trend": "NEUTRAL"})
+                        
+                        logger.info(f"📊 [ELITE-SCAN] {symbol: <10} | CVD: {cvd/1000: >6.1f}k | 5m: {cvd_5m/1000: >6.1f}k | RSI: {rsi: >4.1f} | ADX: {regime_data.get('adx', 0): >4.1f} | Trend: {trend_data.get('trend', '---'): <8} | Regime: {regime_data.get('regime', '---')}")
+                    except:
+                        pass
+                
+                logger.info("🔭 [DEEP-DIVE-END] Analysis cycle complete.")
+            except Exception as e:
+                logger.error(f"Error in deep dive loop: {e}")
+
     async def _macro_sync_loop(self):
         """
         [V38.0] Background loop to keep 2H SMA state updated for all symbols without slowing down the radar.
@@ -2425,6 +2459,8 @@ class SignalGenerator:
         asyncio.create_task(self._macro_sync_loop())
         # [V40.2] Start the background 30min tactical sync loop
         asyncio.create_task(self._30m_sync_loop())
+        # [V110.350] Start the background Deep Dive Log loop (every 10 min)
+        asyncio.create_task(self._deep_dive_log_loop())
 
         # V12.0: Define local helper for Stage 2
         async def stage2_analyze(candidate):

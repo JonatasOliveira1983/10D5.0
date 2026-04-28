@@ -398,4 +398,40 @@ class DatabaseService:
                 logger.error(f"Error getting system state for {key}: {e}")
                 return None
 
+    # --- RESET PROTOCOL [V110.350] ---
+    async def reset_system_data(self):
+        """Nuclear Reset: Slots, History, Vault and Bankroll."""
+        async with self.AsyncSessionLocal() as session:
+            try:
+                # 1. Clear Active Slots (Reset to IDLE)
+                await session.execute(update(Slot).values(
+                    symbol=None, side=None, qty=0.0, entry_price=0.0,
+                    entry_margin=0.0, status_risco="LIVRE", genesis_id=None,
+                    order_id=None, pnl_percent=0.0
+                ))
+                
+                # 2. Delete Trade History
+                await session.execute(delete(TradeHistory))
+                
+                # 3. Reset Vault Cycle
+                await session.execute(update(VaultCycle).where(VaultCycle.id == 1).values(
+                    cycle_number=1, cycle_profit=0.0, cycle_losses=0.0,
+                    sniper_wins=0.0, mega_cycle_wins=0, mega_cycle_profit=0.0,
+                    used_symbols_in_cycle=[], order_ids_processed=[],
+                    total_trades_cycle=0, cycle_gains_count=0, cycle_losses_count=0
+                ))
+                
+                # 4. Reset Banca to 100
+                await session.execute(update(BancaStatus).where(BancaStatus.id == 1).values(
+                    saldo_total=100.0, risco_real_percent=0.0, slots_disponiveis=4, status="RESET_COMPLETE"
+                ))
+                
+                await session.commit()
+                logger.warning("💥 [V110.350] NUCLEAR RESET EXECUTED: All data cleared, Bankroll set to $100.")
+                return True
+            except Exception as e:
+                logger.error(f"❌ Failed to execute Nuclear Reset: {e}")
+                await session.rollback()
+                return False
+
 database_service = DatabaseService()

@@ -1,4 +1,4 @@
-# RULES.md — 10D Sniper V110.300 "Protocolo Sniper Elite 20"
+# RULES.md — 10D Sniper V110.350 "Protocolo Sniper Elite 20 Dashboard"
 # Invariantes Tecnicas Inegociaveis — [PERSISTÊNCIA ABSOLUTA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
 # Fonte da verdade: codigo real no Railway e PostgreSQL/WebSocket Nativo.
@@ -53,19 +53,18 @@
 
 ---
 
-## 3. SNIPER PONTO 3 & ELITE 20 FOCUS (V110.300)
+## 3. SNIPER PONTO 3 & ELITE 20 FOCUS (V110.350)
 1. **Foco 20 Elite:** O sistema monitora exclusivamente os 20 melhores pares selecionados pelo Bibliotecário. Sinais fora dessa lista são ignorados para garantir foco absoluto.
 2. **Gatilho Sniper Ponto 3 (M30):** Todas as entradas são baseadas no padrão 1-2-3 em tempos gráficos de 30 minutos.
-   - (1) Pivot Inicial. (2) Sweep de Liquidez. (3) Rejeição/Confirmação (Mínima/Máxima Protegida).
 3. **Paciência do Sniper (Vio-Hunter):** O `AmbushAgent` aguarda a rejeição no Ponto 3 (pavios longos) antes de disparar.
-4. **Take Profit Sniper:** Expansão de Fibonacci (1:2 ou 1:3) do movimento 1-2.
-5. **Stop Loss Técnico:** Posicionado obrigatoriamente abaixo (Long) ou acima (Short) do Ponto 3 do padrão.
+4. **Deep Dive Logging:** A cada 10 minutos, o sistema emite um log detalhado (`📊 [ELITE-SCAN]`) com CVD, RSI, Trend e Regime de todos os 20 pares monitorados para auditoria completa.
 
 ---
 
-## 4. RADAR DE INTELIGÊNCIA — BROADCAST LOCAL
-- **Sincronização:** Os sinais são enviados via WebSocket para a UI em tempo real (`type: radar_pulse`).
-- **ESTRUTURA DE DADOS:** O pacote de radar_pulse DEVE ser um objeto completo `{signals, decisions, market_context}`. O frontend rejeita arrays puros para evitar quebra de HUD.
+## 4. RADAR DE INTELIGÊNCIA — DASHBOARD V110.350
+- **MarketRadarWidget (UI):** O dashboard utiliza agora um container fixo de 5 slots para sinais de elite. Isso garante estabilidade visual (sem "pulos" de layout) tanto no Mobile quanto no Desktop.
+- **Deduplicação de Sinais:** O radar processa e consolida sinais duplicados do mesmo ativo, exibindo apenas o sinal mais recente e de maior score.
+- **Blindagem contra Crashes:** Todos os símbolos na UI são tratados com `optional chaining` e fallbacks para evitar erros de renderização (`TypeError: undefined`).
 
 ---
 
@@ -78,7 +77,7 @@
 ## 6. GESTÃO DE RISCO — BANKROLL RAILWAY
 - **Banca Padrão:** **$100.00** (Simulado/Paper).
 - **Margem por slot:** **10% da banca** ($10.00 por ordem).
-- **Meta Diária:** Exige lucro de $10.00 por trade para contar no placar 10/10.
+- **Protocolo de Reset Nuclear:** O endpoint `/api/system/nuclear-reset` permite a limpeza total do banco, histórico e reset da banca para $100 em um único comando atômico.
 
 ---
 
@@ -127,77 +126,16 @@ Captain (Orquestrador Central)
 ## 12. INTELIGÊNCIA COLETIVA E AGENTE VISÃO (V4.2.1 — CASCATA & GATE)
 1. **Vision Gate Inteligente:** O Agente Visão só captura screenshots e aciona a IA se: (a) houver slots livres (< 4), (b) o Bibliotecário não tiver vetado o ativo, e (c) o score inicial for >= 70. Isso economiza quota de API e foca no que importa.
 2. **Cascata de IA Gratuita:** O sistema utiliza uma cascata de modelos multimodal (vision) gratuitos via OpenRouter (Gemini 2.0 Flash Free, Llama 4 Scout, etc.).
-   - Se um modelo atinge rate-limit (429), o sistema tenta o próximo da lista.
-   - Se um modelo exige pagamento (402), ele é removido da lista permanentemente até o próximo reboot.
 3. **Veto Obrigatório Universal:** O **Agente Visão** e o **Bibliotecário** continuam sendo filtros OBRIGATÓRIOS. Se todos os modelos da cascata falharem, a ordem é bloqueada por segurança (`[VISION-OFFLINE-BLOCK]`).
-4. **Fluxo Otimizado:**
-   ```
-   Sinal → Bibliotecário (DNA) → [VISION GATE] → Visão (Cascata Free) → Capitão → Ordem
-   ```
-5. **UI AI Cascade Monitor:** O Cockpit exibe em tempo real (Painel Lateral) qual modelo está sendo usado, o volume de requisições e o estado de saúde (Active/Cooling/Dead) de cada modelo na cascata.
-6. **UI Sovereign Intelligence:** Todas as convocações do Capitão, scans do Bibliotecário e vetos do Visão são transmitidos via WebSocket em tempo real para o Cockpit.
 
 ---
 
 ## 13. OBSERVATORY (VISUAL HQ) & VISION INTELLIGENCE (V5.6)
 1. **Motor Proprietário (S3):** O sistema utiliza uma engine de gráficos nativa (Lightweight Charts), eliminando 100% da dependência de iframes externos (TradingView) e resolvendo erros de CSP.
-2. **Master Context Layout:** O Observatório opera em uma arquitetura de 3 andares sincronizados:
-   - **Andar 1 (Price Action):** Candles + SMA 21/100 + SuperTrend + Ghost Markers.
-   - **Andar 2 (Volume Flow):** Histograma de volume puro e destacado.
-   - **Andar 3 (RSI 14):** Oscilador de força relativa para detecção de exaustão.
-3. **Global BTC HUD:** Uma barra fixa no topo transmite a telemetria mestre do mercado (Preço BTC, ADX, CVD, Dominância, Decorrelação e Direção Master) para todas as análises.
-4. **Ghost Markers (Treinamento de IA):** O sistema injeta marcadores históricos de "Entrada Perfeita" e "Rejeição" para que o Agente Visão aprenda com padrões de sucesso passados.
-5. **Captura Autônoma:** O `ScreenshotService` captura exclusivamente o Hub Proprietário, garantindo que a IA analise exatamente os mesmos indicadores que o operador humano.
-
-### 📜 Estabilidade Técnica (V4.2.1)
-- **Schema Parity**: Todo campo adicionado ao dicionário de atualização do Slot deve obrigatoriamente existir no modelo `Slot` do `database_service.py` e ser incluído no `migrate_db.py`.
-- **Atomic Initialization**: Flags de inteligência (`is_spring_strike`, `is_shadow_strike`, etc) devem ser pré-declaradas no início do método `open_position` com fallbacks seguros (`.get(key, default)`) para prevenir `NameError`.
-- **Sanitized Persist**: O método `update_slot` deve filtrar chaves do dicionário para garantir que apenas atributos válidos do modelo sejam passados ao construtor SQLAlchemy.
-- **Matrix Consistency**: 40 Ativos especialistas (SPECIALIST_MATRIX) exclusivamente no M30 para sinais.
-- **Broadcast Protocol**: WebSocket Soberano para broadcast em tempo real para a UI.
-- **Persistence Layer**: Persistência obrigatória em Postgres (Railway) com modelo SQLAlchemy sincronizado.
-2. **Rota Isolada:** A rota `/observatory` não deve cair no catch-all de SPA do FastAPI. Ela retorna o arquivo `observatory.html` fisicamente.
-3. **Service Worker (PWA):** O arquivo `sw.js` **obrigatoriamente** utiliza estratégia `Network-First` para a rota `/observatory` e `/cockpit.html`. O fallback do Service Worker jamais deve devolver o Cockpit em chamadas para o Observatory, devendo o cache versionado (`CACHE_NAME`) ser elevado em caso de conflitos de roteamento.
+2. **Master Context Layout:** O Observatório opera em uma arquitetura de 3 andares sincronizados.
+3. **Captura Autônoma:** O `ScreenshotService` captura exclusivamente o Hub Proprietário.
 
 ---
 
-## 14. ARQUITETURA UNIFICADA DE SLOTS — PIPELINE V4.2 (LEI MÁXIMA)
-
-### 14.1 Roteamento de Slots — Regra Inegociável
-| Slot | Tipo       | Origem do Sinal | Biblioteca de Ativos        |
-|------|------------|-----------------|-----------------------------|
-| 1    | BLITZ_30M  | BlitzSniper M30 | 40 Pares SPECIALIST_MATRIX  |
-| 2    | BLITZ_30M  | BlitzSniper M30 | 40 Pares SPECIALIST_MATRIX  |
-| 3    | SWING      | SignalGenerator | 40 Pares SPECIALIST_MATRIX  |
-| 4    | SWING      | SignalGenerator | 40 Pares SPECIALIST_MATRIX  |
-
-### 14.2 Regras de Negócio do Pipeline Unificado
-1. **ELITE_20_MATRIX é a única fonte de ativos.** Tanto o BlitzSniper quanto o SignalGenerator operam **exclusivamente** sobre os 20 pares de elite.
-2. **BTC é referência, não alvo.** O `BTCUSDT.P` é monitorado para contexto mas nunca é operado.
-3. **Reset de Sistema (Estado Zero):** O script `fresh_start.py` é o protocolo oficial para reset de banca ($100), ciclos da Vault e purgação de histórico para novos ciclos operacionais.
-4. **Slot-Type explícito:** Sinais Ponto 3 são classificados como BLITZ (Slots 1-2) ou SWING (Slots 3-4) pelo Agente Visão com base na força da confluência.
-5. **Verbosidade Tática:** O Bibliotecário deve emitir o "Relatório Tático Foco 20" a cada ciclo de scan para auditoria visual em tempo real.
-
-### 14.3 Identificadores de Sinal para Diagnóstico nos Logs
-- `⚡ [BLITZ-MATRIX]` → BlitzSniper usando SPECIALIST_MATRIX corretamente
-- `⚡ [BLITZ-MATRIX-FALLBACK]` → BlitzSniper em fallback (Bibliotecário ainda inicializando)
-- `⚓ [V4.2 SLOT-ROUTING] ... → Slot Type: BLITZ_30M` → Capitão roteando para Slots 1&2
-- `⚓ [V4.2 SLOT-ROUTING] ... → Slot Type: SWING` → Capitão roteando para Slots 3&4
-- `🚫 [MATRIX-VETO]` → Ativo rejeitado por não estar na SPECIALIST_MATRIX
-
----
-
----
-
-## 15. ESTRATÉGIA 1-2-3 (ALTA PRECISÃO) — [V5.6]
-1. **Definição Visual:**
-   - **(1) Pivot Inicial:** Fundo ou Topo isolado.
-   - **(2) Sweep/Extremo:** Mínima menor que (1) para Longs, ou Máxima maior que (1) para Shorts. Representa a captura de liquidez.
-   - **(3) Confirmação:** Fundo mais alto que (2) para Longs, ou Topo mais baixo que (2) para Shorts.
-2. **Gatilho de Strike (Strike Zone):** O rompimento da máxima (Long) ou mínima (Short) entre os pontos 2 e 3. Marcado no Observatório com uma **linha horizontal tracejada branca**.
-3. **Filtro de Visão:** O Agente Visão deve validar se o preço está "reagindo" no Ponto 3 com pavios ou volume antes de aprovar a ordem.
-
----
-
-*Versão: V110.300 "Elite 20 Sniper Protocol" | Atualizado: 2026-04-28*
+*Versão: V110.350 "Elite 20 Sniper Protocol - Dashboard Update" | Atualizado: 2026-04-28*
 *Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10DBybityREAL.*

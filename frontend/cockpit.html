@@ -5110,6 +5110,76 @@
         // =========================================================================
         // [V110.120] UNIFIED QUANTUM HUD (Tactical Command Card)
         // =========================================================================
+        // =========================================================================
+        // [V110.350] MARKET RADAR WIDGET (Elite 5 Controller)
+        // =========================================================================
+        const MarketRadarWidget = ({ signals, context }) => {
+            const safeSignals = Array.isArray(signals) ? signals.slice(0, 5) : [];
+            const placeholders = Array.from({ length: Math.max(0, 5 - safeSignals.length) });
+            
+            return (
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex flex-col">
+                            <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-white flex items-center gap-2">
+                                <span className="material-icons-round text-sm">radar</span>
+                                Market Radar
+                            </h3>
+                            <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">Top 5 Elite Opportunities</span>
+                        </div>
+                        <div className="px-2 py-1 rounded bg-accent/10 border border-accent/20">
+                            <span className="text-[9px] font-black text-accent uppercase animate-pulse">Scanning...</span>
+                        </div>
+                    </div>
+
+                    <div className="flex flex-col gap-2.5 min-h-[300px]">
+                        {safeSignals.map((sig, idx) => (
+                            <div 
+                                key={idx} 
+                                onClick={() => window.openDeepAnalysis && window.openDeepAnalysis(sig.symbol)}
+                                className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-between group hover:border-accent/40 hover:bg-white/[0.05] transition-all cursor-pointer relative overflow-hidden"
+                            >
+                                <div className="absolute inset-y-0 left-0 w-1 bg-accent transform -trangray-x-full group-hover:trangray-x-0 transition-transform duration-300"></div>
+                                <div className="flex items-center gap-3">
+                                    <div className="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center text-[10px] font-black text-gray-500 border border-white/10 group-hover:text-white transition-all">
+                                        {idx + 1}
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-xs font-black text-white">{(sig.symbol || '???').replace('.P', '')}</span>
+                                        <div className="flex items-center gap-1.5 mt-0.5">
+                                            <QualitySeal seal={sig.quality_seal || sig.librarian_seal} />
+                                            {sig.strategy_label && (
+                                                <span className="text-[7px] font-black text-gray-500 uppercase tracking-tighter px-1 rounded border border-white/5">
+                                                    {sig.strategy_label}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col items-end gap-1">
+                                    <span className={`text-[10px] font-black font-mono px-2 py-0.5 rounded ${sig.side === 'Buy' || sig.side === 'LONG' ? 'bg-success/10 text-success' : 'bg-orange-500/10 text-orange-400'}`}>
+                                        {sig.side === 'Buy' || sig.side === 'LONG' ? 'LONG' : 'SHORT'}
+                                    </span>
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-[8px] font-bold text-gray-600 uppercase">Conf:</span>
+                                        <span className="text-[9px] font-black text-white">{(sig.score || 0).toFixed(0)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                        
+                        {placeholders.map((_, i) => (
+                            <div key={`p-${i}`} className="p-3 rounded-2xl bg-black/20 border border-white/[0.03] flex items-center justify-center border-dashed">
+                                <span className="text-[9px] font-black text-gray-800 uppercase tracking-widest italic">
+                                    Position {safeSignals.length + i + 1} Empty
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
         const UnifiedQuantumHUD = ({ 
             btc, realAdx, dominance, realDecorrelation, protocolLabel, 
             oracleStatus, oracleMessage, stabilizationProgress, 
@@ -5205,22 +5275,25 @@
                 const active = slots.filter(s => s && s.symbol);
                 setGridSymbols(prev => {
                     const next = ["BTCUSDT", "BTCUSDT", "BTCUSDT", "BTCUSDT"];
-                    if (focusedAsset) {
+                    if (focusedAsset && focusedAsset.symbol) {
                         // Se clicou na lista, a posição [0] vira a moeda selecionada
-                        next[0] = focusedAsset.symbol.replace('.P', '').replace('.p', '');
+                        next[0] = (focusedAsset.symbol || '').replace('.P', '').replace('.p', '');
                     } else {
-                        if (active[0]) next[0] = active[0].symbol.replace('.P', '').replace('.p', '');
+                        if (active[0] && active[0].symbol) next[0] = (active[0].symbol || '').replace('.P', '').replace('.p', '');
                     }
                     
                     // Preenche o restante dos gráficos
                     let activeIdx = focusedAsset ? 0 : 1; 
                     for (let i = 1; i < parseInt(gridMode); i++) {
-                        if (active[activeIdx]) {
+                        if (active[activeIdx] && active[activeIdx].symbol) {
+                            const sym = (active[activeIdx].symbol || '').replace('.P', '').replace('.p', '');
                             // Evita duplicar no grid se já estiver no [0] por causa do clique
-                            if (active[activeIdx].symbol.replace('.P', '').replace('.p', '') !== next[0]) {
-                                next[i] = active[activeIdx].symbol.replace('.P', '').replace('.p', '');
+                            if (sym !== next[0]) {
+                                next[i] = sym;
                             } else {
-                                if(active[activeIdx+1]) next[i] = active[activeIdx+1].symbol.replace('.P', '').replace('.p', '');
+                                if(active[activeIdx+1] && active[activeIdx+1].symbol) {
+                                    next[i] = (active[activeIdx+1].symbol || '').replace('.P', '').replace('.p', '');
+                                }
                                 activeIdx++; // pula o duplicado
                             }
                             activeIdx++;
@@ -5444,25 +5517,9 @@
                                 </div>
                             </section>
 
-                            {/* 4. MARKET RADAR SEALS */}
-                            <section className="space-y-4 pt-4 border-t border-white/5">
-                                <DailyGoalBanner context={pulseData?.market_context} title="Market Radar" />
-                                <div className="space-y-2.5">
-                                    {Array.isArray(radarSignals) && radarSignals.slice(0, 5).map((sig, idx) => (
-                                        <div key={idx} className="p-3 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-between group hover:border-gray-500/30 transition-all">
-                                            <div className="flex items-center gap-3">
-                                                <span className="text-xs font-black text-white">{sig.symbol.replace('.P', '')}</span>
-                                                <QualitySeal seal={sig.quality_seal || sig.librarian_seal} />
-                                            </div>
-                                            <span className={`text-[10px] font-black font-mono ${sig.side === 'Buy' || sig.side === 'LONG' ? 'text-white' : 'text-orange-400'}`}>
-                                                {sig.side === 'Buy' || sig.side === 'LONG' ? 'LONG' : 'SHORT'}
-                                            </span>
-                                        </div>
-                                    ))}
-                                    {(!Array.isArray(radarSignals) || radarSignals.length === 0) && (
-                                        <div className="py-8 text-center opacity-20 italic text-[10px] uppercase tracking-widest font-black">Scanning Signals...</div>
-                                    )}
-                                </div>
+                            {/* 4. MARKET RADAR SEALS [V110.350] Fixed Top 5 */}
+                            <section className="pt-4 border-t border-white/5">
+                                <MarketRadarWidget signals={radarSignals} context={pulseData?.market_context} />
                             </section>
 
                             {/* 5. OPERATIONAL HISTORY */}
@@ -5627,7 +5684,7 @@
                 // Tactical Slots PnL
                 const sPnL = slots.reduce((acc, s) => {
                     if (!s || !s.symbol || !s.entry_price) return acc;
-                    const cleanSymbol = s.symbol.replace('.P', '').replace('.p', '').trim();
+                    const cleanSymbol = (s.symbol || '').replace('.P', '').replace('.p', '').trim();
                     const price = tickers[cleanSymbol];
                     if (!price || price <= 0) return acc;
 
@@ -5645,7 +5702,7 @@
                 // Moonbag Vault PnL
                 const mPnL = moonbags.reduce((acc, mb) => {
                     if (!mb || !mb.symbol || !mb.entry_price) return acc;
-                    const cleanSymbol = mb.symbol.replace('.P', '').replace('.p', '').trim();
+                    const cleanSymbol = (mb.symbol || '').replace('.P', '').replace('.p', '').trim();
                     const price = tickers[cleanSymbol];
                     if (!price || price <= 0) return acc;
 
@@ -5744,7 +5801,7 @@
                     <div className="hidden lg:flex w-full h-full bg-[#050505] text-white overflow-hidden relative z-[9990] opacity-100 min-h-screen fixed top-0 left-0 lg:pl-[80px]" style={{ width: '100vw' }}>
                         <DesktopDashboard 
                             vault={vault} banca={banca} missionCycle={missionCycle} totalWins={totalWins} 
-                            slots={slots} pulseData={pulseData} radarSignals={radarSignals} 
+                            slots={slots} pulseData={pulseData} radarSignals={deDuplicatedSignals} 
                             marketRadar={marketRadar} latency={latency} pulseStatus={pulseStatus} 
                             btcCommandStatus={btcCommandStatus} moonbags={moonbags} activeTocaias={activeTocaias} 
                             liveTotalPnL={liveTotalPnL} liveTotalProfit={liveTotalProfit} liveEquity={liveEquity} 
@@ -5817,72 +5874,9 @@
                             {/* SEÇÃO 4: MOONBAG PROTOCOL (Ghost Battalion) */}
                             <MoonbagVault moonbags={moonbags} tickers={tickers} historyLogs={historyLogs} />
 
-                            {/* SEÇÃO 5: RADAR DE SINAIS ELITE */}
-                            <section className="space-y-3 pt-4 border-none">
-                                <DailyGoalBanner context={btcCtx} title="Radar de Inteligência" />
-                                
-                                {/* [V110.165] Elite Spring Horizontal List */}
-                                <div className="flex flex-col gap-1 px-1">
-                                    <div className="flex items-center justify-between mb-1">
-                                        <h3 className="text-[7px] font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-1">
-                                            <span className="material-icons-round text-[10px] text-amber-500">auto_awesome</span>
-                                            Elite Spring M30
-                                        </h3>
-                                        <span className="text-[7px] font-mono text-amber-400 opacity-60">TOP 20 ACTIVES</span>
-                                    </div>
-                                    <div className="flex overflow-x-auto no-scrollbar gap-1.5 pb-2">
-                                        {(!librarianIntel || !librarianIntel.spring_elite || librarianIntel.spring_elite.length === 0) ? (
-                                            <div className="text-[8px] text-gray-700 italic">Sincronizando Elite da Mola...</div>
-                                        ) : (
-                                            librarianIntel.spring_elite.map((sym, i) => (
-                                                <div key={i} className="flex-shrink-0 px-2 py-1 rounded bg-amber-500/5 border border-amber-500/20 shadow-[0_0_10px_rgba(217,70,239,0.05)]">
-                                                    <span className="text-[9px] font-bold text-amber-300">{sym.replace('USDT','')}</span>
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="flex flex-col gap-3">
-                                     {bestSignals.length === 0 ? (
-                                        <div className="p-8 text-center border border-white/5 rounded-2xl bg-white/[0.02]">
-                                            <p className="text-[10px] uppercase font-black tracking-widest text-gray-600">Sincronizando Alvos...</p>
-                                        </div>
-                                    ) : (
-                                        bestSignals.map((sig, i) => {
-                                            const cleanSigSym = (sig.symbol || '').replace('.P','').replace('.p','').toUpperCase();
-                                            const isTocaia = (activeTocaias || []).includes(cleanSigSym);
-                                            return (
-                                                <div key={i} className={`p-3 premium-card flex items-center justify-between ${isTocaia ? 'border-primary/40 bg-primary/5' : ''}`}>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex flex-col">
-                                                            <div className="flex items-center gap-2">
-                                                                <span className="text-sm font-bold text-white uppercase">{sig.symbol.replace('.P','')}</span>
-                                                                {/* [V110.137] Strategy Badge with layer fallback */}
-                                                                {(() => {
-                                                                    const sLabel = sig.strategy_label || (sig.layer === 'BLITZ' || sig.timeframe === '30' ? 'BLITZ' : 'SWING');
-                                                                    return (
-                                                                        <span className={`strategy-badge ${sLabel.toLowerCase()}`}>
-                                                                            {sLabel}
-                                                                        </span>
-                                                                    );
-                                                                })()}
-                                                                {isTocaia && (
-                                                                    <span className="material-icons-round text-xs tocaia-glow">gps_fixed</span>
-                                                                )}
-
-                                                            </div>
-                                                            <span className="text-[8px] text-gray-500 uppercase tracking-widest">{sig.layer}</span>
-                                                        </div>
-                                                    </div>
-                                                    <div className="text-right">
-                                                        <span className={`text-xs font-black ${sig.side === 'Buy' ? 'text-white' : 'text-orange-400'}`}>{sig.side === 'Buy' ? 'LONG' : 'SHORT'}</span>
-                                                        <div className="text-[10px] font-mono text-white/50">{sig.score} PTS</div>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })
-                                    )}
-                                </div>
+                            {/* SEÇÃO 5: RADAR DE SINAIS ELITE [V110.350] */}
+                            <section className="pt-4">
+                                <MarketRadarWidget signals={deDuplicatedSignals} context={btcCtx} />
                             </section>
 
                             {/* SEÇÃO 6: REGISTRO DA VAULT (Histórico) */}
