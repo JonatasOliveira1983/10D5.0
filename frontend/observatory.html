@@ -311,6 +311,7 @@ function initCharts() {
 }
 
 async function loadData(s) {
+  const start = Date.now();
   document.getElementById('loading').classList.remove('hidden');
   try {
     const r = await fetch(`/api/market/study?symbol=${s}.P&interval=30&limit=400&v=` + Date.now());
@@ -333,12 +334,18 @@ async function loadData(s) {
       Object.values(charts).forEach(c => { const p = c.chartElement().parentElement; if (p) c.applyOptions({ width: p.clientWidth, height: p.clientHeight }); });
       charts.rsi.timeScale().fitContent();
     }
-  } catch(e) {}
-  document.getElementById('loading').classList.add('hidden');
+  } catch(e) { console.error("Study Load Error:", e); }
+  
+  // [V5.6] Guarantee at least 1.5s of premium loading time for UX feel
+  const elapsed = Date.now() - start;
+  const delay = Math.max(0, 1500 - elapsed);
+  setTimeout(() => {
+    document.getElementById('loading').classList.add('hidden');
+  }, delay);
 }
 
 function refreshLayers() {
-  if (!curStudy) return;
+  if (!curStudy || !curStudy.klines) return;
   const d = curStudy.klines.map(x => ({ time: x[0]/1000, open: x[1], high: x[2], low: x[3], close: x[4] }));
   let m = [];
   obLines.forEach(l => series.candle.removePriceLine(l));
