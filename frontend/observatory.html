@@ -35,13 +35,15 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',s
 .pair-bar{height:40px;background:rgba(255,255,255,0.01);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .sym-name{font-size:14px;font-weight:900;font-family:'JetBrains Mono',monospace}
 
-/* Chart Stack - Flexible Weights to fit any screen */
-.chart-stack{flex:1;display:flex;flex-direction:column;background:#050505;position:relative;overflow:hidden}
-.pane{position:relative;width:100%;overflow:hidden;border-bottom:1px solid var(--border);display:flex;flex-direction:column}
-#price-pane{flex:3} /* 60% approx */
-#volume-pane{flex:1} /* 20% approx */
-#rsi-pane{flex:1;border-bottom:none} /* 20% approx */
-.pane > div:last-child { flex: 1; width: 100%; } /* Ensure chart fills the flex pane */
+/* Chart Stack - Nuclear VH units to guarantee visibility */
+.main{display:flex;flex-direction:column;overflow-y:auto;background:var(--bg)} /* Enable Scroll */
+.pair-bar{height:40px;flex-shrink:0;background:rgba(0,0,0,0.4)}
+.chart-stack{display:block;background:#050505;width:100%} 
+.pane{position:relative;width:100%;border-bottom:1px solid var(--border);display:block}
+#price-pane{height:52vh;min-height:400px}
+#volume-pane{height:20vh;min-height:150px}
+#rsi-pane{height:20vh;min-height:150px;border-bottom:none}
+.pane > div:last-child { width: 100%; height: 100%; } 
 .pane-label{position:absolute;top:8px;left:12px;z-index:20;font-size:8px;font-weight:900;color:var(--t3);text-transform:uppercase;background:rgba(0,0,0,0.6);padding:2px 6px;border-radius:4px;pointer-events:none}
 
 .loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--bg);z-index:200}
