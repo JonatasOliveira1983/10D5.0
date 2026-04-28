@@ -276,8 +276,13 @@ class CaptainAgent(AIOSAgent):
             
             # [VISION BLOCK] Agente Visão Veto
             if not vision_approved:
-                # Se a confiança for alta (>70%), o Visão tem poder de VETO absoluto
-                if vision_confidence >= 70:
+                # [V4.2] Se o Visão está com IA offline (confidence=0), bloqueio é absoluto mesmo em PAPER
+                if vision_confidence == 0:
+                    approved = False
+                    reasons.append(f"👁️🚫 VISION VETO TOTAL: IA Vision offline. {vision_result.get('reason')}")
+                    logger.warning(f"🛡️ [VISION-OFFLINE-BLOCK] {symbol} bloqueado: Agente Visão sem IA (quota/crédito). Lei Máxima V4.2.")
+                # Se a confiança for alta (>=70%), o Visão tem poder de VETO absoluto
+                elif vision_confidence >= 70:
                     approved = False
                     reasons.append(f"👁️🚫 VISION VETO: {vision_result.get('reason')}")
                     logger.warning(f"🛡️ [VISION-VETO] {symbol} bloqueado pelo Agente Visão: {vision_result.get('reason')}")
@@ -318,13 +323,11 @@ class CaptainAgent(AIOSAgent):
                     logger.warning(f"🛡️ [V110.137] {symbol} SHORT BLOCKED by Whale {whale_bias}")
                 
             # [V110.27.0] ABSOLUTE CONVERGENCE SHIELD: Minimum Confidence
+            # [V4.2] Este filtro é aplicado em PAPER e REAL. Não existe bypass.
             if unified_score < 50.0:
-                if bybit_rest_service.execution_mode == "PAPER":
-                    logger.info(f"🧪 [PAPER-BYPASS] Ignorando Baixa Confiança ({unified_score:.1f}%) para teste.")
-                else:
-                    approved = False
-                    reasons.append(f"LOW_FLEET_CONFIDENCE: {unified_score:.1f}% < 50.0%")
-                    logger.warning(f"🛡️ [V110.100] {symbol} {side} BLOCKED by Low Confidence ({unified_score:.1f}%)")
+                approved = False
+                reasons.append(f"LOW_FLEET_CONFIDENCE: {unified_score:.1f}% < 50.0%")
+                logger.warning(f"🛡️ [V110.100] {symbol} {side} BLOQUEADO por Baixa Confiança ({unified_score:.1f}%). Sem bypass em PAPER ou REAL.")
                 
             # [V1.0] Decisão Final do Capitão
             try:

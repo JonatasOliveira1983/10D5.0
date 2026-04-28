@@ -63,7 +63,18 @@ class VisionAgent:
             )
             
             if not response_text:
-                return {"approved": True, "confidence": 50, "reason": "Vision AI Timeout", "thoughts": "Sem resposta da IA de visão."}
+                # [V4.2] Quando a IA falha (quota esgotada/sem crédito), a ordem é BLOQUEADA.
+                # O Visão não pode aprovar sem análise real. Lei Máxima do Pipeline Unificado.
+                logger.warning(
+                    f"⚠️ [VISION-AI-DOWN] {symbol}: IA Vision indisponível (quota/crédito). "
+                    f"Bloqueando entrada por segurança (Lei Máxima V4.2)."
+                )
+                return {
+                    "approved": False,
+                    "confidence": 0,
+                    "reason": "Vision AI Indisponível: Quota/crédito esgotado. Entrada bloqueada por segurança.",
+                    "thoughts": "IA Vision offline. Nenhuma análise visual possível. Aguardar restauração da API."
+                }
 
             # Parse JSON from response
             import json
