@@ -92,6 +92,7 @@ class CaptainAgent(AIOSAgent):
         self.last_librarian_sync = 0
         self.last_lateral_at = 0 # [V110.30.2] Cooldown pós-Lateral
         self.prev_btc_adx = 0 # [V110.128] ADX Slope Tracking
+        self.last_demand_log = 0 # [V110.350]
         
     async def on_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
         """AIOS Message Handler for Captain."""
@@ -422,17 +423,45 @@ class CaptainAgent(AIOSAgent):
         except Exception as e:
             logger.error(f"Erro ao sincronizar rankings do Bibliotecário: {e}")
 
-    async def is_symbol_in_cooldown(self, symbol: str) -> tuple:
-        """Verifica se símbolo está em cooldown persistente no Firebase."""
-        is_blocked, remaining = await sovereign_service.is_symbol_blocked(symbol)
-        return is_blocked, remaining
-    
     async def register_trade_cooldown(self, symbol: str, reason: str = "trade", duration: int = None):
         """V12.5: Registra cooldown adaptativo após o trade."""
         cd_duration = duration if duration is not None else self.cooldown_duration
         hours = cd_duration / 3600
         await sovereign_service.register_sl_cooldown(symbol, cd_duration)
-        logger.warning(f"\U0001f512 V12.5 COOLDOWN: {symbol} bloqueado por {hours:.1f}h ({reason})")
+        logger.warning(f"🔒 V12.5 COOLDOWN: {symbol} bloqueado por {hours:.1f}h ({reason})")
+
+    async def get_slot_demands(self) -> Dict[str, Any]:
+        """
+        [V110.350] DEMAND-DRIVEN INTELLIGENCE:
+        Calcula quais tipos de sinais o sistema realmente precisa agora.
+        Otimiza o uso de IA e economiza créditos do Cascad/Vision.
+        """
+        try:
+            slots = await sovereign_service.get_active_slots(force_refresh=True)
+            
+            # Slot 1-2: BLITZ
+            # Slot 3-4: SWING
+            blitz_slots = [s for s in slots if s.get("id") in [1, 2]]
+            swing_slots = [s for s in slots if s.get("id") in [3, 4]]
+            
+            needed_blitz = len([s for s in blitz_slots if not s.get("symbol")])
+            needed_swing = len([s for s in swing_slots if not s.get("symbol")])
+            
+            return {
+                "BLITZ": needed_blitz > 0,
+                "SWING": needed_swing > 0,
+                "needed_blitz": needed_blitz,
+                "needed_swing": needed_swing,
+                "total_free": needed_blitz + needed_swing
+            }
+        except Exception as e:
+            logger.error(f"Error calculating slot demands: {e}")
+            return {"BLITZ": True, "SWING": True, "total_free": 4}
+
+    async def is_symbol_in_cooldown(self, symbol: str) -> tuple:
+        """Verifica se símbolo está em cooldown persistente no Firebase."""
+        is_blocked, remaining = await sovereign_service.is_symbol_blocked(symbol)
+        return is_blocked, remaining
 
     async def monitor_signals(self):
         """
@@ -474,17 +503,25 @@ class CaptainAgent(AIOSAgent):
                     await asyncio.sleep(10)
                     continue
 
-                # [V110.151] SSOT OCCUPATION: Always use slots for consistent state
-                occupied_count = sum(1 for s in slots if s.get("symbol"))
-
-                # [V110.116] Heartbeat Log
-                if not hasattr(self, "_last_heartbeat") or (time.time() - self._last_heartbeat) > 300:
-                    balance = await bankroll_manager._get_operating_balance()
-                    vault_ok, vault_reason = await vault_service.is_trading_allowed()
-                    logger.info(f"⚓ [HEARTBEAT] Captain Scanning... Mode: {bybit_rest_service.execution_mode} | Slots: {occupied_count}/4 | Balance: ${balance:.2f} | Vault: {'✅' if vault_ok else '❌'} ({vault_reason})")
-                    self._last_heartbeat = time.time()
+                # [V110.350] DEMAND-DRIVEN MONITORING
+                demands = await self.get_slot_demands()
+                if demands["total_free"] <= 0:
+                    if time.time() - self.last_demand_log > 300:
+                        msg = "🛌 [DEMAND-SLEEP] Slots 100% ocupados (4/4). Capitão e Visão em standby para economizar créditos."
+                        logger.info(msg)
+                        await sovereign_service.log_event("SNIPER", msg, "INFO")
+                        self.last_demand_log = time.time()
+                    await asyncio.sleep(10)
+                    continue
                 
-                free_slots = 4 - occupied_count
+                free_slots = demands["total_free"]
+                
+                # Log active demands
+                if time.time() - self.last_demand_log > 300:
+                    msg = f"🔍 [DEMAND-ACTIVE] Buscando: {demands['needed_blitz']}x BLITZ | {demands['needed_swing']}x SWING"
+                    logger.info(msg)
+                    await sovereign_service.log_event("SNIPER", msg, "INFO")
+                    self.last_demand_log = time.time()
                 
                 # [V92.0] MASS SNIPER: Monitorar até 24 tocaias simultâneas (o limite real é de slots).
                 monitoring_limit = max(24, free_slots * 6)
@@ -541,6 +578,15 @@ class CaptainAgent(AIOSAgent):
 
                 symbol = best_signal.get("symbol")
                 if not symbol: continue
+
+                # [V110.350] Specific Demand Filter
+                is_signal_blitz = best_signal.get("is_blitz") or best_signal.get("layer") == "BLITZ"
+                if is_signal_blitz and not demands["BLITZ"]:
+                    logger.info(f"⏭️ [DEMAND-SKIP] Ignorando sinal BLITZ para {symbol}: Slots Blitz cheios.")
+                    continue
+                if not is_signal_blitz and not demands["SWING"]:
+                    logger.info(f"⏭️ [DEMAND-SKIP] Ignorando sinal SWING para {symbol}: Slots Swing cheios.")
+                    continue
                 
                 # [V110.262] NORMALIZAÇÃO CRÍTICA: Evita bypass ALGOUSDT vs ALGOUSDT.P
                 norm_symbol = symbol.replace(".P", "").upper()
@@ -594,12 +640,16 @@ class CaptainAgent(AIOSAgent):
 
         while self.is_running:
             try:
-                # [V110.136] Executa o scan imediatamente e depois aguarda o intervalo
+                # [V110.350] Demand Awareness for Blitz Loop
+                demands = await self.get_slot_demands()
+                
+                if not demands["BLITZ"]:
+                    logger.debug("⚡ [BLITZ-SCAN] Slots Blitz ocupados. Aguardando liberação.")
+                    await asyncio.sleep(60)
+                    continue
+                
                 # Check available slots
-                # [V110.151] SSOT OCCUPATION: Always use slots for consistent state
-                from services.sovereign_service import sovereign_service
                 slots = await sovereign_service.get_active_slots()
-                occupied_count = sum(1 for s in slots if s.get("symbol"))
 
                 # Regra Elite Slot 1: Só escaneia se o Slot 1 estiver livre (ou se houver menos de 4 ordens)
                 # Na verdade, o 'can_open_new_slot' já protege, mas aqui evitamos chamadas de rede desnecessárias.
