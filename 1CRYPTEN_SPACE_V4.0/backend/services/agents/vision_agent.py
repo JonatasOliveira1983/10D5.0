@@ -66,7 +66,8 @@ class VisionAgent:
                     symbol=symbol, 
                     df=visual_data['df'], 
                     obs=visual_data['obs'], 
-                    fvgs=visual_data['fvgs']
+                    fvgs=visual_data['fvgs'],
+                    pattern_123=visual_data.get('pattern_123')
                 )
             else:
                 # Fallback to screenshot service if no data
@@ -92,7 +93,8 @@ class VisionAgent:
             "- LINHA BRANCA: SMA 21 (Tendência de curto prazo).\n"
             "- LINHA AMARELA: SMA 100 (Tendência de médio prazo).\n"
             "- CAIXAS COLORIDAS: Zonas de Order Block (Institucional).\n"
-            "PERGUNTA: O preço está respeitando ou rejeitando essas zonas? Existe confluência visual para a entrada?\n"
+            "- MARCADORES (1), (2), (3): Estratégia de Reversão 1-2-3. (2) é a exaustão, (3) é a confirmação.\n"
+            "PERGUNTA: O preço está respeitando as zonas e o padrão 1-2-3? Existe confluência visual para a entrada?\n"
             "RESPONDA EM JSON:\n"
             "{\n"
             '  "decision": "APPROVED" ou "REJECTED",\n'
@@ -184,7 +186,8 @@ class VisionAgent:
                     symbol=symbol, 
                     df=visual_data['df'], 
                     obs=visual_data['obs'], 
-                    fvgs=visual_data['fvgs']
+                    fvgs=visual_data['fvgs'],
+                    pattern_123=visual_data.get('pattern_123')
                 )
             else:
                 screenshot_path = await screenshot_service.capture_chart(symbol, interval="60")
@@ -196,9 +199,9 @@ class VisionAgent:
 
         prompt = (
             f"Descreva o estado visual atual de {symbol}.\n"
-            "O gráfico possui médias móveis e zonas de Order Block anotadas.\n"
-            "Dê uma etiqueta curta: CLEAN_TREND, MESSY_RANGE, EXHAUSTION ou REVERSAL.\n"
-            "Analise se o preço está sendo repelido pelas zonas anotadas."
+            "O gráfico possui médias móveis, zonas de Order Block e marcadores 1-2-3 anotados.\n"
+            "Dê uma etiqueta curta: CLEAN_TREND, MESSY_RANGE, EXHAUSTION ou 123_REVERSAL.\n"
+            "Analise se o preço está sendo repelido pelas zonas ou confirmando o padrão 1-2-3."
         )
 
         try:

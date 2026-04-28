@@ -187,5 +187,17 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versão: V5.6 "Vision Intelligence & Master Context" | Atualizado: 2026-04-28*
+---
+
+## 15. ESTRATÉGIA 1-2-3 (ALTA PRECISÃO) — [V5.6]
+1. **Definição Visual:**
+   - **(1) Pivot Inicial:** Fundo ou Topo isolado.
+   - **(2) Sweep/Extremo:** Mínima menor que (1) para Longs, ou Máxima maior que (1) para Shorts. Representa a captura de liquidez.
+   - **(3) Confirmação:** Fundo mais alto que (2) para Longs, ou Topo mais baixo que (2) para Shorts.
+2. **Gatilho de Strike (Strike Zone):** O rompimento da máxima (Long) ou mínima (Short) entre os pontos 2 e 3. Marcado no Observatório com uma **linha horizontal tracejada branca**.
+3. **Filtro de Visão:** O Agente Visão deve validar se o preço está "reagindo" no Ponto 3 com pavios ou volume antes de aprovar a ordem.
+
+---
+
+*Versão: V5.6 "Vision Intelligence & 1-2-3 Strategy" | Atualizado: 2026-04-28*
 *Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10D5.0.*

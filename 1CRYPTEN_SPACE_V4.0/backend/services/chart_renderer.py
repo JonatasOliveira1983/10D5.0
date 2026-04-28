@@ -14,9 +14,9 @@ class ChartRenderer:
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir, exist_ok=True)
 
-    def render_chart(self, symbol: str, df: pd.DataFrame, obs: List[Dict] = None, fvgs: List[Dict] = None) -> str:
+    def render_chart(self, symbol: str, df: pd.DataFrame, obs: List[Dict] = None, fvgs: List[Dict] = None, pattern_123: Dict = None) -> str:
         """
-        [V5.0 PURE PYTHON] Renders a professional chart image with SMC overlays.
+        [V5.6] Renders a professional chart image with SMC and 1-2-3 Strategy overlays.
         """
         try:
             symbol = symbol.replace(".P", "").upper()
@@ -31,10 +31,7 @@ class ChartRenderer:
             df['sma21'] = df['close'].rolling(window=21).mean()
             df['sma100'] = df['close'].rolling(window=100).mean()
 
-            # 3. SuperTrend (Simplified for V1)
-            # We can use a basic version or just skip for now to ensure stability
-            
-            # 4. Styling
+            # 3. Styling
             mc = mpf.make_marketcolors(up='#00ff9d', down='#ff3b3b',
                                       edge='inherit', wick='inherit',
                                       volume='in', ohlc='inherit')
@@ -43,32 +40,59 @@ class ChartRenderer:
                                   gridstyle='', facecolor='#0d0d0d', 
                                   edgecolor='#262626', figcolor='#0d0d0d')
 
-            # 5. Overlays (SMA)
+            # 4. Overlays (SMA)
             apds = []
             if not df['sma21'].dropna().empty:
                 apds.append(mpf.make_addplot(df['sma21'], color='#ffffff', width=1.0))
             if not df['sma100'].dropna().empty:
                 apds.append(mpf.make_addplot(df['sma100'], color='#ffcc00', width=1.0))
 
-            # 6. SMC Annotations (OBs)
-            # For OBs, we will draw horizontal lines or boxes using mpf.make_addplot or hlines
+            # 5. SMC Annotations (OBs)
             hlines_list = []
             hlines_colors = []
+            hlines_styles = []
             
             if obs:
-                for ob in obs[-3:]: # Only show last 3 OBs to avoid clutter
+                for ob in obs[-3:]:
                     color = '#00ff9d44' if ob['type'] == 'BULLISH' else '#ff3b3b44'
-                    # We use hlines for the top and bottom of the OB
-                    hlines_list.append(ob['top'])
-                    hlines_colors.append(color)
-                    hlines_list.append(ob['bottom'])
-                    hlines_colors.append(color)
+                    hlines_list.extend([ob['top'], ob['bottom']])
+                    hlines_colors.extend([color, color])
+                    hlines_styles.extend(['solid', 'solid'])
+
+            # 6. [V5.6] 1-2-3 Pattern Annotations
+            if pattern_123 and pattern_123.get('detected'):
+                points = pattern_123.get('points', {})
+                trigger_price = pattern_123.get('trigger_price')
+                side = pattern_123.get('side', 'buy')
+                
+                # Markers for points 1, 2, 3
+                # We use scatter plots on a dummy series
+                for label, data in points.items():
+                    marker_val = [float('nan')] * len(df)
+                    # Use index if available, or try to find by timestamp if we had it
+                    idx = data.get('idx')
+                    if idx is not None and idx < len(df):
+                        # Adjust price slightly for visibility
+                        price = data.get('price')
+                        offset = (df['high'].max() - df['low'].min()) * 0.05
+                        display_price = price - offset if side == 'buy' else price + offset
+                        marker_val[idx] = display_price
+                        
+                        marker_color = '#00ff9d' if side == 'buy' else '#ff3b3b'
+                        apds.append(mpf.make_addplot(marker_val, type='scatter', markersize=100, 
+                                                   marker=f'${label}$', color=marker_color))
+
+                # Trigger Line
+                if trigger_price:
+                    hlines_list.append(trigger_price)
+                    hlines_colors.append('#ffffff88')
+                    hlines_styles.append('dashed')
 
             # 7. Rendering
-            # We use a smaller window of data for the final image (e.g. last 100 candles)
             plot_df = df.tail(100) if len(df) > 100 else df
             
-            # 8. Render
+            # Filter hlines to only those within plot range (optional but good for stability)
+            
             plot_kwargs = {
                 'type': 'candle',
                 'style': s,
@@ -82,11 +106,11 @@ class ChartRenderer:
             if apds:
                 plot_kwargs['addplot'] = apds
             if hlines_list:
-                plot_kwargs['hlines'] = dict(hlines=hlines_list, colors=hlines_colors, linestyle='solid')
+                plot_kwargs['hlines'] = dict(hlines=hlines_list, colors=hlines_colors, linestyle=hlines_styles)
 
             mpf.plot(plot_df, **plot_kwargs)
 
-            logger.info(f"🎨 [RENDERER] Pure Python Chart generated: {filepath}")
+            logger.info(f"🎨 [RENDERER] 1-2-3 Chart generated for {symbol}: {filepath}")
             return filepath
 
         except Exception as e:

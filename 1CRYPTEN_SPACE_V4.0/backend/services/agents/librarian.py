@@ -13,6 +13,7 @@ from services.sovereign_service import sovereign_service
 from services.kernel.dispatcher import kernel
 from services.agents.market_data import get_sector
 from services.agents.vision_agent import vision_agent # [V1.0]
+from services.signal_generator import signal_generator # [V5.6]
 from config import settings
 
 logger = logging.getLogger("LibrarianAgent")
@@ -241,10 +242,15 @@ class LibrarianAgent(AIOSAgent):
             obs = self.detect_order_blocks(df)
             fvgs = self.detect_fvg(df)
             
+            # 3. [V5.6] Detectar Padrão 1-2-3
+            # Usamos o SignalGenerator para consistência
+            pattern_123 = await signal_generator.detect_123_pattern(symbol, interval=interval)
+            
             return {
                 "df": df,
                 "obs": obs,
-                "fvgs": fvgs
+                "fvgs": fvgs,
+                "pattern_123": pattern_123
             }
         except Exception as e:
             logger.error(f"Erro ao preparar dados visuais para {symbol}: {e}")

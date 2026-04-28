@@ -1067,6 +1067,109 @@ class SignalGenerator:
         except Exception:
             return {"detected": False}
 
+    async def detect_123_pattern(self, symbol: str, interval: str = "5", limit: int = 40) -> dict:
+        """
+        [V5.6] Detects the 1-2-3 Reversal Pattern.
+        Long: 1 (Low) -> 2 (Lower Low/Sweep) -> 3 (Higher Low)
+        Short: 1 (High) -> 2 (Higher High/Sweep) -> 3 (Lower High)
+        Returns: {
+            'detected': bool,
+            'side': 'buy'|'sell',
+            'points': { '1': (idx, price), '2': (idx, price), '3': (idx, price) },
+            'trigger_price': float,
+            'confidence': float
+        }
+        """
+        try:
+            klines = await bybit_rest_service.get_klines(symbol=symbol, interval=interval, limit=limit)
+            if not klines or len(klines) < 10:
+                return {"detected": False}
+            
+            # Chronological order
+            c = klines[::-1]
+            highs = [float(x[2]) for x in c]
+            lows = [float(x[3]) for x in c]
+            closes = [float(x[4]) for x in c]
+            
+            # --- BUY (LONG) 1-2-3 ---
+            # 1. Find P2 (The absolute lowest in the last 20 candles, excluding the current one)
+            p2_low = min(lows[-20:-1])
+            p2_idx = -20 + lows[-20:-1].index(p2_low) # Index relative to end
+            
+            # 2. Find P1 (A significant low before P2)
+            # Look back from P2
+            search_p1 = lows[:len(lows)+p2_idx]
+            if len(search_p1) > 5:
+                p1_low = min(search_p1[-15:])
+                p1_idx = (p2_idx - 15) + search_p1[-15:].index(p1_low)
+                
+                # Rule: P2 must be lower than P1
+                if p2_low < p1_low:
+                    # 3. Find P3 (A higher low after P2)
+                    after_p2 = lows[len(lows)+p2_idx+1:]
+                    if len(after_p2) >= 2:
+                        p3_low = min(after_p2)
+                        p3_idx = (p2_idx + 1) + after_p2.index(p3_low)
+                        
+                        # Rule: P3 must be higher than P2
+                        if p3_low > p2_low:
+                            # TRIGGER: Breakout of the high between P2 and P3 (or P3 itself)
+                            relevant_highs = highs[len(highs)+p2_idx:len(highs)+p3_idx+1]
+                            trigger_price = max(relevant_highs)
+                            
+                            # Confirmation: Are we near or above the trigger?
+                            current_price = closes[-1]
+                            if current_price >= trigger_price * 0.998: # Within 0.2% or above
+                                return {
+                                    "detected": True,
+                                    "side": "buy",
+                                    "points": {
+                                        "1": {"idx": len(lows) + p1_idx, "price": p1_low},
+                                        "2": {"idx": len(lows) + p2_idx, "price": p2_low},
+                                        "3": {"idx": len(lows) + p3_idx, "price": p3_low}
+                                    },
+                                    "trigger_price": trigger_price,
+                                    "confidence": 85 if current_price > trigger_price else 70
+                                }
+
+            # --- SELL (SHORT) 1-2-3 ---
+            p2_high = max(highs[-20:-1])
+            p2_idx = -20 + highs[-20:-1].index(p2_high)
+            
+            search_p1_h = highs[:len(highs)+p2_idx]
+            if len(search_p1_h) > 5:
+                p1_high = max(search_p1_h[-15:])
+                p1_idx = (p2_idx - 15) + search_p1_h[-15:].index(p1_high)
+                
+                if p2_high > p1_high:
+                    after_p2_h = highs[len(highs)+p2_idx+1:]
+                    if len(after_p2_h) >= 2:
+                        p3_high = max(after_p2_h)
+                        p3_idx = (p2_idx + 1) + after_p2_h.index(p3_high)
+                        
+                        if p3_high < p2_high:
+                            relevant_lows = lows[len(lows)+p2_idx:len(lows)+p3_idx+1]
+                            trigger_price = min(relevant_lows)
+                            
+                            current_price = closes[-1]
+                            if current_price <= trigger_price * 1.002:
+                                return {
+                                    "detected": True,
+                                    "side": "sell",
+                                    "points": {
+                                        "1": {"idx": len(highs) + p1_idx, "price": p1_high},
+                                        "2": {"idx": len(highs) + p2_idx, "price": p2_high},
+                                        "3": {"idx": len(highs) + p3_idx, "price": p3_high}
+                                    },
+                                    "trigger_price": trigger_price,
+                                    "confidence": 85 if current_price < trigger_price else 70
+                                }
+
+            return {"detected": False}
+        except Exception as e:
+            logger.error(f"Error detecting 1-2-3 pattern for {symbol}: {e}")
+            return {"detected": False}
+
 
     # ═══════════════════════════════════════════════════════════════
     # [V42.0] RANGING SNIPER ALGORITHMS (V-Recovery & Box Breakout)
