@@ -248,14 +248,9 @@ class BybitREST:
             recv_window=30000,
         )
         self.is_initialized = True
-        logger.info("BybitREST: Session initialized.")
-        
-        # [V53.6] Load Paper State on startup (Global Firestore Sync)
-        if self.execution_mode == "PAPER":
-            await self._load_paper_state()
+        logger.info("BybitREST: Session and state initialized.")
             
         self.is_ready = True
-        logger.info("BybitREST: Session and state initialized.")
 
 
     @property

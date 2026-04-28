@@ -84,18 +84,21 @@ class RedisService:
         
         try:
             import redis.asyncio as redis_lib
-            self.client = redis_lib.Redis(
-                host=self.host,
-                port=self.port,
-                password=settings.REDIS_PASSWORD,
-                db=self.db,
-                decode_responses=True
-            )
-            # Test connection with short timeout
-            await asyncio.wait_for(self.client.ping(), timeout=2.0)
-            self.is_connected = True
-            self.is_fallback = False
-            logger.info(f"🚀 Redis Connected: {self.host}:{self.port} (DB {self.db})")
+            if settings.REDIS_URL:
+                self.client = redis_lib.from_url(
+                    settings.REDIS_URL,
+                    decode_responses=True
+                )
+                logger.info(f"🚀 Redis Connected via URL.")
+            else:
+                self.client = redis_lib.Redis(
+                    host=self.host,
+                    port=self.port,
+                    password=settings.REDIS_PASSWORD,
+                    db=self.db,
+                    decode_responses=True
+                )
+                logger.info(f"🚀 Redis Connected: {self.host}:{self.port} (DB {self.db})")
         except Exception as e:
             logger.warning(f"⚠️ Redis Connection Failed ({e}). Entering AIOS Fallback Mode (In-Memory + Disk).")
             self.client = MockRedis()

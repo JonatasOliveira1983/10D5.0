@@ -73,10 +73,11 @@ class Settings(BaseSettings):
     WIN_ROI_THRESHOLD: float = 80.0 # V11.0: ROI mínimo para contar como WIN no ciclo 1/10
     
     # Redis
-    REDIS_HOST: str = "localhost"
-    REDIS_PORT: int = 6379
-    REDIS_PASSWORD: Optional[str] = os.getenv("REDIS_PASSWORD", None)
+    REDIS_HOST: str = os.getenv("REDISHOST", "localhost")
+    REDIS_PORT: int = int(os.getenv("REDISPORT", 6379))
+    REDIS_PASSWORD: Optional[str] = os.getenv("REDISPASSWORD", os.getenv("REDIS_PASSWORD", None))
     REDIS_DB: int = 0
+    REDIS_URL: Optional[str] = os.getenv("REDIS_URL", None)
     
     # [V110.20.1] Official Asset Blocklist - Memecoins & Low Liquidity
     ASSET_BLOCKLIST: set = {
