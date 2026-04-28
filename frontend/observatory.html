@@ -240,10 +240,24 @@ function initCharts() {
   charts.rsi.addLineSeries({ color: 'rgba(255,255,255,0.1)', lineWidth: 1, lineStyle: 2 }).setData([{time:0, value:70},{time:9999999999, value:70}]);
   charts.rsi.addLineSeries({ color: 'rgba(255,255,255,0.1)', lineWidth: 1, lineStyle: 2 }).setData([{time:0, value:30},{time:9999999999, value:30}]);
 
-  // Sync Timescales
-  charts.price.timeScale().subscribeVisibleTimeRangeChange(r => { charts.volume.timeScale().setVisibleRange(r); charts.rsi.timeScale().setVisibleRange(r); });
-  charts.volume.timeScale().subscribeVisibleTimeRangeChange(r => { charts.price.timeScale().setVisibleRange(r); charts.rsi.timeScale().setVisibleRange(r); });
-  charts.rsi.timeScale().subscribeVisibleTimeRangeChange(r => { charts.price.timeScale().setVisibleRange(r); charts.volume.timeScale().setVisibleRange(r); });
+  // [V5.5.1] Robust Sync Logic with Recursion Guard
+  let isSyncing = false;
+  const syncRange = (sourceChart, range) => {
+    if (!range || isSyncing) return;
+    isSyncing = true;
+    Object.values(charts).forEach(c => {
+      if (c && c !== sourceChart) {
+        try {
+          c.timeScale().setVisibleRange(range);
+        } catch (e) { /* Ignore sync errors on empty charts */ }
+      }
+    });
+    isSyncing = false;
+  };
+
+  charts.price.timeScale().subscribeVisibleTimeRangeChange(r => syncRange(charts.price, r));
+  charts.volume.timeScale().subscribeVisibleTimeRangeChange(r => syncRange(charts.volume, r));
+  charts.rsi.timeScale().subscribeVisibleTimeRangeChange(r => syncRange(charts.rsi, r));
 }
 
 async function loadData(s) {
