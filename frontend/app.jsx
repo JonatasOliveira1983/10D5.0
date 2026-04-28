@@ -327,6 +327,46 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
             );
         };
 
+        // --- Component: AI Cascade Status (V4.2.1) ---
+        const AICascadeStatus = ({ cascadeInfo }) => {
+            if (!cascadeInfo) return null;
+            const { last_model, requests, cascade } = cascadeInfo;
+
+            return (
+                <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <span className="material-icons-round text-sm text-primary animate-pulse">psychology</span>
+                            <h3 className="text-[10px] font-black text-white uppercase tracking-widest">AI Cascade</h3>
+                        </div>
+                        <span className="text-[8px] font-mono text-gray-500">{requests} REQS</span>
+                    </div>
+
+                    <div className="space-y-3">
+                        <div className="flex flex-col gap-1">
+                            <div className="flex justify-between items-center">
+                                <span className="text-[9px] font-bold text-gray-500 uppercase">Active Intelligence</span>
+                                <span className="text-[9px] font-black text-primary uppercase truncate max-w-[120px]">{last_model}</span>
+                            </div>
+                            <div className="w-full bg-white/5 h-1 rounded-full overflow-hidden">
+                                <div className="h-full bg-primary animate-pulse" style={{ width: '65%' }}></div>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-6 gap-1">
+                            {cascade.map((item, i) => {
+                                const color = item.status === 'ACTIVE' ? 'bg-primary' : (item.status === 'COOLING' ? 'bg-amber-500' : 'bg-red-500');
+                                const opacity = item.status === 'ACTIVE' ? 'opacity-100' : 'opacity-40';
+                                return (
+                                    <div key={i} title={`${item.model}: ${item.status}`} className={`h-1 rounded-full ${color} ${opacity} transition-all duration-500`}></div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
         const QualitySeal = ({ seal, reason }) => {
             if (!seal) return null;
             const items = seal.split('|').map(s => s.trim()).filter(Boolean);
@@ -811,6 +851,27 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
             }, []);
 
             return banca;
+        };
+
+        // --- Hook: AI Cascade Status (V4.2.1) ---
+        const useAICascadeRT = () => {
+            const [status, setStatus] = useState(safeJsonParse(localStorage.getItem('ai_cascade_cache'), {
+                last_model: 'None',
+                requests: 0,
+                cascade: []
+            }));
+
+            useEffect(() => {
+                const unsubscribe = sovereignWS.subscribe((msg) => {
+                    if (msg.type === 'ai_cascade_status') {
+                        setStatus(msg.data);
+                        localStorage.setItem('ai_cascade_cache', JSON.stringify(msg.data));
+                    }
+                });
+                return unsubscribe;
+            }, []);
+
+            return status;
         };
 
         // --- Hook: Real-time Vault (V15.0) ---

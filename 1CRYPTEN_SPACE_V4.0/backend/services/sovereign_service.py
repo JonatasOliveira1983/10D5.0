@@ -216,6 +216,12 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
             await websocket_service.broadcast({"type": "VAULT_PULSE", "data": status})
         except: pass
 
+    async def update_ai_cascade(self, data: dict):
+        """[V4.2.1] Atualiza e transmite o status da cascata de IA."""
+        try:
+            await websocket_service.broadcast({"type": "ai_cascade_status", "data": data})
+        except: pass
+
     # Implementation for Sovereign Mode [V110.187]
     async def register_order_genesis(self, data: dict):
         try:

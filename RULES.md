@@ -132,7 +132,8 @@ Captain (Orquestrador Central)
    ```
    Sinal → Bibliotecário (DNA) → [VISION GATE] → Visão (Cascata Free) → Capitão → Ordem
    ```
-5. **UI Sovereign Intelligence:** Todas as convocações do Capitão, scans do Bibliotecário e vetos do Visão são transmitidos via WebSocket em tempo real para o Cockpit.
+5. **UI AI Cascade Monitor:** O Cockpit exibe em tempo real (Painel Lateral) qual modelo está sendo usado, o volume de requisições e o estado de saúde (Active/Cooling/Dead) de cada modelo na cascata.
+6. **UI Sovereign Intelligence:** Todas as convocações do Capitão, scans do Bibliotecário e vetos do Visão são transmitidos via WebSocket em tempo real para o Cockpit.
 
 ---
 

@@ -24,12 +24,38 @@ class AIService:
         self.gemini_backoff_until = 0
         self.vision_model_backoffs = {} # [V4.2] Backoff individual por modelo vision
         self.vision_model_dead = set()    # [V4.2] Modelos que deram 402 (Payment Required)
+        self.last_vision_model = "None"
+        self.vision_requests_count = 0
         raw_key = settings.OPENROUTER_API_KEY.strip() if settings.OPENROUTER_API_KEY else None
         if raw_key and not raw_key.startswith("sk-or-v1-"):
             self.openrouter_key = f"sk-or-v1-{raw_key}"
         else:
             self.openrouter_key = raw_key
         self._setup_ai()
+        
+    def get_cascade_status(self):
+        """[V4.2.1] Retorna o status atual da cascata para a UI."""
+        models = [
+            "google/gemini-2.0-flash-exp:free",
+            "google/gemini-2.0-flash-lite-preview-02-05:free",
+            "qwen/qwen2.5-vl-72b-instruct:free",
+            "nvidia/llama-3.1-nemotron-nano-vl-8b-v1:free",
+            "google/gemma-3-27b-it:free",
+            "mistralai/pixtral-12b:free"
+        ]
+        now = time.time()
+        status_list = []
+        for m in models:
+            state = "ACTIVE"
+            if m in self.vision_model_dead: state = "DEAD"
+            elif now < self.vision_model_backoffs.get(m, 0): state = "COOLING"
+            status_list.append({"model": m, "status": state})
+        
+        return {
+            "last_model": self.last_vision_model,
+            "requests": self.vision_requests_count,
+            "cascade": status_list
+        }
 
     def _setup_ai(self):
         """Initializes AI clients if keys are present."""
@@ -184,6 +210,7 @@ class AIService:
             return None
 
         now = time.time()
+        self.vision_requests_count += 1
         
         # [V4.2] FREE VISION CASCADE MODELS (Ordered by quality)
         FREE_VISION_MODELS = [
@@ -214,6 +241,9 @@ class AIService:
                 continue
             if now < self.vision_model_backoffs.get(v_model, 0):
                 continue
+
+            self.last_vision_model = v_model.split('/')[-1]
+            asyncio.create_task(sovereign_service.update_ai_cascade(self.get_cascade_status()))
 
             try:
                 logger.info(f"👁️ [VISION-CASCADE] Trying model {idx+1}/{len(FREE_VISION_MODELS)}: {v_model}...")
@@ -281,7 +311,7 @@ class AIService:
                 continue
 
         logger.error("❌ [VISION-CASCADE] All free vision models exhausted or in backoff.")
-        return Noneror("❌ All Vision providers failed.")
+        asyncio.create_task(sovereign_service.update_ai_cascade(self.get_cascade_status()))
         return None
 
 
