@@ -1067,102 +1067,83 @@ class SignalGenerator:
         except Exception:
             return {"detected": False}
 
-    async def detect_123_pattern(self, symbol: str, interval: str = "5", limit: int = 40, find_all: bool = False) -> Any:
+    async def detect_123_pattern(self, symbol: str, interval: str = "5", limit: int = 40, find_all: bool = False, prefetched_klines: List = None) -> Any:
         """
         [V5.6] Detects 1-2-3 Reversal Pattern(s).
         If find_all is True, returns a list of all detected patterns in the history.
         """
         try:
-            klines = await bybit_rest_service.get_klines(symbol=symbol, interval=interval, limit=limit)
+            klines = prefetched_klines
+            if not klines:
+                klines = await bybit_rest_service.get_klines(symbol=symbol, interval=interval, limit=limit)
+            
             if not klines or len(klines) < 15:
                 return [] if find_all else {"detected": False}
             
-            c = klines[::-1] # Chronological
-            highs = [float(x[2]) for x in c]
-            lows = [float(x[3]) for x in c]
-            closes = [float(x[4]) for x in c]
+            # Chronological (Bybit returns newest first, so we reverse it)
+            # But wait, if prefetched from Librarian's DF, it might already be chronological.
+            # We assume Bybit format (newest first) for consistency if it's a list.
+            c = klines[::-1] if isinstance(klines[0], (list, tuple)) else klines
+            
+            highs = []
+            lows = []
+            for x in c:
+                try:
+                    highs.append(float(x[2]))
+                    lows.append(float(x[3]))
+                except (IndexError, ValueError, TypeError):
+                    continue
+
+            if len(lows) < 15: return [] if find_all else {"detected": False}
             
             detected_patterns = []
-
-            # Scan with a sliding window or pivot hunting
-            # We look for P2 (Swing Low/High) and then check P1 and P3 around it.
-            for i in range(15, len(lows) - 2):
+            # Scan history
+            for i in range(15, len(lows) - 5):
                 # --- LONG SCAN ---
-                # P2 candidate at index i
-                if lows[i] == min(lows[i-10:i+3]):
+                if lows[i] == min(lows[i-12:i+4]):
                     p2_low = lows[i]
                     p2_idx = i
-                    
-                    # Search P1 (Significant low before P2)
                     search_p1 = lows[max(0, p2_idx-15):p2_idx]
                     if search_p1:
                         p1_low = min(search_p1)
                         p1_idx = max(0, p2_idx-15) + search_p1.index(p1_low)
-                        
                         if p2_low < p1_low:
-                            # Search P3 (Higher low after P2)
-                            search_p3 = lows[p2_idx+1:p2_idx+10]
+                            search_p3 = lows[p2_idx+1:p2_idx+12]
                             if search_p3:
                                 p3_low = min(search_p3)
                                 p3_idx = p2_idx + 1 + search_p3.index(p3_low)
-                                
                                 if p3_low > p2_low:
-                                    # Trigger
                                     trigger_price = max(highs[p2_idx:p3_idx+1])
-                                    pattern = {
+                                    detected_patterns.append({
                                         "detected": True, "side": "buy",
-                                        "points": {
-                                            "1": {"idx": p1_idx, "price": p1_low},
-                                            "2": {"idx": p2_idx, "price": p2_low},
-                                            "3": {"idx": p3_idx, "price": p3_low}
-                                        },
+                                        "points": {"1": {"idx": p1_idx, "price": p1_low}, "2": {"idx": p2_idx, "price": p2_low}, "3": {"idx": p3_idx, "price": p3_low}},
                                         "trigger_price": trigger_price
-                                    }
-                                    detected_patterns.append(pattern)
-
+                                    })
                 # --- SHORT SCAN ---
-                if highs[i] == max(highs[i-10:i+3]):
+                if highs[i] == max(highs[i-12:i+4]):
                     p2_high = highs[i]
                     p2_idx = i
-                    
                     search_p1_h = highs[max(0, p2_idx-15):p2_idx]
                     if search_p1_h:
                         p1_high = max(search_p1_h)
                         p1_idx = max(0, p2_idx-15) + search_p1_h.index(p1_high)
-                        
                         if p2_high > p1_high:
-                            search_p3_h = highs[p2_idx+1:p2_idx+10]
+                            search_p3_h = highs[p2_idx+1:p2_idx+12]
                             if search_p3_h:
                                 p3_high = max(search_p3_h)
                                 p3_idx = p2_idx + 1 + search_p3_h.index(p3_high)
-                                
                                 if p3_high < p2_high:
                                     trigger_price = min(lows[p2_idx:p3_idx+1])
-                                    pattern = {
+                                    detected_patterns.append({
                                         "detected": True, "side": "sell",
-                                        "points": {
-                                            "1": {"idx": p1_idx, "price": p1_high},
-                                            "2": {"idx": p2_idx, "price": p2_high},
-                                            "3": {"idx": p3_idx, "price": p3_high}
-                                        },
+                                        "points": {"1": {"idx": p1_idx, "price": p1_high}, "2": {"idx": p2_idx, "price": p2_high}, "3": {"idx": p3_idx, "price": p3_high}},
                                         "trigger_price": trigger_price
-                                    }
-                                    detected_patterns.append(pattern)
-
-            if find_all:
-                return detected_patterns
+                                    })
             
-            # For the single result, return the most recent one if it's near the end
-            if detected_patterns:
-                latest = detected_patterns[-1]
-                # If P3 is within the last 5 candles, we consider it "active"
-                if latest['points']['3']['idx'] >= len(lows) - 8:
-                    return latest
-            
-            return {"detected": False}
-            
+            if find_all: return detected_patterns
+            return detected_patterns[-1] if detected_patterns else {"detected": False}
         except Exception as e:
-            logger.error(f"Error in historical 1-2-3 detection: {e}")
+            logger.error(f"Error in 1-2-3 detection for {symbol}: {e}")
             return [] if find_all else {"detected": False}
 
 

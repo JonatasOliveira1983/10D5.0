@@ -236,37 +236,50 @@ class LibrarianAgent(AIOSAgent):
             if df.empty:
                 logger.info(f"DB local vazio para {symbol} ({interval}). Buscando via REST API...")
                 from services.bybit_rest import bybit_rest_service
-                klines = await bybit_rest_service.get_klines(symbol, interval, limit=limit, kline_type="last")
-                if klines:
-                    # Converter klines da Bybit para DataFrame compatível
-                    df = pd.DataFrame(klines, columns=['start_time', 'open', 'high', 'low', 'close', 'volume', 'turnover'])
+                klines_raw = await bybit_rest_service.get_klines(symbol, interval, limit=limit, kline_type="last")
+                if klines_raw:
+                    df = pd.DataFrame(klines_raw, columns=['start_time', 'open', 'high', 'low', 'close', 'volume', 'turnover'])
                     df['start_time'] = pd.to_datetime(df['start_time'].astype(float), unit='ms')
                     df = df[['start_time', 'open', 'high', 'low', 'close', 'volume']]
-                    df[['open', 'high', 'low', 'close', 'volume']] = df[['open', 'high', 'low', 'close', 'volume']].apply(pd.to_numeric)
                 else:
                     return {}
+            
+            # Garantir tipos numéricos para evitar quebras em cálculos técnicos
+            cols = ['open', 'high', 'low', 'close', 'volume']
+            df[cols] = df[cols].apply(pd.to_numeric, errors='coerce')
+            df.dropna(subset=['close'], inplace=True)
             
             df = df.sort_values('start_time')
             if not df.index.name == 'start_time':
                 df.set_index('start_time', inplace=True)
             
+            # Preparar klines formatados para detecção (lista de listas para compatibilidade)
+            klines_list = []
+            for ts, row in df.iterrows():
+                klines_list.append([
+                    int(ts.timestamp() * 1000) if hasattr(ts, 'timestamp') else ts,
+                    row['open'], row['high'], row['low'], row['close'], row['volume']
+                ])
+            
             # 2. Detectar SMC
             obs = self.detect_order_blocks(df)
             fvgs = self.detect_fvg(df)
             
-            # 3. [V5.6] Detectar Padrão 1-2-3 (Historical Scan)
-            # Usamos o SignalGenerator para consistência (Local import to avoid circular dependency)
+            # 3. [V5.6] Detectar Padrão 1-2-3 (Historical Scan) usando dados já carregados
             from services.signal_generator import signal_generator
-            patterns_123 = await signal_generator.detect_123_pattern(symbol, interval=interval, limit=limit, find_all=True)
+            # Passamos os klines_list já invertidos (Bybit style: newest first) para o detector
+            patterns_123 = await signal_generator.detect_123_pattern(symbol, interval=interval, limit=limit, find_all=True, prefetched_klines=klines_list[::-1])
             
             return {
                 "df": df,
                 "obs": obs,
                 "fvgs": fvgs,
-                "patterns_123": patterns_123 # Retorna lista de todos os padrões encontrados
+                "patterns_123": patterns_123
             }
         except Exception as e:
-            logger.error(f"Erro ao preparar dados visuais para {symbol}: {e}")
+            logger.error(f"Erro Crítico no Visual Data para {symbol}: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
             return {}
 
     async def run_loop(self):
