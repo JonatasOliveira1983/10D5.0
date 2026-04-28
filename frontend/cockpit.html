@@ -1956,7 +1956,7 @@
                     <div className="relative z-10 flex flex-col gap-3">
                         <div className="flex items-center justify-between mb-1">
                             <h3 className="text-[11px] font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
-                                <span className="material-icons-round text-white text-sm animate-pulse">radar</span>
+                                <span className="material-icons-round text-white text-sm">radar</span>
                                 {title || 'Radar de Inteligência'}
                             </h3>
                             <span className="text-[9px] font-black text-white uppercase tracking-widest opacity-50">Command Header</span>
@@ -5115,7 +5115,6 @@
         // =========================================================================
         const MarketRadarWidget = ({ signals, context }) => {
             const safeSignals = Array.isArray(signals) ? signals.slice(0, 5) : [];
-            const placeholders = Array.from({ length: Math.max(0, 5 - safeSignals.length) });
             
             return (
                 <div className="space-y-4">
@@ -5128,53 +5127,58 @@
                             <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">Top 5 Elite Opportunities</span>
                         </div>
                         <div className="px-2 py-1 rounded bg-accent/10 border border-accent/20">
-                            <span className="text-[9px] font-black text-accent uppercase animate-pulse">Scanning...</span>
+                            <span className="text-[9px] font-black text-accent uppercase">Scanning...</span>
                         </div>
                     </div>
 
-                    <div className="flex flex-col gap-2.5 min-h-[300px]">
-                        {safeSignals.map((sig, idx) => (
-                            <div 
-                                key={idx} 
-                                onClick={() => window.openDeepAnalysis && window.openDeepAnalysis(sig.symbol)}
-                                className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-between group hover:border-accent/40 hover:bg-white/[0.05] transition-all cursor-pointer relative overflow-hidden"
-                            >
-                                <div className="absolute inset-y-0 left-0 w-1 bg-accent transform -trangray-x-full group-hover:trangray-x-0 transition-transform duration-300"></div>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center text-[10px] font-black text-gray-500 border border-white/10 group-hover:text-white transition-all">
-                                        {idx + 1}
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-xs font-black text-white">{(sig.symbol || '???').replace('.P', '')}</span>
-                                        <div className="flex items-center gap-1.5 mt-0.5">
-                                            <QualitySeal seal={sig.quality_seal || sig.librarian_seal} />
-                                            {sig.strategy_label && (
-                                                <span className="text-[7px] font-black text-gray-500 uppercase tracking-tighter px-1 rounded border border-white/5">
-                                                    {sig.strategy_label}
-                                                </span>
-                                            )}
+                    <div className="flex flex-col gap-2.5">
+                        {[0, 1, 2, 3, 4].map((idx) => {
+                            const sig = safeSignals[idx];
+                            if (sig) {
+                                return (
+                                    <div 
+                                        key={idx} 
+                                        onClick={() => window.openDeepAnalysis && window.openDeepAnalysis(sig.symbol)}
+                                        className="p-3 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center justify-between group hover:border-accent/40 hover:bg-white/[0.05] transition-all cursor-pointer relative overflow-hidden h-[64px]"
+                                    >
+                                        <div className="absolute inset-y-0 left-0 w-1 bg-accent transform -trangray-x-full group-hover:trangray-x-0 transition-transform duration-300"></div>
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-6 h-6 rounded-lg bg-white/5 flex items-center justify-center text-[10px] font-black text-gray-500 border border-white/10 group-hover:text-white transition-all">
+                                                {idx + 1}
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-xs font-black text-white">{(sig.symbol || '???').replace('.P', '')}</span>
+                                                <div className="flex items-center gap-1.5 mt-0.5">
+                                                    <QualitySeal seal={sig.quality_seal || sig.librarian_seal} />
+                                                    {sig.strategy_label && (
+                                                        <span className="text-[7px] font-black text-gray-500 uppercase tracking-tighter px-1 rounded border border-white/5">
+                                                            {sig.strategy_label}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col items-end gap-1">
+                                            <span className={`text-[10px] font-black font-mono px-2 py-0.5 rounded ${sig.side === 'Buy' || sig.side === 'LONG' ? 'bg-success/10 text-success' : 'bg-orange-500/10 text-orange-400'}`}>
+                                                {sig.side === 'Buy' || sig.side === 'LONG' ? 'LONG' : 'SHORT'}
+                                            </span>
+                                            <div className="flex items-center gap-1">
+                                                <span className="text-[8px] font-bold text-gray-600 uppercase">Conf:</span>
+                                                <span className="text-[9px] font-black text-white">{(sig.score || 0).toFixed(0)}</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div className="flex flex-col items-end gap-1">
-                                    <span className={`text-[10px] font-black font-mono px-2 py-0.5 rounded ${sig.side === 'Buy' || sig.side === 'LONG' ? 'bg-success/10 text-success' : 'bg-orange-500/10 text-orange-400'}`}>
-                                        {sig.side === 'Buy' || sig.side === 'LONG' ? 'LONG' : 'SHORT'}
-                                    </span>
-                                    <div className="flex items-center gap-1">
-                                        <span className="text-[8px] font-bold text-gray-600 uppercase">Conf:</span>
-                                        <span className="text-[9px] font-black text-white">{(sig.score || 0).toFixed(0)}</span>
+                                );
+                            } else {
+                                return (
+                                    <div key={`p-${idx}`} className="p-3 rounded-2xl bg-black/10 border border-white/[0.02] flex items-center justify-center border-dashed h-[64px]">
+                                        <span className="text-[9px] font-black text-gray-800 uppercase tracking-widest italic opacity-20">
+                                            Slot {idx + 1} Empty
+                                        </span>
                                     </div>
-                                </div>
-                            </div>
-                        ))}
-                        
-                        {placeholders.map((_, i) => (
-                            <div key={`p-${i}`} className="p-3 rounded-2xl bg-black/20 border border-white/[0.03] flex items-center justify-center border-dashed">
-                                <span className="text-[9px] font-black text-gray-800 uppercase tracking-widest italic">
-                                    Position {safeSignals.length + i + 1} Empty
-                                </span>
-                            </div>
-                        ))}
+                                );
+                            }
+                        })}
                     </div>
                 </div>
             );
