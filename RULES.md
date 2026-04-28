@@ -14,11 +14,11 @@
 
 ---
 
-## ⚡ 10D BYBITY REAL 4.0 — PROTOCOLO DE ELITE
 ## REGRA 00 — REPOSITÓRIO ÚNICO E OFICIAL
-1. **REPO ÚNICO:** O único repositório oficial para este sistema é: `https://github.com/JonatasOliveira1983/10D5.0/`.
-2. **PUSH OBRIGATÓRIO:** Todo commit deve ser enviado para o branch `main` deste repositório para deploy automático no Railway.
-3. **URL DE COMANDO:** A UI oficial é acessível via `https://1crypten.space/`.
+1. **REPO ÚNICO:** O único repositório oficial e absoluto para este sistema é: `https://github.com/JonatasOliveira1983/10D5.0/`.
+2. **PUSH OBRIGATÓRIO:** Todo commit deve ser enviado exclusivamente para o branch `main` do repositório `10D5.0` para deploy automático.
+3. **EXTINÇÃO DE REPOS ANTIGOS:** O repositório `10DBybityREAL` está EXTINTO e não deve ser utilizado.
+4. **URL DE COMANDO:** A UI oficial é acessível via `https://1crypten.space/`.
 
 ---
 
