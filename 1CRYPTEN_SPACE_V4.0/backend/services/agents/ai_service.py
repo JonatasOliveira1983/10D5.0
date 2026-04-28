@@ -223,6 +223,7 @@ class AIService:
             "google/gemini-2.0-flash-exp:free",
             "google/gemini-2.0-flash-lite-preview-02-05:free",
             "qwen/qwen2.5-vl-72b-instruct:free",
+            "meta-llama/llama-3.2-11b-vision-instruct:free",
             "nvidia/llama-3.1-nemotron-nano-vl-8b-v1:free",
             "google/gemma-3-27b-it:free",
             "mistralai/pixtral-12b:free"
