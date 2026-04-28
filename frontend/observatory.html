@@ -57,6 +57,111 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',s
 
 .btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--t2);cursor:pointer;font-size:9px;font-weight:800;text-transform:uppercase;transition:.15s}
 .btn-green{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.2);color:var(--green)}
+
+/* Premium Boot Loader (V5.6 RELOADED) */
+.loading {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+    z-index: 1000;
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.loading.hidden { opacity: 0; pointer-events: none; }
+
+.boot-logo-container {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.boot-logo {
+    width: 70px;
+    height: 70px;
+    z-index: 10;
+    filter: drop-shadow(0 0 20px rgba(16,185,129, 0.4));
+    animation: logo-pulse 2s infinite ease-in-out;
+}
+.boot-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgba(16,185,129, 0.15);
+    border-radius: 50%;
+    animation: ring-expand 3s infinite linear;
+}
+.boot-ring:nth-child(2) { animation-delay: 1s; }
+.boot-ring:nth-child(3) { animation-delay: 2s; }
+
+.asset-grid {
+    display: grid;
+    grid-template-columns: repeat(10, 1fr);
+    gap: 4px;
+    margin-top: 20px;
+}
+.asset-dot {
+    width: 4px;
+    height: 4px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 1px;
+}
+.asset-dot.active {
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: dot-flicker 2s infinite;
+}
+
+.candle-loader {
+    width: 12px;
+    height: 24px;
+    border: 1.5px solid var(--t2);
+    position: relative;
+    margin-bottom: 12px;
+}
+.candle-loader::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1.5px;
+    height: 8px;
+    background: var(--t2);
+}
+.candle-loader::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 1.5px;
+    height: 8px;
+    background: var(--t2);
+}
+.candle-animate {
+    animation: candle-move 1.5s infinite ease-in-out;
+}
+
+@keyframes logo-pulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } }
+@keyframes ring-expand { 0% { transform: scale(0.6); opacity: 0.8; } 100% { transform: scale(1.6); opacity: 0; } }
+@keyframes dot-flicker { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+@keyframes candle-move { 0%, 100% { transform: translateY(0); border-color: var(--green); } 50% { transform: translateY(-10px); border-color: var(--red); } }
+
+.loading-txt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--t2);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-top: 15px;
+}
 </style>
 </head>
 <body>
@@ -110,7 +215,22 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',s
     </div>
 
     <div class="chart-stack">
-      <div class="loading" id="loading"><div class="spinner"></div><div class="loading-txt">Carregando V5.6...</div></div>
+      <div class="loading" id="loading">
+        <div class="boot-logo-container">
+          <div class="boot-ring"></div>
+          <div class="boot-ring"></div>
+          <div class="boot-ring"></div>
+          <img src="logo10DTrasp.png" class="boot-logo" alt="10D">
+        </div>
+        
+        <div class="candle-loader candle-animate"></div>
+        
+        <div class="loading-txt">Sincronizando 40 Ativos de Elite...</div>
+        
+        <div class="asset-grid" id="assetGrid">
+          <!-- 40 dots injected via JS -->
+        </div>
+      </div>
       <div class="pane" id="price-pane"><div class="pane-label">Price Action</div><div id="price-chart" style="width:100%;height:100%"></div></div>
       <div class="pane" id="volume-pane"><div class="pane-label">Volume Flow</div><div id="volume-chart" style="width:100%;height:100%"></div></div>
       <div class="pane" id="rsi-pane"><div class="pane-label">RSI (14)</div><div id="rsi-chart" style="width:100%;height:100%"></div></div>
@@ -140,7 +260,6 @@ let series = { candle: null, sma21: null, sma100: null, st: null, vol: null, rsi
 let obLines = [];
 let isSyncing = false;
 
-// Indicators
 const calculateSMA = (d, p) => { let s = []; for (let i = 0; i < d.length; i++) { if (i < p - 1) continue; let sum = 0; for (let j = 0; j < p; j++) sum += d[i - j].close; s.push({ time: d[i].time, value: sum / p }); } return s; };
 const calculateRSI = (d, p = 14) => { let r = []; if (d.length < p) return r; let g = 0, l = 0; for (let i = 1; i <= p; i++) { let diff = d[i].close - d[i-1].close; if (diff > 0) g += diff; else l -= diff; } let ag = g/p, al = l/p; r.push({ time: d[p].time, value: 100 - (100/(1+ag/al)) }); for (let i = p + 1; i < d.length; i++) { let diff = d[i].close - d[i-1].close; ag = (ag * (p-1) + (diff > 0 ? diff : 0)) / p; al = (al * (p-1) + (diff < 0 ? -diff : 0)) / p; r.push({ time: d[i].time, value: 100 - (100/(1+ag/al)) }); } return r; };
 const calculateST = (d, p, m) => { const tr = (c, pr) => !pr ? c.high - c.low : Math.max(c.high - c.low, Math.abs(c.high - pr.close), Math.abs(c.low - pr.close)); let trs = d.map((c, i) => tr(c, d[i-1])); let atrs = []; let sum = 0; for (let i = 0; i < d.length; i++) { if (i < p) { sum += trs[i]; if (i === p-1) atrs[i] = sum/p; else atrs[i] = null; continue; } atrs[i] = (atrs[i-1] * (p-1) + trs[i]) / p; } let st = []; let pU = null, pL = null, t = 1; for (let i = 0; i < d.length; i++) { if (!atrs[i]) continue; let src = (d[i].high + d[i].low) / 2, u = src + m*atrs[i], l = src - m*atrs[i]; if (pU !== null) { u = (u < pU || d[i-1].close > pU) ? u : pU; l = (l > pL || d[i-1].close < pL) ? l : pL; } if (i > 0 && st.length > 0) { if (t === 1 && d[i].close < l) t = -1; else if (t === -1 && d[i].close > u) t = 1; } st.push({ time: d[i].time, value: t === 1 ? l : u, trend: t }); pU = u; pL = l; } return st; };
@@ -185,12 +304,7 @@ function initCharts() {
   charts.rsi.addLineSeries({ color: 'rgba(255,255,255,0.1)', lineWidth: 1, lineStyle: 2 }).setData([{time:0, value:70},{time:9999999999, value:70}]);
   charts.rsi.addLineSeries({ color: 'rgba(255,255,255,0.1)', lineWidth: 1, lineStyle: 2 }).setData([{time:0, value:30},{time:9999999999, value:30}]);
 
-  const sync = (src, r) => {
-    if (!r || isSyncing) return;
-    isSyncing = true;
-    Object.values(charts).forEach(c => { if(c && c !== src) try { c.timeScale().setVisibleRange(r); } catch(e){} });
-    isSyncing = false;
-  };
+  const sync = (src, r) => { if (!r || isSyncing) return; isSyncing = true; Object.values(charts).forEach(c => { if(c && c !== src) try { c.timeScale().setVisibleRange(r); } catch(e){} }); isSyncing = false; };
   charts.price.timeScale().subscribeVisibleTimeRangeChange(r => sync(charts.price, r));
   charts.volume.timeScale().subscribeVisibleTimeRangeChange(r => sync(charts.volume, r));
   charts.rsi.timeScale().subscribeVisibleTimeRangeChange(r => sync(charts.rsi, r));
@@ -204,7 +318,6 @@ async function loadData(s) {
       const study = await r.json();
       curStudy = study;
       const d = study.klines.map(x => ({ time: x[0]/1000, open: x[1], high: x[2], low: x[3], close: x[4], volume: x[5] }));
-      
       series.candle.setData(d);
       if (document.getElementById('toggle-trend').checked) {
           series.sma21.setData(calculateSMA(d, 21));
@@ -214,15 +327,10 @@ async function loadData(s) {
       } else {
           series.sma21.setData([]); series.sma100.setData([]); series.st.setData([]);
       }
-
       refreshLayers();
       series.vol.setData(d.map(x => ({ time: x.time, value: x.volume, color: x.close >= x.open ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)' })));
       series.rsi.setData(calculateRSI(d));
-      
-      Object.values(charts).forEach(c => {
-        const parent = c.chartElement().parentElement;
-        if (parent) c.applyOptions({ width: parent.clientWidth, height: parent.clientHeight });
-      });
+      Object.values(charts).forEach(c => { const p = c.chartElement().parentElement; if (p) c.applyOptions({ width: p.clientWidth, height: p.clientHeight }); });
       charts.rsi.timeScale().fitContent();
     }
   } catch(e) {}
@@ -233,33 +341,25 @@ function refreshLayers() {
   if (!curStudy) return;
   const d = curStudy.klines.map(x => ({ time: x[0]/1000, open: x[1], high: x[2], low: x[3], close: x[4] }));
   let m = [];
-
   obLines.forEach(l => series.candle.removePriceLine(l));
   obLines = [];
-  
   if (document.getElementById('toggle-smc').checked) {
     (curStudy.obs || []).slice(-4).forEach(ob => {
         const color = ob.type === 'BULLISH' ? '#10b981' : '#ef4444';
-        const lineTop = series.candle.createPriceLine({ price: ob.top, color: color + '88', lineWidth: 1, lineStyle: 0, axisLabelVisible: true, title: 'OB ' + ob.type[0] });
-        const lineBot = series.candle.createPriceLine({ price: ob.bottom, color: color + '44', lineWidth: 1, lineStyle: 2, axisLabelVisible: false });
-        obLines.push(lineTop, lineBot);
+        obLines.push(series.candle.createPriceLine({ price: ob.top, color: color + '88', lineWidth: 1, title: 'OB ' + ob.type[0] }));
+        obLines.push(series.candle.createPriceLine({ price: ob.bottom, color: color + '44', lineWidth: 1, lineStyle: 2 }));
     });
   }
-
   if (document.getElementById('toggle-123').checked && (curStudy.patterns_123 || []).length > 0) {
     curStudy.patterns_123.forEach(p => {
         const color = p.side === 'buy' ? '#10b981' : '#ef4444';
         Object.entries(p.points).forEach(([num, data]) => {
-            const timestamp = d[data.idx]?.time;
-            if (timestamp) m.push({ time: timestamp, position: p.side === 'buy' ? 'belowBar' : 'aboveBar', color: color, shape: 'circle', text: num });
+            const t = d[data.idx]?.time;
+            if (t) m.push({ time: t, position: p.side === 'buy' ? 'belowBar' : 'aboveBar', color: color, shape: 'circle', text: num });
         });
-        if (p.trigger_price) {
-            const tl = series.candle.createPriceLine({ price: p.trigger_price, color: 'rgba(255,255,255,0.4)', lineWidth: 1, lineStyle: 3, axisLabelVisible: true, title: 'STRIKE' });
-            obLines.push(tl);
-        }
+        if (p.trigger_price) obLines.push(series.candle.createPriceLine({ price: p.trigger_price, color: 'rgba(255,255,255,0.4)', lineWidth: 1, lineStyle: 3, title: 'STRIKE' }));
     });
   }
-
   if (document.getElementById('toggle-trend').checked) {
       const st = calculateST(d, 10, 3);
       for (let i = 1; i < st.length; i++) {
@@ -267,7 +367,6 @@ function refreshLayers() {
         if (st[i].trend === -1 && st[i-1].trend === 1) m.push({ time: st[i].time, position: 'aboveBar', color: '#f59e0b', shape: 'arrowDown', text: 'ST-' });
       }
   }
-
   series.candle.setMarkers(m.sort((a,b) => a.time - b.time));
 }
 
@@ -301,58 +400,20 @@ const ro = new ResizeObserver(() => {
 });
 ['price-pane', 'volume-pane', 'rsi-pane'].forEach(p => { const el = document.getElementById(p); if (el) ro.observe(el); });
 
-syncBTC(); setInterval(syncBTC, 5000);
-initCharts();
-renderPairs(Object.keys(MATRIX));
-select('AVAXUSDT');
-
 async function capture() {
   const b = document.getElementById('capBtn'); b.disabled = true; b.textContent = 'CAPTURANDO...';
   await fetch('/api/vision/capture', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({symbol:cur, interval:'30'}) });
   setTimeout(() => { b.disabled = false; b.innerHTML = '<span class="material-icons-round">photo_camera</span>Capturar Visão'; }, 2000);
 }
 
-function select(s) {
-  if (cur) document.getElementById('p-'+cur)?.classList.remove('active');
-  cur = s; document.getElementById('p-'+s)?.classList.add('active');
-  document.getElementById('symDisplay').textContent = s;
-  const d = MATRIX[s] || {p:'STABLE'};
-  document.getElementById('profBadge').className = 'badge ' + (d.p === 'EXTREME' ? 'bx' : 'bs');
-  document.getElementById('profBadge').textContent = d.p;
-  loadData(s);
-}
-
-function renderPairs(list) {
-  const el = document.getElementById('pairList'); el.innerHTML = '';
-  list.forEach(s => {
-    const div = document.createElement('div'); div.className = 'pair-item' + (s === cur ? ' active' : '');
-    div.id = 'p-'+s; div.onclick = () => select(s);
-    div.innerHTML = `<span class="pair-name">${s.replace('USDT','')}</span><span class="badge ${MATRIX[s].p === 'EXTREME' ? 'bx' : 'bs'}">${MATRIX[s].p.substring(0,3)}</span>`;
-    el.appendChild(div);
-  });
-}
-
-function filterPairs(q) { renderPairs(Object.keys(MATRIX).filter(s => s.includes(q.toUpperCase()))); }
-
-// [V5.6] Hard Resize Observer
-const ro = new ResizeObserver(() => {
-    Object.entries(charts).forEach(([id, chart]) => {
-        const container = document.getElementById(id + '-chart');
-        if (chart && container) chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
-    });
-});
-['price-pane', 'volume-pane', 'rsi-pane'].forEach(p => { const el = document.getElementById(p); if (el) ro.observe(el); });
-
 syncBTC(); setInterval(syncBTC, 5000);
 initCharts();
 renderPairs(Object.keys(MATRIX));
-select('AVAXUSDT');
 
-async function capture() {
-  const b = document.getElementById('capBtn'); b.disabled = true; b.textContent = 'CAPTURANDO...';
-  await fetch('/api/vision/capture', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({symbol:cur, interval:'30'}) });
-  setTimeout(() => { b.disabled = false; b.innerHTML = '<span class="material-icons-round">photo_camera</span>Capturar Visão'; }, 2000);
-}
+const grid = document.getElementById('assetGrid');
+if (grid) { for (let i = 0; i < 40; i++) { const dot = document.createElement('div'); dot.className = 'asset-dot' + (Math.random() > 0.5 ? ' active' : ''); dot.style.animationDelay = (Math.random() * 2) + 's'; grid.appendChild(dot); } }
+
+select('AVAXUSDT');
 </script>
 </body>
 </html>
