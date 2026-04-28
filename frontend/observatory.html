@@ -203,27 +203,27 @@ function hideLoading(){
 }
 
 function loadChart(symbol){
-  showLoading('Carregando '+symbol+'...');
+  showLoading('Sincronizando ' + symbol + '...');
 
   const container = document.getElementById('tv_chart_container');
   container.innerHTML = '';
   
-  // Usar widgetembed direto permite configurar os inputs das SMAs (21 e 100) via URL
-  const studies = [
-    { "id": "MASimple@tv-basicstudies", "inputs": { "length": 21 } },
-    { "id": "MASimple@tv-basicstudies", "inputs": { "length": 100 } }
-  ];
-  
-  const encodedStudies = encodeURIComponent(JSON.stringify(studies));
-  
+  // V5.0: Agora usa o Layout Salvo do Usuário (gXpimIZU)
+  // Isso traz Supertrend, SMAs Customizadas e Volume que foram configurados manualmente
+  const chartId = "gXpimIZU";
   const iframe = document.createElement('iframe');
   iframe.style.width = '100%';
   iframe.style.height = '100%';
   iframe.style.border = 'none';
-  iframe.src = `https://s.tradingview.com/widgetembed/?symbol=BYBIT:${symbol}.P&interval=30&hidesidetoolbar=1&symboledit=0&saveimage=0&toolbarbg=050505&theme=dark&style=1&timezone=America%2FSao_Paulo&studies=${encodedStudies}`;
+  
+  // BYBIT:SYMBOL.P format
+  const tvSymbol = "BYBIT:" + symbol.replace('.P', '').toUpperCase() + ".P";
+  
+  // URL para carregar o layout compartilhado com o símbolo dinâmico
+  iframe.src = `https://www.tradingview.com/chart/${chartId}/?symbol=${tvSymbol}&interval=30&hidesidetoolbar=1&theme=dark`;
   
   iframe.onload = function() {
-    setTimeout(hideLoading, 1000);
+    setTimeout(hideLoading, 1500); // Um pouco mais de tempo para renderizar os indicadores
   };
   
   container.appendChild(iframe);
