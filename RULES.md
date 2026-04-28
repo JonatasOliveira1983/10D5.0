@@ -1,4 +1,4 @@
-# RULES.md — 10D Sniper V4.2 "Unified Pipeline Elite"
+# RULES.md — 10D Sniper V110.300 "Protocolo Sniper Elite 20"
 # Invariantes Tecnicas Inegociaveis — [PERSISTÊNCIA ABSOLUTA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
 # Fonte da verdade: codigo real no Railway e PostgreSQL/WebSocket Nativo.
@@ -39,7 +39,8 @@
 | 4    | SWING      | Harvester    | SIM (emancipa em 150% ROI)   | 50x fixo      |
 
 - **REGRA:** Alavancagem de 50x é OBRIGATÓRIA para todos os slots para maximizar o potencial da banca Sniper.
-- **REGRA:** Slots 1 e 2 são EXCLUSIVOS para BlitzSniper. Nunca atribua outro tipo.
+- **REGRA:** Slots 1 e 2 são EXCLUSIVOS para BlitzSniper (30M). Slots 3 e 4 para Swing e Moonbags.
+- **REGRA (MOONBAG EXPANSION):** Se uma Moonbag ocupar um slot de Swing, o sistema libera o slot lógico para um novo par da lista Elite, mantendo sempre o processamento focado nos 20 pares ativos.
 - **REGRA:** Collision Guard impede o mesmo ativo em mais de um slot simultaneamente via `paper_positions` e Postgres.
 
 ---
@@ -52,12 +53,13 @@
 
 ---
 
-## 3. BLITZ SNIPER & DNA SPECIALIST (V4.0 ADAPTIVE)
-1. **Matriz de Especialista (40 Pares):** O Bibliotecário possui um DNA fixo para 40 ativos selecionados (sem Memecoins, sem BTC/ETH/SOL). Cada ativo tem seu buffer de respiro e atraso de RF configurados.
-2. **Paciência do Sniper (Violinada):** O `AmbushAgent` não executa sinais no toque cego. Ele aguarda uma "absorção" (pavio/wick) no gráfico de 1m para garantir a rejeição de preço antes do "Strike".
-3. **Adaptive Respiro (V4.0):** Tolerância de desvio de ROI específica por ativo (de 8% a 25%) se o fluxo (CVD) estiver a favor.
-4. **Breakeven Inteligente (ADX-Aware):** Gatilho de Risk-Free ajustado pela força da tendência. ADX > 40 = Trava em 20% ROI. ADX < 22 = Trava em 40% ROI.
-5. **Paciência Diplomática (V4.0):** O Sentinela concede até 90 segundos de carência se o fluxo monetário (CVD) sustentar a posição.
+## 3. SNIPER PONTO 3 & ELITE 20 FOCUS (V110.300)
+1. **Foco 20 Elite:** O sistema monitora exclusivamente os 20 melhores pares selecionados pelo Bibliotecário. Sinais fora dessa lista são ignorados para garantir foco absoluto.
+2. **Gatilho Sniper Ponto 3 (M30):** Todas as entradas são baseadas no padrão 1-2-3 em tempos gráficos de 30 minutos.
+   - (1) Pivot Inicial. (2) Sweep de Liquidez. (3) Rejeição/Confirmação (Mínima/Máxima Protegida).
+3. **Paciência do Sniper (Vio-Hunter):** O `AmbushAgent` aguarda a rejeição no Ponto 3 (pavios longos) antes de disparar.
+4. **Take Profit Sniper:** Expansão de Fibonacci (1:2 ou 1:3) do movimento 1-2.
+5. **Stop Loss Técnico:** Posicionado obrigatoriamente abaixo (Long) ou acima (Short) do Ponto 3 do padrão.
 
 ---
 
@@ -170,13 +172,11 @@ Captain (Orquestrador Central)
 | 4    | SWING      | SignalGenerator | 40 Pares SPECIALIST_MATRIX  |
 
 ### 14.2 Regras de Negócio do Pipeline Unificado
-1. **SPECIALIST_MATRIX é a única fonte de ativos.** Tanto o BlitzSniper (`scan_and_inject`) quanto o SignalGenerator (`monitor_and_generate`) operam **exclusivamente** sobre os 40 pares definidos em `LibrarianAgent.SPECIALIST_MATRIX`. Ativos fora da matriz não geram ordens.
-2. **BTC é referência, não alvo.** O `BTCUSDT.P` é monitorado pelo Radar para contexto (ADX, variação, direção) mas **nunca** é alvo de ordem nos slots.
-3. **O Capitão é o único autorizador.** Todo sinal (BLITZ ou SWING) deve passar pelo `CaptainAgent._process_single_signal` antes de virar ordem. Injeções diretas na exchange sem passar pelo Capitão são proibidas.
-4. **Slot-Type explícito obrigatório.** O campo `slot_type` deve ser determinado explicitamente antes da chamada a `bankroll_manager.can_open_new_slot()`:
-   - `is_blitz=True` / `layer=BLITZ` / `timeframe=30` → `slot_type = "BLITZ_30M"`
-   - Demais sinais → `slot_type = "SWING"`
-5. **MATRIX-VETO no Capitão:** Se o ativo não estiver na `SPECIALIST_MATRIX`, o `_get_fleet_consensus` retorna veto imediato (`approved: False`) sem consultar o Visão.
+1. **ELITE_20_MATRIX é a única fonte de ativos.** Tanto o BlitzSniper quanto o SignalGenerator operam **exclusivamente** sobre os 20 pares de elite.
+2. **BTC é referência, não alvo.** O `BTCUSDT.P` é monitorado para contexto mas nunca é operado.
+3. **Reset de Sistema (Estado Zero):** O script `fresh_start.py` é o protocolo oficial para reset de banca ($100), ciclos da Vault e purgação de histórico para novos ciclos operacionais.
+4. **Slot-Type explícito:** Sinais Ponto 3 são classificados como BLITZ (Slots 1-2) ou SWING (Slots 3-4) pelo Agente Visão com base na força da confluência.
+5. **Verbosidade Tática:** O Bibliotecário deve emitir o "Relatório Tático Foco 20" a cada ciclo de scan para auditoria visual em tempo real.
 
 ### 14.3 Identificadores de Sinal para Diagnóstico nos Logs
 - `⚡ [BLITZ-MATRIX]` → BlitzSniper usando SPECIALIST_MATRIX corretamente
@@ -199,5 +199,5 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versão: V5.6 "Vision Intelligence & 1-2-3 Strategy" | Atualizado: 2026-04-28*
-*Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10D5.0.*
+*Versão: V110.300 "Elite 20 Sniper Protocol" | Atualizado: 2026-04-28*
+*Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10DBybityREAL.*

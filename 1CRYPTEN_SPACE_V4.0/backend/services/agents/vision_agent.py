@@ -87,18 +87,23 @@ class VisionAgent:
 
         # 2. Prepare the prompt
         side_label = "COMPRA (Long)" if side.lower() == "buy" else "VENDA (Short)"
+        is_p3 = context_data.get("trigger_type") == "POINT_3_ELITE" if context_data else False
+        
         prompt = (
             f"Analise este gráfico de {symbol} para uma operação de {side_label}.\n"
             "O gráfico foi pré-anotado com o Motor de Visão 5.0:\n"
             "- LINHA BRANCA: SMA 21 (Tendência de curto prazo).\n"
             "- LINHA AMARELA: SMA 100 (Tendência de médio prazo).\n"
             "- CAIXAS COLORIDAS: Zonas de Order Block (Institucional).\n"
-            "- MARCADORES (1), (2), (3): Estratégia de Reversão 1-2-3. (2) é a exaustão, (3) é a confirmação.\n"
+            "- MARCADORES (1), (2), (3): Estratégia de Reversão 1-2-3.\n\n"
+            "FOCO DO GATILHO: " + ("VALIDAÇÃO DO PONTO 3 (ROI DE ELITE). O preço deve ter acabado de tocar ou rejeitar o marcador (3) em confluência com uma zona institucional ou SMA." if is_p3 else "Rompimento do Ponto 2 (Strike).") + "\n\n"
             "PERGUNTA: O preço está respeitando as zonas e o padrão 1-2-3? Existe confluência visual para a entrada?\n"
+            "CLASSIFICAÇÃO: Defina se o comportamento é 'BLITZ' (extração rápida, alta volatilidade) ou 'SWING' (mudança estrutural, alvo longo).\n\n"
             "RESPONDA EM JSON:\n"
             "{\n"
             '  "decision": "APPROVED" ou "REJECTED",\n'
             '  "confidence": 0-100,\n'
+            '  "slot_type": "BLITZ" ou "SWING",\n'
             '  "analysis": "Sua explicação técnica curta",\n'
             '  "thoughts": "Seus pensamentos internos sobre o movimento"\n'
             "}"
@@ -163,6 +168,7 @@ class VisionAgent:
             return {
                 "approved": is_approved,
                 "confidence": data.get("confidence", 50),
+                "slot_type": data.get("slot_type", "SWING"),
                 "reason": data.get("analysis", "No analysis provided"),
                 "thoughts": data.get("thoughts", ""),
                 "screenshot_url": relative_url # Agora retorna a URL relativa

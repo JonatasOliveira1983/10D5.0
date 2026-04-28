@@ -1149,6 +1149,104 @@ class SignalGenerator:
             logger.error(f"Error in 1-2-3 detection for {symbol}: {e}")
             return [] if find_all else {"detected": False}
 
+    async def detect_point_3_trigger(self, symbol: str, interval: str = "30", limit: int = 50) -> Dict[str, Any]:
+        """
+        [V110.185] GATILHO SNIPER PONTO 3 (ROI DE ELITE):
+        Identifica a confirmação do Ponto 3 em tempo real para entrada antecipada.
+        - Long: P1(Low) -> P2(Lower Low) -> P3(Higher Low + Rejeição).
+        - Short: P1(High) -> P2(Higher High) -> P3(Lower High + Rejeição).
+        """
+        try:
+            from services.bybit_rest import bybit_rest_service
+            klines = await bybit_rest_service.get_klines(symbol=symbol, interval=interval, limit=limit)
+            
+            if not klines or len(klines) < 20:
+                return {"detected": False, "reason": "DADOS_INSUFICIENTES"}
+
+            # Ordem Cronológica (Bybit: newest first)
+            # klines[0] = vela atual (incompleta ou recém fechada)
+            c = klines[::-1] # c[-1] é a atual
+            
+            highs = [float(x[2]) for x in c]
+            lows = [float(x[3]) for x in c]
+            closes = [float(x[4]) for x in c]
+            opens = [float(x[1]) for x in c]
+
+            # --- BUSCA DE PONTO 3 (LONG) ---
+            # Procuramos o P2 (Mínima absoluta nas últimas 40 velas)
+            p2_low = min(lows[:-3])
+            p2_idx = lows.index(p2_low)
+            
+            # P1 deve estar antes de P2 e ser maior que P2
+            search_p1 = lows[max(0, p2_idx-20):p2_idx]
+            if search_p1:
+                p1_low = min(search_p1)
+                if p2_low < p1_low:
+                    # Agora procuramos o P3 entre P2 e o final
+                    search_p3 = lows[p2_idx+1:]
+                    if len(search_p3) >= 2:
+                        p3_low = min(search_p3)
+                        p3_idx = p2_idx + 1 + search_p3.index(p3_low)
+                        
+                        # P3 deve ser maior que P2 (Higher Low)
+                        if p3_low > p2_low:
+                            # Verificamos se P3 é RECENTE (últimas 3 velas)
+                            is_recent = (len(lows) - 1 - p3_idx) <= 3
+                            
+                            if is_recent:
+                                # Verificamos REJEIÇÃO na vela de P3 ou posterior
+                                # (Pavio inferior longo ou reversão imediata)
+                                last_candle_wick = min(opens[-1], closes[-1]) - lows[-1]
+                                candle_body = abs(closes[-1] - opens[-1])
+                                rejection = last_candle_wick > (candle_body * 0.5) or closes[-1] > opens[-1]
+                                
+                                if rejection:
+                                    return {
+                                        "detected": True,
+                                        "side": "buy",
+                                        "trigger_type": "POINT_3_ELITE",
+                                        "p1": p1_low, "p2": p2_low, "p3": p3_low,
+                                        "stop_loss": p3_low * 0.995, # 0.5% abaixo de P3
+                                        "confidence": 85
+                                    }
+
+            # --- BUSCA DE PONTO 3 (SHORT) ---
+            p2_high = max(highs[:-3])
+            p2_idx_h = highs.index(p2_high)
+            
+            search_p1_h = highs[max(0, p2_idx_h-20):p2_idx_h]
+            if search_p1_h:
+                p1_high = max(search_p1_h)
+                if p2_high > p1_high:
+                    search_p3_h = highs[p2_idx_h+1:]
+                    if len(search_p3_h) >= 2:
+                        p3_high = max(search_p3_h)
+                        p3_idx_h = p2_idx_h + 1 + search_p3_h.index(p3_high)
+                        
+                        if p3_high < p2_high:
+                            is_recent_h = (len(highs) - 1 - p3_idx_h) <= 3
+                            
+                            if is_recent_h:
+                                # Rejeição superior
+                                last_candle_wick_h = highs[-1] - max(opens[-1], closes[-1])
+                                candle_body_h = abs(closes[-1] - opens[-1])
+                                rejection_h = last_candle_wick_h > (candle_body_h * 0.5) or closes[-1] < opens[-1]
+                                
+                                if rejection_h:
+                                    return {
+                                        "detected": True,
+                                        "side": "sell",
+                                        "trigger_type": "POINT_3_ELITE",
+                                        "p1": p1_high, "p2": p2_high, "p3": p3_high,
+                                        "stop_loss": p3_high * 1.005,
+                                        "confidence": 85
+                                    }
+
+            return {"detected": False}
+        except Exception as e:
+            logger.error(f"Erro na detecção de Ponto 3 para {symbol}: {e}")
+            return {"detected": False}
+
 
     # ═══════════════════════════════════════════════════════════════
     # [V42.0] RANGING SNIPER ALGORITHMS (V-Recovery & Box Breakout)
@@ -3445,11 +3543,10 @@ class SignalGenerator:
                     s1_count = len(stage1_candidates)
                     s2_count = len(stage2_candidates)
                     logger.info(
-                        f"📊 [V14.0 FUNNEL] {len(active_symbols_ws)} → "
-                        f"S1:{s1_count} → S2:{s2_count} → "
-                        f"Score✅:{c['score_pass']} → Queued:{c['queued']} | "
-                        f"CVD:{c['cvd_pass']} RSI:{c.get('rsi_pass',0)} "
-                        f"Trend:{c['trend1h_pass']} EMA4H:{c['ema4h_pass']} Zone:{c['zone_pass']}"
+                        f"📊 [ELITE-FUNNEL] {len(active_symbols_ws)} ativos | "
+                        f"S1(Scan):{s1_count} -> S2(Tech):{s2_count} -> "
+                        f"Final:{c['queued']} | "
+                        f"Rejections: CVD={c['scanned']-c['cvd_pass']} RSI={c['cvd_pass']-c.get('rsi_pass',0)}"
                     )
                     self._diag_counters = {k: 0 for k in self._diag_counters}
                     self._last_diag_log = now_diag

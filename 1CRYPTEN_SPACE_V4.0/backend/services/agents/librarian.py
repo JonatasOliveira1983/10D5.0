@@ -35,6 +35,7 @@ class LibrarianAgent(AIOSAgent):
             capabilities=["historical_analysis", "batch_backtesting", "ranking", "sector_strategy"]
         )
         self.is_running = False
+        self.visual_scan_interval = 300  # 5 minutos para TF 30m
         self.study_interval = 7200  # 2 horas
         self.last_study_time = 0
         self.rankings = []
@@ -153,6 +154,26 @@ class LibrarianAgent(AIOSAgent):
                     })
         return obs
 
+    async def run_loop(self):
+        """Metodo de entrada para o loop do AIOS (Compatibilidade main.py)."""
+        await self.start()
+
+    async def start(self):
+        """Inicia o loop proativo do Bibliotecário."""
+        if self.is_running: return
+        self.is_running = True
+        logger.info("📚 [LIBRARIAN] Motor Proativo de Inteligência de Elite INICIADO.")
+        asyncio.create_task(self._visual_scan_loop())
+
+    async def _visual_scan_loop(self):
+        """Loop de monitoramento visual proativo (Foco 20)."""
+        while self.is_running:
+            try:
+                await self.perform_global_visual_scan()
+            except Exception as e:
+                logger.error(f"Erro no loop de scan visual: {e}")
+            await asyncio.sleep(self.visual_scan_interval)
+
     async def on_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
         msg_type = message.get("type")
         if msg_type == "START_STUDY":
@@ -179,6 +200,8 @@ class LibrarianAgent(AIOSAgent):
             payload={"action": "GLOBAL_VISUAL_SCAN_START", "count": total}
         )
         
+        tactical_report = []
+        
         for i, symbol in enumerate(symbols):
             try:
                 # Progress update to UI
@@ -196,19 +219,60 @@ class LibrarianAgent(AIOSAgent):
                     except: pass
 
                 logger.info(f"👁️ [LIBRARIAN] Scan {i+1}/{total}: {symbol}")
-                # Solicita ao Visão uma análise silenciosa de contexto
-                # O Visão 5.0 já usará o novo motor anotado automaticamente
-                await vision_agent.analyze_market_context(symbol)
+                
+                # [V110.185] Detecção de Ponto 3 Sniper (ROI de Elite)
+                from services.signal_generator import signal_generator
+                p3_trigger = await signal_generator.detect_point_3_trigger(symbol, interval="30")
+                
+                if p3_trigger.get("detected"):
+                    logger.info(f"🎯 [PONTO-3-DETECTED] {symbol} {p3_trigger['side']}! Convocando Visão para aprovação final...")
+                    
+                    # 1. Solicita Confirmação Visual de Alta Fidelidade
+                    vision_result = await vision_agent.confirm_entry(
+                        symbol, 
+                        p3_trigger["side"], 
+                        p3_trigger["confidence"], 
+                        context_data={"trigger_type": "POINT_3_ELITE"}
+                    )
+                    
+                    if vision_result.get("approved"):
+                        # 2. Se o Visão aprovar, injeta no Radar com prioridade máxima
+                        # Prepara o objeto de sinal
+                        signal = {
+                            "symbol": symbol,
+                            "side": p3_trigger["side"],
+                            "score": vision_result.get("confidence", 85),
+                            "trigger_type": "POINT_3_ELITE",
+                            "slot_type": "BLITZ_30M" if vision_result.get("slot_type") == "BLITZ" else "SWING",
+                            "stop_loss": p3_trigger["stop_loss"],
+                            "thoughts": vision_result.get("thoughts"),
+                            "screenshot_url": vision_result.get("screenshot_url"),
+                            "timestamp": time.time()
+                        }
+                        
+                        # Injeta na fila do SignalGenerator para processamento imediato pelo Capitão
+                        await signal_generator.signal_queue.put((-signal["score"], time.time(), signal))
+                        logger.info(f"🚀 [PONTO-3-CONFIRMED] {symbol} injetado no Radar com aprovação do Visão.")
+                
+                # [V110.185] Verbose analysis log
+                p3_status = "DETECTED 🎯" if p3_trigger.get("detected") else "Standby 🔍"
+                tactical_report.append(f"{symbol:12} | P3: {p3_status:12} | Conf: {p3_trigger.get('confidence', 0):3}%")
                 
                 # Pequeno delay para não sobrecarregar a API Vision/Screenshot
-                await asyncio.sleep(1.5) 
+                await asyncio.sleep(1.0) 
             except Exception as e:
                 logger.error(f"Erro no scan visual de {symbol}: {e}")
 
+        # [V5.6] EXIBIÇÃO DO RELATÓRIO TÁTICO FOCO 20
+        report_header = "\n" + "="*50 + "\n📊 [LIBRARIAN] RELATÓRIO TÁTICO FOCO 20\n" + "-"*50 + "\n"
+        report_body = "\n".join(tactical_report)
+        report_footer = "\n" + "="*50
+        logger.info(report_header + report_body + report_footer)
+
         await sovereign_service.log_event(
             agent="Librarian",
-            message="Scan Visual Global Concluído. Contexto visual mapeado para a Frota Elite.",
-            payload={"action": "GLOBAL_VISUAL_SCAN_END"}
+            message=f"Scan Visual Global Concluído. {total} ativos monitorados.",
+            payload={"action": "GLOBAL_VISUAL_SCAN_END", "total": total}
         )
         
         if sovereign_service.rtdb:

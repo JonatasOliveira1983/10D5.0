@@ -1525,7 +1525,7 @@ class CaptainAgent(AIOSAgent):
             norm_sym_discard = (symbol or "").replace(".P", "").upper()
             self.active_tocaias.discard(norm_sym_discard)
             self.processing_lock.discard(norm_symbol_lock) # [V110.25.6] LIBERA A TRAVA PARA O PRÓXIMO SINAL
-            logger.info(f"🏁 [TOCAIA ENCERRADA] {symbol} dispensado. (Restantes: {len(self.active_tocaias)})")
+            logger.debug(f"🏁 [TOCAIA ENCERRADA] {symbol} dispensado. (Restantes: {len(self.active_tocaias)})")
 
     async def monitor_active_positions_loop(self):
         """
