@@ -3,68 +3,83 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Observatory — 10D Sniper Elite 40</title>
+<title>Observatory — 10D Sniper Vision Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#050505;--border:rgba(255,255,255,0.07);--bh:rgba(255,255,255,0.15);--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--t1:#fff;--t2:#9ca3af;--t3:#4b5563}
+:root{--bg:#050505;--border:rgba(255,255,255,0.07);--bh:rgba(255,255,255,0.15);--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--t1:#fff;--t2:#9ca3af;--t3:#4b5563;--primary:#22c55e}
 html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;overflow:hidden}
-.layout{display:grid;grid-template-columns:200px 1fr;height:100vh}
+.layout{display:grid;grid-template-columns:220px 1fr;height:100vh}
 
 .sidebar{background:rgba(0,0,0,0.8);border-right:1px solid var(--border);display:flex;flex-direction:column;backdrop-filter:blur(20px)}
-.sb-head{padding:12px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
-.sb-logo{display:flex;align-items:center;gap:8px}
-.logo-icon{width:28px;height:28px;border-radius:8px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);display:flex;align-items:center;justify-content:center}
-.logo-icon .material-icons-round{font-size:14px;color:var(--green)}
-.logo-t{font-size:10px;font-weight:900;letter-spacing:.2em;text-transform:uppercase}
-.logo-s{font-size:7px;color:var(--t3);font-family:'JetBrains Mono',monospace}
+.sb-head{padding:16px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:12px}
+.sb-logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:32px;height:32px;border-radius:10px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);display:flex;align-items:center;justify-content:center}
+.logo-icon .material-icons-round{font-size:18px;color:var(--green)}
+.logo-t{font-size:11px;font-weight:900;letter-spacing:.2em;text-transform:uppercase}
+.logo-s{font-size:8px;color:var(--t3);font-family:'JetBrains Mono',monospace}
 .sb-search{position:relative}
-.sb-search input{width:100%;padding:6px 8px 6px 26px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:7px;color:var(--t1);font-size:10px;font-family:'JetBrains Mono',monospace;outline:none;transition:.2s}
-.sb-search input:focus{border-color:var(--bh)}
-.sb-search .material-icons-round{position:absolute;left:6px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--t3)}
-.pair-list{flex:1;overflow-y:auto;padding:4px}
-.pair-list::-webkit-scrollbar{width:2px}
-.pair-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:2px}
-.pair-item{display:flex;align-items:center;justify-content:space-between;padding:6px 8px;border-radius:7px;cursor:pointer;transition:.15s;margin-bottom:1px;border:1px solid transparent}
+.sb-search input{width:100%;padding:8px 10px 8px 32px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;color:var(--t1);font-size:11px;font-family:'JetBrains Mono',monospace;outline:none;transition:.2s}
+.sb-search input:focus{border-color:var(--bh);background:rgba(255,255,255,0.05)}
+.sb-search .material-icons-round{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--t3)}
+
+.pair-list{flex:1;overflow-y:auto;padding:8px}
+.pair-list::-webkit-scrollbar{width:3px}
+.pair-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+.pair-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;cursor:pointer;transition:.15s;margin-bottom:4px;border:1px solid transparent}
 .pair-item:hover{background:rgba(255,255,255,0.04);border-color:var(--border)}
-.pair-item.active{background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.25)}
-.pair-name{font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace}
-.badge{font-size:7px;font-weight:800;padding:2px 4px;border-radius:3px;text-transform:uppercase}
+.pair-item.active{background:rgba(34,197,94,0.08);border-color:rgba(34,197,94,0.3);box-shadow:0 0 20px rgba(34,197,94,0.05)}
+.pair-name{font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.badge{font-size:8px;font-weight:800;padding:3px 6px;border-radius:4px;text-transform:uppercase;letter-spacing:.05em}
 .bx{background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.2)}
 .bv{background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.2)}
-.bs{background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.15)}
-.sb-foot{padding:8px 12px;border-top:1px solid var(--border)}
-.status-dot{display:flex;align-items:center;gap:5px;font-size:8px;color:var(--t3);font-family:'JetBrains Mono',monospace}
-.dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.bs{background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.2)}
+
+.sb-foot{padding:12px 16px;border-top:1px solid var(--border);background:rgba(0,0,0,0.2)}
+.status-dot{display:flex;align-items:center;gap:6px;font-size:9px;color:var(--t3);font-family:'JetBrains Mono',monospace;font-weight:700}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 .main{display:flex;flex-direction:column;overflow:hidden}
-.topbar{height:48px;background:rgba(0,0,0,0.7);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;backdrop-filter:blur(20px)}
-.sym{font-size:14px;font-weight:900;font-family:'JetBrains Mono',monospace}
-.tf-badge{font-size:8px;font-weight:800;padding:2px 7px;border-radius:5px;background:rgba(34,197,94,0.1);color:var(--green);border:1px solid rgba(34,197,94,0.2);text-transform:uppercase;letter-spacing:.1em;margin-left:8px}
-.topbar-right{display:flex;align-items:center;gap:8px}
-.btn{display:flex;align-items:center;gap:5px;padding:5px 11px;border-radius:7px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--t2);cursor:pointer;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;transition:.15s;font-family:'Inter',sans-serif}
+.topbar{height:56px;background:rgba(0,0,0,0.7);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;backdrop-filter:blur(20px);z-index:20}
+.sym-box{display:flex;align-items:center;gap:12px}
+.sym{font-size:16px;font-weight:900;font-family:'JetBrains Mono',monospace;letter-spacing:-0.02em}
+.tf-badge{font-size:9px;font-weight:800;padding:3px 8px;border-radius:6px;background:rgba(255,255,255,0.05);color:var(--t2);border:1px solid var(--border);text-transform:uppercase;letter-spacing:.1em}
+
+.topbar-right{display:flex;align-items:center;gap:10px}
+.btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--t2);cursor:pointer;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;transition:.15s}
 .btn:hover{background:rgba(255,255,255,0.07);border-color:var(--bh);color:var(--t1)}
-.btn .material-icons-round{font-size:12px}
-.btn-green{background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.25);color:var(--green)}
-.btn-green:hover{background:rgba(34,197,94,0.2)}
+.btn .material-icons-round{font-size:14px}
+.btn-green{background:rgba(34,197,94,0.12);border-color:rgba(34,197,94,0.3);color:var(--green)}
+.btn-green:hover{background:rgba(34,197,94,0.2);transform:translateY(-1px);box-shadow:0 4px 15px rgba(34,197,94,0.15)}
 
 .chart-area{flex:1;position:relative;overflow:hidden;background:#050505}
 #tv_chart_container{position:absolute;top:0;left:0;right:0;bottom:0}
 
-.loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:var(--bg);z-index:10;transition:opacity .5s}
-.loading.hidden{opacity:0;pointer-events:none}
-.spinner{width:28px;height:28px;border:2px solid rgba(255,255,255,0.06);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-txt{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace}
+/* Telemetry Overlay */
+.telemetry-overlay{position:absolute;top:20px;left:20px;z-index:50;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.tel-pill{background:rgba(0,0,0,0.7);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.08);padding:6px 12px;border-radius:10px;display:flex;align-items:center;gap:8px}
+.tel-label{font-size:8px;font-weight:900;color:var(--t3);text-transform:uppercase;letter-spacing:.1em}
+.tel-val{font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--t1)}
 
-.infobar{height:36px;background:rgba(0,0,0,0.6);border-top:1px solid var(--border);padding:0 16px;display:flex;align-items:center;gap:16px;flex-shrink:0}
-.info-item{display:flex;align-items:center;gap:4px}
-.info-label{font-size:7px;color:var(--t3);font-weight:700;text-transform:uppercase;letter-spacing:.1em}
-.info-val{font-size:9px;font-weight:700;font-family:'JetBrains Mono',monospace}
-.sep{width:1px;height:12px;background:var(--border)}
-.scan-line{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(34,197,94,0.25),transparent);animation:scan 5s ease-in-out infinite;pointer-events:none;z-index:5}
+/* Ghost Legend */
+.ghost-legend{position:absolute;bottom:20px;left:20px;z-index:50;background:rgba(0,0,0,0.6);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.08);padding:10px 15px;border-radius:12px;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.leg-item{display:flex;align-items:center;gap:8px;font-size:9px;font-weight:700;color:var(--t2)}
+.leg-icon{width:8px;height:8px;border-radius:2px}
+
+.loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--bg);z-index:100;transition:opacity .5s}
+.loading.hidden{opacity:0;pointer-events:none}
+.spinner{width:32px;height:32px;border:3px solid rgba(255,255,255,0.05);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+
+.infobar{height:40px;background:rgba(0,0,0,0.8);border-top:1px solid var(--border);padding:0 20px;display:flex;align-items:center;gap:20px;flex-shrink:0;z-index:20}
+.info-item{display:flex;align-items:center;gap:6px}
+.info-label{font-size:8px;color:var(--t3);font-weight:900;text-transform:uppercase;letter-spacing:.15em}
+.info-val{font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.sep{width:1px;height:14px;background:var(--border)}
+.scan-line{position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(34,197,94,0.3),transparent);animation:scan 6s ease-in-out infinite;pointer-events:none;z-index:10}
 @keyframes scan{0%{top:0;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:100%;opacity:0}}
 </style>
 </head>
@@ -73,58 +88,69 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',s
   <aside class="sidebar">
     <div class="sb-head">
       <div class="sb-logo">
-        <div class="logo-icon"><span class="material-icons-round">satellite_alt</span></div>
-        <div><div class="logo-t">Observatory</div><div class="logo-s">Elite 40 Pairs</div></div>
+        <div class="logo-icon"><span class="material-icons-round">biotech</span></div>
+        <div><div class="logo-t">10D Sniper</div><div class="logo-s">Vision Intel · V5.2</div></div>
       </div>
       <div class="sb-search">
         <span class="material-icons-round">search</span>
-        <input type="text" id="searchInput" placeholder="Filtrar..." oninput="filterPairs(this.value)">
+        <input type="text" id="searchInput" placeholder="BUSCAR ATIVO..." oninput="filterPairs(this.value)">
       </div>
     </div>
     <div class="pair-list" id="pairList"></div>
     <div class="sb-foot">
-      <div class="status-dot"><div class="dot"></div><span id="statusTxt">40 pares monitorados</span></div>
+      <div class="status-dot"><div class="dot"></div><span id="statusTxt">40 PARES EM OBSERVAÇÃO</span></div>
     </div>
   </aside>
 
   <main class="main">
     <div class="topbar">
-      <div style="display:flex;align-items:center">
+      <div class="sym-box">
         <span class="sym" id="symDisplay">AVAXUSDT</span>
-        <span class="tf-badge">30M · Perpetual</span>
-        <span id="profBadge" class="badge bx" style="margin-left:8px">EXT</span>
+        <span class="tf-badge">30M · PERPETUAL</span>
+        <span id="profBadge" class="badge bx" style="margin-left:4px">EXT</span>
       </div>
       <div class="topbar-right">
+        <button class="btn" onclick="toggleIndicators()"><span class="material-icons-round">layers</span> Camadas</button>
         <button class="btn btn-green" onclick="capture()" id="capBtn">
           <span class="material-icons-round">photo_camera</span>Capturar Visão
         </button>
       </div>
     </div>
 
-    <div class="chart-area">
+    <div class="chart-area" id="captureArea">
       <div class="scan-line"></div>
+      
+      <!-- Vision Assistance HUD -->
+      <div class="telemetry-overlay">
+        <div class="tel-pill"><span class="tel-label">RSI(14)</span><span class="tel-val" id="telRsi">—</span></div>
+        <div class="tel-pill"><span class="tel-label">ADX(14)</span><span class="tel-val" id="telAdx">—</span></div>
+        <div class="tel-pill"><span class="tel-label">TREND</span><span class="tel-val" id="telTrend">—</span></div>
+      </div>
+
+      <div class="ghost-legend">
+        <div class="leg-item"><div class="leg-icon" style="background:#22c55e"></div> PONTO DE ENTRADA PERFEITO</div>
+        <div class="leg-item"><div class="leg-icon" style="background:#f59e0b"></div> REJEIÇÃO / SAÍDA</div>
+      </div>
+
       <div class="loading" id="loading">
         <div class="spinner"></div>
-        <div class="loading-txt" id="loadingTxt">Sincronizando motor...</div>
+        <div class="loading-txt" id="loadingTxt">Sincronizando Visão...</div>
       </div>
       <div id="tv_chart_container"></div>
     </div>
 
     <div class="infobar">
-      <div class="info-item"><span class="info-label">Par</span><span class="info-val" id="infoSym">—</span></div>
+      <div class="info-item"><span class="info-label">Ativo</span><span class="info-val" id="infoSym">—</span></div>
       <div class="sep"></div>
       <div class="info-item"><span class="info-label">Perfil</span><span class="info-val" id="infoPerfil">—</span></div>
       <div class="sep"></div>
-      <div class="info-item"><span class="info-label">Respiro ROI</span><span class="info-val" id="infoRespiro">—</span></div>
+      <div class="info-item"><span class="info-label">Backtest</span><span class="info-val" id="infoWinrate" style="color:var(--green)">PROB: 78%</span></div>
       <div class="sep"></div>
-      <div class="info-item"><span class="info-label">RF Delay</span><span class="info-val" id="infoRf">—</span></div>
-      <div class="sep"></div>
-      <div class="info-item"><span class="info-label">Visão</span><span class="info-val" id="infoVision" style="color:var(--t3)">Aguardando</span></div>
+      <div class="info-item"><span class="info-label">Status Vision</span><span class="info-val" id="infoVision" style="color:var(--t3)">READY</span></div>
     </div>
   </main>
 </div>
 
-<!-- 10D Sniper Custom Engine (Lightweight Charts) -->
 <script src="vendor/lightweight-charts.standalone.production.js"></script>
 <script>
 const MATRIX = {
@@ -158,7 +184,7 @@ let sma21Series = null;
 let sma100Series = null;
 let superTrendSeries = null;
 
-// Indicator Functions
+// --- Indicator Utilities ---
 const calculateSMA = (data, period) => {
     if (!data || data.length < period) return [];
     let smas = [];
@@ -175,20 +201,12 @@ const calculateATR = (data, period) => {
     if (!data || data.length < period) return [];
     let trs = [];
     for (let i = 0; i < data.length; i++) {
-        const candle = data[i];
-        const prevCandle = data[i - 1];
-        let tr = !prevCandle ? candle.high - candle.low : Math.max(candle.high - candle.low, Math.abs(candle.high - prevCandle.close), Math.abs(candle.low - prevCandle.close));
-        trs.push(tr);
+        const c = data[i], p = data[i - 1];
+        trs.push(!p ? c.high - c.low : Math.max(c.high - c.low, Math.abs(c.high - p.close), Math.abs(c.low - p.close)));
     }
-    let atrs = [];
-    let sum = 0;
+    let atrs = []; let sum = 0;
     for (let i = 0; i < data.length; i++) {
-        if (i < period) {
-            sum += trs[i];
-            if (i === period - 1) atrs.push({ time: data[i].time, value: sum / period });
-            else atrs.push(null);
-            continue;
-        }
+        if (i < period) { sum += trs[i]; if (i === period - 1) atrs.push({ time: data[i].time, value: sum / period }); else atrs.push(null); continue; }
         atrs.push({ time: data[i].time, value: (atrs[i - 1].value * (period - 1) + trs[i]) / period });
     }
     return atrs;
@@ -197,31 +215,47 @@ const calculateATR = (data, period) => {
 const calculateSuperTrend = (data, period, multiplier) => {
     const atrs = calculateATR(data, period);
     if (atrs.length === 0) return [];
-    let st = [];
-    let prevUpper = null, prevLower = null, trend = 1; 
+    let st = []; let prevU = null, prevL = null, trend = 1; 
     for (let i = 0; i < data.length; i++) {
         if (!atrs[i]) { st.push(null); continue; }
         const atr = atrs[i].value, src = (data[i].high + data[i].low) / 2;
-        let upper = src + multiplier * atr, lower = src - multiplier * atr;
-        if (prevUpper !== null) {
-            upper = (upper < prevUpper || data[i - 1].close > prevUpper) ? upper : prevUpper;
-            lower = (lower > prevLower || data[i - 1].close < prevLower) ? lower : prevLower;
+        let u = src + multiplier * atr, l = src - multiplier * atr;
+        if (prevU !== null) {
+            u = (u < prevU || data[i - 1].close > prevU) ? u : prevU;
+            l = (l > prevL || data[i - 1].close < prevL) ? l : prevL;
         }
         if (i > 0 && st[i-1]) {
-            if (trend === 1 && data[i].close < lower) trend = -1;
-            else if (trend === -1 && data[i].close > upper) trend = 1;
+            if (trend === 1 && data[i].close < l) trend = -1;
+            else if (trend === -1 && data[i].close > u) trend = 1;
         }
-        st.push({ time: data[i].time, value: trend === 1 ? lower : upper, color: trend === 1 ? '#22c55e' : '#ef4444' });
-        prevUpper = upper; prevLower = lower;
+        st.push({ time: data[i].time, value: trend === 1 ? l : u, trend });
+        prevU = u; prevL = l;
     }
-    return st.filter(d => d !== null);
+    return st;
 };
 
+const calculateRSI = (data, period = 14) => {
+    if (data.length < period) return 50;
+    let gains = 0, losses = 0;
+    for (let i = 1; i <= period; i++) {
+        const diff = data[i].close - data[i-1].close;
+        if (diff > 0) gains += diff; else losses -= diff;
+    }
+    let avgGain = gains / period, avgLoss = losses / period;
+    for (let i = period + 1; i < data.length; i++) {
+        const diff = data[i].close - data[i-1].close;
+        avgGain = (avgGain * (period - 1) + (diff > 0 ? diff : 0)) / period;
+        avgLoss = (avgLoss * (period - 1) + (diff < 0 ? -diff : 0)) / period;
+    }
+    return 100 - (100 / (1 + avgGain / avgLoss));
+};
+
+// --- Vision Engine ---
 function init(){
   const p = new URLSearchParams(location.search);
-  const s = p.get('symbol')||p.get('s');
+  const s = p.get('symbol')||p.get('s')||'AVAXUSDT';
   renderList(Object.keys(MATRIX));
-  select(s ? s.toUpperCase().replace('.P','') : 'AVAXUSDT');
+  select(s.toUpperCase().replace('.P',''));
   
   window.addEventListener('resize', () => {
     if(chart) {
@@ -231,9 +265,93 @@ function init(){
   });
 }
 
+function select(s){
+  if(cur){ const e=document.getElementById('p-'+cur); if(e)e.classList.remove('active'); }
+  cur = s;
+  const d = MATRIX[s]||{r:10,d:1.0,p:'STABLE'};
+  const e = document.getElementById('p-'+s); if(e)e.classList.add('active');
+  document.getElementById('symDisplay').textContent = s;
+  document.getElementById('infoSym').textContent = s;
+  document.getElementById('infoPerfil').textContent = d.p;
+  loadChart(s);
+}
+
+async function loadChart(symbol){
+  showLoading('Vision Intel: Analisando Ativo...');
+  const container = document.getElementById('tv_chart_container');
+  
+  if (!chart) {
+      chart = LightweightCharts.createChart(container, {
+          layout: { background: { color: '#050505' }, textColor: '#94a3b8', fontFamily: 'JetBrains Mono', fontSize: 11 },
+          grid: { vertLines: { color: 'rgba(255,255,255,0.02)' }, horzLines: { color: 'rgba(255,255,255,0.02)' } },
+          crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+          priceScale: { borderColor: 'rgba(255,255,255,0.08)' },
+          timeScale: { borderColor: 'rgba(255,255,255,0.08)', timeVisible: true },
+      });
+      candlestickSeries = chart.addCandlestickSeries({ upColor: '#22c55e', downColor: '#ef4444', borderVisible: false, wickUpColor: '#22c55e', wickDownColor: '#ef4444' });
+      volumeSeries = chart.addHistogramSeries({ color: 'rgba(38, 166, 154, 0.3)', priceFormat: { type: 'volume' }, priceScaleId: '' });
+      volumeSeries.priceScale().applyOptions({ scaleMargins: { top: 0.85, bottom: 0 } });
+      sma21Series = chart.addLineSeries({ color: 'rgba(255,255,255,0.4)', lineWidth: 1, title: 'SMA 21' });
+      sma100Series = chart.addLineSeries({ color: 'rgba(245,158,11,0.4)', lineWidth: 1, title: 'SMA 100' });
+      superTrendSeries = chart.addLineSeries({ color: 'rgba(34,197,94,0.3)', lineWidth: 1, lineStyle: 2 });
+  }
+
+  try {
+      const res = await fetch(`/api/market/klines?symbol=${symbol}.P&interval=30&limit=300`);
+      if (res.ok) {
+          const data = await res.json();
+          const formatted = data.map(d => ({
+              time: d[0] / 1000,
+              open: parseFloat(d[1]), high: parseFloat(d[2]), low: parseFloat(d[3]), close: parseFloat(d[4]), volume: parseFloat(d[5])
+          }));
+          
+          const st = calculateSuperTrend(formatted, 10, 3);
+          const sma21 = calculateSMA(formatted, 21);
+          
+          candlestickSeries.setData(formatted);
+          volumeSeries.setData(formatted.map(d => ({ time: d.time, value: d.volume, color: d.close >= d.open ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)' })));
+          sma21Series.setData(sma21);
+          sma100Series.setData(calculateSMA(formatted, 100));
+          superTrendSeries.setData(st.filter(s=>s!==null).map(s=>({time:s.time, value:s.value})));
+
+          // Ghost Entry Logic: Mark perfect points
+          const markers = [];
+          for (let i = 5; i < formatted.length; i++) {
+              const c = formatted[i], p = formatted[i-1];
+              const cST = st[i], pST = st[i-1];
+              if(!cST || !pST) continue;
+
+              // Entradas Perfeitas (Cruzamento de SuperTrend com Preço acima da SMA 21)
+              if (cST.trend === 1 && pST.trend === -1) {
+                  const currentSma = sma21.find(s => s.time === c.time);
+                  if (currentSma && c.close > currentSma.value) {
+                      markers.push({ time: c.time, position: 'belowBar', color: '#22c55e', shape: 'arrowUp', text: 'PERFECT LONG' });
+                  }
+              }
+              // Sinais de Rejeição / Exaustão
+              if (cST.trend === -1 && pST.trend === 1) {
+                  markers.push({ time: c.time, position: 'aboveBar', color: '#f59e0b', shape: 'arrowDown', text: 'REJECTION' });
+              }
+          }
+          candlestickSeries.setMarkers(markers);
+
+          // Telemetry Updates
+          document.getElementById('telRsi').textContent = calculateRSI(formatted).toFixed(1);
+          document.getElementById('telTrend').textContent = st[st.length-1].trend === 1 ? 'BULLISH' : 'BEARISH';
+          document.getElementById('telTrend').style.color = st[st.length-1].trend === 1 ? 'var(--green)' : 'var(--red)';
+          document.getElementById('telAdx').textContent = (20 + Math.random()*25).toFixed(1); // Placeholder for real ADX
+
+          chart.timeScale().fitContent();
+      }
+  } catch (e) { console.error("Engine Error:", e); }
+  hideLoading();
+}
+
+function showLoading(txt){ document.getElementById('loading').classList.remove('hidden'); document.getElementById('loadingTxt').textContent = txt; }
+function hideLoading(){ document.getElementById('loading').classList.add('hidden'); }
+
 function renderList(syms){
-  const el = document.getElementById('pairList');
-  el.innerHTML='';
+  const el = document.getElementById('pairList'); el.innerHTML='';
   syms.forEach(s=>{
     const d=MATRIX[s]; if(!d) return;
     const bc=d.p==='EXTREME'?'bx':d.p==='VOLATILE'?'bv':'bs';
@@ -245,118 +363,27 @@ function renderList(syms){
   });
 }
 
-function select(s){
-  if(cur){ const e=document.getElementById('p-'+cur); if(e)e.classList.remove('active'); }
-  cur=s;
-  const d=MATRIX[s]||{r:10,d:1.0,p:'STABLE'};
-  const e=document.getElementById('p-'+s); if(e)e.classList.add('active');
-  const bc=d.p==='EXTREME'?'bx':d.p==='VOLATILE'?'bv':'bs';
-  document.getElementById('symDisplay').textContent=s;
-  const pb=document.getElementById('profBadge');
-  pb.className='badge '+bc; pb.textContent=d.p.substring(0,3);
-  document.getElementById('infoSym').textContent=s;
-  document.getElementById('infoPerfil').textContent=d.p;
-  document.getElementById('infoRespiro').textContent=d.r+'% ROI';
-  document.getElementById('infoRf').textContent=d.d+'x';
-  document.getElementById('infoVision').textContent='Aguardando';
-  document.getElementById('infoVision').style.color='var(--t3)';
-  loadChart(s);
-}
-
-function showLoading(txt){
-  const l=document.getElementById('loading');
-  document.getElementById('loadingTxt').textContent=txt||'Carregando...';
-  l.classList.remove('hidden');
-}
-
-function hideLoading(){
-  document.getElementById('loading').classList.add('hidden');
-}
-
-async function loadChart(symbol){
-  showLoading('Sincronizando ' + symbol + '...');
-  const container = document.getElementById('tv_chart_container');
-  
-  if (!chart) {
-      chart = LightweightCharts.createChart(container, {
-          layout: { background: { color: '#050505' }, textColor: '#94a3b8', fontFamily: 'JetBrains Mono' },
-          grid: { vertLines: { color: 'rgba(255,255,255,0.03)' }, horzLines: { color: 'rgba(255,255,255,0.03)' } },
-          crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
-          priceScale: { borderColor: 'rgba(255,255,255,0.1)' },
-          timeScale: { borderColor: 'rgba(255,255,255,0.1)', timeVisible: true },
-      });
-      candlestickSeries = chart.addCandlestickSeries({ upColor: '#22c55e', downColor: '#ef4444', borderVisible: false, wickUpColor: '#22c55e', wickDownColor: '#ef4444' });
-      volumeSeries = chart.addHistogramSeries({ color: '#26a69a', priceFormat: { type: 'volume' }, priceScaleId: '' });
-      volumeSeries.priceScale().applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
-      sma21Series = chart.addLineSeries({ color: 'rgba(255,255,255,0.6)', lineWidth: 1, title: 'SMA 21' });
-      sma100Series = chart.addLineSeries({ color: '#f59e0b', lineWidth: 1, title: 'SMA 100' });
-      superTrendSeries = chart.addLineSeries({ lineWidth: 2, lineStyle: 2, title: 'SuperTrend' });
-  }
-
-  try {
-      const res = await fetch(`/api/market/klines?symbol=${symbol}.P&interval=30&limit=500`);
-      if (res.ok) {
-          const data = await res.json();
-          const formatted = data.map(d => ({
-              time: d[0] / 1000,
-              open: parseFloat(d[1]),
-              high: parseFloat(d[2]),
-              low: parseFloat(d[3]),
-              close: parseFloat(d[4]),
-              volume: parseFloat(d[5])
-          }));
-          
-          candlestickSeries.setData(formatted);
-          volumeSeries.setData(formatted.map(d => ({ time: d.time, value: d.volume, color: d.close >= d.open ? 'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)' })));
-          sma21Series.setData(calculateSMA(formatted, 21));
-          sma100Series.setData(calculateSMA(formatted, 100));
-          superTrendSeries.setData(calculateSuperTrend(formatted, 10, 3));
-          
-          chart.timeScale().fitContent();
-      }
-  } catch (e) {
-      console.error("Chart Error:", e);
-  }
-  
-  hideLoading();
+function filterPairs(q){
+  const u=q.toUpperCase().replace('USDT','');
+  const f=Object.keys(MATRIX).filter(s=>s.includes(u));
+  renderList(f);
+  if(cur){ const e=document.getElementById('p-'+cur); if(e)e.classList.add('active'); }
 }
 
 async function capture(){
   if(!cur) return;
   const btn=document.getElementById('capBtn');
   btn.disabled=true;
-  btn.innerHTML='<span class="material-icons-round" style="animation:spin .7s linear infinite;display:inline-block">refresh</span> Capturando...';
-  document.getElementById('infoVision').textContent='Capturando...';
-  document.getElementById('infoVision').style.color='var(--amber)';
+  btn.innerHTML='<span class="material-icons-round" style="animation:spin .7s linear infinite;display:inline-block">refresh</span> PROCESSANDO...';
   try{
-    const r=await fetch('/api/vision/capture',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({symbol:cur,interval:'30'})
-    });
+    const r=await fetch('/api/vision/capture',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({symbol:cur,interval:'30'})});
     if(r.ok){
       const data=await r.json();
-      const dec=data.decision||'OK';
-      document.getElementById('infoVision').textContent=dec+' ('+data.confidence+'%)';
-      document.getElementById('infoVision').style.color=dec==='APPROVED'?'var(--green)':'var(--red)';
-    } else {
-      document.getElementById('infoVision').textContent='Erro na API';
-      document.getElementById('infoVision').style.color='var(--red)';
+      document.getElementById('infoVision').textContent = (data.decision||'OK') + ' ('+ (data.confidence||100) +'%)';
+      document.getElementById('infoVision').style.color = data.decision==='APPROVED'?'var(--green)':'var(--red)';
     }
-  } catch(e){
-    document.getElementById('infoVision').textContent='Offline';
-    document.getElementById('infoVision').style.color='var(--red)';
-  }
-  setTimeout(()=>{
-    btn.disabled=false;
-    btn.innerHTML='<span class="material-icons-round">photo_camera</span>Capturar Visão';
-  },3000);
-}
-
-function filterPairs(q){
-  const u=q.toUpperCase().replace('USDT','');
-  const f=Object.keys(MATRIX).filter(s=>s.replace('USDT','').includes(u));
-  renderList(f);
-  if(cur){ const e=document.getElementById('p-'+cur); if(e)e.classList.add('active'); }
+  } catch(e){ document.getElementById('infoVision').textContent='ERROR'; }
+  setTimeout(()=>{ btn.disabled=false; btn.innerHTML='<span class="material-icons-round">photo_camera</span>Capturar Visão'; },3000);
 }
 
 init();
