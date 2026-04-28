@@ -90,7 +90,7 @@ async def get_slots():
 
 @router.get("/signals")
 async def get_signals(min_score: int = 0, limit: int = 20):
-    sovereign_service, _, _, _, _ = get_services()
+    sovereign_service, _, _, _, _, _ = get_services()
     try:
         signals = await sovereign_service.get_recent_signals(limit=limit)
         filtered = [s for s in signals if s.get("score", 0) >= min_score]
@@ -110,7 +110,7 @@ async def get_signals(min_score: int = 0, limit: int = 20):
 
 @router.get("/history")
 async def get_history(limit: int = 50, last_timestamp: str = None, symbol: str = None, start_date: str = None, end_date: str = None):
-    sovereign_service, _, _, _, _ = get_services()
+    sovereign_service, _, _, _, _, _ = get_services()
     try:
         return await sovereign_service.get_trade_history(
             limit=limit, 
@@ -125,7 +125,7 @@ async def get_history(limit: int = 50, last_timestamp: str = None, symbol: str =
 
 @router.get("/history/stats")
 async def get_history_stats(symbol: str = None, start_date: str = None, end_date: str = None):
-    sovereign_service, _, _, _, _ = get_services()
+    sovereign_service, _, _, _, _, _ = get_services()
     try:
         return await sovereign_service.get_trade_history_stats(
             symbol=symbol,
@@ -155,7 +155,7 @@ A diretriz segue inalterada: Disciplina sobre a emoção."""
 
 @router.get("/moonbags")
 async def get_moonbags(limit: int = 10):
-    sovereign_service, _, _, _, _ = get_services()
+    sovereign_service, _, _, _, _, _ = get_services()
     try:
         return await sovereign_service.get_moonbags(limit=limit)
     except Exception as e:
@@ -164,7 +164,7 @@ async def get_moonbags(limit: int = 10):
 
 @router.post("/nuke-paper")
 async def nuke_paper_state():
-    _, bybit_rest_service, _, _, bankroll_manager = get_services()
+    _, bybit_rest_service, _, _, bankroll_manager, _ = get_services()
     from services.sovereign_service import sovereign_service
     cleared = []
     if bybit_rest_service:

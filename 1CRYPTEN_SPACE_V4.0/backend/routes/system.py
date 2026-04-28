@@ -13,7 +13,8 @@ def get_services():
     from services.vault_service import vault_service
     from services.bankroll import bankroll_manager
     from services.execution_protocol import execution_protocol
-    return sovereign_service, bybit_rest_service, vault_service, bankroll_manager, execution_protocol
+    from services.bybit_ws import bybit_ws_service
+    return sovereign_service, bybit_rest_service, vault_service, bankroll_manager, execution_protocol, bybit_ws_service
 
 async def verify_api_key(x_api_key: str = Header(None)):
     if settings.DEBUG:
@@ -68,7 +69,7 @@ async def debug_test():
 
 @router.get("/health")
 async def health_check():
-    sovereign_service, bybit_rest_service, _, _, _ = get_services()
+    sovereign_service, bybit_rest_service, _, _, _, _ = get_services()
     from main import VERSION, DEPLOYMENT_ID, FRONTEND_DIR
     frontend_files = []
     if os.path.exists(FRONTEND_DIR):
@@ -91,7 +92,7 @@ async def health_check():
 
 @router.get("/banca/data")
 async def get_banca_data():
-    sovereign_service, bybit_rest_service, _, _, _ = get_services()
+    sovereign_service, bybit_rest_service, _, _, _, _ = get_services()
     from services.database_service import database_service
     try:
         # 1. Tenta buscar no Postgres (Railway Native)
@@ -117,7 +118,7 @@ async def update_banca(payload: dict):
 
 @router.get("/banca-history")
 async def get_banca_history(limit: int = 50):
-    sovereign_service, _, _, _, _ = get_services()
+    sovereign_service, _, _, _, _, _ = get_services()
     try: return await sovereign_service.get_banca_history(limit=limit)
     except Exception as e:
         logger.error(f"Error in banca history endpoint: {e}")
@@ -125,7 +126,7 @@ async def get_banca_history(limit: int = 50):
 
 @router.get("/stats")
 async def get_stats():
-    sovereign_service, _, _, _, _ = get_services()
+    sovereign_service, _, _, _, _, _ = get_services()
     try: return await sovereign_service.get_banca_status()
     except Exception as e:
         logger.error(f"Error in stats endpoint: {e}")
@@ -133,7 +134,7 @@ async def get_stats():
 
 @router.post("/system/re-sync", dependencies=[Depends(verify_api_key)])
 async def trigger_re_sync():
-    _, _, vault_service, bankroll_manager, _ = get_services()
+    _, _, vault_service, bankroll_manager, _, _ = get_services()
     try:
         logger.info("Manual Re-Sync Triggered via API")
         await vault_service.sync_vault_with_history()
@@ -145,7 +146,7 @@ async def trigger_re_sync():
 
 @router.post("/system/sniper-toggle", dependencies=[Depends(verify_api_key)])
 async def toggle_sniper(payload: dict):
-    _, _, vault_service, _, _ = get_services()
+    _, _, vault_service, _, _, _ = get_services()
     enabled = payload.get("active", True)
     success = await vault_service.set_sniper_mode(enabled)
     return {"status": "success" if success else "error"}
