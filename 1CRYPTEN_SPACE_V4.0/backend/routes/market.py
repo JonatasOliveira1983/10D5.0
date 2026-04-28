@@ -51,7 +51,7 @@ async def get_btc_regime():
 @router.get("/radar/pulse")
 async def get_radar_pulse():
     try:
-        _, _, sovereign_service, _, _, _ = get_services()
+        _, _, sovereign_service, _, _, _, _ = get_services()
         if not sovereign_service: return {"signals": [], "decisions": [], "updated_at": 0}
         return await sovereign_service.get_radar_pulse()
     except Exception as e:
@@ -62,7 +62,7 @@ async def get_radar_pulse():
 @router.get("/radar/grid")
 async def get_radar_grid():
     try:
-        _, _, sovereign_service, _, _, _ = get_services()
+        _, _, sovereign_service, _, _, _, _ = get_services()
         if not sovereign_service: return {}
         return await sovereign_service.get_radar_grid()
     except Exception as e:
@@ -73,7 +73,7 @@ async def get_radar_grid():
 async def get_radar_librarian():
     """V110.100: Rota REST para o Quartel General UI buscar o Historiador"""
     try:
-        _, _, sovereign_service, _, _, _ = get_services()
+        _, _, sovereign_service, _, _, _, _ = get_services()
         if not sovereign_service: return {"status": "error", "message": "Sovereign Offline"}
         lib_data = await sovereign_service.get_librarian_intel()
         if not lib_data: return {"status": "success", "rankings": []}
@@ -102,7 +102,7 @@ async def get_radar_librarian():
 @router.get("/captain/tocaias")
 async def get_captain_tocaias():
     try:
-        _, _, _, _, captain_agent, _ = get_services()
+        _, _, _, _, captain_agent, _, _ = get_services()
         if not captain_agent: return {"active": []}
         raw_tocaias = getattr(captain_agent, 'active_tocaias', set())
         norm_tocaias = [s.replace(".P", "").replace(".p", "").upper() for s in raw_tocaias]
@@ -113,7 +113,7 @@ async def get_captain_tocaias():
 
 @router.get("/trend/{symbol}")
 async def get_trend_analysis(symbol: str):
-    _, _, _, signal_generator, _, _ = get_services()
+    _, _, _, signal_generator, _, _, _ = get_services()
     try:
         analysis = await signal_generator.get_1h_trend_analysis(symbol)
         return {
@@ -191,7 +191,7 @@ async def get_system_state():
     try:
         # [V20.0] Safe Access to main variables to avoid circular imports during startup
         from main import sig_gen as main_sig_gen
-        bybit_rest_service, bybit_ws_service, sovereign_service, signal_generator, captain_agent, oracle_agent = get_services()
+        bybit_rest_service, bybit_ws_service, sovereign_service, signal_generator, captain_agent, oracle_agent, librarian_agent = get_services()
         
         target_sig_gen = main_sig_gen if main_sig_gen is not None else signal_generator
         
@@ -285,3 +285,30 @@ async def get_system_state():
             "updated_at": time.time() * 1000
         }
         return err_res
+
+@router.post("/captain/manual-shot")
+async def manual_shot(request: Request):
+    try:
+        _, _, _, _, captain_agent, _, _ = get_services()
+        if not captain_agent: return {"status": "error", "message": "Captain Offline"}
+        
+        data = await request.json()
+        symbol = data.get("symbol")
+        side = data.get("side", "Buy")
+        
+        if not symbol: return {"status": "error", "message": "Symbol required"}
+        
+        # Injeta sinal manual na fila de processamento
+        signal = {
+            "symbol": symbol,
+            "side": side,
+            "score": 99,
+            "layer": "MANUAL",
+            "timestamp": time.time()
+        }
+        
+        await captain_agent.monitor_signals([signal])
+        return {"status": "success", "message": f"Manual shot initiated for {symbol}"}
+    except Exception as e:
+        logger.error(f"Error in manual shot: {e}")
+        return {"status": "error", "message": str(e)}

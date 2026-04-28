@@ -191,7 +191,7 @@ class CaptainAgent(AIOSAgent):
             
             # [V4.2 SLOT-SYNC] Check slot capacity before Vision
             active_slots = await sovereign_service.get_active_slots(force_refresh=True)
-            active_slots_count = len(active_slots)
+            active_slots_count = len([s for s in active_slots if s.get("symbol")])
             
             # 4. Agente Visão [V1.0] - O Filtro Final de Intenção
             # [V4.2] Vision Gate: Só tira print se houver vaga e DNA for promissor
@@ -286,10 +286,14 @@ class CaptainAgent(AIOSAgent):
             # [VISION BLOCK] Agente Visão Veto
             if not vision_approved:
                 # [V4.2] Se o Visão está com IA offline (confidence=0), bloqueio é absoluto mesmo em PAPER
-                if vision_confidence == 0:
+                if vision_confidence == 0 and "SLOTS_FULL" not in vision_result.get("reason", ""):
                     approved = False
                     reasons.append(f"👁️🚫 VISION VETO TOTAL: IA Vision offline. {vision_result.get('reason')}")
                     logger.warning(f"🛡️ [VISION-OFFLINE-BLOCK] {symbol} bloqueado: Agente Visão sem IA (quota/crédito). Lei Máxima V4.2.")
+                elif "SLOTS_FULL" in vision_result.get("reason", ""):
+                    approved = False
+                    reasons.append(f"🚫 SLOTS_FULL: {vision_result.get('reason')}")
+                    logger.info(f"⏭️ [CAPTAIN-GATE-SKIP] {symbol} ignorado por falta de slots.")
                 # Se a confiança for alta (>=70%), o Visão tem poder de VETO absoluto
                 elif vision_confidence >= 70:
                     approved = False
