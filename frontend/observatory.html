@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Observatory — 10D Sniper Master Context</title>
+<title>Observatory — 10D Sniper Vision V5.6</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
 <style>
@@ -12,100 +12,80 @@
 html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',sans-serif;overflow:hidden}
 
 /* Global HUD */
-.global-hud{height:64px;background:rgba(0,0,0,0.9);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:32px;backdrop-filter:blur(20px);z-index:100;position:relative}
-.hud-item{display:flex;flex-direction:column;gap:2px}
+.global-hud{height:64px;background:rgba(0,0,0,0.95);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:24px;backdrop-filter:blur(20px);z-index:100;position:relative}
+.hud-item{display:flex;flex-direction:column;gap:2px;min-width:80px}
 .hud-label{font-size:8px;font-weight:900;color:var(--t3);text-transform:uppercase;letter-spacing:.2em}
-.hud-val{font-size:14px;font-weight:900;font-family:'JetBrains Mono',monospace;letter-spacing:-0.03em}
+.hud-val{font-size:13px;font-weight:900;font-family:'JetBrains Mono',monospace;letter-spacing:-0.03em}
 .hud-sep{width:1px;height:24px;background:var(--border)}
 
-.layout{display:grid;grid-template-columns:220px 1fr;height:calc(100vh - 64px)}
+.layout{display:grid;grid-template-columns:200px 1fr;height:calc(100vh - 64px)}
 
 /* Sidebar */
 .sidebar{background:rgba(0,0,0,0.8);border-right:1px solid var(--border);display:flex;flex-direction:column}
-.sb-search{padding:16px;border-bottom:1px solid var(--border)}
-.sb-search input{width:100%;padding:10px 12px 10px 36px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;color:var(--t1);font-size:12px;font-family:'JetBrains Mono',monospace;outline:none}
-.pair-list{flex:1;overflow-y:auto;padding:8px}
-.pair-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:12px;cursor:pointer;transition:.15s;margin-bottom:4px}
+.sb-search{padding:12px;border-bottom:1px solid var(--border)}
+.sb-search input{width:100%;padding:8px 12px 8px 32px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:10px;color:var(--t1);font-size:11px;font-family:'JetBrains Mono',monospace;outline:none}
+.pair-list{flex:1;overflow-y:auto;padding:4px}
+.pair-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-radius:10px;cursor:pointer;transition:.15s;margin-bottom:2px}
 .pair-item:hover{background:rgba(255,255,255,0.04)}
 .pair-item.active{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2)}
+.pair-name{font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace}
 
 /* Main Content */
 .main{display:flex;flex-direction:column;overflow:hidden}
-.pair-bar{height:48px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between}
-.sym-name{font-size:16px;font-weight:900;font-family:'JetBrains Mono',monospace}
+.pair-bar{height:40px;background:rgba(255,255,255,0.01);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.sym-name{font-size:14px;font-weight:900;font-family:'JetBrains Mono',monospace}
 
-/* Chart Stack */
-.chart-stack{flex:1;display:flex;flex-direction:column;background:#050505;position:relative}
-.pane{position:relative;border-bottom:1px solid var(--border)}
-#price-pane{flex:5}
-#volume-pane{flex:1.5}
-#rsi-pane{flex:1.5}
-.pane-label{position:absolute;top:10px;left:10px;z-index:10;font-size:9px;font-weight:900;color:var(--t3);text-transform:uppercase;background:rgba(0,0,0,0.5);padding:2px 6px;border-radius:4px;pointer-events:none}
+/* Chart Stack - Hard Proportions */
+.chart-stack{flex:1;display:flex;flex-direction:column;background:#050505;position:relative;overflow:hidden}
+.pane{position:relative;width:100%;overflow:hidden;border-bottom:1px solid var(--border)}
+#price-pane{height:60%}
+#volume-pane{height:20%}
+#rsi-pane{height:20%;border-bottom:none}
+.pane-label{position:absolute;top:8px;left:12px;z-index:20;font-size:8px;font-weight:900;color:var(--t3);text-transform:uppercase;background:rgba(0,0,0,0.6);padding:2px 6px;border-radius:4px;pointer-events:none}
 
 .loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--bg);z-index:200}
 .loading.hidden{opacity:0;pointer-events:none}
 .spinner{width:32px;height:32px;border:3px solid rgba(255,255,255,0.05);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.badge{font-size:9px;font-weight:900;padding:3px 8px;border-radius:6px;text-transform:uppercase}
+.badge{font-size:8px;font-weight:900;padding:2px 6px;border-radius:4px;text-transform:uppercase}
 .bx{background:rgba(239,68,68,0.1);color:var(--red);border:1px solid rgba(239,68,68,0.2)}
 .bs{background:rgba(16,185,129,0.1);color:var(--green);border:1px solid rgba(16,185,129,0.2)}
+
+.btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--t2);cursor:pointer;font-size:9px;font-weight:800;text-transform:uppercase;transition:.15s}
+.btn-green{background:rgba(16,185,129,0.1);border-color:rgba(16,185,129,0.2);color:var(--green)}
 </style>
 </head>
 <body>
 
 <header class="global-hud">
-    <div class="hud-item" style="margin-right:20px">
-        <div class="hud-label">Sovereign Intelligence</div>
-        <div class="hud-val" style="color:var(--green)">V110.5.5 PRO</div>
+    <div class="hud-item" style="margin-right:16px">
+        <div class="hud-label">Sovereign Intel</div>
+        <div class="hud-val" style="color:var(--green)">V5.6 RELOADED</div>
     </div>
     <div class="hud-sep"></div>
-    <div class="hud-item">
-        <div class="hud-label">BTC / USD</div>
-        <div class="hud-val" id="btcP">0.00</div>
-    </div>
-    <div class="hud-item">
-        <div class="hud-label">Variação 1H</div>
-        <div class="hud-val" id="btcV">0.00%</div>
-    </div>
+    <div class="hud-item"><div class="hud-label">BTC / USD</div><div class="hud-val" id="btcP">0.00</div></div>
+    <div class="hud-item"><div class="hud-label">VAR 1H</div><div class="hud-val" id="btcV">0.00%</div></div>
     <div class="hud-sep"></div>
-    <div class="hud-item">
-        <div class="hud-label">BTC ADX</div>
-        <div class="hud-val" id="btcA" style="color:var(--amber)">0.0</div>
-    </div>
-    <div class="hud-item">
-        <div class="hud-label">BTC CVD</div>
-        <div class="hud-val" id="btcC">0.0</div>
-    </div>
+    <div class="hud-item"><div class="hud-label">ADX</div><div class="hud-val" id="btcA" style="color:var(--amber)">0.0</div></div>
+    <div class="hud-item"><div class="hud-label">CVD</div><div class="hud-val" id="btcC">0.0</div></div>
     <div class="hud-sep"></div>
-    <div class="hud-item">
-        <div class="hud-label">Dominância</div>
-        <div class="hud-val" id="btcD">0.00%</div>
-    </div>
-    <div class="hud-item">
-        <div class="hud-label">Decorrelação</div>
-        <div class="hud-val" id="btcl">0%</div>
-    </div>
+    <div class="hud-item"><div class="hud-label">DOM %</div><div class="hud-val" id="btcD">0.00%</div></div>
+    <div class="hud-item"><div class="hud-label">DECORR</div><div class="hud-val" id="btcl">0%</div></div>
     <div class="hud-sep"></div>
-    <div class="hud-item">
-        <div class="hud-label">Direção Master</div>
-        <div class="hud-val" id="btcm" style="letter-spacing:0.1em">—</div>
-    </div>
+    <div class="hud-item"><div class="hud-label">MASTER DIR</div><div class="hud-val" id="btcm">—</div></div>
 </header>
 
 <div class="layout">
   <aside class="sidebar">
-    <div class="sb-search">
-      <input type="text" id="searchInput" placeholder="BUSCAR ATIVO..." oninput="filterPairs(this.value)">
-    </div>
+    <div class="sb-search"><input type="text" id="searchInput" placeholder="BUSCAR..." oninput="filterPairs(this.value)"></div>
     <div class="pair-list" id="pairList"></div>
   </aside>
 
   <main class="main">
     <div class="pair-bar">
-      <div style="display:flex;align-items:center;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px">
         <span class="sym-name" id="symDisplay">—</span>
-        <span class="tf-badge">30M</span>
         <span id="profBadge" class="badge bs">STABLE</span>
       </div>
       <button class="btn btn-green" onclick="capture()" id="capBtn">
@@ -114,23 +94,10 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',s
     </div>
 
     <div class="chart-stack">
-      <div class="loading" id="loading">
-        <div class="spinner"></div>
-        <div class="loading-txt">Sincronizando Engine S3...</div>
-      </div>
-      
-      <div class="pane" id="price-pane">
-        <div class="pane-label">Master Price Action</div>
-        <div id="price-chart" style="width:100%;height:100%"></div>
-      </div>
-      <div class="pane" id="volume-pane">
-        <div class="pane-label">Volume Flow</div>
-        <div id="volume-chart" style="width:100%;height:100%"></div>
-      </div>
-      <div class="pane" id="rsi-pane">
-        <div class="pane-label">Relative Strength Index (14)</div>
-        <div id="rsi-chart" style="width:100%;height:100%"></div>
-      </div>
+      <div class="loading" id="loading"><div class="spinner"></div><div class="loading-txt">Carregando V5.6...</div></div>
+      <div class="pane" id="price-pane"><div class="pane-label">Price Action</div><div id="price-chart" style="width:100%;height:100%"></div></div>
+      <div class="pane" id="volume-pane"><div class="pane-label">Volume Flow</div><div id="volume-chart" style="width:100%;height:100%"></div></div>
+      <div class="pane" id="rsi-pane"><div class="pane-label">RSI (14)</div><div id="rsi-chart" style="width:100%;height:100%"></div></div>
     </div>
   </main>
 </div>
@@ -153,55 +120,16 @@ const MATRIX = {
 let cur = null;
 let charts = { price: null, volume: null, rsi: null };
 let series = { candle: null, sma21: null, sma100: null, st: null, vol: null, rsi: null };
+let isSyncing = false;
 
 // Indicators
-const calculateSMA = (d, p) => {
-  let s = []; for (let i = 0; i < d.length; i++) {
-    if (i < p - 1) continue;
-    let sum = 0; for (let j = 0; j < p; j++) sum += d[i - j].close;
-    s.push({ time: d[i].time, value: sum / p });
-  } return s;
-};
-
-const calculateRSI = (d, p = 14) => {
-  let r = []; if (d.length < p) return r;
-  let g = 0, l = 0;
-  for (let i = 1; i <= p; i++) {
-    let diff = d[i].close - d[i-1].close;
-    if (diff > 0) g += diff; else l -= diff;
-  }
-  let ag = g/p, al = l/p;
-  r.push({ time: d[p].time, value: 100 - (100/(1+ag/al)) });
-  for (let i = p + 1; i < d.length; i++) {
-    let diff = d[i].close - d[i-1].close;
-    ag = (ag * (p-1) + (diff > 0 ? diff : 0)) / p;
-    al = (al * (p-1) + (diff < 0 ? -diff : 0)) / p;
-    r.push({ time: d[i].time, value: 100 - (100/(1+ag/al)) });
-  } return r;
-};
-
-const calculateST = (d, p, m) => {
-  const tr = (c, pr) => !pr ? c.high - c.low : Math.max(c.high - c.low, Math.abs(c.high - pr.close), Math.abs(c.low - pr.close));
-  let trs = d.map((c, i) => tr(c, d[i-1]));
-  let atrs = []; let sum = 0;
-  for (let i = 0; i < d.length; i++) {
-    if (i < p) { sum += trs[i]; if (i === p-1) atrs[i] = sum/p; else atrs[i] = null; continue; }
-    atrs[i] = (atrs[i-1] * (p-1) + trs[i]) / p;
-  }
-  let st = []; let pU = null, pL = null, t = 1;
-  for (let i = 0; i < d.length; i++) {
-    if (!atrs[i]) continue;
-    let src = (d[i].high + d[i].low) / 2, u = src + m*atrs[i], l = src - m*atrs[i];
-    if (pU !== null) { u = (u < pU || d[i-1].close > pU) ? u : pU; l = (l > pL || d[i-1].close < pL) ? l : pL; }
-    if (i > 0 && st.length > 0) { if (t === 1 && d[i].close < l) t = -1; else if (t === -1 && d[i].close > u) t = 1; }
-    st.push({ time: d[i].time, value: t === 1 ? l : u, trend: t });
-    pU = u; pL = l;
-  } return st;
-};
+const calculateSMA = (d, p) => { let s = []; for (let i = 0; i < d.length; i++) { if (i < p - 1) continue; let sum = 0; for (let j = 0; j < p; j++) sum += d[i - j].close; s.push({ time: d[i].time, value: sum / p }); } return s; };
+const calculateRSI = (d, p = 14) => { let r = []; if (d.length < p) return r; let g = 0, l = 0; for (let i = 1; i <= p; i++) { let diff = d[i].close - d[i-1].close; if (diff > 0) g += diff; else l -= diff; } let ag = g/p, al = l/p; r.push({ time: d[p].time, value: 100 - (100/(1+ag/al)) }); for (let i = p + 1; i < d.length; i++) { let diff = d[i].close - d[i-1].close; ag = (ag * (p-1) + (diff > 0 ? diff : 0)) / p; al = (al * (p-1) + (diff < 0 ? -diff : 0)) / p; r.push({ time: d[i].time, value: 100 - (100/(1+ag/al)) }); } return r; };
+const calculateST = (d, p, m) => { const tr = (c, pr) => !pr ? c.high - c.low : Math.max(c.high - c.low, Math.abs(c.high - pr.close), Math.abs(c.low - pr.close)); let trs = d.map((c, i) => tr(c, d[i-1])); let atrs = []; let sum = 0; for (let i = 0; i < d.length; i++) { if (i < p) { sum += trs[i]; if (i === p-1) atrs[i] = sum/p; else atrs[i] = null; continue; } atrs[i] = (atrs[i-1] * (p-1) + trs[i]) / p; } let st = []; let pU = null, pL = null, t = 1; for (let i = 0; i < d.length; i++) { if (!atrs[i]) continue; let src = (d[i].high + d[i].low) / 2, u = src + m*atrs[i], l = src - m*atrs[i]; if (pU !== null) { u = (u < pU || d[i-1].close > pU) ? u : pU; l = (l > pL || d[i-1].close < pL) ? l : pL; } if (i > 0 && st.length > 0) { if (t === 1 && d[i].close < l) t = -1; else if (t === -1 && d[i].close > u) t = 1; } st.push({ time: d[i].time, value: t === 1 ? l : u, trend: t }); pU = u; pL = l; } return st; };
 
 async function syncBTC() {
   try {
-    const r = await fetch('/api/system/state');
+    const r = await fetch('/api/system/state?v=' + Date.now());
     if (!r.ok) return;
     const d = await r.json();
     document.getElementById('btcP').textContent = d.btc_price.toLocaleString('en-US', {style:'currency', currency:'USD'});
@@ -234,36 +162,27 @@ function initCharts() {
   series.sma21 = charts.price.addLineSeries({ color: 'rgba(255,255,255,0.5)', lineWidth: 1, title: 'SMA 21' });
   series.sma100 = charts.price.addLineSeries({ color: 'rgba(245,158,11,0.5)', lineWidth: 1, title: 'SMA 100' });
   series.st = charts.price.addLineSeries({ color: 'rgba(16,185,129,0.3)', lineWidth: 1, lineStyle: 2 });
-  
   series.vol = charts.volume.addHistogramSeries({ color: 'rgba(38,166,154,0.5)', priceFormat: { type: 'volume' } });
   series.rsi = charts.rsi.addLineSeries({ color: '#8b5cf6', lineWidth: 2 });
   charts.rsi.addLineSeries({ color: 'rgba(255,255,255,0.1)', lineWidth: 1, lineStyle: 2 }).setData([{time:0, value:70},{time:9999999999, value:70}]);
   charts.rsi.addLineSeries({ color: 'rgba(255,255,255,0.1)', lineWidth: 1, lineStyle: 2 }).setData([{time:0, value:30},{time:9999999999, value:30}]);
 
-  // [V5.5.1] Robust Sync Logic with Recursion Guard
-  let isSyncing = false;
-  const syncRange = (sourceChart, range) => {
-    if (!range || isSyncing) return;
+  // V5.6 Improved Sync
+  const sync = (src, r) => {
+    if (!r || isSyncing) return;
     isSyncing = true;
-    Object.values(charts).forEach(c => {
-      if (c && c !== sourceChart) {
-        try {
-          c.timeScale().setVisibleRange(range);
-        } catch (e) { /* Ignore sync errors on empty charts */ }
-      }
-    });
+    Object.values(charts).forEach(c => { if(c && c !== src) try { c.timeScale().setVisibleRange(r); } catch(e){} });
     isSyncing = false;
   };
-
-  charts.price.timeScale().subscribeVisibleTimeRangeChange(r => syncRange(charts.price, r));
-  charts.volume.timeScale().subscribeVisibleTimeRangeChange(r => syncRange(charts.volume, r));
-  charts.rsi.timeScale().subscribeVisibleTimeRangeChange(r => syncRange(charts.rsi, r));
+  charts.price.timeScale().subscribeVisibleTimeRangeChange(r => sync(charts.price, r));
+  charts.volume.timeScale().subscribeVisibleTimeRangeChange(r => sync(charts.volume, r));
+  charts.rsi.timeScale().subscribeVisibleTimeRangeChange(r => sync(charts.rsi, r));
 }
 
 async function loadData(s) {
   document.getElementById('loading').classList.remove('hidden');
   try {
-    const r = await fetch(`/api/market/klines?symbol=${s}.P&interval=30&limit=400`);
+    const r = await fetch(`/api/market/klines?symbol=${s}.P&interval=30&limit=400&v=` + Date.now());
     if (r.ok) {
       const raw = await r.json();
       const d = raw.map(x => ({ time: x[0]/1000, open: parseFloat(x[1]), high: parseFloat(x[2]), low: parseFloat(x[3]), close: parseFloat(x[4]), volume: parseFloat(x[5]) }));
@@ -274,7 +193,6 @@ async function loadData(s) {
       const st = calculateST(d, 10, 3);
       series.st.setData(st.map(x => ({ time: x.time, value: x.value })));
       
-      // Markers
       let m = []; for (let i = 1; i < st.length; i++) {
         if (st[i].trend === 1 && st[i-1].trend === -1) m.push({ time: st[i].time, position: 'belowBar', color: '#10b981', shape: 'arrowUp', text: 'PERFECT' });
         if (st[i].trend === -1 && st[i-1].trend === 1) m.push({ time: st[i].time, position: 'aboveBar', color: '#f59e0b', shape: 'arrowDown', text: 'REJECT' });
@@ -283,35 +201,15 @@ async function loadData(s) {
       series.vol.setData(d.map(x => ({ time: x.time, value: x.volume, color: x.close >= x.open ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)' })));
       series.rsi.setData(calculateRSI(d));
       
-      // [V5.5.2] Force explicit resize after data load to prevent 0px height issues
+      // Force resize to fix flexbox 0px issues
       Object.values(charts).forEach(c => {
-        const container = c.chartElement().parentElement;
-        if (container) {
-          c.applyOptions({ width: container.clientWidth, height: container.clientHeight });
-        }
+        const parent = c.chartElement().parentElement;
+        if (parent) c.applyOptions({ width: parent.clientWidth, height: parent.clientHeight });
       });
-      
       charts.rsi.timeScale().fitContent();
     }
-  } catch(e) { console.error("LoadData Error:", e); }
+  } catch(e) {}
   document.getElementById('loading').classList.add('hidden');
-}
-
-// [V5.5.2] Global Resize Handler for Triple-Pane Sync
-function setupResizeObserver() {
-    const panes = ['price-pane', 'volume-pane', 'rsi-pane'];
-    const ro = new ResizeObserver(() => {
-        Object.entries(charts).forEach(([key, chart]) => {
-            const container = document.getElementById(key + '-chart');
-            if (chart && container) {
-                chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
-            }
-        });
-    });
-    panes.forEach(p => {
-        const el = document.getElementById(p);
-        if (el) ro.observe(el);
-    });
 }
 
 function select(s) {
@@ -334,15 +232,19 @@ function renderPairs(list) {
   });
 }
 
-function filterPairs(q) {
-  const f = Object.keys(MATRIX).filter(s => s.includes(q.toUpperCase()));
-  renderPairs(f);
-}
+function filterPairs(q) { renderPairs(Object.keys(MATRIX).filter(s => s.includes(q.toUpperCase()))); }
 
-// Init
+// [V5.6] Hard Resize Observer
+const ro = new ResizeObserver(() => {
+    Object.entries(charts).forEach(([id, chart]) => {
+        const container = document.getElementById(id + '-chart');
+        if (chart && container) chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+    });
+});
+['price-pane', 'volume-pane', 'rsi-pane'].forEach(p => { const el = document.getElementById(p); if (el) ro.observe(el); });
+
 syncBTC(); setInterval(syncBTC, 5000);
 initCharts();
-setupResizeObserver();
 renderPairs(Object.keys(MATRIX));
 select('AVAXUSDT');
 
