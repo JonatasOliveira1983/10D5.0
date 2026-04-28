@@ -3528,26 +3528,45 @@
                             }));
                         } catch (e) { }
 
-                        // Target 150% (Moonbag Threshold)
-                        const isSniper = slotId <= 5 || slotType === 'SNIPER';
-                        if (isSniper) {
-                            // 150% ROI at 50x = 3% price movement
-                            const target150 = normSide === 'BUY' ? ne * 1.03 : ne * 0.97;
-                            try {
-                                linesRef.current.push(seriesRef.current.createPriceLine({
-                                    price: target150, color: '#22c55e', lineWidth: 2, lineStyle: LightweightCharts.LineStyle.Dashed,
-                                    axisLabelVisible: true, title: 'TARGET (150%)'
-                                }));
-                            } catch (e) { }
-                            
-                            // Original Target (if different)
-                            if (nt > 0 && Math.abs(nt - target150) / ne > 0.001) {
+                        // Escadinha de Elite (Targets)
+                        const isSniper = slotId <= 5 || slotType === 'SNIPER' || slotType === 'SWING' || slotType === 'TREND';
+                        if (isSniper && ne > 0) {
+                            // Degraus da Escadinha @ 50x (ROI / 5000 = Price Move %)
+                            const levels = [
+                                { roi: 30,  color: 'rgba(34, 197, 94, 0.3)', title: 'T1 (30%)', dash: true },
+                                { roi: 50,  color: 'rgba(34, 197, 94, 0.5)', title: 'T2 (50%)', dash: true },
+                                { roi: 70,  color: 'rgba(34, 197, 94, 0.7)', title: 'T3 (70%)', dash: true },
+                                { roi: 110, color: 'rgba(234, 179, 8, 0.8)',  title: 'T4 (110%)', dash: true },
+                                { roi: 150, color: '#22c55e',                title: 'T5 (150%)', dash: false }
+                            ];
+
+                            levels.forEach(lvl => {
+                                const move = lvl.roi / 5000;
+                                const p = normSide === 'BUY' ? ne * (1 + move) : ne * (1 - move);
                                 try {
                                     linesRef.current.push(seriesRef.current.createPriceLine({
-                                        price: nt, color: '#edbc1d', lineWidth: 1, lineStyle: LightweightCharts.LineStyle.Dotted,
-                                        axisLabelVisible: true, title: 'FINAL TARGET'
+                                        price: p, 
+                                        color: lvl.color, 
+                                        lineWidth: lvl.dash ? 1 : 2, 
+                                        lineStyle: lvl.dash ? LightweightCharts.LineStyle.Dashed : LightweightCharts.LineStyle.Solid,
+                                        axisLabelVisible: true, 
+                                        title: lvl.title
                                     }));
                                 } catch (e) { }
+                            });
+                            
+                            // Final Target (if different from 150%)
+                            if (nt > 0) {
+                                const move150 = 150 / 5000;
+                                const target150 = normSide === 'BUY' ? ne * (1 + move150) : ne * (1 - move150);
+                                if (Math.abs(nt - target150) / ne > 0.005) {
+                                    try {
+                                        linesRef.current.push(seriesRef.current.createPriceLine({
+                                            price: nt, color: '#edbc1d', lineWidth: 1, lineStyle: LightweightCharts.LineStyle.Dotted,
+                                            axisLabelVisible: true, title: 'FINAL TARGET'
+                                        }));
+                                    } catch (e) { }
+                                }
                             }
                         }
                     }

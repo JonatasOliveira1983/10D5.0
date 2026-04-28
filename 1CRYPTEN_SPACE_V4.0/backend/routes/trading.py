@@ -15,7 +15,8 @@ def get_services():
     from services.execution_protocol import execution_protocol
     from services.vault_service import vault_service
     from services.bankroll import bankroll_manager
-    return sovereign_service, bybit_rest_service, execution_protocol, vault_service, bankroll_manager
+    from services.bybit_ws import bybit_ws_service
+    return sovereign_service, bybit_rest_service, execution_protocol, vault_service, bankroll_manager, bybit_ws_service
 
 async def verify_api_key(x_api_key: str = Header(None)):
     if settings.DEBUG:
@@ -27,7 +28,7 @@ async def verify_api_key(x_api_key: str = Header(None)):
 
 @router.get("/slots")
 async def get_slots():
-    sovereign_service, bybit_rest_service, execution_protocol, _, _ = get_services()
+    sovereign_service, bybit_rest_service, execution_protocol, _, _, bybit_ws_service = get_services()
     try:
         slots = await sovereign_service.get_active_slots()
         if slots:
@@ -60,10 +61,14 @@ async def get_slots():
                     entry = float(slot.get("entry_price", 0))
                     side = slot.get("side", "Buy")
                     sym_clean = bybit_rest_service._strip_p(slot["symbol"])
-                    live_price = price_map.get(sym_clean, 0)
+                    # [V110.350] High-Precision: Use WebSocket price first, fallback to REST ticker
+                    ws_price = bybit_ws_service.get_current_price(sym_clean)
+                    live_price = ws_price if ws_price > 0 else price_map.get(sym_clean, 0)
                     
                     if live_price > 0 and entry > 0:
-                        roi = execution_protocol.calculate_roi(entry, live_price, side)
+                        # [V110.350] Use 50x leverage as requested by USER for visual parity
+                        lev = float(slot.get("leverage", 50.0))
+                        roi = execution_protocol.calculate_roi(entry, live_price, side, leverage=lev)
                         roi = max(-500, min(5000, roi))
                         slot["pnl_percent"] = round(roi, 1)
                     

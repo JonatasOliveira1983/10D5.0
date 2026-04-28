@@ -10,7 +10,7 @@
 2. **TIMEZONE INTEGRITY (CRÍTICO):** É obrigatório o uso de `datetime.utcnow().replace(tzinfo=None)` ou `datetime.utcnow()` para todas as interações e comparações com o Postgres. **NUNCA** use `datetime.now(timezone.utc)` para comparações diretas com timestamps do banco, pois isso gera erro de "offset-naive vs offset-aware". SSOT: Naive UTC.
 3. **ARQUIVAMENTO ATÔMICO:** É terminantemente proibido limpar um slot sem antes garantir o arquivamento no Postgres via `database_service.log_trade`.
 4. **PAPER MODE ENFORCEMENT:** Em modo de teste, a variável `BYBIT_EXECUTION_MODE` deve ser injetada como `PAPER` no Railway para garantir o saldo simulado de $100.
-5. **META DE LUCRO 10/10 (V4.0):** O contador de progresso diário (Dashboard) e o contador de ciclos do Vault (1/10) só incrementam se o lucro líquido da ordem (PNL) for **>= $10.00**.
+5. **META DE LUCRO ROI >= 80% (V110.350):** O contador de progresso diário (Dashboard) e o contador de ciclos do Vault (1/10) agora são baseados em ROI técnico (>= 80%) em vez de lucro fixo em dólar. Isso garante a justiça do ciclo independente do capital (Compound-Ready).
 
 ---
 
@@ -97,6 +97,8 @@ Captain (Orquestrador Central)
 1. **Estética:** Grayscale Premium (Preto, Branco, Cinza e Verde Normal `#22c55e`). **PROIBIDO LIMA.**
 2. **Glassmorphism:** Uso obrigatório de `backdrop-blur-xl` em todos os painéis.
 3. **Labels de Histórico:** Devem seguir o padrão `+R$ 0,00` com vírgula para decimais.
+4. **VISUALIZAÇÃO TÉCNICA (ESCADINHA ELITE):** O gráfico do cockpit deve renderizar obrigatoriamente as 5 linhas de alvo da estratégia Sniper: T1(30%), T2(50%), T3(70%), T4(110%) e T5(150%).
+5. **PRECISÃO DE PNL:** O cálculo do ROI na interface deve utilizar o feed de preço do WebSocket (BybitWS) para evitar disparidades visuais com o gráfico.
 
 ---
 

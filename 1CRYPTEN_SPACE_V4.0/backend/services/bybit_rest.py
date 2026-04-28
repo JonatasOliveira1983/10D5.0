@@ -829,7 +829,7 @@ class BybitREST:
 
                         # Calcular PnL da quantidade fechada
                         final_pnl = execution_protocol.calculate_pnl(entry_price, exit_price, close_qty, side_pos)
-                        harvest_roi = execution_protocol.calculate_roi(entry_price, exit_price, side_pos)
+                        harvest_roi = execution_protocol.calculate_roi(entry_price, exit_price, side_pos, leverage=leverage)
                         
                         self.paper_balance += final_pnl
                         self.paper_orders_history.append({
@@ -1411,7 +1411,9 @@ class BybitREST:
                                     upd = {"current_stop": rounded_sl, "timestamp_last_update": time.time()}
                                     if is_moonbag: await sovereign_service.update_moonbag(moon_uuid, upd)
                                     else: await sovereign_service.update_slot(slot["id"], upd)
-                                    logger.info(f"🛡️ [REAL SL] {symbol} ROI: {execution_protocol.calculate_roi(slot_data['entry_price'], current_price, side_norm):.1f}% | SL: {rounded_sl}")
+                                    # [V110.350] Use 50x leverage for ROI consistency in logs
+                                    lev_val = float(slot_data.get("leverage", 50.0))
+                                    logger.info(f"🛡️ [REAL SL] {symbol} ROI: {execution_protocol.calculate_roi(slot_data['entry_price'], current_price, side_norm, leverage=lev_val):.1f}% | SL: {rounded_sl}")
 
                         # 5b. Status Updates Sem Fechamento (ex: MAESTRIA)
                         if reason == "MAESTRIA_GUARD_ACTIVATE" and not should_close:
@@ -1473,8 +1475,9 @@ class BybitREST:
                                         if success and is_moonbag:
                                             # Register trade before removing
                                             entry_p = float(p.get("avgPrice", 0))
-                                            roi_val = execution_protocol.calculate_roi(entry_p, current_price, p["side"])
-                                            margin_used = (q * entry_p) / 50.0
+                                            lev_val = float(p.get("leverage", 50.0))
+                                            roi_val = execution_protocol.calculate_roi(entry_p, current_price, p["side"], leverage=lev_val)
+                                            margin_used = (q * entry_p) / lev_val
                                             est_pnl = margin_used * (roi_val / 100.0)
                                             
                                             trade_data = {
@@ -1512,9 +1515,10 @@ class BybitREST:
                             if entry > 0:
                                 side = s.get("side", "Buy")
                                 qty = float(s.get("qty") or s.get("size") or 0)
+                                lev = float(s.get("leverage", 50.0))
                                 # [V110.128] Standardized PnL Calculation: (ROI/100) * Margin
-                                margin = float(s.get("entry_margin") or (qty * entry / 50.0))
-                                roi = execution_protocol.calculate_roi(entry, cur_p, side)
+                                margin = float(s.get("entry_margin") or (qty * entry / lev))
+                                roi = execution_protocol.calculate_roi(entry, cur_p, side, leverage=lev)
                                 p_usd = (roi / 100.0) * margin
                                 
                                 pnl_summary.append({
@@ -1599,10 +1603,12 @@ class BybitREST:
                             "score": slot.get("score", 0) if slot else 0,
                             "is_market_ranging": slot.get("is_market_ranging", False) if slot else False,
                             "id": slot.get("id", 0) if slot else 0,
+                            "leverage": float(pos.get("leverage", 50.0))
                         }
 
                         from services.execution_protocol import execution_protocol
-                        roi = execution_protocol.calculate_roi(slot_data["entry_price"], current_price, slot_data["side"])
+                        lev = float(pos.get("leverage", 50.0))
+                        roi = execution_protocol.calculate_roi(slot_data["entry_price"], current_price, slot_data["side"], leverage=lev)
                         should_close, reason, new_sl = await execution_protocol.process_order_logic(slot_data, current_price)
                         # [V110.100.2] ABSOLUTE ORDER (Sem saida parcial)
                         # A ordem inteira será conduzida até a emancipação completa.
@@ -1809,8 +1815,9 @@ class BybitREST:
                             if entry > 0:
                                 side = p.get("side", "Buy")
                                 qty = float(p.get("size", 0))
-                                margin = float(p.get("entry_margin") or (qty * entry / 50.0))
-                                roi = execution_protocol.calculate_roi(entry, p_price, side)
+                                lev = float(p.get("leverage", 50.0))
+                                margin = float(p.get("entry_margin") or (qty * entry / lev))
+                                roi = execution_protocol.calculate_roi(entry, p_price, side, leverage=lev)
                                 # [V110.128] Standardized PnL Calculation: (ROI/100) * Margin
                                 p_usd = (roi / 100.0) * margin
                                 pnl_summary.append({
