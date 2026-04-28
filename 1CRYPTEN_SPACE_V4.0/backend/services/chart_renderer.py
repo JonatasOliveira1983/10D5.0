@@ -44,10 +44,11 @@ class ChartRenderer:
                                   edgecolor='#262626', figcolor='#0d0d0d')
 
             # 5. Overlays (SMA)
-            apds = [
-                mpf.make_addplot(df['sma21'], color='#ffffff', width=1.0),
-                mpf.make_addplot(df['sma100'], color='#ffcc00', width=1.0)
-            ]
+            apds = []
+            if not df['sma21'].dropna().empty:
+                apds.append(mpf.make_addplot(df['sma21'], color='#ffffff', width=1.0))
+            if not df['sma100'].dropna().empty:
+                apds.append(mpf.make_addplot(df['sma100'], color='#ffcc00', width=1.0))
 
             # 6. SMC Annotations (OBs)
             # For OBs, we will draw horizontal lines or boxes using mpf.make_addplot or hlines
@@ -66,13 +67,24 @@ class ChartRenderer:
             # 7. Rendering
             # We use a smaller window of data for the final image (e.g. last 100 candles)
             plot_df = df.tail(100) if len(df) > 100 else df
+            
+            # 8. Render
+            plot_kwargs = {
+                'type': 'candle',
+                'style': s,
+                'volume': True,
+                'title': f"1CRYPTEN ELITE: {symbol}",
+                'tight_layout': True,
+                'savefig': filepath,
+                'datetime_format': '%H:%M',
+                'xrotation': 0
+            }
+            if apds:
+                plot_kwargs['addplot'] = apds
+            if hlines_list:
+                plot_kwargs['hlines'] = dict(hlines=hlines_list, colors=hlines_colors, linestyle='solid')
 
-            mpf.plot(plot_df, type='candle', style=s, 
-                     addplot=apds if apds else None,
-                     hlines=dict(hlines=hlines_list, colors=hlines_colors, linestyle='solid') if hlines_list else None,
-                     volume=True, title=f"1CRYPTEN ELITE: {symbol}",
-                     savefig=filepath, tight_layout=True,
-                     datetime_format='%H:%M', xrotation=0)
+            mpf.plot(plot_df, **plot_kwargs)
 
             logger.info(f"🎨 [RENDERER] Pure Python Chart generated: {filepath}")
             return filepath

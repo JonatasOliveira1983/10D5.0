@@ -24,8 +24,9 @@ class AIService:
         self.gemini_backoff_until = 0
         self.vision_model_backoffs = {} # [V4.2] Backoff individual por modelo vision
         self.vision_model_dead = set()    # [V4.2] Modelos que deram 402 (Payment Required)
-        self.last_vision_model = "Standby"
+        self.last_vision_model = "Neural Link - Standby"
         self.vision_requests_count = 0
+        self._start_periodic_broadcast()
         raw_key = settings.OPENROUTER_API_KEY.strip() if settings.OPENROUTER_API_KEY else None
         if raw_key and not raw_key.startswith("sk-or-v1-"):
             self.openrouter_key = f"sk-or-v1-{raw_key}"
@@ -319,6 +320,24 @@ class AIService:
         asyncio.create_task(sovereign_service.update_ai_cascade(self.get_cascade_status()))
         return None
 
+
+    def _start_periodic_broadcast(self):
+        """[V4.2.2] Starts a background task to periodically broadcast AI status."""
+        async def broadcast_loop():
+            while True:
+                try:
+                    await asyncio.sleep(60) # Every 60s
+                    asyncio.create_task(sovereign_service.update_ai_cascade(self.get_cascade_status()))
+                except Exception as e:
+                    logger.error(f"AI Cascade Broadcast Error: {e}")
+                    await asyncio.sleep(10)
+        
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                loop.create_task(broadcast_loop())
+        except Exception:
+            pass
 
     async def extract_admiral_facts(self, chat_history: str) -> dict:
         """
