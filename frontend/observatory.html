@@ -35,12 +35,13 @@ html,body{height:100%;background:var(--bg);color:var(--t1);font-family:'Inter',s
 .pair-bar{height:40px;background:rgba(255,255,255,0.01);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .sym-name{font-size:14px;font-weight:900;font-family:'JetBrains Mono',monospace}
 
-/* Chart Stack - Hard Proportions */
+/* Chart Stack - Flexible Weights to fit any screen */
 .chart-stack{flex:1;display:flex;flex-direction:column;background:#050505;position:relative;overflow:hidden}
-.pane{position:relative;width:100%;overflow:hidden;border-bottom:1px solid var(--border)}
-#price-pane{height:60%}
-#volume-pane{height:20%}
-#rsi-pane{height:20%;border-bottom:none}
+.pane{position:relative;width:100%;overflow:hidden;border-bottom:1px solid var(--border);display:flex;flex-direction:column}
+#price-pane{flex:3} /* 60% approx */
+#volume-pane{flex:1} /* 20% approx */
+#rsi-pane{flex:1;border-bottom:none} /* 20% approx */
+.pane > div:last-child { flex: 1; width: 100%; } /* Ensure chart fills the flex pane */
 .pane-label{position:absolute;top:8px;left:12px;z-index:20;font-size:8px;font-weight:900;color:var(--t3);text-transform:uppercase;background:rgba(0,0,0,0.6);padding:2px 6px;border-radius:4px;pointer-events:none}
 
 .loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:var(--bg);z-index:200}
