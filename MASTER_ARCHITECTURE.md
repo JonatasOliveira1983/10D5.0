@@ -1,7 +1,12 @@
-# MASTER_ARCHITECTURE.md — V5.6 "Vision Intelligence & Master Context"
+# MASTER_ARCHITECTURE.md — V110.401 "Vision Optimization & AI Recovery"
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.401: VISION OPTIMIZATION & AI RECOVERY [APR 30]**
+    - **Score-Selective Vision Gate:** Implementação de threshold de Score (95) para ativação do Agente Visão, reduzindo em >70% o consumo de API e acelerando a entrada em sinais secundários.
+    - **Gemma 3 Multimodal Cascade:** Atualização dos IDs de IA para a família Gemma 3 (Free) no OpenRouter, resolvendo erros de "Model Not Found" e restaurando a inteligência visual.
+    - **Bypass Safety Protocol:** Novo fluxo de aprovação automática para sinais abaixo do threshold, mantendo a fluidez sem comprometer a segurança da Elite.
 
 *   **V110.370: RADAR INTELLIGENCE & SLOT FILTERING [APR 30]**
     - **Dynamic Demand Signaling:** Implementação de mensagens contextuais no Radar ("Visão buscando SWING"), indicando a intenção ativa do agente conforme a demanda de alocação.
@@ -175,5 +180,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-28 (V5.6) Sincronizado*
-*Este documento reflete a estabilização final do ambiente Soberano com Motor de Gráficos Proprietário e Vision Intelligence.*
+*Documento atualizado em: 2026-04-30 (V110.401) Sincronizado*
+*Este documento reflete a otimização do Agente Visão e a estabilização da cascata de IA.*

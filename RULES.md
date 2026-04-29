@@ -1,4 +1,4 @@
-# RULES.md — 10D Sniper V110.370 "Radar Intelligence Protocol"
+# RULES.md — 10D Sniper V110.401 "Vision Optimization Protocol"
 # Invariantes Tecnicas Inegociaveis — [PERSISTÊNCIA ABSOLUTA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
 # Fonte da verdade: codigo real no Railway e PostgreSQL/WebSocket Nativo.
@@ -130,10 +130,10 @@ Captain (Orquestrador Central)
 
 ---
 
-## 12. INTELIGÊNCIA COLETIVA E AGENTE VISÃO (V4.2.1 — CASCATA & GATE)
-1. **Vision Gate Inteligente:** O Agente Visão só captura screenshots e aciona a IA se: (a) houver slots livres (< 4), (b) o Bibliotecário não tiver vetado o ativo, e (c) o score inicial for >= 70. Isso economiza quota de API e foca no que importa.
-2. **Cascata de IA Gratuita:** O sistema utiliza uma cascata de modelos multimodal (vision) gratuitos via OpenRouter (Gemini 2.0 Flash Free, Llama 4 Scout, etc.).
-3. **Veto Obrigatório Universal:** O **Agente Visão** e o **Bibliotecário** continuam sendo filtros OBRIGATÓRIOS. Se todos os modelos da cascata falharem, a ordem é bloqueada por segurança (`[VISION-OFFLINE-BLOCK]`).
+## 12. INTELIGÊNCIA COLETIVA E AGENTE VISÃO (V110.401 — OTIMIZAÇÃO & CASCATA GEMMA 3)
+1. **Vision Gate Seletivo:** O Agente Visão só captura screenshots e aciona a IA se o sinal tiver **Score >= 95**. Sinais entre 50 e 94 pulam a análise visual (confiando no quantitativo) para economizar quota de API.
+2. **Cascata de IA Gemma 3:** O sistema utiliza os modelos **Gemma 3 (27B, 12B, 4B)** da Google via OpenRouter como primários, por serem gratuitos e estáveis para visão.
+3. **Veto Obrigatório Universal:** Se o score for >= 95, o Visão tem poder de veto. Se todos os modelos da cascata falharem, a ordem é bloqueada por segurança (`[VISION-OFFLINE-BLOCK]`).
 
 ---
 
@@ -144,6 +144,6 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versão: V110.370 "Radar Intelligence Protocol" | Atualizado: 2026-04-30*
+*Versão: V110.401 "Vision Optimization Protocol" | Atualizado: 2026-04-30*
 *Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10D5.0.*
 

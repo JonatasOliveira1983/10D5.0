@@ -37,12 +37,11 @@ class AIService:
     def get_cascade_status(self):
         """[V4.2.1] Retorna o status atual da cascata para a UI."""
         models = [
-            "google/gemini-2.0-flash-exp:free",
-            "google/gemini-2.0-flash-lite-preview-02-05:free",
-            "qwen/qwen2.5-vl-72b-instruct:free",
-            "nvidia/llama-3.1-nemotron-nano-vl-8b-v1:free",
             "google/gemma-3-27b-it:free",
-            "mistralai/pixtral-12b:free"
+            "google/gemma-3-12b-it:free",
+            "google/gemma-3-4b-it:free",
+            "nvidia/nemotron-3-nano-omni:free",
+            "nvidia/llama-nemotron-embed-vl-1b-v2:free"
         ]
         now = time.time()
         status_list = []
@@ -221,12 +220,11 @@ class AIService:
         # [V4.2] FREE VISION CASCADE MODELS (Ordered by quality)
         # [V110.350] FREE VISION CASCADE MODELS (Final stable IDs)
         FREE_VISION_MODELS = [
-            "google/gemini-2.0-flash-exp:free",
-            "google/gemini-2.0-flash-lite-preview-02-05:free",
-            "nvidia/llama-3.1-nemotron-nano-vl-8b-v1:free",
-            "qwen/qwen2.5-vl-72b-instruct:free",
-            "mistralai/pixtral-12b:free",
-            "meta-llama/llama-3.2-11b-vision-instruct:free"
+            "google/gemma-3-27b-it:free",
+            "google/gemma-3-12b-it:free",
+            "google/gemma-3-4b-it:free",
+            "nvidia/nemotron-3-nano-omni:free",
+            "nvidia/llama-nemotron-embed-vl-1b-v2:free"
         ]
 
         if not self.openrouter_key:

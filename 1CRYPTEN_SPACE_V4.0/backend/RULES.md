@@ -1,4 +1,4 @@
-# 10D Sniper Operational Rules (V110.262)
+# 10D Sniper Operational Rules (V110.401)
 
 ## 1. Integridade de Timezone
 - **SSOT (Single Source of Truth):** Todas as datas e horários devem usar `datetime.now(datetime.timezone.utc)`.

@@ -67,6 +67,7 @@ class VisionAgent:
             screenshot_path = ""
         
         if not screenshot_path:
+            logger.warning(f"⚠️ [VISION-V5.7-OCR] {symbol}: Falha na captura do gráfico ou Captura Desativada.")
             return {
                 "approved": True, # Fallback to true se infra falhar, confia no quant.
                 "confidence": 50,
