@@ -221,10 +221,10 @@ class AIService:
         # [V4.2] FREE VISION CASCADE MODELS (Ordered by quality)
         # [V110.350] FREE VISION CASCADE MODELS (Final stable IDs)
         FREE_VISION_MODELS = [
-            "nvidia/nemotron-nano-12b-v2-vl:free", # WORKING ✅
-            "google/gemini-2.0-flash-exp:free",    # Stable backup
-            "google/gemma-3-27b-it:free",
-            "google/gemma-3-12b-it:free",
+            "google/gemini-2.0-flash-exp:free",
+            "google/gemini-2.0-flash-lite-preview-02-05:free",
+            "nvidia/llama-3.1-nemotron-nano-vl-8b-v1:free",
+            "qwen/qwen2.5-vl-72b-instruct:free",
             "mistralai/pixtral-12b:free",
             "meta-llama/llama-3.2-11b-vision-instruct:free"
         ]
@@ -317,7 +317,26 @@ class AIService:
                 self.vision_model_backoffs[v_model] = now + 30 # Short backoff on generic error
                 continue
 
-        logger.error("❌ [VISION-CASCADE] All free vision models exhausted or in backoff.")
+        # [V5.0] FINAL FALLBACK: Native Gemini (if key present)
+        if self.gemini_model and now > self.gemini_backoff_until:
+            try:
+                logger.info("👁️ [VISION-FALLBACK] Trying Native Gemini Flash...")
+                # We need to load the image into a generative ai part
+                import google.generativeai as genai
+                from PIL import Image
+                img = Image.open(image_path)
+                
+                response = await asyncio.to_thread(
+                    self.gemini_model.generate_content,
+                    [f"{system_instruction}\n\n{prompt}", img]
+                )
+                if response and hasattr(response, 'text'):
+                    logger.info("✅ [VISION-FALLBACK] Success using Native Gemini")
+                    return response.text.strip()
+            except Exception as ge:
+                logger.warning(f"❌ [VISION-FALLBACK] Native Gemini failed: {ge}")
+
+        logger.error("❌ [VISION-CASCADE] All vision models (OpenRouter + Native) failed.")
         asyncio.create_task(sovereign_service.update_ai_cascade(self.get_cascade_status()))
         return None
 
