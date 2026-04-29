@@ -436,12 +436,36 @@ function refreshLayers() {
   let m = [];
   obLines.forEach(l => series.candle.removePriceLine(l));
   obLines = [];
+
+  // [V110.420] AXIS LIBRARIAN: Lógica para evitar empilhamento vertical de labels
+  const usedPrices = [];
+  const checkClutter = (p) => {
+    const tolerance = p * 0.003; // 0.3% de tolerância para ocluir labels próximos
+    const isCluttered = usedPrices.some(up => Math.abs(up - p) < tolerance);
+    if (!isCluttered) usedPrices.push(p);
+    return isCluttered;
+  };
+
   if (document.getElementById('toggle-smc').checked) {
     (curStudy.obs || []).slice(-4).forEach(ob => {
         const color = ob.type === 'BULLISH' ? '#10b981' : '#ef4444';
-        // Opacidade reduzida para não cegar a IA
-        obLines.push(series.candle.createPriceLine({ price: ob.top, color: color + '44', lineWidth: 1, title: 'OB ' + ob.type[0], axisLabelVisible: true }));
-        obLines.push(series.candle.createPriceLine({ price: ob.bottom, color: color + '22', lineWidth: 1, lineStyle: 2, axisLabelVisible: true }));
+        const isClutteredTop = checkClutter(ob.top);
+        const isClutteredBottom = checkClutter(ob.bottom);
+        
+        obLines.push(series.candle.createPriceLine({ 
+            price: ob.top, 
+            color: color + '44', 
+            lineWidth: 1, 
+            title: isClutteredTop ? '' : 'OB ' + ob.type[0], 
+            axisLabelVisible: !isClutteredTop 
+        }));
+        obLines.push(series.candle.createPriceLine({ 
+            price: ob.bottom, 
+            color: color + '22', 
+            lineWidth: 1, 
+            lineStyle: 2, 
+            axisLabelVisible: !isClutteredBottom 
+        }));
     });
   }
   if (document.getElementById('toggle-123').checked && (curStudy.patterns_123 || []).length > 0) {
@@ -451,7 +475,17 @@ function refreshLayers() {
             const t = d[data.idx]?.time;
             if (t) m.push({ time: t, position: p.side === 'buy' ? 'belowBar' : 'aboveBar', color: color, shape: 'circle', text: num });
         });
-        if (p.trigger_price) obLines.push(series.candle.createPriceLine({ price: p.trigger_price, color: 'rgba(255,255,255,0.2)', lineWidth: 1, lineStyle: 3, title: 'STRIKE', axisLabelVisible: true }));
+        if (p.trigger_price) {
+            const isCluttered = checkClutter(p.trigger_price);
+            obLines.push(series.candle.createPriceLine({ 
+                price: p.trigger_price, 
+                color: 'rgba(255,255,255,0.2)', 
+                lineWidth: 1, 
+                lineStyle: 3, 
+                title: isCluttered ? '' : 'STRIKE', 
+                axisLabelVisible: !isCluttered 
+            }));
+        }
     });
   }
   if (document.getElementById('toggle-trend').checked) {
