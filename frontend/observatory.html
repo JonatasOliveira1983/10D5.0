@@ -168,6 +168,11 @@ html, body { background: #000000 !important; background-color: #000000 !importan
 .tl-grn { background: var(--green); color: var(--green); }
 .tl-lbl { font-size: 9px; color: var(--t2); font-weight: 800; margin-right: 4px; }
 
+/* VLM OCR Elements */
+.ocr-hud { position: absolute; bottom: 30px; right: 10px; z-index: 30; background: rgba(0,0,0,0.85); border: 2px solid var(--amber); color: var(--amber); padding: 6px 12px; font-weight: 900; font-family: 'JetBrains Mono', monospace; font-size: 14px; text-transform: uppercase; pointer-events: none; border-radius: 4px; box-shadow: 0 0 15px rgba(245,158,11,0.2); }
+.ocr-hud.safe { border-color: var(--green); color: var(--green); box-shadow: 0 0 15px rgba(16,185,129,0.2); }
+.ocr-hud.danger { border-color: var(--red); color: var(--red); box-shadow: 0 0 15px rgba(239,68,68,0.2); }
+
 .btn {
     background: var(--card);
     border: 1px solid var(--border);
@@ -315,6 +320,7 @@ html, body { background: #000000 !important; background-color: #000000 !importan
             <div class="pane-label" style="background:rgba(245,158,11,0.2); color:var(--amber);">4H SWING CONTEXTO</div>
             <div id="chart4h-price" style="width:100%;height:100%"></div>
             <div class="levels-hud" id="hud4h"></div>
+            <div class="ocr-hud" id="ocrHud4h">CÁLCULO DE ALVO...</div>
         </div>
       </div>
     </div>
@@ -406,11 +412,26 @@ function updateTrafficLight(trend30, trend4h) {
     document.getElementById('tl-y').classList.remove('on');
     document.getElementById('tl-g').classList.remove('on');
     
+    let wText = 'TRAP ZONE';
+    let wColor = 'rgba(245, 158, 11, 0.1)';
+    
+    if (trend4h === 1) {
+        wText = 'MACRO: BULLISH';
+        wColor = 'rgba(16, 185, 129, 0.1)';
+    } else if (trend4h === -1) {
+        wText = 'MACRO: BEARISH';
+        wColor = 'rgba(239, 68, 68, 0.1)';
+    }
+    
     if (trend30 === trend4h) {
         document.getElementById('tl-g').classList.add('on'); // Alinhado
     } else {
         document.getElementById('tl-y').classList.add('on'); // Conflito
     }
+    
+    // Apply Watermarks for VLM OCR
+    charts30.price.applyOptions({ watermark: { visible: true, fontSize: 48, horzAlign: 'center', vertAlign: 'center', color: wColor, text: wText }});
+    charts4h.price.applyOptions({ watermark: { visible: true, fontSize: 64, horzAlign: 'center', vertAlign: 'center', color: wColor, text: wText }});
 }
 
 async function loadData(s) {
@@ -470,31 +491,38 @@ function processLayers(study, seriesGroup, obArr, fvgArr, is4H) {
     obArr.forEach(l => seriesGroup.candle.removePriceLine(l));
     obArr.length = 0;
     
+    // For calculating OCR space
+    let currentPrice = d.length > 0 ? d[d.length - 1].close : 0;
+    let closestRes = Infinity;
+    let closestSup = 0;
+    
     // FVGs / OBs
     if (document.getElementById('toggle-smc').checked) {
-        // Render OBs
-        (study.obs || []).slice(-3).forEach(ob => {
+        (study.obs || []).slice(-4).forEach(ob => {
             const color = ob.type === 'BULLISH' ? '#10b981' : '#ef4444';
             obArr.push(seriesGroup.candle.createPriceLine({ price: ob.top, color: color + '55', lineWidth: is4H ? 2 : 1, axisLabelVisible: false }));
             obArr.push(seriesGroup.candle.createPriceLine({ price: ob.bottom, color: color + '33', lineWidth: 1, lineStyle: 2, axisLabelVisible: false }));
             levelItems.push({ color, label: 'OB ' + ob.type[0], value: ob.top });
+            
+            if (ob.bottom > currentPrice && ob.bottom < closestRes) closestRes = ob.bottom;
+            if (ob.top < currentPrice && ob.top > closestSup) closestSup = ob.top;
         });
         
-        // Render FVGs
         if (fvgArr && study.fvgs) {
             fvgArr.forEach(l => seriesGroup.candle.removePriceLine(l));
             fvgArr.length = 0;
-            study.fvgs.slice(-2).forEach(fvg => {
-                const color = fvg.type === 'BULLISH' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)';
-                // In lightweight charts, box drawing is complex. We use distinct thick dashed lines for FVG boundaries
+            study.fvgs.slice(-3).forEach(fvg => {
                 fvgArr.push(seriesGroup.candle.createPriceLine({ price: fvg.top, color: fvg.type === 'BULLISH' ? '#10b981' : '#ef4444', lineWidth: 2, lineStyle: 3, axisLabelVisible: false }));
                 fvgArr.push(seriesGroup.candle.createPriceLine({ price: fvg.bottom, color: fvg.type === 'BULLISH' ? '#10b981' : '#ef4444', lineWidth: 2, lineStyle: 3, axisLabelVisible: false }));
                 levelItems.push({ color: '#f59e0b', label: 'FVG ' + fvg.type[0], value: (fvg.top+fvg.bottom)/2 });
+                
+                if (fvg.bottom > currentPrice && fvg.bottom < closestRes) closestRes = fvg.bottom;
+                if (fvg.top < currentPrice && fvg.top > closestSup) closestSup = fvg.top;
             });
         }
     }
 
-    // 1-2-3 Patterns
+    // 1-2-3 Patterns & VLM Ghost Boxes
     if (!is4H && document.getElementById('toggle-123').checked && (study.patterns_123 || []).length > 0) {
         study.patterns_123.forEach(p => {
             const color = p.side === 'buy' ? '#10b981' : '#ef4444';
@@ -503,8 +531,19 @@ function processLayers(study, seriesGroup, obArr, fvgArr, is4H) {
                 if (t) m.push({ time: t, position: p.side === 'buy' ? 'belowBar' : 'aboveBar', color, shape: 'circle', text: num });
             });
             if (p.trigger_price) {
-                obArr.push(seriesGroup.candle.createPriceLine({ price: p.trigger_price, color: 'rgba(255,255,255,0.25)', lineWidth: 1, lineStyle: 3, axisLabelVisible: false }));
+                obArr.push(seriesGroup.candle.createPriceLine({ price: p.trigger_price, color: 'rgba(255,255,255,0.4)', lineWidth: 1, lineStyle: 3, axisLabelVisible: false, title: 'ENTRY' }));
                 levelItems.push({ color: '#94a3b8', label: 'STRIKE', value: p.trigger_price });
+                
+                // VLM Ghost Target Box (+6%)
+                const targetFactor = p.side === 'buy' ? 1.06 : 0.94;
+                const tp = p.trigger_price * targetFactor;
+                obArr.push(seriesGroup.candle.createPriceLine({ price: tp, color: 'rgba(16,185,129,0.3)', lineWidth: 4, lineStyle: 0, axisLabelVisible: false, title: 'TARGET 6%' }));
+                
+                // VLM Ghost Stop Loss Box
+                let sl = null;
+                if(p.points['3']) sl = p.side === 'buy' ? d[p.points['3'].idx]?.low : d[p.points['3'].idx]?.high;
+                if(!sl) sl = p.trigger_price * (p.side === 'buy' ? 0.98 : 1.02);
+                obArr.push(seriesGroup.candle.createPriceLine({ price: sl, color: 'rgba(239,68,68,0.3)', lineWidth: 4, lineStyle: 0, axisLabelVisible: false, title: 'STOP LOSS' }));
             }
         });
     }
@@ -531,6 +570,24 @@ function processLayers(study, seriesGroup, obArr, fvgArr, is4H) {
     }
 
     seriesGroup.candle.setMarkers(m.sort((a,b) => a.time - b.time));
+    
+    // Update VLM OCR Hud
+    if (is4H) {
+        const ocr = document.getElementById('ocrHud4h');
+        if (ocr) {
+            let pct = 0;
+            // Assumindo long (foco da matriz na maioria das vezes, mas aqui checamos o alvo mais proximo)
+            if (closestRes !== Infinity) {
+                pct = ((closestRes - currentPrice) / currentPrice) * 100;
+                ocr.textContent = `ESPAÇO ATÉ RESIST: +${pct.toFixed(1)}%`;
+                ocr.className = 'ocr-hud ' + (pct >= 6.0 ? 'safe' : 'danger');
+            } else {
+                ocr.textContent = `ESPAÇO ATÉ RESIST: LIVRE (CÉU AZUL)`;
+                ocr.className = 'ocr-hud safe';
+            }
+        }
+    }
+    
     return levelItems;
 }
 
