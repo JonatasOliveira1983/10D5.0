@@ -474,12 +474,14 @@ async function loadData(s) {
     updateTrafficLight(lastTrend30, lastTrend4h);
     refreshAllLayers();
     
-    // [V110.390] MEGA-SCROLL FIX: Forçar scroll em todos os eixos sincronizados com delay maior
+    // [V110.405] OBSERVATORY SCALE FIX: Sincronização inteligente sem conflito de zoom
     setTimeout(() => {
-        if (charts30.rsi) charts30.rsi.timeScale().scrollToPosition(10, false); 
+        // Scroll no 4H (independente)
         if (charts4h.price) charts4h.price.timeScale().scrollToPosition(10, false);
-        // Fallback: tentar scrollar o preço também caso a sincronização falhe
-        charts30.price.timeScale().scrollToPosition(10, false);
+        
+        // Scroll no 30M (apenas no preço, a sincronização cuida do resto)
+        // Aumentado de 10 para 60 para mostrar mais candles e evitar o zoom 'gigante'
+        if (charts30.price) charts30.price.timeScale().scrollToPosition(60, false);
     }, 600);
 
     Object.values(charts30).forEach(c => { const p = c.chartElement().parentElement; if(p) c.applyOptions({ width: p.clientWidth, height: p.clientHeight }); });
