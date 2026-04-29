@@ -364,9 +364,10 @@ function initCharts() {
     grid: { vertLines: { color: 'rgba(255,255,255,0.02)' }, horzLines: { color: 'rgba(255,255,255,0.02)' } },
     crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
     timeScale: { borderColor: 'rgba(255,255,255,0.08)', timeVisible: true },
-    // [V110.400] IA-FIRST AXIS: Régua alargada para evitar sobreposição
+    // [V110.410] IA-CLEAN AXIS: Confinamento total de labels na régua
     rightPriceScale: {
-        minimumWidth: 140,
+        minimumWidth: 150,
+        entireTextOnly: true,
         borderVisible: false,
         scaleMargins: {
             top: 0.2,
@@ -419,6 +420,7 @@ async function loadData(s) {
       series.rsi.setData(calculateRSI(d));
       Object.values(charts).forEach(c => { const p = c.chartElement().parentElement; if (p) c.applyOptions({ width: p.clientWidth, height: p.clientHeight }); });
       charts.rsi.timeScale().fitContent();
+      console.log(`📡 Observatory: Data synchronized for ${s} [${d.length} candles]`);
     }
   } catch(e) { console.error("Study Load Error:", e); }
   
@@ -493,7 +495,9 @@ const ro = new ResizeObserver(() => {
 
 async function capture() {
   const b = document.getElementById('capBtn'); b.disabled = true; b.textContent = 'CAPTURANDO...';
+  console.log(`📸 Vision: Capturing proof for ${cur}...`);
   await fetch('/api/vision/capture', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({symbol:cur, interval:'30'}) });
+  console.log(`✅ Vision: Capture request sent to Agent`);
   setTimeout(() => { b.disabled = false; b.innerHTML = '<span class="material-icons-round" style="font-size:16px">photo_camera</span>Capturar Visão'; }, 2000);
 }
 
