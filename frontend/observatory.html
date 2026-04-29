@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#000000">
     <meta name="color-scheme" content="dark">
-    <title>10D SNIPER - OBSERVATÓRIO V5.6</title>
+    <title>10D SNIPER - OBSERVATÓRIO V5.7 DUAL</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@700;900&family=Material+Icons+Round" rel="stylesheet">
     <style>
 :root {
@@ -89,8 +89,30 @@ html, body { background: #000000 !important; background-color: #000000 !importan
 }
 .sym-name { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
 
-.chart-stack { flex: 1; display: flex; flex-direction: column; gap: 1px; background: var(--border); overflow: hidden; }
-.pane { flex: 1; background: var(--bg); position: relative; min-height: 100px; }
+/* Split View Structure */
+.split-container {
+    flex: 1;
+    display: flex;
+    background: var(--border);
+    gap: 1px;
+    overflow: hidden;
+}
+.chart-col {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    gap: 1px;
+    overflow: hidden;
+    position: relative;
+}
+.col-30m { flex: 6; }
+.col-4h { flex: 4; }
+.col-4h.hidden { display: none; }
+
+.pane { position: relative; background: var(--bg); min-height: 80px; }
+.pane.price { flex: 5; }
+.pane.aux { flex: 1; }
+
 .pane-label {
     position: absolute;
     top: 10px;
@@ -106,7 +128,7 @@ html, body { background: #000000 !important; background-color: #000000 !importan
     pointer-events: none;
 }
 
-/* [V5.6.1] Floating Levels HUD — nivels fora da régua */
+/* Floating Levels HUD */
 .levels-hud {
     position: absolute;
     top: 36px;
@@ -137,6 +159,15 @@ html, body { background: #000000 !important; background-color: #000000 !importan
 .level-lbl { color: var(--t2); }
 .level-val { color: var(--t1); }
 
+/* Traffic Light */
+.traffic-light { display: flex; gap: 4px; align-items: center; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border); }
+.tl-dot { width: 10px; height: 10px; border-radius: 50%; opacity: 0.2; transition: 0.3s; }
+.tl-dot.on { opacity: 1; box-shadow: 0 0 10px currentColor; }
+.tl-red { background: var(--red); color: var(--red); }
+.tl-yel { background: var(--amber); color: var(--amber); }
+.tl-grn { background: var(--green); color: var(--green); }
+.tl-lbl { font-size: 9px; color: var(--t2); font-weight: 800; margin-right: 4px; }
+
 .btn {
     background: var(--card);
     border: 1px solid var(--border);
@@ -154,7 +185,7 @@ html, body { background: #000000 !important; background-color: #000000 !importan
 .btn-green { background: var(--green); color: #000; border: none; }
 .btn-green:hover { background: #059669; }
 
-/* Premium Boot Loader (V5.6 RELOADED) */
+/* Premium Boot Loader */
 .loading {
     position: absolute;
     inset: 0;
@@ -167,131 +198,44 @@ html, body { background: #000000 !important; background-color: #000000 !importan
     transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .loading.hidden { opacity: 0; pointer-events: none; }
-
-.boot-logo-container {
-    position: relative;
-    width: 220px;
-    height: 220px;
-    margin-bottom: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.boot-logo {
-    width: 120px;
-    height: 120px;
-    z-index: 10;
-    filter: drop-shadow(0 0 30px rgba(16,185,129, 0.6));
-    animation: logo-pulse 2s infinite ease-in-out;
-}
-.boot-ring {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border: 1.5px solid rgba(16,185,129, 0.2);
-    border-radius: 50%;
-    animation: ring-expand 3s infinite linear;
-}
+.boot-logo-container { position: relative; width: 220px; height: 220px; margin-bottom: 40px; display: flex; align-items: center; justify-content: center; }
+.boot-logo { width: 120px; height: 120px; z-index: 10; filter: drop-shadow(0 0 30px rgba(16,185,129, 0.6)); animation: logo-pulse 2s infinite ease-in-out; }
+.boot-ring { position: absolute; width: 100%; height: 100%; border: 1.5px solid rgba(16,185,129, 0.2); border-radius: 50%; animation: ring-expand 3s infinite linear; }
 .boot-ring:nth-child(2) { animation-delay: 1s; }
 .boot-ring:nth-child(3) { animation-delay: 2s; }
-
-.boot-scanner {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(to right, transparent, var(--green), transparent);
-    box-shadow: 0 0 20px var(--green);
-    animation: scan-vertical 2.5s infinite ease-in-out;
-    z-index: 11;
-}
-
-.asset-grid {
-    display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    gap: 8px;
-    margin-top: 30px;
-}
-.asset-dot {
-    width: 8px;
-    height: 8px;
-    background: rgba(255,255,255,0.08);
-    border-radius: 2px;
-}
-.asset-dot.active {
-    background: var(--green);
-    box-shadow: 0 0 12px var(--green);
-    animation: dot-flicker 2s infinite;
-}
-
-.candle-loader {
-    width: 24px;
-    height: 48px;
-    border: 2px solid var(--t2);
-    position: relative;
-    margin-bottom: 20px;
-}
-.candle-loader::before {
-    content: '';
-    position: absolute;
-    top: -12px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 2px;
-    height: 12px;
-    background: var(--t2);
-}
-.candle-loader::after {
-    content: '';
-    position: absolute;
-    bottom: -12px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 2px;
-    height: 12px;
-    background: var(--t2);
-}
-.candle-animate {
-    animation: candle-move 1.5s infinite ease-in-out;
-}
+.boot-scanner { position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(to right, transparent, var(--green), transparent); box-shadow: 0 0 20px var(--green); animation: scan-vertical 2.5s infinite ease-in-out; z-index: 11; }
+.candle-loader { width: 24px; height: 48px; border: 2px solid var(--t2); position: relative; margin-bottom: 20px; }
+.candle-loader::before, .candle-loader::after { content: ''; position: absolute; left: 50%; transform: translateX(-50%); width: 2px; height: 12px; background: var(--t2); }
+.candle-loader::before { top: -12px; }
+.candle-loader::after { bottom: -12px; }
+.candle-animate { animation: candle-move 1.5s infinite ease-in-out; }
 
 @keyframes logo-pulse { 0%, 100% { transform: scale(1); opacity: 0.8; filter: drop-shadow(0 0 30px rgba(16,185,129, 0.6)); } 50% { transform: scale(1.15); opacity: 1; filter: drop-shadow(0 0 50px rgba(16,185,129, 0.9)); } }
 @keyframes ring-expand { 0% { transform: scale(0.4); opacity: 0.9; } 100% { transform: scale(1.8); opacity: 0; } }
-@keyframes dot-flicker { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; transform: scale(1.2); } }
 @keyframes candle-move { 0%, 100% { transform: translateY(0); border-color: var(--green); height: 48px; } 50% { transform: translateY(-15px); border-color: var(--red); height: 32px; } }
 @keyframes scan-vertical { 0% { top: 0%; opacity: 0; } 10%, 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
 
-.loading-txt {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    font-weight: 900;
-    color: #fff;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    margin-top: 25px;
-    text-shadow: 0 0 10px rgba(16,185,129, 0.5);
-}
-</style>
+.loading-txt { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 900; color: #fff; letter-spacing: 0.3em; text-transform: uppercase; margin-top: 25px; text-shadow: 0 0 10px rgba(16,185,129, 0.5); }
+    </style>
 </head>
-<body style="background-color: #000000;">
+<body>
 
 <header class="global-hud">
     <div class="hud-item" style="margin-right:16px">
         <div class="hud-label">Sovereign Intel</div>
-        <div class="hud-val" style="color:var(--green)">V5.6 RELOADED</div>
+        <div class="hud-val" style="color:var(--green)">V5.7 DUAL</div>
     </div>
     <div class="hud-sep"></div>
     <div class="hud-item"><div class="hud-label">BTC / USD</div><div class="hud-val" id="btcP">0.00</div></div>
     <div class="hud-item"><div class="hud-label">VAR 1H</div><div class="hud-val" id="btcV">0.00%</div></div>
     <div class="hud-sep"></div>
-    <div class="hud-item"><div class="hud-label">ADX</div><div class="hud-val" id="btcA" style="color:var(--amber)">0.0</div></div>
-    <div class="hud-item"><div class="hud-label">CVD</div><div class="hud-val" id="btcC">0.0</div></div>
-    <div class="hud-sep"></div>
-    <div class="hud-item"><div class="hud-label">DOM %</div><div class="hud-val" id="btcD">0.00%</div></div>
-    <div class="hud-item"><div class="hud-label">DECORR</div><div class="hud-val" id="btcl">0%</div></div>
-    <div class="hud-sep"></div>
-    <div class="hud-item"><div class="hud-label">MASTER DIR</div><div class="hud-val" id="btcm">—</div></div>
+    <div class="traffic-light" id="trafficLight" title="Alinhamento Macro vs Micro">
+        <span class="tl-lbl">CONFLUÊNCIA</span>
+        <div class="tl-dot tl-red" id="tl-r"></div>
+        <div class="tl-dot tl-yel" id="tl-y"></div>
+        <div class="tl-dot tl-grn" id="tl-g"></div>
+    </div>
+    <div class="hud-item" style="margin-left: 10px"><div class="hud-label">MASTER DIR</div><div class="hud-val" id="btcm">—</div></div>
 </header>
 
 <div class="layout">
@@ -307,25 +251,30 @@ html, body { background: #000000 !important; background-color: #000000 !importan
         <span class="sym-name" id="symDisplay">—</span>
         <span id="profBadge" class="badge bs">STABLE</span>
         <div class="hud-sep" style="height:16px"></div>
-        <!-- Strategy Selector -->
+        <!-- Tool Toggles -->
         <div style="display:flex;align-items:center;gap:8px" id="strategySelector">
           <label class="btn" style="padding:4px 8px; font-size:9px">
-            <input type="checkbox" id="toggle-123" checked onchange="refreshLayers()"> 1-2-3
+            <input type="checkbox" id="toggle-123" checked onchange="refreshAllLayers()"> 1-2-3
           </label>
           <label class="btn" style="padding:4px 8px; font-size:9px">
-            <input type="checkbox" id="toggle-smc" checked onchange="refreshLayers()"> SMC (OB/FVG)
+            <input type="checkbox" id="toggle-smc" checked onchange="refreshAllLayers()"> FVGs/OBs
           </label>
           <label class="btn" style="padding:4px 8px; font-size:9px">
-            <input type="checkbox" id="toggle-trend" checked onchange="refreshLayers()"> TENDÊNCIA
+            <input type="checkbox" id="toggle-trend" checked onchange="refreshAllLayers()"> TENDÊNCIA
           </label>
         </div>
+        <div class="hud-sep" style="height:16px"></div>
+        <label class="btn" style="padding:4px 8px; font-size:9px; color: var(--amber)">
+            <input type="checkbox" id="toggle-dual" checked onchange="toggleDual()"> MODO 4H
+        </label>
       </div>
       <button class="btn btn-green" onclick="capture()" id="capBtn">
         <span class="material-icons-round" style="font-size:16px">photo_camera</span>Capturar Visão
       </button>
     </div>
 
-    <div class="chart-stack">
+    <!-- SPLIT VIEW -->
+    <div class="split-container" id="splitContainer">
       <div class="loading" id="loading">
         <div class="boot-logo-container">
           <div class="boot-ring"></div>
@@ -334,17 +283,35 @@ html, body { background: #000000 !important; background-color: #000000 !importan
           <div class="boot-scanner"></div>
           <img src="logo10DTrasp.png" class="boot-logo" alt="10D">
         </div>
-        
         <div class="candle-loader candle-animate"></div>
-        <div class="loading-txt">Sincronizando 20 Ativos de Elite...</div>
-        
-        <div class="asset-grid" id="asset-boot-grid">
-          <!-- 20 pixels de sincronização -->
+        <div class="loading-txt">Sincronizando Macro/Micro...</div>
+      </div>
+
+      <!-- 30M COLUMN -->
+      <div class="chart-col col-30m" id="col30m">
+        <div class="pane price" id="p30-pane">
+            <div class="pane-label">30M BLITZ GATILHO</div>
+            <div id="chart30-price" style="width:100%;height:100%"></div>
+            <div class="levels-hud" id="hud30"></div>
+        </div>
+        <div class="pane aux" id="v30-pane">
+            <div class="pane-label">VOL (30M)</div>
+            <div id="chart30-vol" style="width:100%;height:100%"></div>
+        </div>
+        <div class="pane aux" id="r30-pane">
+            <div class="pane-label">RSI (30M)</div>
+            <div id="chart30-rsi" style="width:100%;height:100%"></div>
         </div>
       </div>
-      <div class="pane" id="price-pane"><div class="pane-label">Price Action</div><div id="price-chart" style="width:100%;height:100%"></div><div class="levels-hud" id="levelsHud"></div></div>
-      <div class="pane" id="volume-pane"><div class="pane-label">Volume Flow</div><div id="volume-chart" style="width:100%;height:100%"></div></div>
-      <div class="pane" id="rsi-pane"><div class="pane-label">RSI (14)</div><div id="rsi-chart" style="width:100%;height:100%"></div></div>
+
+      <!-- 4H COLUMN -->
+      <div class="chart-col col-4h" id="col4h">
+        <div class="pane price" style="flex:1" id="p4h-pane">
+            <div class="pane-label" style="background:rgba(245,158,11,0.2); color:var(--amber);">4H SWING CONTEXTO</div>
+            <div id="chart4h-price" style="width:100%;height:100%"></div>
+            <div class="levels-hud" id="hud4h"></div>
+        </div>
+      </div>
     </div>
   </main>
 </div>
@@ -360,10 +327,18 @@ const MATRIX = {
 };
 
 let cur = null;
-let curStudy = null;
-let charts = { price: null, volume: null, rsi: null };
-let series = { candle: null, sma21: null, sma100: null, st: null, vol: null, rsi: null };
-let obLines = [];
+let study30 = null;
+let study4h = null;
+
+let charts30 = { price: null, volume: null, rsi: null };
+let series30 = { candle: null, sma21: null, sma100: null, st: null, vol: null, rsi: null };
+let obLines30 = [];
+
+let charts4h = { price: null };
+let series4h = { candle: null, sma21: null, sma100: null, st: null };
+let obLines4h = [];
+let fvgLines4h = [];
+
 let isSyncing = false;
 
 const calculateSMA = (d, p) => { let s = []; for (let i = 0; i < d.length; i++) { if (i < p - 1) continue; let sum = 0; for (let j = 0; j < p; j++) sum += d[i - j].close; s.push({ time: d[i].time, value: sum / p }); } return s; };
@@ -379,157 +354,215 @@ async function syncBTC() {
     const v = d.btc_variation_1h || 0;
     document.getElementById('btcV').textContent = (v >= 0 ? '+' : '') + v.toFixed(2) + '%';
     document.getElementById('btcV').style.color = v >= 0 ? 'var(--green)' : 'var(--red)';
-    document.getElementById('btcA').textContent = (d.btc_adx || 0).toFixed(1);
-    document.getElementById('btcC').textContent = (d.btc_cvd || 0).toFixed(0);
-    document.getElementById('btcC').style.color = d.btc_cvd >= 0 ? 'var(--green)' : 'var(--red)';
-    document.getElementById('btcl').textContent = (d.decorrelation_avg || 0).toFixed(0) + '%';
-    document.getElementById('btcD').textContent = (d.btc_dominance || 0).toFixed(2) + '%';
     document.getElementById('btcm').textContent = (d.btc_direction || 'LATERAL');
     document.getElementById('btcm').style.color = d.btc_direction === 'UP' ? 'var(--green)' : d.btc_direction === 'DOWN' ? 'var(--red)' : 'var(--t2)';
   } catch(e) {}
 }
 
 function initCharts() {
-  console.log("🚀 Observatory: Initializing TradingView Engine...");
   const common = {
     layout: { background: { color: '#000000' }, textColor: '#94a3b8', fontFamily: 'Inter', fontSize: 11 },
     grid: { vertLines: { color: 'rgba(255,255,255,0.02)' }, horzLines: { color: 'rgba(255,255,255,0.02)' } },
     crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
     timeScale: { borderColor: 'rgba(255,255,255,0.08)', timeVisible: true, rightOffset: 12 },
-    // [V5.6.1] RÉGUA LIMPA: apenas valores numéricos, sem badges de indicadores
-    rightPriceScale: {
-        minimumWidth: 72,
-        borderVisible: false,
-        scaleMargins: {
-            top: 0.22,
-            bottom: 0.22,
-        },
-    },
+    rightPriceScale: { minimumWidth: 72, borderVisible: false, scaleMargins: { top: 0.22, bottom: 0.22 } },
   };
 
-  charts.price = LightweightCharts.createChart(document.getElementById('price-chart'), { ...common, timeScale: { ...common.timeScale, visible: false } });
-  charts.volume = LightweightCharts.createChart(document.getElementById('volume-chart'), { ...common, timeScale: { ...common.timeScale, visible: false } });
-  charts.rsi = LightweightCharts.createChart(document.getElementById('rsi-chart'), common);
+  // 30M
+  charts30.price = LightweightCharts.createChart(document.getElementById('chart30-price'), { ...common, timeScale: { ...common.timeScale, visible: false } });
+  charts30.volume = LightweightCharts.createChart(document.getElementById('chart30-vol'), { ...common, timeScale: { ...common.timeScale, visible: false } });
+  charts30.rsi = LightweightCharts.createChart(document.getElementById('chart30-rsi'), common);
+  
+  series30.candle = charts30.price.addCandlestickSeries({ upColor: '#10b981', downColor: '#ef4444', borderVisible: false, wickUpColor: '#10b981', wickDownColor: '#ef4444' });
+  series30.sma21 = charts30.price.addLineSeries({ color: 'rgba(255,255,255,0.5)', lineWidth: 1, lastValueVisible: false, priceLineVisible: false });
+  series30.sma100 = charts30.price.addLineSeries({ color: 'rgba(245,158,11,0.5)', lineWidth: 1, lastValueVisible: false, priceLineVisible: false });
+  series30.st = charts30.price.addLineSeries({ color: 'rgba(16,185,129,0.3)', lineWidth: 1, lineStyle: 2, lastValueVisible: false, priceLineVisible: false });
+  series30.vol = charts30.volume.addHistogramSeries({ color: 'rgba(38,166,154,0.5)', priceFormat: { type: 'volume' } });
+  series30.rsi = charts30.rsi.addLineSeries({ color: '#8b5cf6', lineWidth: 2 });
+  charts30.rsi.addLineSeries({ color: 'rgba(255,255,255,0.1)', lineWidth: 1, lineStyle: 2 }).setData([{time:0, value:70},{time:9999999999, value:70}]);
+  charts30.rsi.addLineSeries({ color: 'rgba(255,255,255,0.1)', lineWidth: 1, lineStyle: 2 }).setData([{time:0, value:30},{time:9999999999, value:30}]);
 
-  series.candle = charts.price.addCandlestickSeries({ upColor: '#10b981', downColor: '#ef4444', borderVisible: false, wickUpColor: '#10b981', wickDownColor: '#ef4444' });
-  series.sma21 = charts.price.addLineSeries({ color: 'rgba(255,255,255,0.5)', lineWidth: 1, lastValueVisible: false, priceLineVisible: false });
-  series.sma100 = charts.price.addLineSeries({ color: 'rgba(245,158,11,0.5)', lineWidth: 1, lastValueVisible: false, priceLineVisible: false });
-  series.st = charts.price.addLineSeries({ color: 'rgba(16,185,129,0.3)', lineWidth: 1, lineStyle: 2, lastValueVisible: false, priceLineVisible: false });
-  series.vol = charts.volume.addHistogramSeries({ color: 'rgba(38,166,154,0.5)', priceFormat: { type: 'volume' } });
-  series.rsi = charts.rsi.addLineSeries({ color: '#8b5cf6', lineWidth: 2 });
-  charts.rsi.addLineSeries({ color: 'rgba(255,255,255,0.1)', lineWidth: 1, lineStyle: 2 }).setData([{time:0, value:70},{time:9999999999, value:70}]);
-  charts.rsi.addLineSeries({ color: 'rgba(255,255,255,0.1)', lineWidth: 1, lineStyle: 2 }).setData([{time:0, value:30},{time:9999999999, value:30}]);
+  // 4H
+  charts4h.price = LightweightCharts.createChart(document.getElementById('chart4h-price'), common);
+  series4h.candle = charts4h.price.addCandlestickSeries({ upColor: '#10b981', downColor: '#ef4444', borderVisible: false, wickUpColor: '#10b981', wickDownColor: '#ef4444' });
+  series4h.sma21 = charts4h.price.addLineSeries({ color: 'rgba(255,255,255,0.5)', lineWidth: 1, lastValueVisible: false, priceLineVisible: false });
+  series4h.sma100 = charts4h.price.addLineSeries({ color: 'rgba(245,158,11,0.5)', lineWidth: 2, lastValueVisible: false, priceLineVisible: false });
+  series4h.st = charts4h.price.addLineSeries({ color: 'rgba(16,185,129,0.3)', lineWidth: 1, lineStyle: 2, lastValueVisible: false, priceLineVisible: false });
 
-  const sync = (src, r) => { if (!r || isSyncing) return; isSyncing = true; Object.values(charts).forEach(c => { if(c && c !== src) try { c.timeScale().setVisibleRange(r); } catch(e){} }); isSyncing = false; };
-  charts.price.timeScale().subscribeVisibleTimeRangeChange(r => sync(charts.price, r));
-  charts.volume.timeScale().subscribeVisibleTimeRangeChange(r => sync(charts.volume, r));
-  charts.rsi.timeScale().subscribeVisibleTimeRangeChange(r => sync(charts.rsi, r));
+  // Sync 30m only (vertical)
+  const sync30 = (src, r) => { if (!r || isSyncing) return; isSyncing = true; Object.values(charts30).forEach(c => { if(c && c !== src) try { c.timeScale().setVisibleRange(r); } catch(e){} }); isSyncing = false; };
+  charts30.price.timeScale().subscribeVisibleTimeRangeChange(r => sync30(charts30.price, r));
+  charts30.volume.timeScale().subscribeVisibleTimeRangeChange(r => sync30(charts30.volume, r));
+  charts30.rsi.timeScale().subscribeVisibleTimeRangeChange(r => sync30(charts30.rsi, r));
+}
+
+function updateTrafficLight(trend30, trend4h) {
+    document.getElementById('tl-r').classList.remove('on');
+    document.getElementById('tl-y').classList.remove('on');
+    document.getElementById('tl-g').classList.remove('on');
+    
+    if (trend30 === trend4h) {
+        document.getElementById('tl-g').classList.add('on'); // Alinhado
+    } else {
+        document.getElementById('tl-y').classList.add('on'); // Conflito
+    }
 }
 
 async function loadData(s) {
-  const start = Date.now();
   document.getElementById('loading').classList.remove('hidden');
   try {
-    const r = await fetch(`/api/market/study?symbol=${s}.P&interval=30&limit=400&v=` + Date.now());
-    if (r.ok) {
-      const study = await r.json();
-      if (!study || !study.klines || !Array.isArray(study.klines)) return;
-      curStudy = study;
-      const d = study.klines.map(x => ({ time: x[0]/1000, open: x[1], high: x[2], low: x[3], close: x[4], volume: x[5] }));
-      if (d.length === 0) return;
-      series.candle.setData(d);
-      if (document.getElementById('toggle-trend').checked) {
-          series.sma21.setData(calculateSMA(d, 21));
-          series.sma100.setData(calculateSMA(d, 100));
-          const st = calculateST(d, 10, 3);
-          series.st.setData(st.map(x => ({ time: x.time, value: x.value })));
-      } else {
-          series.sma21.setData([]); series.sma100.setData([]); series.st.setData([]);
-      }
-      refreshLayers();
-      series.vol.setData(d.map(x => ({ time: x.time, value: x.volume, color: x.close >= x.open ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)' })));
-      series.rsi.setData(calculateRSI(d));
-      Object.values(charts).forEach(c => { const p = c.chartElement().parentElement; if (p) c.applyOptions({ width: p.clientWidth, height: p.clientHeight }); });
-      charts.rsi.timeScale().fitContent();
-      console.log(`📡 Observatory: Data synchronized for ${s} [${d.length} candles]`);
+    const [res30, res4h] = await Promise.all([
+      fetch(`/api/market/study?symbol=${s}.P&interval=30&limit=400&v=` + Date.now()),
+      fetch(`/api/market/study?symbol=${s}.P&interval=240&limit=400&v=` + Date.now())
+    ]);
+    
+    let lastTrend30 = 0;
+    let lastTrend4h = 0;
+
+    if (res30.ok) {
+        study30 = await res30.json();
+        const d30 = study30.klines.map(x => ({ time: x[0]/1000, open: x[1], high: x[2], low: x[3], close: x[4], volume: x[5] }));
+        series30.candle.setData(d30);
+        series30.vol.setData(d30.map(x => ({ time: x.time, value: x.volume, color: x.close >= x.open ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)' })));
+        series30.rsi.setData(calculateRSI(d30));
+        
+        series30.sma21.setData(calculateSMA(d30, 21));
+        series30.sma100.setData(calculateSMA(d30, 100));
+        const st30 = calculateST(d30, 10, 3);
+        series30.st.setData(st30.map(x => ({ time: x.time, value: x.value })));
+        if(st30.length > 0) lastTrend30 = st30[st30.length-1].trend;
     }
-  } catch(e) { console.error("Study Load Error:", e); }
+
+    if (res4h.ok) {
+        study4h = await res4h.json();
+        const d4h = study4h.klines.map(x => ({ time: x[0]/1000, open: x[1], high: x[2], low: x[3], close: x[4], volume: x[5] }));
+        series4h.candle.setData(d4h);
+        
+        series4h.sma21.setData(calculateSMA(d4h, 21));
+        series4h.sma100.setData(calculateSMA(d4h, 100));
+        const st4h = calculateST(d4h, 10, 3);
+        series4h.st.setData(st4h.map(x => ({ time: x.time, value: x.value })));
+        if(st4h.length > 0) lastTrend4h = st4h[st4h.length-1].trend;
+    }
+    
+    updateTrafficLight(lastTrend30, lastTrend4h);
+    refreshAllLayers();
+    
+    Object.values(charts30).forEach(c => { const p = c.chartElement().parentElement; if(p) c.applyOptions({ width: p.clientWidth, height: p.clientHeight }); });
+    charts4h.price.applyOptions({ width: document.getElementById('p4h-pane').clientWidth, height: document.getElementById('p4h-pane').clientHeight });
+    
+  } catch(e) { console.error("Data Load Error:", e); }
   
-  const elapsed = Date.now() - start;
-  const delay = Math.max(0, 2500 - elapsed);
-  setTimeout(() => { document.getElementById('loading').classList.add('hidden'); }, delay);
+  setTimeout(() => { document.getElementById('loading').classList.add('hidden'); }, 500);
 }
 
-function refreshLayers() {
-  if (!curStudy || !curStudy.klines) return;
-  const d = curStudy.klines.map(x => ({ time: x[0]/1000, open: x[1], high: x[2], low: x[3], close: x[4] }));
-  let m = [];
-  const levelItems = [];
-  obLines.forEach(l => series.candle.removePriceLine(l));
-  obLines = [];
-
-  // [V5.6.1] RÉGUA LIMPA: axisLabelVisible=false em todas as linhas, HUD externo controla os labels
-  if (document.getElementById('toggle-smc').checked) {
-    (curStudy.obs || []).slice(-3).forEach(ob => {
-        const color = ob.type === 'BULLISH' ? '#10b981' : '#ef4444';
-        obLines.push(series.candle.createPriceLine({ 
-            price: ob.top, color: color + '55', lineWidth: 1, axisLabelVisible: false
-        }));
-        obLines.push(series.candle.createPriceLine({ 
-            price: ob.bottom, color: color + '33', lineWidth: 1, lineStyle: 2, axisLabelVisible: false
-        }));
-        levelItems.push({ color, label: 'OB ' + ob.type[0], value: ob.top });
-    });
-  }
-
-  if (document.getElementById('toggle-123').checked && (curStudy.patterns_123 || []).length > 0) {
-    curStudy.patterns_123.forEach(p => {
-        const color = p.side === 'buy' ? '#10b981' : '#ef4444';
-        Object.entries(p.points).forEach(([num, data]) => {
-            const t = d[data.idx]?.time;
-            if (t) m.push({ time: t, position: p.side === 'buy' ? 'belowBar' : 'aboveBar', color, shape: 'circle', text: num });
+function processLayers(study, seriesGroup, obArr, fvgArr, is4H) {
+    if (!study || !study.klines) return [];
+    const d = study.klines.map(x => ({ time: x[0]/1000, open: x[1], high: x[2], low: x[3], close: x[4] }));
+    let m = [];
+    const levelItems = [];
+    
+    obArr.forEach(l => seriesGroup.candle.removePriceLine(l));
+    obArr.length = 0;
+    
+    // FVGs / OBs
+    if (document.getElementById('toggle-smc').checked) {
+        // Render OBs
+        (study.obs || []).slice(-3).forEach(ob => {
+            const color = ob.type === 'BULLISH' ? '#10b981' : '#ef4444';
+            obArr.push(seriesGroup.candle.createPriceLine({ price: ob.top, color: color + '55', lineWidth: is4H ? 2 : 1, axisLabelVisible: false }));
+            obArr.push(seriesGroup.candle.createPriceLine({ price: ob.bottom, color: color + '33', lineWidth: 1, lineStyle: 2, axisLabelVisible: false }));
+            levelItems.push({ color, label: 'OB ' + ob.type[0], value: ob.top });
         });
-        if (p.trigger_price) {
-            obLines.push(series.candle.createPriceLine({ 
-                price: p.trigger_price, color: 'rgba(255,255,255,0.25)', lineWidth: 1, lineStyle: 3, axisLabelVisible: false
-            }));
-            levelItems.push({ color: '#94a3b8', label: 'STRIKE', value: p.trigger_price });
+        
+        // Render FVGs
+        if (fvgArr && study.fvgs) {
+            fvgArr.forEach(l => seriesGroup.candle.removePriceLine(l));
+            fvgArr.length = 0;
+            study.fvgs.slice(-2).forEach(fvg => {
+                const color = fvg.type === 'BULLISH' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)';
+                // In lightweight charts, box drawing is complex. We use distinct thick dashed lines for FVG boundaries
+                fvgArr.push(seriesGroup.candle.createPriceLine({ price: fvg.top, color: fvg.type === 'BULLISH' ? '#10b981' : '#ef4444', lineWidth: 2, lineStyle: 3, axisLabelVisible: false }));
+                fvgArr.push(seriesGroup.candle.createPriceLine({ price: fvg.bottom, color: fvg.type === 'BULLISH' ? '#10b981' : '#ef4444', lineWidth: 2, lineStyle: 3, axisLabelVisible: false }));
+                levelItems.push({ color: '#f59e0b', label: 'FVG ' + fvg.type[0], value: (fvg.top+fvg.bottom)/2 });
+            });
         }
-    });
-  }
+    }
 
-  if (document.getElementById('toggle-trend').checked) {
-      const st = calculateST(d, 10, 3);
-      for (let i = 1; i < st.length; i++) {
-        if (st[i].trend === 1 && st[i-1].trend === -1) m.push({ time: st[i].time, position: 'belowBar', color: '#10b981', shape: 'arrowUp', text: 'ST+' });
-        if (st[i].trend === -1 && st[i-1].trend === 1) m.push({ time: st[i].time, position: 'aboveBar', color: '#f59e0b', shape: 'arrowDown', text: 'ST-' });
-      }
-      const sma21d = calculateSMA(d, 21);
-      const sma100d = calculateSMA(d, 100);
-      if (sma21d.length)  levelItems.push({ color: 'rgba(255,255,255,0.7)', label: 'SMA21',  value: sma21d[sma21d.length-1].value });
-      if (sma100d.length) levelItems.push({ color: '#f59e0b',              label: 'SMA100', value: sma100d[sma100d.length-1].value });
-  }
+    // 1-2-3 Patterns
+    if (!is4H && document.getElementById('toggle-123').checked && (study.patterns_123 || []).length > 0) {
+        study.patterns_123.forEach(p => {
+            const color = p.side === 'buy' ? '#10b981' : '#ef4444';
+            Object.entries(p.points).forEach(([num, data]) => {
+                const t = d[data.idx]?.time;
+                if (t) m.push({ time: t, position: p.side === 'buy' ? 'belowBar' : 'aboveBar', color, shape: 'circle', text: num });
+            });
+            if (p.trigger_price) {
+                obArr.push(seriesGroup.candle.createPriceLine({ price: p.trigger_price, color: 'rgba(255,255,255,0.25)', lineWidth: 1, lineStyle: 3, axisLabelVisible: false }));
+                levelItems.push({ color: '#94a3b8', label: 'STRIKE', value: p.trigger_price });
+            }
+        });
+    }
 
-  series.candle.setMarkers(m.sort((a,b) => a.time - b.time));
+    // Trend
+    if (document.getElementById('toggle-trend').checked) {
+        const st = calculateST(d, 10, 3);
+        for (let i = 1; i < st.length; i++) {
+            if (st[i].trend === 1 && st[i-1].trend === -1) m.push({ time: st[i].time, position: 'belowBar', color: '#10b981', shape: 'arrowUp', text: 'ST+' });
+            if (st[i].trend === -1 && st[i-1].trend === 1) m.push({ time: st[i].time, position: 'aboveBar', color: '#f59e0b', shape: 'arrowDown', text: 'ST-' });
+        }
+        seriesGroup.sma21.applyOptions({ visible: true });
+        seriesGroup.sma100.applyOptions({ visible: true });
+        seriesGroup.st.applyOptions({ visible: true });
+        
+        const sma21d = calculateSMA(d, 21);
+        const sma100d = calculateSMA(d, 100);
+        if (sma21d.length) levelItems.push({ color: 'rgba(255,255,255,0.7)', label: 'SMA21', value: sma21d[sma21d.length-1].value });
+        if (sma100d.length) levelItems.push({ color: '#f59e0b', label: 'SMA100', value: sma100d[sma100d.length-1].value });
+    } else {
+        seriesGroup.sma21.applyOptions({ visible: false });
+        seriesGroup.sma100.applyOptions({ visible: false });
+        seriesGroup.st.applyOptions({ visible: false });
+    }
 
-  // Atualiza o painel flutuante de níveis
-  const hud = document.getElementById('levelsHud');
-  if (hud) {
-    // Deduplica por proximidade (1.5%)
-    const deduped = [];
-    levelItems.sort((a,b) => b.value - a.value).forEach(item => {
-      const dup = deduped.some(x => Math.abs(x.value - item.value) / item.value < 0.015);
-      if (!dup) deduped.push(item);
-    });
-    hud.innerHTML = deduped.slice(0, 8).map(item => {
-      const decimals = item.value > 100 ? 2 : item.value > 1 ? 4 : 6;
-      return `<div class="level-item">
-        <div class="level-dot" style="background:${item.color}"></div>
-        <span class="level-lbl">${item.label}</span>
-        <span class="level-val">${item.value.toFixed(decimals)}</span>
-      </div>`;
-    }).join('');
-  }
+    seriesGroup.candle.setMarkers(m.sort((a,b) => a.time - b.time));
+    return levelItems;
+}
+
+function updateHud(hudId, levelItems) {
+  const hud = document.getElementById(hudId);
+  if (!hud) return;
+  const deduped = [];
+  levelItems.sort((a,b) => b.value - a.value).forEach(item => {
+    const dup = deduped.some(x => Math.abs(x.value - item.value) / item.value < 0.015);
+    if (!dup) deduped.push(item);
+  });
+  hud.innerHTML = deduped.slice(0, 8).map(item => {
+    const decimals = item.value > 100 ? 2 : item.value > 1 ? 4 : 6;
+    return `<div class="level-item"><div class="level-dot" style="background:${item.color}"></div><span class="level-lbl">${item.label}</span><span class="level-val">${item.value.toFixed(decimals)}</span></div>`;
+  }).join('');
+}
+
+function refreshAllLayers() {
+    const items30 = processLayers(study30, series30, obLines30, null, false);
+    updateHud('hud30', items30);
+    
+    if(!document.getElementById('col4h').classList.contains('hidden')) {
+        const items4h = processLayers(study4h, series4h, obLines4h, fvgLines4h, true);
+        updateHud('hud4h', items4h);
+    }
+}
+
+function toggleDual() {
+    const isDual = document.getElementById('toggle-dual').checked;
+    const col4h = document.getElementById('col4h');
+    if(isDual) {
+        col4h.classList.remove('hidden');
+    } else {
+        col4h.classList.add('hidden');
+    }
+    // Fire resize to fix charts
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
 }
 
 function select(s) {
@@ -555,18 +588,21 @@ function renderPairs(list) {
 function filterPairs(q) { renderPairs(Object.keys(MATRIX).filter(s => s.includes(q.toUpperCase()))); }
 
 const ro = new ResizeObserver(() => {
-    Object.entries(charts).forEach(([id, chart]) => {
-        const container = document.getElementById(id + '-chart');
-        if (chart && container) chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
+    Object.entries(charts30).forEach(([id, chart]) => {
+        const container = document.getElementById('chart30-' + id.replace('volume','vol'));
+        if (chart && container && container.clientWidth > 0) chart.applyOptions({ width: container.clientWidth, height: container.clientHeight });
     });
+    if(!document.getElementById('col4h').classList.contains('hidden')) {
+        const p4 = document.getElementById('chart4h-price');
+        if (charts4h.price && p4 && p4.clientWidth > 0) charts4h.price.applyOptions({ width: p4.clientWidth, height: p4.clientHeight });
+    }
 });
-['price-pane', 'volume-pane', 'rsi-pane'].forEach(p => { const el = document.getElementById(p); if (el) ro.observe(el); });
+document.querySelectorAll('.pane').forEach(el => ro.observe(el));
 
 async function capture() {
   const b = document.getElementById('capBtn'); b.disabled = true; b.textContent = 'CAPTURANDO...';
-  console.log(`📸 Vision: Capturing proof for ${cur}...`);
-  await fetch('/api/vision/capture', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({symbol:cur, interval:'30'}) });
-  console.log(`✅ Vision: Capture request sent to Agent`);
+  // Send interval: mixed (or just dual representation)
+  await fetch('/api/vision/capture', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({symbol:cur, interval:'MIXED'}) });
   setTimeout(() => { b.disabled = false; b.innerHTML = '<span class="material-icons-round" style="font-size:16px">photo_camera</span>Capturar Visão'; }, 2000);
 }
 
@@ -576,8 +612,7 @@ renderPairs(Object.keys(MATRIX));
 
 const bootGrid = document.getElementById('asset-boot-grid');
 for(let i=0; i<20; i++) {
-    const dot = document.createElement('div');
-    dot.className = 'asset-dot';
+    const dot = document.createElement('div'); dot.className = 'asset-dot';
     if (Math.random() > 0.5) dot.classList.add('active');
     bootGrid.appendChild(dot);
 }
