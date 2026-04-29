@@ -688,6 +688,21 @@ class SignalGenerator:
             import random
             mock_dom = 58.0 + (random.random() * 0.4)
             
+            # [V110.403] Demand Intelligence for UI
+            active_slots = await sovereign_service.get_active_slots()
+            filled = [s for s in active_slots if s.get("symbol")]
+            blitz_filled = len([s for s in filled if s.get("id") in [1, 2]])
+            swing_filled = len([s for s in filled if s.get("id") in [3, 4]])
+            
+            blitz_demand = 2 - blitz_filled
+            swing_demand = 2 - swing_filled
+            
+            system_status = "ACTIVE"
+            if len(filled) >= 4:
+                system_status = "STANDBY_FULL"
+            elif blitz_demand == 0 and swing_demand == 0:
+                system_status = "STANDBY_NO_CAPACITY"
+
             # [V110.144] DAILY PERFORMANCE INJECTION
             from services.bankroll import bankroll_manager
             daily_stats = await bankroll_manager.get_daily_performance()
@@ -708,7 +723,10 @@ class SignalGenerator:
                 "radar_mode": self.current_radar_mode,
                 "daily_gains": daily_stats["gains_count"],
                 "daily_pnl": daily_stats["total_pnl"],
-                "daily_target": daily_stats["target_gains"]
+                "daily_target": daily_stats["target_gains"],
+                "blitz_demand": blitz_demand,
+                "swing_demand": swing_demand,
+                "system_status": system_status
             }
 
             # [V110.150] Propagate to BybitWS for REST API consistency

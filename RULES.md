@@ -1,4 +1,4 @@
-# RULES.md — 10D Sniper V110.402 "Vision Cascade Stabilization"
+# RULES.md — 10D Sniper V110.403 "Industrial Process Vigilance"
 # Invariantes Tecnicas Inegociaveis — [PERSISTÊNCIA ABSOLUTA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
 # Fonte da verdade: codigo real no Railway e PostgreSQL/WebSocket Nativo.
@@ -130,10 +130,11 @@ Captain (Orquestrador Central)
 
 ---
 
-## 12. INTELIGÊNCIA COLETIVA E AGENTE VISÃO (V110.402 — ESTABILIZAÇÃO & CASCATA Llama 3.2)
-1. **Vision Gate Seletivo:** O Agente Visão só captura screenshots e aciona a IA se o sinal tiver **Score >= 95**. Sinais entre 50 e 94 pulam a análise visual (confiando no quantitativo) para economizar quota de API.
-2. **Cascata de IA Híbrida (V110.402):** O sistema utiliza uma cascata de modelos gratuitos no OpenRouter priorizando **Llama 3.2 Vision (11B)** e **Gemini 2.0 Flash Exp**. Modelos Gemma 3 são mantidos como fallback.
-3. **Veto Obrigatório Universal:** Se o score for >= 95, o Visão tem poder de veto. Se todos os modelos da cascata falharem, a ordem é bloqueada por segurança (`[VISION-OFFLINE-BLOCK]`). Inclui backoff de 1h para quota excedida no Gemini.
+## 12. INTELIGÊNCIA COLETIVA E AGENTE VISÃO (V110.403 — VIGILÂNCIA INDUSTRIAL & CACHE)
+1. **Vision Gate Seletivo:** O Agente Visão só captura screenshots e aciona a IA se o sinal tiver **Score >= 95** (Captain) ou **Confidence >= 90** (Librarian). Sinais secundários são processados via quantitativo puro.
+2. **Protocolo de Demanda Ativa:** O Bibliotecário só invoca a Visão se houver slots livres para o tipo de estratégia (Blitz vs Swing). Se o sistema estiver 4/4, entra em **Standby de Inteligência**.
+3. **Análise de Cache (TTL 15m):** Resultados visuais são memorizados por 15 minutos por ativo. Se o sinal persistir sem mudança estrutural, o sistema reutiliza a decisão anterior para economizar quota.
+4. **Veto Obrigatório Universal:** Se o score for >= 95, o Visão tem poder de veto. Inclui backoff de 1h para quota excedida no Gemini.
 
 ---
 
@@ -144,6 +145,6 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versão: V110.402 "Vision Cascade Stabilization" | Atualizado: 2026-04-30*
+*Versão: V110.403 "Industrial Process Vigilance" | Atualizado: 2026-04-30*
 *Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10D5.0.*
 

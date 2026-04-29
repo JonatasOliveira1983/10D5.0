@@ -1,7 +1,13 @@
-# MASTER_ARCHITECTURE.md — V110.402 "Vision Cascade Stabilization"
+# MASTER_ARCHITECTURE.md — V110.403 "Industrial Process Vigilance"
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.403: INDUSTRIAL PROCESS VIGILANCE [APR 30]**
+    - **Demand-Aware Scan:** O Bibliotecário sincroniza o scan visual com a disponibilidade real de slots. Se não houver vaga para Blitz, ele ignora sinais M30 para poupar IA.
+    - **Confidence Threshold Shield:** Elevação do rigor para ativação visual (Score >= 90 no Bibliotecário), reservando a IA apenas para sinais de alta probabilidade.
+    - **Vision Analysis Cache (TTL 15m):** Implementação de cache de resultados por ativo para evitar re-análises redundantes do mesmo cenário gráfico.
+    - **Operational Standby HUD:** Injeção de status de demanda e standby no Dashboard para transparência total do processo industrial.
 
 *   **V110.402: VISION CASCADE STABILIZATION [APR 30]**
     - **Hybrid Vision Cascade:** Migração para modelos funcionais de visão (Llama 3.2 Vision 11B e Gemini 2.0 Flash Exp), resolvendo erros de "400 Bad Request" (embedding models).
@@ -185,5 +191,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-30 (V110.402) Sincronizado*
-*Este documento reflete a estabilização da cascata de IA e a correção de modelos de visão.*
+*Documento atualizado em: 2026-04-30 (V110.403) Sincronizado*
+*Este documento reflete a otimização industrial da vigilância e economia de inteligência.*

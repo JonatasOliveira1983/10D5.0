@@ -177,8 +177,33 @@ class LibrarianAgent(AIOSAgent):
         await sovereign_service.log_event(
             agent="Librarian",
             message=f"Iniciando Scan Visual Global de {total} ativos (Elite + Moonbags).",
-            payload={"action": "GLOBAL_VISUAL_SCAN_START", "count": total}
+        payload={"action": "GLOBAL_VISUAL_SCAN_START", "count": total}
         )
+
+        # [V110.403] Check Active Slots & Demand
+        active_slots = await sovereign_service.get_active_slots()
+        filled_slots = [s for s in active_slots if s.get("symbol")]
+        
+        # Contagem por tipo
+        blitz_filled = len([s for s in filled_slots if s.get("id") in [1, 2]])
+        swing_filled = len([s for s in filled_slots if s.get("id") in [3, 4]])
+        total_filled = len(filled_slots)
+        
+        has_blitz_demand = blitz_filled < 2
+        has_swing_demand = swing_filled < 2
+        
+        if total_filled >= 4:
+            logger.info("🛑 [LIBRARIAN-STANDBY] Sistema 4/4 (Capacidade Máxima). Pulando scan visual para economizar IA.")
+            if sovereign_service.rtdb:
+                try:
+                    await asyncio.to_thread(
+                        sovereign_service.rtdb.child("librarian_intelligence").update,
+                        {"status": "STANDBY_FULL", "updated_at": int(time.time() * 1000)}
+                    )
+                except: pass
+            return
+
+        logger.info(f"🔍 [LIBRARIAN-DEMAND] Blitz Demand: {has_blitz_demand} | Swing Demand: {has_swing_demand}")
         
         tactical_report = []
         
@@ -205,6 +230,22 @@ class LibrarianAgent(AIOSAgent):
                 p3_trigger = await signal_generator.detect_point_3_trigger(symbol, interval="30")
                 
                 if p3_trigger.get("detected"):
+                    # [V110.403] Filtro de Confiança Industrial (Score >= 90)
+                    # O Ponto 3 quantitativo precisa ser forte para justificar o gasto de Visão.
+                    conf = p3_trigger.get("confidence", 0)
+                    if conf < 90:
+                        logger.info(f"⏭️ [VISION-SKIP] {symbol}: Confiança quantitativa {conf}% < 90%. Pulando visão.")
+                        tactical_report.append(f"{symbol:12} | P3: LOW_CONF {conf}% | Standby 🔍")
+                        continue
+
+                    # [V110.403] Filtro de Demanda de Slot
+                    # O Ponto 3 de 30M é BLITZ. O de 4H (futuro) seria SWING.
+                    # No momento o Bibliotecário foca no M30 (Blitz).
+                    if not has_blitz_demand:
+                        logger.info(f"⏭️ [VISION-SKIP] {symbol}: Sem demanda para BLITZ (Slots 1 e 2 cheios).")
+                        tactical_report.append(f"{symbol:12} | P3: NO_DEMAND | Standby 🔍")
+                        continue
+
                     logger.info(f"🎯 [PONTO-3-DETECTED] {symbol} {p3_trigger['side']}! Convocando Visão para aprovação final...")
                     
                     # 1. Solicita Confirmação Visual de Alta Fidelidade
@@ -212,7 +253,10 @@ class LibrarianAgent(AIOSAgent):
                         symbol, 
                         p3_trigger["side"], 
                         p3_trigger["confidence"], 
-                        context_data={"trigger_type": "POINT_3_ELITE"}
+                        context_data={
+                            "trigger_type": "POINT_3_ELITE",
+                            "active_slots_count": total_filled
+                        }
                     )
                     
                     if vision_result.get("approved"):

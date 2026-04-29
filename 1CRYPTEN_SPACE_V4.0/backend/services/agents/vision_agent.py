@@ -12,6 +12,8 @@ logger = logging.getLogger("VisionAgent")
 class VisionAgent:
     def __init__(self):
         self.role = "Vision Analyst"
+        self.analysis_cache = {} # [V110.403] Cache de resultados: { (symbol, side): {"result": dict, "timestamp": float} }
+        self.cache_ttl = 900 # 15 minutos (900s) para o gráfico de 30M
         self.system_instruction = (
             "Você é o Agente Visão 5.7 DUAL OCR, um analista técnico de trading avançado especializado em leitura estrutural automatizada.\n"
             "O gráfico (imagem) que você recebe é dividido em DUAS partes (Dual Timeframe: 30M na esquerda, 4H na direita) e possui anotações de texto cruciais (OCR):\n"
@@ -31,6 +33,15 @@ class VisionAgent:
         Otimizado para só agir se houver slots livres e DNA favorável.
         """
         logger.info(f"👁️ [VISION] Starting final visual confirmation for {symbol} {side}...")
+
+        # 0. [V110.403] Check Analysis Cache
+        now = time.time()
+        cache_key = (symbol, side.lower())
+        if cache_key in self.analysis_cache:
+            cache_entry = self.analysis_cache[cache_key]
+            if now - cache_entry["timestamp"] < self.cache_ttl:
+                logger.info(f"⚡ [VISION-CACHE-HIT] {symbol} {side}: Usando análise memorizada (Age: {int(now - cache_entry['timestamp'])}s).")
+                return cache_entry["result"]
         
         # 1. [V4.2] VISION GATE: Verificações de Eficiência
         if context_data:
@@ -156,7 +167,7 @@ class VisionAgent:
             except Exception as le:
                 logger.error(f"Erro ao logar evento do Visão: {le}")
 
-            return {
+            result = {
                 "approved": is_approved,
                 "confidence": data.get("confidence", 50),
                 "slot_type": data.get("slot_type", "SWING"),
@@ -164,6 +175,14 @@ class VisionAgent:
                 "thoughts": data.get("thoughts", ""),
                 "screenshot_url": relative_url # Agora retorna a URL relativa
             }
+
+            # [V110.403] Update Cache
+            self.analysis_cache[cache_key] = {
+                "result": result,
+                "timestamp": time.time()
+            }
+            
+            return result
 
         except Exception as e:
             logger.error(f"❌ [VISION-ERROR] Analysis failed: {e}")
