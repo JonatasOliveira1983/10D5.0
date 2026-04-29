@@ -79,9 +79,20 @@ class Settings(BaseSettings):
     REDIS_DB: int = 0
     REDIS_URL: Optional[str] = os.getenv("REDIS_URL", None)
     
+    # [V110.400] OFFICIAL 20 ELITE MATRIX
+    ELITE_20_MATRIX: list = [
+        "AVAXUSDT", "NEARUSDT", "APTUSDT", "SUIUSDT", "OPUSDT", 
+        "ARBUSDT", "RENDERUSDT", "FETUSDT", "INJUSDT", "TIAUSDT", 
+        "LINKUSDT", "DOTUSDT", "ADAUSDT", "POLUSDT", "ATOMUSDT", 
+        "LTCUSDT", "BCHUSDT", "XLMUSDT", "XRPUSDT", "TRXUSDT"
+    ]
+    
+    # [V110.400] MASTER CONTEXT
+    MASTER_CONTEXT_ASSETS: list = ["BTCUSDT", "ETHUSDT", "SOLUSDT"]
+    
     # [V110.20.1] Official Asset Blocklist - Memecoins & Low Liquidity
     ASSET_BLOCKLIST: set = {
-        'PAXGUSDT', 'XAUTUSDT', 'TAOUSDT', 'BTCUSDT', 'ETHUSDT', 'SOLUSDT', 
+        'PAXGUSDT', 'XAUTUSDT', 'TAOUSDT', 
         'PIPPINUSDT', '1000PEPEUSDT', '1000LUNCUSDT',
         'DOGEUSDT', 'SHIBUSDT', 'FLOKIUSDT', 'BONKUSDT', 'WIFUSDT', 
         'MEMEUSDT', 'PEOPLEUSDT', 'TURBOUSDT', 'POPCATUSDT', 'BRETTUSDT', 

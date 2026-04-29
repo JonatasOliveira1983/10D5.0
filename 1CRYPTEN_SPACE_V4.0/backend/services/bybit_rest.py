@@ -267,94 +267,36 @@ class BybitREST:
         return self._session
     async def get_elite_focus_pairs(self):
         """
-        [V5.6] ESTRATÉGIA DE FOCO 20: 
-        Retorna os Top 20 pares de Elite + qualquer par que tenha uma Moonbag ativa.
-        Isso garante processamento ultra-rápido e foco total no capital investido.
+        [V110.400] ESTRATÉGIA DE FOCO RADICAL: 
+        Retorna EXCLUSIVAMENTE os 20 pares de Elite definidos no config.py.
+        Elimina varreduras dinâmicas para economizar CPU/Rede no Railway.
         """
         try:
-            # 1. Obter Top 20 do Bibliotecário (ou fallback de volume)
-            from services.agents.librarian import librarian_agent
-            elite_base = []
-            if librarian_agent.rankings:
-                elite_base = [r["symbol"] for r in librarian_agent.rankings[:20]]
-                logger.info(f"🏆 [ELITE-FOCUS] {len(elite_base)} pares de Elite (Top 20) detectados.")
-            else:
-                # Fallback: Top 20 por volume
-                all_candidates = await self.get_elite_50x_pairs()
-                elite_base = all_candidates[:20]
-                logger.info(f"📡 [ELITE-COLD] Usando fallback de volume para Top 20.")
-
-            # 2. Obter símbolos de Moonbags ativas (Swing Trades)
-            # No modo PAPER, pegamos da memória. No REAL, pegamos do Vault/Bybit.
+            # Sincroniza com a lista oficial
+            elite_20 = [f"{s}.P" for s in settings.ELITE_20_MATRIX]
+            
+            # Adiciona Moonbags que podem estar fora do Top 20 (segurança para trades abertos)
             active_moon_symbols = set()
             if self.execution_mode == "PAPER":
                 active_moon_symbols = {p["symbol"] for p in self.paper_moonbags}
             else:
-                # Em modo REAL, as posições com status de EMANCIPATED ou tags específicas no Vault
-                # Por simplicidade e segurança, pegamos todos os pares com posição aberta que não estão no elite_base
                 active_positions = await self.get_active_positions()
                 active_moon_symbols = {p["symbol"] for p in active_positions}
 
-            # 3. União dos conjuntos para evitar duplicatas
-            final_set = set(elite_base) | active_moon_symbols
-            final_list = list(final_set)
-            
-            logger.info(f"🎯 [SNIPER-RADAR] Monitorando {len(final_list)} ativos (Top 20 + {len(active_moon_symbols - set(elite_base))} Moonbags extras).")
+            final_list = list(set(elite_20) | active_moon_symbols)
+            logger.info(f"🎯 [SNIPER-RADAR] Foco Radical Ativado: {len(final_list)} ativos monitorados.")
             return final_list
             
         except Exception as e:
-            logger.error(f"Erro ao obter pares de Elite Dinâmicos: {e}")
-            return ["BTCUSDT.P", "ETHUSDT.P", "SOLUSDT.P"]
+            logger.error(f"Erro no Foco Radical: {e}")
+            return [f"{s}.P" for s in settings.ELITE_20_MATRIX]
 
     async def get_elite_50x_pairs(self):
         """
-        🚀 REFINAMENTO ESTRATÉGICO V6.0: Escaneia pares com alavancagem >= 50x.
-        [V110.173] Reduzido para Top 40 para maximizar foco e precisão.
+        [V110.400] Versão Otimizada: Retorna apenas a Matriz de Elite.
+        Elimina chamadas pesadas à API de Instruments e Tickers.
         """
-        now = time.time()
-        if self._elite_cache and (now - self._elite_cache_time < self._elite_cache_ttl):
-            return self._elite_cache
-
-        try:
-            logger.info("BybitREST: Fetching Elite 50x Instruments (Sniper Strategy)...")
-            candidates = {}
-            cursor = ""
-            while True:
-                params = {"category": "linear", "limit": 1000}
-                if cursor: params["cursor"] = cursor
-                instr_resp = await asyncio.to_thread(self.session.get_instruments_info, **params)
-                instr_list = instr_resp.get("result", {}).get("list", [])
-                for info in instr_list:
-                    symbol = info.get("symbol")
-                    if not symbol or not symbol.endswith("USDT"): continue
-                    if symbol in settings.ASSET_BLOCKLIST: continue
-                    max_lev = float(info.get("leverageFilter", {}).get("maxLeverage", 0))
-                    if max_lev >= 50.0:
-                        candidates[symbol] = info
-                cursor = instr_resp.get("result", {}).get("nextPageCursor")
-                if not cursor: break
-            
-            tickers_resp = await asyncio.to_thread(self.session.get_tickers, category="linear")
-            ticker_list = tickers_resp.get("result", {}).get("list", [])
-            final_candidates = []
-            for t in ticker_list:
-                sym = t.get("symbol")
-                if sym in candidates:
-                    turnover = float(t.get("turnover24h", 0))
-                    final_candidates.append({"symbol": sym, "turnover": turnover})
-            
-            final_candidates.sort(key=lambda x: x["turnover"], reverse=True)
-            # [V110.173] Foco reduzido de 100 para 40 pares para precisão extrema
-            # [V4.2] Radar Blindage will handle the final filtering, but we keep this as a sane fallback.
-            final_symbols = [f"{x['symbol']}.P" for x in final_candidates][:40]
-            
-            logger.info(f"BybitREST: Mass Sniper Elite Scan Successful. Monitoring Top {len(final_symbols)} pairs.")
-            self._elite_cache = final_symbols
-            self._elite_cache_time = now
-            return final_symbols
-        except Exception as e:
-            logger.error(f"Error in Elite 50x scan: {e}")
-            return []
+        return [f"{s}.P" for s in settings.ELITE_20_MATRIX]
 
     def get_top_200_usdt_pairs(self):
         """Deprecated: Use get_elite_50x_pairs for Sniper Protocol."""

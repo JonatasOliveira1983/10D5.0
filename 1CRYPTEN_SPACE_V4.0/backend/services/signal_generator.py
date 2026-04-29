@@ -2715,9 +2715,9 @@ class SignalGenerator:
                     self._last_ws_rebalance = 0  # Force immediate rebalance
                     logger.info(f"🔄 [V75.2 HYSTERESIS] Radar switched to SCAVENGER_RANGE after {self._RADAR_HYSTERESIS_THRESHOLD} consecutive RANGING readings.")
 
-                # [V4.2] STRICT SPECIALIST MATRIX BLINDAGE
-                # Instead of scanning all liquid symbols, we lock to the 40 Specialist Pairs.
-                all_liquid_symbols = librarian_agent.get_specialist_symbols()
+                # [V110.400] RADICAL ELITE BLINDAGE
+                # Instead of scanning dynamic symbols, we lock strictly to the 20 Elite Pairs from config.
+                all_liquid_symbols = [f"{s}.P" for s in settings.ELITE_20_MATRIX]
                 
                 # Periodic rebalance of WebSocket (every 60s)
                 if now - getattr(self, '_last_ws_rebalance', 0) > 60:
@@ -3598,7 +3598,7 @@ class SignalGenerator:
         High-performance loop to update the Market Radar in RTDB.
         Runs independently of Signal generation.
         """
-        logger.info("Market Radar (200 pairs) active via RTDB.")
+        logger.info("Market Radar (20 Elite pairs) active via RTDB.")
         
         # V12.1: Wait for system to be ready (prevents race condition)
         while not self.is_running:

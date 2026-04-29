@@ -187,12 +187,13 @@ async def lifespan(app: FastAPI):
 
             
             logger.info("Step 2: Syncing Bybit Instruments...")
-            symbols = ["BTCUSDT.P", "ETHUSDT.P", "SOLUSDT.P"]
+            # [V110.400] ALIGNED BOOTSTRAP: Start with Elite 20 + Master Context
+            symbols = [f"{s}.P" for s in (settings.ELITE_20_MATRIX + settings.MASTER_CONTEXT_ASSETS)]
             try:
                 # Fetch symbols in background
                 async def fetch_and_start_ws():
                     try:
-                        # [V110.173] Usar get_elite_focus_pairs para concentrar nos Top 40
+                        # [V110.173] Usar get_elite_focus_pairs para concentrar nos Top 20 Elite
                         s = await asyncio.wait_for(
                             bybit_rest_service.get_elite_focus_pairs(),
                             timeout=90
