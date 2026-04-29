@@ -2941,7 +2941,7 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
         // =========================================================================
         const GridChartItem = ({ 
             symbol, slots, index, totalCharts,
-            onSymbolChange, focusedAsset 
+            onSymbolChange, focusedAsset, pulseStatus
         }) => {
             const chartContainerRef = React.useRef(null);
             const chartInstance = React.useRef(null);
@@ -3134,16 +3134,39 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
 
                 if (points && points.entry > 0) {
                     const isLong = ['BUY', 'LONG'].includes((points.side || "").toUpperCase());
-                    priceLinesRef.current.entry = candlestickSeries.current.createPriceLine({ price: points.entry, color: '#fff', lineWidth: 1, lineStyle: 2, title: 'ENTRY' });
-                    if (points.sl > 0) priceLinesRef.current.sl = candlestickSeries.current.createPriceLine({ price: points.sl, color: '#ef4444', lineWidth: 2, lineStyle: 0, title: 'STOP' });
-                    const tp = isLong ? points.entry * 1.03 : points.entry * 0.97;
                     priceLinesRef.current.tp = candlestickSeries.current.createPriceLine({ price: tp, color: '#10b981', lineWidth: 2, lineStyle: 0, title: 'TARGET' });
+
+                    // [V110.370] Flow Sentinel Marker Sync
+                    if (historicalData.candles.length > 0) {
+                        const entryTs = activeSlot.opened_at || 0;
+                        const entryPrice = points.entry;
+                        let entryCandle = historicalData.candles.find(c => Math.abs(c.time - entryTs) < 60);
+                        if (!entryCandle) entryCandle = historicalData.candles.find(c => Math.abs(c.close - entryPrice) / entryPrice < 0.001);
+                        
+                        if (entryCandle) {
+                            candlestickSeries.current.setMarkers([{
+                                time: entryCandle.time,
+                                position: points.side === 'LONG' || points.side === 'Buy' ? 'belowBar' : 'aboveBar',
+                                color: pulseStatus === 'OFFLINE' ? '#ef4444' : '#fff',
+                                shape: 'arrowUp',
+                                text: 'ENTRY • FLOW ACTIVE'
+                            }]);
+                        }
+                    }
+                } else {
+                    if (candlestickSeries.current) candlestickSeries.current.setMarkers([]);
                 }
             }, [slots, localSymbol, focusedAsset]);
 
             return (
                 <div className="flex flex-col h-full border border-white/5 bg-black/40 hover:border-white/20 transition-all relative group overflow-hidden rounded-[1.5rem] shadow-2xl backdrop-blur-xl">
-                    <div className="scanning-effect"></div>
+                    <div 
+                        className="scanning-effect" 
+                        style={{ 
+                            '--sentinel-color': pulseStatus === 'OFFLINE' ? 'rgba(239, 68, 68, 0.8)' : 'rgba(255, 255, 255, 0.6)',
+                            '--sentinel-glow': pulseStatus === 'OFFLINE' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(255, 255, 255, 0.2)'
+                        }}
+                    ></div>
                     
                     {/* Header HUD */}
                     <div className="absolute top-3 left-4 z-20 flex items-center gap-3 pointer-events-none">
@@ -3664,6 +3687,7 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                                         symbol={gridSymbols[i]} 
                                         slots={slots} 
                                         focusedAsset={i === 0 ? focusedAsset : null}
+                                        pulseStatus={pulseStatus}
                                     />
                                 ))}
                             </div>
