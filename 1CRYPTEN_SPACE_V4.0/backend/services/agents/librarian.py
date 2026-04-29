@@ -312,14 +312,18 @@ class LibrarianAgent(AIOSAgent):
         symbol = normalize_symbol(symbol)
         try:
             # 1. Pegar dados do banco local (Klines)
-            conn = data_extractor.get_db_connection()
-            # Pega as últimas 'limit' velas para ter histórico das médias
-            import pandas as pd
-            df = pd.read_sql_query(
-                "SELECT start_time, open, high, low, close, volume FROM klines WHERE symbol = ? AND interval = ? ORDER BY start_time DESC LIMIT ?",
-                conn, params=(symbol, interval, limit)
-            )
-            conn.close()
+            try:
+                conn = data_extractor.get_db_connection()
+                # Pega as últimas 'limit' velas para ter histórico das médias
+                import pandas as pd
+                df = pd.read_sql_query(
+                    "SELECT start_time, open, high, low, close, volume FROM klines WHERE symbol = ? AND interval = ? ORDER BY start_time DESC LIMIT ?",
+                    conn, params=(symbol, interval, limit)
+                )
+                conn.close()
+            except Exception as db_err:
+                logger.warning(f"⚠️ [LIBRARIAN-DB-FAIL] Banco local indisponível para {symbol}: {db_err}. Usando Fallback API...")
+                df = pd.DataFrame() # Força o fallback abaixo
             
             # Fallback: Se o banco local estiver vazio, buscar via API (Bybit)
             if df.empty:
