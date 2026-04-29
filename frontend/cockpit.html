@@ -1941,7 +1941,7 @@
         };
 
         // --- Component: Daily Goal Banner (V110.147) ---
-        const DailyGoalBanner = ({ context, title }) => {
+        const DailyGoalBanner = ({ context, title, intelligenceMessage }) => {
             if (!context) return null;
             const gains = context.daily_gains || 0;
             const target = context.daily_target || 10;
@@ -1959,7 +1959,14 @@
                                 <span className="material-icons-round text-white text-sm">radar</span>
                                 {title || 'Radar de Inteligência'}
                             </h3>
-                            <span className="text-[9px] font-black text-white uppercase tracking-widest opacity-50">Command Header</span>
+                            {intelligenceMessage ? (
+                                <div className="flex items-center gap-2 px-2 py-0.5 rounded bg-white/10 border border-white/20">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse shadow-[0_0_8px_rgba(255,255,255,0.4)]"></span>
+                                    <span className="text-[9px] font-black text-white uppercase tracking-widest">{intelligenceMessage}</span>
+                                </div>
+                            ) : (
+                                <span className="text-[9px] font-black text-white uppercase tracking-widest opacity-50">Command Header</span>
+                            )}
                         </div>
                         <div className="h-[1px] w-full bg-white/5 mb-2"></div>
                         <div className="flex items-center justify-between">
@@ -5159,7 +5166,7 @@
         // =========================================================================
         // [V110.350] MARKET RADAR WIDGET (Elite 5 Controller)
         // =========================================================================
-        const MarketRadarWidget = ({ signals, context }) => {
+        const MarketRadarWidget = ({ signals, context, intelligenceMessage }) => {
             const safeSignals = Array.isArray(signals) ? signals.slice(0, 5) : [];
             
             return (
@@ -5167,14 +5174,21 @@
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
                             <h3 className="text-[11px] font-black uppercase tracking-[0.3em] text-white flex items-center gap-2">
-                                <span className="material-icons-round text-sm">radar</span>
+                                <span className="material-icons-round text-sm animate-pulse">radar</span>
                                 Market Radar
                             </h3>
-                            <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">Top 5 Elite Opportunities</span>
+                            <span className="text-[8px] font-bold text-gray-500 uppercase tracking-widest">Vision Intelligence</span>
                         </div>
-                        <div className="px-2 py-1 rounded bg-accent/10 border border-accent/20">
-                            <span className="text-[9px] font-black text-accent uppercase">Scanning...</span>
-                        </div>
+                        {intelligenceMessage ? (
+                            <div className="flex items-center gap-2 px-2 py-0.5 rounded bg-white/10 border border-white/20">
+                                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse shadow-[0_0_8px_rgba(255,255,255,0.4)]"></span>
+                                <span className="text-[9px] font-black text-white uppercase tracking-widest">{intelligenceMessage}</span>
+                            </div>
+                        ) : (
+                            <div className="px-2 py-1 rounded bg-white/5 border border-white/10">
+                                <span className="text-[9px] font-black text-white uppercase opacity-40">Scanning...</span>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex flex-col gap-2.5">
@@ -5569,7 +5583,7 @@
 
                             {/* 4. MARKET RADAR SEALS [V110.350] Fixed Top 5 */}
                             <section className="pt-4 border-t border-white/5">
-                                <MarketRadarWidget signals={radarSignals} context={pulseData?.market_context} />
+                                <MarketRadarWidget signals={filteredSignals} context={pulseData?.market_context} intelligenceMessage={intelligenceMessage} />
                             </section>
 
                             {/* 5. OPERATIONAL HISTORY */}
@@ -5843,7 +5857,36 @@
                 if (latency < 10000) return 'bg-amber-400';
                 return 'bg-amber-600';
             };
+            
+            // [V110.370] Radar Intelligence & Slot Needs
+            const { intelligenceMessage, filteredSignals } = useMemo(() => {
+                const activeBlitz = slots.filter(s => s && s.id <= 2 && s.symbol).length;
+                const activeSwing = slots.filter(s => s && s.id > 2 && s.id <= 4 && s.symbol).length;
+                const freeBlitz = 2 - activeBlitz;
+                const freeSwing = 2 - activeSwing;
 
+                let msg = "";
+                if (activeBlitz + activeSwing === 4) {
+                    msg = "STANDBY: AGUARDANDO SLOT";
+                } else {
+                    const needs = [];
+                    if (freeBlitz > 0) needs.push(`${freeBlitz} BLITZ`);
+                    if (freeSwing > 0) needs.push(`${freeSwing} SWING`);
+                    msg = `VISÃO BUSCANDO ${needs.join(' E ')}`;
+                }
+
+                // Filter bestSignals based on needs
+                const filtered = bestSignals.filter(sig => {
+                    if (activeBlitz + activeSwing === 4) return false;
+                    const isBlitz = sig.strategy_label === 'BLITZ' || sig.layer === 'BLITZ' || sig.timeframe === '30';
+                    const isSwing = !isBlitz;
+                    if (isBlitz && freeBlitz > 0) return true;
+                    if (isSwing && freeSwing > 0) return true;
+                    return false;
+                });
+
+                return { intelligenceMessage: msg, filteredSignals: filtered };
+            }, [slots, bestSignals]);
 
             return (
                 <main className="w-full h-full relative" style={{ isolation: 'isolate' }}>
@@ -5926,7 +5969,7 @@
 
                             {/* SEÇÃO 5: RADAR DE SINAIS ELITE [V110.350] */}
                             <section className="pt-4">
-                                <MarketRadarWidget signals={deDuplicatedSignals} context={btcCtx} />
+                                <MarketRadarWidget signals={filteredSignals} context={btcCtx} intelligenceMessage={intelligenceMessage} />
                             </section>
 
                             {/* SEÇÃO 6: REGISTRO DA VAULT (Histórico) */}
