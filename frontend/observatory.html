@@ -375,7 +375,7 @@ function initCharts() {
     layout: { background: { color: '#000000' }, textColor: '#94a3b8', fontFamily: 'Inter', fontSize: 11 },
     grid: { vertLines: { color: 'rgba(255,255,255,0.02)' }, horzLines: { color: 'rgba(255,255,255,0.02)' } },
     crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
-    timeScale: { borderColor: 'rgba(255,255,255,0.08)', timeVisible: true, rightOffset: 25, barSpacing: 10 },
+    timeScale: { borderColor: 'rgba(255,255,255,0.08)', timeVisible: true, rightOffset: 40, barSpacing: 10, shiftVisibleRangeOnNewBar: true },
     rightPriceScale: { minimumWidth: 72, borderVisible: false, scaleMargins: { top: 0.22, bottom: 0.22 } },
   };
 
@@ -474,11 +474,13 @@ async function loadData(s) {
     updateTrafficLight(lastTrend30, lastTrend4h);
     refreshAllLayers();
     
-    // [V110.385] ULTRA-SCROLL FIX: Garantir que o último candle esteja SEMPRE visível à esquerda da régua
+    // [V110.390] MEGA-SCROLL FIX: Forçar scroll em todos os eixos sincronizados com delay maior
     setTimeout(() => {
-        charts30.price.timeScale().scrollToPosition(5, false); // Scroll com folga de 5 bars
-        charts4h.price.timeScale().scrollToPosition(5, false);
-    }, 250);
+        if (charts30.rsi) charts30.rsi.timeScale().scrollToPosition(10, false); 
+        if (charts4h.price) charts4h.price.timeScale().scrollToPosition(10, false);
+        // Fallback: tentar scrollar o preço também caso a sincronização falhe
+        charts30.price.timeScale().scrollToPosition(10, false);
+    }, 600);
 
     Object.values(charts30).forEach(c => { const p = c.chartElement().parentElement; if(p) c.applyOptions({ width: p.clientWidth, height: p.clientHeight }); });
     charts4h.price.applyOptions({ width: document.getElementById('p4h-pane').clientWidth, height: document.getElementById('p4h-pane').clientHeight });
