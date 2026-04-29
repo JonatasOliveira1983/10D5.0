@@ -216,6 +216,10 @@ html, body { background: #000000 !important; background-color: #000000 !importan
 @keyframes scan-vertical { 0% { top: 0%; opacity: 0; } 10%, 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
 
 .loading-txt { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 900; color: #fff; letter-spacing: 0.3em; text-transform: uppercase; margin-top: 25px; text-shadow: 0 0 10px rgba(16,185,129, 0.5); }
+.asset-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; margin-top: 30px; }
+.asset-dot { width: 8px; height: 8px; background: rgba(255,255,255,0.08); border-radius: 2px; }
+.asset-dot.active { background: var(--green); box-shadow: 0 0 12px var(--green); animation: dot-flicker 2s infinite; }
+@keyframes dot-flicker { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; transform: scale(1.2); } }
     </style>
 </head>
 <body>
@@ -285,6 +289,7 @@ html, body { background: #000000 !important; background-color: #000000 !importan
         </div>
         <div class="candle-loader candle-animate"></div>
         <div class="loading-txt">Sincronizando Macro/Micro...</div>
+        <div class="asset-grid" id="asset-boot-grid"></div>
       </div>
 
       <!-- 30M COLUMN -->
