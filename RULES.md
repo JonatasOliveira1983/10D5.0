@@ -14,6 +14,7 @@
 14. **INTEGRIDADE DE FECHAMENTO (V110.360):** É obrigatório que o `BankrollManager` registre todas as ordens detectadas como fechadas (inclusive órfãs) no `trade_history` para garantir paridade absoluta entre a banca e o histórico auditável.
 15. **NORMALIZAÇÃO DE SIDE (V110.360):** Todas as comparações de lado de ordem (`side`) no frontend e backend devem ser normalizadas (`toUpperCase()`) para suportar variações de API (Buy/BUY/LONG).
 16. **INTELIGÊNCIA DO RADAR (V110.370):** O Radar deve operar de forma contextual. Se não houver slots disponíveis para um determinado tipo de estratégia (Blitz ou Swing), os sinais desse tipo devem ser filtrados na UI para evitar poluição visual e confusão operacional. O cabeçalho do Radar deve exibir a demanda ativa (ex: "VISÃO BUSCANDO 1 SWING").
+17. **VISUAL FLOW SENTINEL (V110.371):** A "Linha Vertical" de scan nos gráficos é o indicador visual do agente Flow Sentinel. Ela deve refletir o status do sistema (Verde/Branco = Ativo, Vermelho = Falha de Integridade/Offline). Marcadores de "ENTRY" devem ser baseados no timestamp real (`opened_at`) para garantir precisão absoluta na auditoria visual.
 
 ---
 

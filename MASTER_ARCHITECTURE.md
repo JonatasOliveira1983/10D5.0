@@ -7,6 +7,7 @@
     - **Dynamic Demand Signaling:** Implementação de mensagens contextuais no Radar ("Visão buscando SWING"), indicando a intenção ativa do agente conforme a demanda de alocação.
     - **Contextual Signal Filtering:** O Radar agora filtra sinais em tempo real, exibindo apenas as oportunidades compatíveis com slots vazios (Blitz vs Swing).
     - **Standby Mode Logic:** O sistema entra automaticamente em modo de "Standby" quando todos os slots estão ocupados, reduzindo o processamento de sinais inúteis.
+    - **Flow Sentinel Visual Tracking (V110.371):** Refatoração da linha vertical de "Scanning" para atuar como um monitor dinâmico do agente de integridade (Verde: Online, Vermelho: Offline) e correção da precisão dos marcadores de entrada via `opened_at` timestamp.
 
 *   **V110.360: SYSTEM INTEGRITY & UI NORMALIZATION [APR 29]**
     - **Orphan Trade Recovery:** Implementação de registro explícito no `trade_history` para ordens detectadas via sincronização de exchange (órfãs), resolvendo o descompasso entre banca e histórico.
