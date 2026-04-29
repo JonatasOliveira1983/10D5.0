@@ -3,6 +3,12 @@
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
 
+*   **V110.360: SYSTEM INTEGRITY & UI NORMALIZATION [APR 29]**
+    - **Orphan Trade Recovery:** Implementação de registro explícito no `trade_history` para ordens detectadas via sincronização de exchange (órfãs), resolvendo o descompasso entre banca e histórico.
+    - **Frontend Side Normalization:** Refatoração global de componentes (`SlotCard`, `GridChartItem`) para suportar case-insensitivity em propriedades de `side` (BUY/LONG), corrigindo erros de projeção de alvos em ativos como TRXUSDT.
+    - **Bybit API Wrapper Hardening:** Atualização do método `get_closed_pnl` para suportar consultas globais (sem símbolo obrigatório), permitindo auditorias de histórico mais abrangentes.
+
+
 *   **V5.6: VISION INTELLIGENCE & MASTER CONTEXT [APR 28]**
     - **Proprietary S3 Engine:** Migração total do TradingView Widget para o motor nativo Lightweight Charts, garantindo soberania visual e fim dos erros de CSP.
     - **Triple-Pane Architecture:** Implementação de 3 painéis sincronizados (Preço, Volume Flow e RSI 14) para análise técnica profunda.

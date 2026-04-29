@@ -2852,8 +2852,8 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                                     {isActive ? cleanSymbol : `SLOT ${s.id}`}
                                 </span>
                                 {isActive && (
-                                    <span className={`bg-white/5 border border-white/10 text-[9px] font-black px-3 py-1 rounded-full ${s.side === 'Buy' ? 'text-white' : 'text-secondary'}`}>
-                                        {s.side === 'Buy' ? 'LONG' : 'SHORT'} {s.leverage || 50}x
+                                    <span className={`bg-white/5 border border-white/10 text-[9px] font-black px-3 py-1 rounded-full ${['BUY', 'LONG'].includes((s.side || "").toUpperCase()) ? 'text-white' : 'text-secondary'}`}>
+                                        {['BUY', 'LONG'].includes((s.side || "").toUpperCase()) ? 'LONG' : 'SHORT'} {s.leverage || 50}x
                                     </span>
                                 )}
                             </div>
@@ -2906,7 +2906,7 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                         <div className="flex flex-col flex-1 items-end">
                             <span className="text-[8px] font-black text-gray-500 uppercase tracking-widest">Target</span>
                             <span className="text-xs font-bold text-white font-mono">
-                                ${formatPrice(s.side === 'Buy' ? Number(s.entry_price || 0) * 1.03 : Number(s.entry_price || 0) * 0.97)}
+                                ${formatPrice(['BUY', 'LONG'].includes((s.side || "").toUpperCase()) ? Number(s.entry_price || 0) * 1.03 : Number(s.entry_price || 0) * 0.97)}
                             </span>
                         </div>
                     </div>
@@ -3126,7 +3126,7 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                 }
 
                 if (points && points.entry > 0) {
-                    const isLong = points.side === 'LONG' || points.side === 'Buy';
+                    const isLong = ['BUY', 'LONG'].includes((points.side || "").toUpperCase());
                     priceLinesRef.current.entry = candlestickSeries.current.createPriceLine({ price: points.entry, color: '#fff', lineWidth: 1, lineStyle: 2, title: 'ENTRY' });
                     if (points.sl > 0) priceLinesRef.current.sl = candlestickSeries.current.createPriceLine({ price: points.sl, color: '#ef4444', lineWidth: 2, lineStyle: 0, title: 'STOP' });
                     const tp = isLong ? points.entry * 1.03 : points.entry * 0.97;

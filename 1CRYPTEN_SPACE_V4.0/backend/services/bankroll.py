@@ -332,6 +332,7 @@ class BankrollManager:
                                     "close_reason": "ORPHAN_SYNC_RECOVERY",
                                     "closed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
                                 }
+                                await sovereign_service.log_trade(trade_data)
                                 await self.register_sniper_trade(trade_data)
                                 logger.info(f"✅ [RECOVERY] Orphan trade {sym} registered in history | PnL: ${pnl_val:.2f}")
                         except Exception as e:

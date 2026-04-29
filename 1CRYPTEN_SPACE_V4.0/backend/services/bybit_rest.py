@@ -1000,7 +1000,7 @@ class BybitREST:
         await asyncio.sleep(delay)
         self.pending_closures.discard(symbol)
 
-    async def get_closed_pnl(self, symbol: str, limit: int = 5):
+    async def get_closed_pnl(self, symbol: str = None, limit: int = 5):
         """
         [V43.2] Fetches final PnL for closed trades.
         Increased default limit to 5 to avoid missing rapid-fire trades during sync.
@@ -1013,14 +1013,20 @@ class BybitREST:
 
         async with self._http_semaphore:
             try:
-                api_symbol = self._strip_p(symbol)
+                api_symbol = self._strip_p(symbol) if symbol else None
+                
+                params = {
+                    "category": self.category,
+                    "limit": limit
+                }
+                if api_symbol:
+                    params["symbol"] = api_symbol
+                    
                 # [V43.2] V5 Bybit API: Fetching closed PnL with higher limit
                 response = await asyncio.wait_for(
                     asyncio.to_thread(
                         self.session.get_closed_pnl, 
-                        category=self.category, 
-                        symbol=api_symbol, 
-                        limit=limit
+                        **params
                     ), 
                     timeout=10.0
                 )

@@ -1,4 +1,4 @@
-# RULES.md — 10D Sniper V110.350 "Protocolo Sniper Elite 20 Dashboard"
+# RULES.md — 10D Sniper V110.360 "Protocolo Sniper Elite 20 Dashboard"
 # Invariantes Tecnicas Inegociaveis — [PERSISTÊNCIA ABSOLUTA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
 # Fonte da verdade: codigo real no Railway e PostgreSQL/WebSocket Nativo.
@@ -11,6 +11,8 @@
 3. **ARQUIVAMENTO ATÔMICO:** É terminantemente proibido limpar um slot sem antes garantir o arquivamento no Postgres via `database_service.log_trade`.
 4. **PAPER MODE ENFORCEMENT:** Em modo de teste, a variável `BYBIT_EXECUTION_MODE` deve ser injetada como `PAPER` no Railway para garantir o saldo simulado de $100.
 5. **META DE LUCRO ROI >= 80% (V110.350):** O contador de progresso diário (Dashboard) e o contador de ciclos do Vault (1/10) agora são baseados em ROI técnico (>= 80%) em vez de lucro fixo em dólar. Isso garante a justiça do ciclo independente do capital (Compound-Ready).
+14. **INTEGRIDADE DE FECHAMENTO (V110.360):** É obrigatório que o `BankrollManager` registre todas as ordens detectadas como fechadas (inclusive órfãs) no `trade_history` para garantir paridade absoluta entre a banca e o histórico auditável.
+15. **NORMALIZAÇÃO DE SIDE (V110.360):** Todas as comparações de lado de ordem (`side`) no frontend e backend devem ser normalizadas (`toUpperCase()`) para suportar variações de API (Buy/BUY/LONG).
 
 ---
 
@@ -140,5 +142,5 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versão: V110.350 "Elite 20 Sniper Protocol - Dashboard Update" | Atualizado: 2026-04-28*
-*Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10DBybityREAL.*
+*Versão: V110.360 "System Integrity & UI Normalization" | Atualizado: 2026-04-29*
+*Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10D5.0.*
