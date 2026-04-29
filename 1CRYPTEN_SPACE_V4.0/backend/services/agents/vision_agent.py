@@ -149,14 +149,9 @@ class VisionAgent:
                     "thoughts": f"Raw text: {response_text[:100]}..."
                 }
             
-            # [V1.0] Broadcast de Inteligência para a UI
-            try:
-                from services.sovereign_service import sovereign_service
-                # Converter path absoluto em URL relativa para a UI
-                # screenshot_path: .../backend/assets/vision_proofs/file.png
-                # URL: /assets/vision_proofs/file.png
-                relative_url = f"/assets/vision_proofs/{os.path.basename(screenshot_path)}"
-                
+                # [V110.376] Stability: Wait for filesystem sync before broadcasting URL
+                await asyncio.sleep(2.5)
+
                 await sovereign_service.log_event(
                     agent="Vision",
                     message=f"Análise visual de {symbol} concluída.",
@@ -222,6 +217,9 @@ class VisionAgent:
             from services.sovereign_service import sovereign_service
             result = await ai_service.generate_vision_content(prompt, screenshot_path, self.system_instruction)
             
+            # [V110.376] Stability: Wait for filesystem sync before broadcasting URL
+            await asyncio.sleep(2.5)
+
             # [V1.0] Log de inteligência para o fluxo coletivo
             await sovereign_service.log_event(
                 agent="Vision",
