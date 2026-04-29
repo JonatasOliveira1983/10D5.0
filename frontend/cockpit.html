@@ -670,12 +670,12 @@
             position: absolute;
             top: 0;
             bottom: 0;
-            width: 3px;
-            background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.8), transparent);
-            animation: scanningLine 5s linear infinite;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, var(--sentinel-color, rgba(255, 255, 255, 0.6)), transparent);
+            animation: scanningLine 4s linear infinite;
             pointer-events: none;
             z-index: 50;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 15px var(--sentinel-glow, rgba(255, 255, 255, 0.2));
         }
         .telemetry-hud {
             background: rgba(0, 0, 0, 0.6);
@@ -4594,7 +4594,7 @@
         // =========================================================================
         const GridChartItem = ({ 
             symbol, slots, index, totalCharts,
-            onSymbolChange, focusedAsset 
+            onSymbolChange, focusedAsset, pulseStatus 
         }) => {
             const chartContainerRef = React.useRef(null);
             const chartInstance = React.useRef(null);
@@ -4846,18 +4846,23 @@
                         } catch (e) {}
                     });
                     
-                    // [V110.182.6] Entry Candle Marker
-                    if (historicalData.candles.length > 0) {
+                        // [V110.370] Inteligência de Tempo Flow Sentinel
+                        const entryTs = activeSlot.opened_at || 0;
                         const entryPrice = points.entry;
-                        // Find closest candle to entry price (simplified proxy for entry candle if exact time unknown)
-                        const entryCandle = historicalData.candles.find(c => Math.abs(c.close - entryPrice) / entryPrice < 0.001);
+                        
+                        // Busca a vela exata pelo timestamp ou o preço mais próximo como fallback
+                        let entryCandle = historicalData.candles.find(c => Math.abs(c.time - entryTs) < 60);
+                        if (!entryCandle) {
+                            entryCandle = historicalData.candles.find(c => Math.abs(c.close - entryPrice) / entryPrice < 0.001);
+                        }
+
                         if (entryCandle) {
                             candlestickSeries.current.setMarkers([{
                                 time: entryCandle.time,
                                 position: points.side === 'LONG' || points.side === 'Buy' ? 'belowBar' : 'aboveBar',
-                                color: '#fff',
+                                color: pulseStatus === 'OFFLINE' ? '#ef4444' : '#fff',
                                 shape: 'arrowUp',
-                                text: 'ENTRY'
+                                text: 'ENTRY • FLOW ACTIVE'
                             }]);
                         }
                     }
@@ -4868,7 +4873,15 @@
 
             return (
                 <div className="flex flex-col h-full border border-white/5 bg-black/40 hover:border-white/20 transition-all relative group overflow-hidden rounded-[1.5rem] shadow-2xl backdrop-blur-xl">
-                    {settings.sentinel && <div className="scanning-effect"></div>}
+                    {settings.sentinel && (
+                        <div 
+                            className="scanning-effect" 
+                            style={{ 
+                                '--sentinel-color': pulseStatus === 'OFFLINE' ? 'rgba(239, 68, 68, 0.8)' : 'rgba(255, 255, 255, 0.6)',
+                                '--sentinel-glow': pulseStatus === 'OFFLINE' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(255, 255, 255, 0.2)'
+                            }}
+                        ></div>
+                    )}
                     
                     {/* Header HUD: Symbol & Interval */}
                     <div className="absolute top-4 left-5 z-20 flex flex-col gap-1 pointer-events-none">
@@ -5494,6 +5507,7 @@
                                         symbol={gridSymbols[i]} 
                                         slots={slots} 
                                         focusedAsset={i === 0 ? focusedAsset : null}
+                                        pulseStatus={pulseStatus}
                                     />
                                 ))}
                             </div>
