@@ -363,7 +363,16 @@ function initCharts() {
     layout: { background: { color: '#000000' }, textColor: '#94a3b8', fontFamily: 'Inter', fontSize: 11 },
     grid: { vertLines: { color: 'rgba(255,255,255,0.02)' }, horzLines: { color: 'rgba(255,255,255,0.02)' } },
     crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
-    timeScale: { borderColor: 'rgba(255,255,255,0.08)', timeVisible: true }
+    timeScale: { borderColor: 'rgba(255,255,255,0.08)', timeVisible: true },
+    // [V110.400] IA-FIRST AXIS: Régua alargada para evitar sobreposição
+    rightPriceScale: {
+        minimumWidth: 140,
+        borderVisible: false,
+        scaleMargins: {
+            top: 0.2,
+            bottom: 0.2,
+        },
+    },
   };
 
   charts.price = LightweightCharts.createChart(document.getElementById('price-chart'), { ...common, timeScale: { ...common.timeScale, visible: false } });
@@ -427,8 +436,9 @@ function refreshLayers() {
   if (document.getElementById('toggle-smc').checked) {
     (curStudy.obs || []).slice(-4).forEach(ob => {
         const color = ob.type === 'BULLISH' ? '#10b981' : '#ef4444';
-        obLines.push(series.candle.createPriceLine({ price: ob.top, color: color + '88', lineWidth: 1, title: 'OB ' + ob.type[0] }));
-        obLines.push(series.candle.createPriceLine({ price: ob.bottom, color: color + '44', lineWidth: 1, lineStyle: 2 }));
+        // Opacidade reduzida para não cegar a IA
+        obLines.push(series.candle.createPriceLine({ price: ob.top, color: color + '44', lineWidth: 1, title: 'OB ' + ob.type[0], axisLabelVisible: true }));
+        obLines.push(series.candle.createPriceLine({ price: ob.bottom, color: color + '22', lineWidth: 1, lineStyle: 2, axisLabelVisible: true }));
     });
   }
   if (document.getElementById('toggle-123').checked && (curStudy.patterns_123 || []).length > 0) {
@@ -438,7 +448,7 @@ function refreshLayers() {
             const t = d[data.idx]?.time;
             if (t) m.push({ time: t, position: p.side === 'buy' ? 'belowBar' : 'aboveBar', color: color, shape: 'circle', text: num });
         });
-        if (p.trigger_price) obLines.push(series.candle.createPriceLine({ price: p.trigger_price, color: 'rgba(255,255,255,0.4)', lineWidth: 1, lineStyle: 3, title: 'STRIKE' }));
+        if (p.trigger_price) obLines.push(series.candle.createPriceLine({ price: p.trigger_price, color: 'rgba(255,255,255,0.2)', lineWidth: 1, lineStyle: 3, title: 'STRIKE', axisLabelVisible: true }));
     });
   }
   if (document.getElementById('toggle-trend').checked) {
