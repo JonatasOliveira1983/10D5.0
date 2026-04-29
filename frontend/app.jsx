@@ -392,8 +392,8 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
             );
         };
 
-        // --- Component: Daily Goal Banner (V110.147) ---
-        const DailyGoalBanner = ({ context, title }) => {
+        // --- Component: Daily Goal Banner (V110.370) ---
+        const DailyGoalBanner = ({ context, title, intelligenceMessage }) => {
             if (!context) return null;
             const gains = context.daily_gains || 0;
             const target = context.daily_target || 10;
@@ -411,7 +411,14 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                                 <span className="material-icons-round text-white text-sm animate-pulse">radar</span>
                                 {title || 'Radar de Inteligência'}
                             </h3>
-                            <span className="text-[9px] font-black text-white uppercase tracking-widest opacity-50">Command Header</span>
+                            {intelligenceMessage ? (
+                                <div className="flex items-center gap-2 px-2 py-0.5 rounded bg-white/10 border border-white/20">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse shadow-[0_0_8px_rgba(255,255,255,0.4)]"></span>
+                                    <span className="text-[9px] font-black text-white uppercase tracking-widest">{intelligenceMessage}</span>
+                                </div>
+                            ) : (
+                                <span className="text-[9px] font-black text-white uppercase tracking-widest opacity-50">Command Header</span>
+                            )}
                         </div>
                         <div className="h-[1px] w-full bg-white/5 mb-2"></div>
                         <div className="flex items-center justify-between">
@@ -3454,7 +3461,7 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
             liveTotalProfit, liveEquity, isDrawdown, hullIntegrityPct, shieldPowerPct,
             fleetRank, rankColor, historyLogs, tickers,
             systemState, protocolLabel, oracleStatus, oracleMessage, stabilizationProgress, btcAdx, realAdx, realDecorrelation, dominance,
-            unifiedRegime, librarianIntel
+            unifiedRegime, librarianIntel, intelligenceMessage, filteredSignals
         }) => {
             const [selectedSlotId, setSelectedSlotId] = React.useState(null);
             const [gridMode, setGridMode] = React.useState('4'); // Default to 4 charts
@@ -3747,9 +3754,13 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
 
                             {/* 4. MARKET RADAR SEALS */}
                             <section className="space-y-4 pt-4 border-t border-white/5">
-                                <DailyGoalBanner context={pulseData?.market_context} title="Market Radar" />
+                                <DailyGoalBanner 
+                                    context={pulseData?.market_context} 
+                                    title="Market Radar" 
+                                    intelligenceMessage={intelligenceMessage}
+                                />
                                 <div className="space-y-2.5">
-                                    {Array.isArray(radarSignals) && radarSignals.slice(0, 5).map((sig, idx) => (
+                                    {(filteredSignals || []).slice(0, 5).map((sig, idx) => (
                                         <div key={idx} className="p-3 rounded-2xl bg-white/[0.02] border border-white/5 flex items-center justify-between group hover:border-gray-500/30 transition-all">
                                             <div className="flex items-center gap-3">
                                                 <span className="text-xs font-black text-white">{sig.symbol.replace('.P', '')}</span>
@@ -3760,8 +3771,10 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                                             </span>
                                         </div>
                                     ))}
-                                    {(!Array.isArray(radarSignals) || radarSignals.length === 0) && (
-                                        <div className="py-8 text-center opacity-20 italic text-[10px] uppercase tracking-widest font-black">Scanning Signals...</div>
+                                    {(!filteredSignals || filteredSignals.length === 0) && (
+                                        <div className="py-8 text-center opacity-20 italic text-[10px] uppercase tracking-widest font-black">
+                                            {intelligenceMessage === "STANDBY: AGUARDANDO SLOT" ? "System Standby" : "Scanning Signals..."}
+                                        </div>
                                     )}
                                 </div>
                             </section>
@@ -4036,6 +4049,36 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                 return 'bg-amber-600';
             };
 
+            // [V110.370] Radar Intelligence & Slot Needs
+            const { intelligenceMessage, filteredSignals } = useMemo(() => {
+                const activeBlitz = slots.filter(s => s && s.id <= 2 && s.symbol).length;
+                const activeSwing = slots.filter(s => s && s.id > 2 && s.id <= 4 && s.symbol).length;
+                const freeBlitz = 2 - activeBlitz;
+                const freeSwing = 2 - activeSwing;
+
+                let msg = "";
+                if (activeBlitz + activeSwing === 4) {
+                    msg = "STANDBY: AGUARDANDO SLOT";
+                } else {
+                    const needs = [];
+                    if (freeBlitz > 0) needs.push(`${freeBlitz} BLITZ`);
+                    if (freeSwing > 0) needs.push(`${freeSwing} SWING`);
+                    msg = `VISÃO BUSCANDO ${needs.join(' E ')}`;
+                }
+
+                // Filter bestSignals based on needs
+                const filtered = bestSignals.filter(sig => {
+                    if (activeBlitz + activeSwing === 4) return false;
+                    const isBlitz = sig.strategy_label === 'BLITZ' || sig.layer === 'BLITZ' || sig.timeframe === '30';
+                    const isSwing = !isBlitz;
+                    if (isBlitz && freeBlitz > 0) return true;
+                    if (isSwing && freeSwing > 0) return true;
+                    return false;
+                });
+
+                return { intelligenceMessage: msg, filteredSignals: filtered };
+            }, [slots, bestSignals]);
+
 
             return (
                 <main className="w-full h-full relative" style={{ isolation: 'isolate' }}>
@@ -4057,6 +4100,8 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                             realDecorrelation={realDecorrelation} dominance={dominance}
                             unifiedRegime={unifiedRegime}
                             librarianIntel={librarianIntel}
+                            intelligenceMessage={intelligenceMessage}
+                            filteredSignals={filteredSignals}
                         />
                     </div>
 
@@ -4117,7 +4162,11 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
 
                             {/* SEÇÃO 5: RADAR DE SINAIS ELITE */}
                             <section className="space-y-3 pt-4 border-none">
-                                <DailyGoalBanner context={btcCtx} title="Radar de Inteligência" />
+                                <DailyGoalBanner 
+                                    context={btcCtx} 
+                                    title="Radar de Inteligência" 
+                                    intelligenceMessage={intelligenceMessage}
+                                />
                                 
                                 {/* [V110.165] Elite Spring Horizontal List */}
                                 <div className="flex flex-col gap-1 px-1">
@@ -4141,12 +4190,14 @@ const { Route, Link, useLocation, useNavigate, Routes, HashRouter } = ReactRoute
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-3">
-                                     {bestSignals.length === 0 ? (
+                                     {filteredSignals.length === 0 ? (
                                         <div className="p-8 text-center border border-white/5 rounded-2xl bg-white/[0.02]">
-                                            <p className="text-[10px] uppercase font-black tracking-widest text-gray-600">Sincronizando Alvos...</p>
+                                            <p className="text-[10px] uppercase font-black tracking-widest text-gray-600">
+                                                {intelligenceMessage === "STANDBY: AGUARDANDO SLOT" ? "STANDBY: AGUARDANDO SLOT" : "Sincronizando Alvos..."}
+                                            </p>
                                         </div>
                                     ) : (
-                                        bestSignals.map((sig, i) => {
+                                        filteredSignals.map((sig, i) => {
                                             const cleanSigSym = (sig.symbol || '').replace('.P','').replace('.p','').toUpperCase();
                                             const isTocaia = (activeTocaias || []).includes(cleanSigSym);
                                             return (

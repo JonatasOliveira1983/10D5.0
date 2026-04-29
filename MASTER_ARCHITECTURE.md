@@ -3,6 +3,11 @@
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
 
+*   **V110.370: RADAR INTELLIGENCE & SLOT FILTERING [APR 30]**
+    - **Dynamic Demand Signaling:** Implementação de mensagens contextuais no Radar ("Visão buscando SWING"), indicando a intenção ativa do agente conforme a demanda de alocação.
+    - **Contextual Signal Filtering:** O Radar agora filtra sinais em tempo real, exibindo apenas as oportunidades compatíveis com slots vazios (Blitz vs Swing).
+    - **Standby Mode Logic:** O sistema entra automaticamente em modo de "Standby" quando todos os slots estão ocupados, reduzindo o processamento de sinais inúteis.
+
 *   **V110.360: SYSTEM INTEGRITY & UI NORMALIZATION [APR 29]**
     - **Orphan Trade Recovery:** Implementação de registro explícito no `trade_history` para ordens detectadas via sincronização de exchange (órfãs), resolvendo o descompasso entre banca e histórico.
     - **Frontend Side Normalization:** Refatoração global de componentes (`SlotCard`, `GridChartItem`) para suportar case-insensitivity em propriedades de `side` (BUY/LONG), corrigindo erros de projeção de alvos em ativos como TRXUSDT.

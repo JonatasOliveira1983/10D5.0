@@ -1,4 +1,4 @@
-# RULES.md — 10D Sniper V110.360 "Protocolo Sniper Elite 20 Dashboard"
+# RULES.md — 10D Sniper V110.370 "Radar Intelligence Protocol"
 # Invariantes Tecnicas Inegociaveis — [PERSISTÊNCIA ABSOLUTA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
 # Fonte da verdade: codigo real no Railway e PostgreSQL/WebSocket Nativo.
@@ -13,14 +13,14 @@
 5. **META DE LUCRO ROI >= 80% (V110.350):** O contador de progresso diário (Dashboard) e o contador de ciclos do Vault (1/10) agora são baseados em ROI técnico (>= 80%) em vez de lucro fixo em dólar. Isso garante a justiça do ciclo independente do capital (Compound-Ready).
 14. **INTEGRIDADE DE FECHAMENTO (V110.360):** É obrigatório que o `BankrollManager` registre todas as ordens detectadas como fechadas (inclusive órfãs) no `trade_history` para garantir paridade absoluta entre a banca e o histórico auditável.
 15. **NORMALIZAÇÃO DE SIDE (V110.360):** Todas as comparações de lado de ordem (`side`) no frontend e backend devem ser normalizadas (`toUpperCase()`) para suportar variações de API (Buy/BUY/LONG).
+16. **INTELIGÊNCIA DO RADAR (V110.370):** O Radar deve operar de forma contextual. Se não houver slots disponíveis para um determinado tipo de estratégia (Blitz ou Swing), os sinais desse tipo devem ser filtrados na UI para evitar poluição visual e confusão operacional. O cabeçalho do Radar deve exibir a demanda ativa (ex: "VISÃO BUSCANDO 1 SWING").
 
 ---
 
 ## REGRA 00 — REPOSITÓRIO ÚNICO E OFICIAL
 1. **REPO ÚNICO:** O único repositório oficial e absoluto para este sistema é: `https://github.com/JonatasOliveira1983/10D5.0/`.
 2. **PUSH OBRIGATÓRIO:** Todo commit deve ser enviado exclusivamente para o branch `main` do repositório `10D5.0` para deploy automático.
-3. **EXTINÇÃO DE REPOS ANTIGOS:** O repositório `10DBybityREAL` está EXTINTO e não deve ser utilizado.
-4. **URL DE COMANDO:** A UI oficial é acessível via `https://1crypten.space/`.
+3. **URL DE COMANDO:** A UI oficial é acessível via `https://1crypten.space/`.
 
 ---
 
@@ -44,7 +44,7 @@
 - **REGRA:** Slots 1 e 2 são EXCLUSIVOS para BlitzSniper (30M). Slots 3 e 4 para Swing e Moonbags.
 - **REGRA (MOONBAG EXPANSION):** Se uma Moonbag ocupar um slot de Swing, o sistema libera o slot lógico para um novo par da lista Elite, mantendo sempre o processamento focado nos 20 pares ativos.
 - **REGRA (COLLISION GUARD):** Impede o mesmo ativo em mais de um slot simultaneamente via `paper_positions` e Postgres.
-- **REGRA (DEMANDA ADAPTATIVA - V110.350):** O sistema monitora as vagas nos slots em tempo real. Se os slots de um tipo (Blitz ou Swing) estiverem cheios, a busca por sinais desse tipo é SUSPENSA. Se os 4 slots estiverem cheios, os agentes Visão e Radar entram em STANDBY total para economizar créditos de IA até que ocorra uma liberação de vaga.
+- **REGRA (DEMANDA ADAPTATIVA - V110.370):** O sistema monitora as vagas nos slots em tempo real. O Radar agora filtra sinais para exibir apenas os tipos compatíveis com as vagas abertas. Se os 4 slots estiverem cheios, o Radar entra em modo STANDBY automático.
 
 ---
 
@@ -64,9 +64,10 @@
 
 ---
 
-## 4. RADAR DE INTELIGÊNCIA — DASHBOARD V110.350
+## 4. RADAR DE INTELIGÊNCIA — DASHBOARD V110.370
 - **MarketRadarWidget (UI):** O dashboard utiliza agora um container fixo de 5 slots para sinais de elite. Isso garante estabilidade visual (sem "pulos" de layout) tanto no Mobile quanto no Desktop.
 - **Deduplicação de Sinais:** O radar processa e consolida sinais duplicados do mesmo ativo, exibindo apenas o sinal mais recente e de maior score.
+- **Filtro de Demanda Ativa:** O Radar deve priorizar e exibir apenas sinais que correspondam aos slots vazios. Se não houver vaga para BLITZ, o Radar oculta sinais BLITZ.
 - **Blindagem contra Crashes:** Todos os símbolos na UI são tratados com `optional chaining` e fallbacks para evitar erros de renderização (`TypeError: undefined`).
 
 ---
@@ -142,5 +143,6 @@ Captain (Orquestrador Central)
 
 ---
 
-*Versão: V110.360 "System Integrity & UI Normalization" | Atualizado: 2026-04-29*
+*Versão: V110.370 "Radar Intelligence Protocol" | Atualizado: 2026-04-30*
 *Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10D5.0.*
+
