@@ -1,7 +1,12 @@
-# MASTER_ARCHITECTURE.md — V110.401 "Vision Optimization & AI Recovery"
+# MASTER_ARCHITECTURE.md — V110.402 "Vision Cascade Stabilization"
 # Fonte da Verdade Arquitetural — Sincronizado com RULES.md
 
 ## 🚀 ROADMAP DE VERSÕES & MARCOS TÉCNICOS
+
+*   **V110.402: VISION CASCADE STABILIZATION [APR 30]**
+    - **Hybrid Vision Cascade:** Migração para modelos funcionais de visão (Llama 3.2 Vision 11B e Gemini 2.0 Flash Exp), resolvendo erros de "400 Bad Request" (embedding models).
+    - **Quota Backoff Guard:** Implementação de bloqueio de 1 hora para o Gemini Nativo após estouro de quota gratuita, garantindo estabilidade e fluidez do backend.
+    - **AI Status Refinement:** Sincronização do status da cascata com a UI para visibilidade total do estado das APIs (Cooling vs Active).
 
 *   **V110.401: VISION OPTIMIZATION & AI RECOVERY [APR 30]**
     - **Score-Selective Vision Gate:** Implementação de threshold de Score (95) para ativação do Agente Visão, reduzindo em >70% o consumo de API e acelerando a entrada em sinais secundários.
@@ -180,5 +185,5 @@
 
 ---
 
-*Documento atualizado em: 2026-04-30 (V110.401) Sincronizado*
-*Este documento reflete a otimização do Agente Visão e a estabilização da cascata de IA.*
+*Documento atualizado em: 2026-04-30 (V110.402) Sincronizado*
+*Este documento reflete a estabilização da cascata de IA e a correção de modelos de visão.*

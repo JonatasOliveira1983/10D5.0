@@ -38,10 +38,10 @@ class AIService:
         """[V4.2.1] Retorna o status atual da cascata para a UI."""
         models = [
             "google/gemma-3-27b-it:free",
+            "meta-llama/llama-3.2-11b-vision-instruct:free",
+            "google/gemini-2.0-flash-exp:free",
             "google/gemma-3-12b-it:free",
-            "google/gemma-3-4b-it:free",
-            "nvidia/nemotron-3-nano-omni:free",
-            "nvidia/llama-nemotron-embed-vl-1b-v2:free"
+            "google/gemma-3-4b-it:free"
         ]
         now = time.time()
         status_list = []
@@ -221,10 +221,10 @@ class AIService:
         # [V110.350] FREE VISION CASCADE MODELS (Final stable IDs)
         FREE_VISION_MODELS = [
             "google/gemma-3-27b-it:free",
+            "meta-llama/llama-3.2-11b-vision-instruct:free",
+            "google/gemini-2.0-flash-exp:free",
             "google/gemma-3-12b-it:free",
-            "google/gemma-3-4b-it:free",
-            "nvidia/nemotron-3-nano-omni:free",
-            "nvidia/llama-nemotron-embed-vl-1b-v2:free"
+            "google/gemma-3-4b-it:free"
         ]
 
         if not self.openrouter_key:
@@ -333,6 +333,10 @@ class AIService:
                     return response.text.strip()
             except Exception as ge:
                 logger.warning(f"❌ [VISION-FALLBACK] Native Gemini failed: {ge}")
+                if "429" in str(ge) or "quota" in str(ge).lower():
+                    # [V4.2.1] Long backoff on quota exceeded (1 hour)
+                    self.gemini_backoff_until = now + 3600
+                    logger.error("🛑 [VISION-FALLBACK] Gemini Quota Exceeded. Cooling down for 1 hour.")
 
         logger.error("❌ [VISION-CASCADE] All vision models (OpenRouter + Native) failed.")
         asyncio.create_task(sovereign_service.update_ai_cascade(self.get_cascade_status()))
