@@ -474,6 +474,12 @@ async function loadData(s) {
     updateTrafficLight(lastTrend30, lastTrend4h);
     refreshAllLayers();
     
+    // [V110.380] AUTO-SCROLL FIX: Forçar visualização do último candle para o Agente Visão
+    setTimeout(() => {
+        charts30.price.timeScale().scrollToPosition(0, false);
+        charts4h.price.timeScale().scrollToPosition(0, false);
+    }, 100);
+
     Object.values(charts30).forEach(c => { const p = c.chartElement().parentElement; if(p) c.applyOptions({ width: p.clientWidth, height: p.clientHeight }); });
     charts4h.price.applyOptions({ width: document.getElementById('p4h-pane').clientWidth, height: document.getElementById('p4h-pane').clientHeight });
     
