@@ -13,14 +13,16 @@ class VisionAgent:
     def __init__(self):
         self.role = "Vision Analyst"
         self.system_instruction = (
-            "Você é o Agente Visão 5.0, um analista técnico de trading especializado em SMC (Smart Money Concepts).\n"
-            "O gráfico que você recebe é anotado com indicadores e zonas institucionais:\n"
-            "1. SMA 21 (Branca) e SMA 100 (Amarela): Confirmam a tendência e pontos de suporte dinâmico.\n"
-            "2. CAIXAS/LINHAS: Representam Order Blocks (Zonas de baleias) e FVGs.\n"
-            "DIRETRIZES DE ANÁLISE:\n"
-            "A. Rejeição: O preço deve mostrar pavios longos ou falha de rompimento em uma das SMAs ou Blocos.\n"
-            "B. Liquidez: Identifique se o movimento atual busca capturar liquidez acima/abaixo dos pavios.\n"
-            "C. Veredito: Seja técnico, direto e estóico."
+            "Você é o Agente Visão 5.7 DUAL OCR, um analista técnico de trading avançado especializado em leitura estrutural automatizada.\n"
+            "O gráfico (imagem) que você recebe é dividido em DUAS partes (Dual Timeframe: 30M na esquerda, 4H na direita) e possui anotações de texto cruciais (OCR):\n"
+            "1. MARCA D'ÁGUA GIGANTE: No fundo do gráfico, há um texto enorme indicando o viés (ex: 'MACRO: BULLISH' ou 'MACRO: BEARISH').\n"
+            "2. PAINEL DE OCR INFERIOR: No canto direito inferior do 4H, existe uma caixa dizendo 'ESPAÇO ATÉ RESIST: X%'.\n"
+            "3. CAIXA FANTASMA DE ALVO (30M): No lado esquerdo, existe uma grossa linha VERDE desenhada (+6%) e uma VERMELHA (SL) delimitando a zona do trade.\n\n"
+            "SUAS REGRAS DE OURO MÁXIMAS INQUEBRÁVEIS:\n"
+            "A. [REGRA DO ESPAÇO OCR]: Se você ler no painel inferior que o espaço é MENOR que 6% (ou se a caixa estiver pintada de Vermelho com risco 'danger'), VOCÊ DEVE REJEITAR O SINAL IMEDIATAMENTE (DECISION: REJECTED). Não arrisque em espaços curtos.\n"
+            "B. [REGRA DO ALVO LIVRE]: Olhe para a Linha/Caixa Verde (Target) no gráfico da esquerda (30M). Se houver resistência visível cruzando o meio do caminho entre o Strike (Entrada) e o Target verde, REJEITE. O caminho deve estar desimpedido.\n"
+            "C. [CONFLUÊNCIA MACRO]: Se o sinal for de COMPRA (Long), mas a marca d'água no fundo gritar 'MACRO: BEARISH' ou 'TRAP ZONE', classifique como risco extremo ou rejeite.\n"
+            "Seja técnico, estóico, direto. Priorize a segurança do Capital."
         )
 
     async def confirm_entry(self, symbol: str, side: str, signal_score: int, context_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -55,34 +57,21 @@ class VisionAgent:
                     "thoughts": "Economizando visão: DNA já rejeitado pelo Bibliotecário."
                 }
 
-        # 2. Capture the current chart (Pure Python Renderer [V5.0])
-        logger.info(f"📸 [VISION-V5] {symbol}: Gerando gráfico anotado via Python Engine...")
+        # 2. Capture the current chart (Playwright Observatory V5.7 OCR)
+        logger.info(f"📸 [VISION-V5.7-OCR] {symbol}: Gerando gráfico DUAL do Observatório Público...")
         try:
-            from services.agents.librarian import librarian_agent
-            visual_data = await librarian_agent.get_visual_data(symbol, interval="1h") # Usamos 1h para melhor definição de OB
-            
-            if visual_data and not visual_data['df'].empty:
-                screenshot_path = chart_renderer.render_chart(
-                    symbol=symbol, 
-                    df=visual_data['df'], 
-                    obs=visual_data['obs'], 
-                    fvgs=visual_data['fvgs'],
-                    pattern_123=visual_data.get('pattern_123')
-                )
-            else:
-                # Fallback to screenshot service if no data
-                logger.warning(f"⚠️ [VISION-V5] No local data for {symbol}. Falling back to ScreenshotService.")
-                screenshot_path = await screenshot_service.capture_chart(symbol, interval="30")
-        except Exception as e:
-            logger.error(f"❌ [VISION-V5] Pure Renderer failed: {e}")
+            # Force using the live UI to capture the new Dual Timeframe OCR elements
             screenshot_path = await screenshot_service.capture_chart(symbol, interval="30")
+        except Exception as e:
+            logger.error(f"❌ [VISION-V5.7-OCR] Playwright failed: {e}")
+            screenshot_path = ""
         
         if not screenshot_path:
             return {
-                "approved": True, # Fallback to true if capture fails but signal is strong
+                "approved": True, # Fallback to true se infra falhar, confia no quant.
                 "confidence": 50,
-                "reason": "Vision Engine Failed: Infraestrutura indisponível.",
-                "thoughts": "Falha na captura. Confiando nos dados quantitativos."
+                "reason": "Vision UI Falhou: Infraestrutura do Observatório indisponível.",
+                "thoughts": "Falha na captura. Confiando nos dados quantitativos do LIBRARIAN."
             }
 
         # 2. Prepare the prompt
@@ -90,22 +79,20 @@ class VisionAgent:
         is_p3 = context_data.get("trigger_type") == "POINT_3_ELITE" if context_data else False
         
         prompt = (
-            f"Analise este gráfico de {symbol} para uma operação de {side_label}.\n"
-            "O gráfico foi pré-anotado com o Motor de Visão 5.0:\n"
-            "- LINHA BRANCA: SMA 21 (Tendência de curto prazo).\n"
-            "- LINHA AMARELA: SMA 100 (Tendência de médio prazo).\n"
-            "- CAIXAS COLORIDAS: Zonas de Order Block (Institucional).\n"
-            "- MARCADORES (1), (2), (3): Estratégia de Reversão 1-2-3.\n\n"
-            "FOCO DO GATILHO: " + ("VALIDAÇÃO DO PONTO 3 (ROI DE ELITE). O preço deve ter acabado de tocar ou rejeitar o marcador (3) em confluência com uma zona institucional ou SMA." if is_p3 else "Rompimento do Ponto 2 (Strike).") + "\n\n"
-            "PERGUNTA: O preço está respeitando as zonas e o padrão 1-2-3? Existe confluência visual para a entrada?\n"
-            "CLASSIFICAÇÃO: Defina se o comportamento é 'BLITZ' (extração rápida, alta volatilidade) ou 'SWING' (mudança estrutural, alvo longo).\n\n"
-            "RESPONDA EM JSON:\n"
+            f"Analise o screenshot DUAL do Observatório de {symbol} para validar uma operação de {side_label}.\n\n"
+            "EXECUTE ESTE PROTOCOLO DE 3 PASSOS NA IMAGEM:\n"
+            "1. OCR DO PAINEL DE RISCO: Localize o painel no canto inferior direito que informa o 'ESPAÇO ATÉ RESIST'. Leia o valor em porcentagem.\n"
+            "   -> SE o valor for inferior a 6.0% (ou a borda for vermelha), VOCÊ DEVE REJEITAR ESTA ORDEM (DECISION: REJECTED).\n"
+            "2. MARCA D'ÁGUA: Leia a palavra gigante escrita no fundo do gráfico. É Bullsih ou Bearish? Está a favor do seu {side_label}?\n"
+            "3. CAIXA FANTASMA (Lado Esquerdo): O gráfico desenhou uma linha VERDE GROSSA de alvo. O caminho entre o candle atual e a linha verde está livre de linhas grossas vermelhas horizontais?\n\n"
+            "FOCO DO GATILHO: " + ("VALIDAÇÃO DO PONTO 3 (ROI DE ELITE)." if is_p3 else "Rompimento do Ponto 2 (Strike).") + "\n\n"
+            "RESPONDA EM JSON FORMATO ESTRITO:\n"
             "{\n"
             '  "decision": "APPROVED" ou "REJECTED",\n'
             '  "confidence": 0-100,\n'
             '  "slot_type": "BLITZ" ou "SWING",\n'
-            '  "analysis": "Sua explicação técnica curta",\n'
-            '  "thoughts": "Seus pensamentos internos sobre o movimento"\n'
+            '  "analysis": "Explicação: qual foi a leitura do OCR e das linhas",\n'
+            '  "thoughts": "Seus pensamentos internos sobre o contexto visual"\n'
             "}"
         )
 
@@ -187,30 +174,19 @@ class VisionAgent:
         """
         logger.info(f"📸 [VISION-CONTEXT-V5] Analisando contexto de {symbol}...")
         try:
-            from services.agents.librarian import librarian_agent
-            visual_data = await librarian_agent.get_visual_data(symbol, interval="1h")
-            
-            if visual_data and not visual_data['df'].empty:
-                screenshot_path = chart_renderer.render_chart(
-                    symbol=symbol, 
-                    df=visual_data['df'], 
-                    obs=visual_data['obs'], 
-                    fvgs=visual_data['fvgs'],
-                    pattern_123=visual_data.get('pattern_123')
-                )
-            else:
-                screenshot_path = await screenshot_service.capture_chart(symbol, interval="60")
-        except Exception as e:
-            logger.error(f"❌ [VISION-CONTEXT-V5] Pure Renderer failed: {e}")
+            # Force UI capture
             screenshot_path = await screenshot_service.capture_chart(symbol, interval="60")
+        except Exception as e:
+            logger.error(f"❌ [VISION-CONTEXT-V5.7-OCR] Screenshot capture failed: {e}")
+            screenshot_path = ""
 
         if not screenshot_path: return {}
 
         prompt = (
-            f"Descreva o estado visual atual de {symbol}.\n"
-            "O gráfico possui médias móveis, zonas de Order Block e marcadores 1-2-3 anotados.\n"
-            "Dê uma etiqueta curta: CLEAN_TREND, MESSY_RANGE, EXHAUSTION ou 123_REVERSAL.\n"
-            "Analise se o preço está sendo repelido pelas zonas ou confirmando o padrão 1-2-3."
+            f"Descreva o estado visual atual de {symbol} baseado nesta tela do Observatório.\n"
+            "O gráfico possui Marca D'água Gigante, Painéis OCR no canto direito, e duas janelas temporais.\n"
+            "Responda focando em LER o texto da imagem: O que diz a Marca D'água? O que diz a caixa de ESPAÇO LIVRE no canto?\n"
+            "Dê uma etiqueta curta do seu próprio julgamento: CLEAN_TREND, MESSY_RANGE, EXHAUSTION ou 123_REVERSAL."
         )
 
         try:
