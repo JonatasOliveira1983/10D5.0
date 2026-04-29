@@ -661,21 +661,27 @@
 
         /* [V110.182.4] Eagle Vision PRO Animations */
         @keyframes scanningLine {
-            0% { left: -10%; opacity: 0; }
+            0% { left: -5%; opacity: 0; }
             10% { opacity: 0.6; }
             90% { opacity: 0.6; }
-            100% { left: 110%; opacity: 0; }
+            100% { left: 105%; opacity: 0; }
         }
         .scanning-effect {
             position: absolute;
             top: 0;
             bottom: 0;
             width: 2px;
-            background: linear-gradient(to bottom, transparent, var(--sentinel-color, rgba(255, 255, 255, 0.6)), transparent);
             animation: scanningLine 4s linear infinite;
             pointer-events: none;
-            z-index: 50;
-            box-shadow: 0 0 15px var(--sentinel-glow, rgba(255, 255, 255, 0.2));
+            z-index: 100;
+        }
+        .scanning-online {
+            background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.6), transparent);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+        .scanning-offline {
+            background: linear-gradient(to bottom, transparent, rgba(239, 68, 68, 0.8), transparent);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
         }
         .telemetry-hud {
             background: rgba(0, 0, 0, 0.6);
@@ -2774,6 +2780,10 @@
                                                         className="vision-proof-thumb" 
                                                         alt="Vision Proof"
                                                         onClick={() => window.open(ev.payload.image_url, '_blank')}
+                                                        onError={(e) => {
+                                                            e.target.closest('.group').style.display = 'none';
+                                                            console.warn("Vision Proof asset not ready or pruned:", ev.payload.image_url);
+                                                        }}
                                                     />
                                                     <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-black/60 backdrop-blur-md border border-white/10 text-[8px] font-black text-white uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity">
                                                         View Full Chart
@@ -4872,15 +4882,6 @@
 
             return (
                 <div className="flex flex-col h-full border border-white/5 bg-black/40 hover:border-white/20 transition-all relative group overflow-hidden rounded-[1.5rem] shadow-2xl backdrop-blur-xl">
-                    {settings.sentinel && (
-                        <div 
-                            className="scanning-effect" 
-                            style={{ 
-                                '--sentinel-color': pulseStatus === 'OFFLINE' ? 'rgba(239, 68, 68, 0.8)' : 'rgba(255, 255, 255, 0.6)',
-                                '--sentinel-glow': pulseStatus === 'OFFLINE' ? 'rgba(239, 68, 68, 0.4)' : 'rgba(255, 255, 255, 0.2)'
-                            }}
-                        ></div>
-                    )}
                     
                     {/* Header HUD: Symbol & Interval */}
                     <div className="absolute top-4 left-5 z-20 flex flex-col gap-1 pointer-events-none">
@@ -5007,6 +5008,10 @@
                     )}
 
                     <div ref={chartContainerRef} className="flex-1 w-full" />
+
+                    {settings.sentinel && (
+                        <div className={`scanning-effect ${pulseStatus === 'OFFLINE' ? 'scanning-offline' : 'scanning-online'}`}></div>
+                    )}
                 </div>
             );
         };
