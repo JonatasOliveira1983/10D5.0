@@ -474,14 +474,14 @@ async function loadData(s) {
     updateTrafficLight(lastTrend30, lastTrend4h);
     refreshAllLayers();
     
-    // [V110.405] OBSERVATORY SCALE FIX: Sincronização inteligente sem conflito de zoom
+    // [V110.406] FIXED: Reduzido de 60 para 8 para evitar o zoom gigante. 
+    // Agora o gráfico preenche a tela com velas reais em vez de espaços vazios.
     setTimeout(() => {
         // Scroll no 4H (independente)
         if (charts4h.price) charts4h.price.timeScale().scrollToPosition(10, false);
         
         // Scroll no 30M (apenas no preço, a sincronização cuida do resto)
-        // Aumentado de 10 para 60 para mostrar mais candles e evitar o zoom 'gigante'
-        if (charts30.price) charts30.price.timeScale().scrollToPosition(60, false);
+        if (charts30.price) charts30.price.timeScale().scrollToPosition(8, false);
     }, 600);
 
     Object.values(charts30).forEach(c => { const p = c.chartElement().parentElement; if(p) c.applyOptions({ width: p.clientWidth, height: p.clientHeight }); });
