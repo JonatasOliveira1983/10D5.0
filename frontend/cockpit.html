@@ -5327,7 +5327,8 @@
             liveTotalProfit, liveEquity, isDrawdown, hullIntegrityPct, shieldPowerPct,
             fleetRank, rankColor, historyLogs, tickers,
             systemState, protocolLabel, oracleStatus, oracleMessage, stabilizationProgress, btcAdx, realAdx, realDecorrelation, dominance,
-            unifiedRegime, librarianIntel, ai_cascade
+            unifiedRegime, librarianIntel, ai_cascade,
+            filteredSignals, intelligenceMessage
         }) => {
             const [selectedSlotId, setSelectedSlotId] = React.useState(null);
             const [gridMode, setGridMode] = React.useState('4'); // Default to 4 charts
@@ -5909,6 +5910,8 @@
                             unifiedRegime={unifiedRegime}
                             librarianIntel={librarianIntel}
                             ai_cascade={aiCascade}
+                            filteredSignals={filteredSignals}
+                            intelligenceMessage={intelligenceMessage}
                         />
                     </div>
 
