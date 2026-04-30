@@ -1034,8 +1034,8 @@ class CaptainAgent(AIOSAgent):
                 local_cvd = bybit_ws_service.get_cvd_score(symbol)
                 is_whale_strong = abs(local_cvd) >= 15000 or score >= 88
                 
-                if is_blitz or is_decorrelated or is_spring_vanguard:
-                    msg = f"⚡ [BLITZ-PRIORITY] {symbol} ({side}) ignorando bloqueio ADX lateral (M30 Blitz Mode)."
+                if is_blitz or is_decorrelated or is_spring_vanguard or score >= 95:
+                    msg = f"⚡ [PRIORITY-BYPASS] {symbol} ({side}) ignorando bloqueio ADX lateral (Score={score}, Blitz={is_blitz})."
                     logger.info(msg)
                     await sovereign_service.log_event("CAPTAIN", msg, "SUCCESS")
                 else:
