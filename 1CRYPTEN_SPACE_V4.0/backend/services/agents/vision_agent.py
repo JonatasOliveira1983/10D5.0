@@ -1,6 +1,9 @@
 import logging
 import asyncio
 import os
+import time
+import json
+import re
 from typing import Dict, Any, Optional
 from services.agents.ai_service import ai_service
 from services.screenshot_service import screenshot_service
@@ -30,9 +33,10 @@ class VisionAgent:
     async def confirm_entry(self, symbol: str, side: str, signal_score: int, context_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         [V4.2 VISION GATE] Realiza a análise visual final para confirmar uma entrada.
-        Otimizado para só agir se houver slots livres e DNA favorável.
+        [V110.403 FIX] Corrigidos: import time ausente, relative_url indefinida, indentação do try/except.
+        [V110.403 MANDATORY] Todas as ordens passam pelo Visão. Sem bypass por score.
         """
-        logger.info(f"👁️ [VISION] Starting final visual confirmation for {symbol} {side}...")
+        logger.info(f"👁️ [VISION] Starting final visual confirmation for {symbol} {side} (Score: {signal_score})...")
 
         # 0. [V110.403] Check Analysis Cache
         now = time.time()
@@ -43,7 +47,7 @@ class VisionAgent:
                 logger.info(f"⚡ [VISION-CACHE-HIT] {symbol} {side}: Usando análise memorizada (Age: {int(now - cache_entry['timestamp'])}s).")
                 return cache_entry["result"]
         
-        # 1. [V4.2] VISION GATE: Verificações de Eficiência
+        # 1. [V4.2] VISION GATE: Verificações de Eficiência (Slots e DNA)
         if context_data:
             # A. Verificação de Slots
             active_slots = context_data.get("active_slots_count", 0)
@@ -86,7 +90,10 @@ class VisionAgent:
                 "thoughts": "Falha na captura. Confiando nos dados quantitativos do LIBRARIAN."
             }
 
-        # 2. Prepare the prompt
+        # [V110.403 FIX] relative_url definida aqui, antes de qualquer uso posterior
+        relative_url = f"/assets/vision_proofs/{os.path.basename(screenshot_path)}"
+
+        # 3. Prepare the prompt
         side_label = "COMPRA (Long)" if side.lower() == "buy" else "VENDA (Short)"
         is_p3 = context_data.get("trigger_type") == "POINT_3_ELITE" if context_data else False
         
@@ -95,7 +102,7 @@ class VisionAgent:
             "EXECUTE ESTE PROTOCOLO DE 3 PASSOS NA IMAGEM:\n"
             "1. OCR DO PAINEL DE RISCO: Localize o painel no canto inferior direito que informa o 'ESPAÇO ATÉ RESIST'. Leia o valor em porcentagem.\n"
             "   -> SE o valor for inferior a 6.0% (ou a borda for vermelha), VOCÊ DEVE REJEITAR ESTA ORDEM (DECISION: REJECTED).\n"
-            "2. MARCA D'ÁGUA: Leia a palavra gigante escrita no fundo do gráfico. É Bullsih ou Bearish? Está a favor do seu {side_label}?\n"
+            f"2. MARCA D'ÁGUA: Leia a palavra gigante escrita no fundo do gráfico. É Bullish ou Bearish? Está a favor do seu {side_label}?\n"
             "3. CAIXA FANTASMA (Lado Esquerdo): O gráfico desenhou uma linha VERDE GROSSA de alvo. O caminho entre o candle atual e a linha verde está livre de linhas grossas vermelhas horizontais?\n\n"
             "FOCO DO GATILHO: " + ("VALIDAÇÃO DO PONTO 3 (ROI DE ELITE)." if is_p3 else "Rompimento do Ponto 2 (Strike).") + "\n\n"
             "RESPONDA EM JSON FORMATO ESTRITO:\n"
@@ -108,7 +115,7 @@ class VisionAgent:
             "}"
         )
 
-        # 3. Call Vision AI
+        # 4. Call Vision AI
         try:
             response_text = await ai_service.generate_vision_content(
                 prompt=prompt,
@@ -130,12 +137,9 @@ class VisionAgent:
                     "thoughts": "IA Vision offline. Nenhuma análise visual possível. Aguardar restauração da API."
                 }
 
-            # Parse JSON from response
-            import json
-            import re
-            
+            # 5. Parse JSON from response
+            # [V110.403 FIX] Bloco try/except separado e no escopo correto (não dentro do except de parse_err)
             try:
-                # Clean possible markdown
                 clean_json = re.sub(r'```json\s*|\s*```', '', response_text).strip()
                 data = json.loads(clean_json)
                 is_approved = data.get("decision") == "APPROVED"
@@ -148,12 +152,15 @@ class VisionAgent:
                     "thoughts": f"Raw text: {response_text[:100]}..."
                 }
             
-                # [V110.376] Stability: Wait for filesystem sync before broadcasting URL
-                await asyncio.sleep(2.5)
+            # 6. [V110.376] Stability: Wait for filesystem sync before broadcasting URL
+            await asyncio.sleep(2.5)
 
+            # 7. Log event to Firestore (agora no fluxo correto, fora do except)
+            try:
+                from services.sovereign_service import sovereign_service
                 await sovereign_service.log_event(
                     agent="Vision",
-                    message=f"Análise visual de {symbol} concluída.",
+                    message=f"Análise visual de {symbol} concluída: {data.get('decision')} ({data.get('confidence')}%).",
                     level="INFO",
                     payload={
                         "symbol": symbol,
@@ -167,13 +174,14 @@ class VisionAgent:
             except Exception as le:
                 logger.error(f"Erro ao logar evento do Visão: {le}")
 
+            # 8. Build and cache result
             result = {
                 "approved": is_approved,
                 "confidence": data.get("confidence", 50),
                 "slot_type": data.get("slot_type", "SWING"),
                 "reason": data.get("analysis", "No analysis provided"),
                 "thoughts": data.get("thoughts", ""),
-                "screenshot_url": relative_url # Agora retorna a URL relativa
+                "screenshot_url": relative_url
             }
 
             # [V110.403] Update Cache
@@ -182,6 +190,7 @@ class VisionAgent:
                 "timestamp": time.time()
             }
             
+            logger.info(f"👁️ [VISION-RESULT] {symbol} {side}: {data.get('decision')} | Conf={data.get('confidence')}% | {data.get('analysis', '')[:80]}")
             return result
 
         except Exception as e:
@@ -226,11 +235,6 @@ class VisionAgent:
                     "image_url": f"/assets/vision_proofs/{os.path.basename(screenshot_path)}"
                 }
             )
-
-            # Remove temp file after a small delay to ensure UI can fetch it if needed 
-            # (though user said no need to store, for the flow it helps)
-            # In production with many users, we might want to store longer, but here it's local.
-            # asyncio.create_task(self._delayed_delete(screenshot_path, delay=10))
             
             return {"visual_context": result}
         except Exception as e:
