@@ -195,16 +195,12 @@ class CaptainAgent(AIOSAgent):
             active_slots_count = len([s for s in active_slots if s.get("symbol")])
             
             # 4. Agente Visão [V1.0] - O Filtro Final de Intenção
-            # [V110.403 MANDATORY] Todas as ordens passam pelo Visão — sem bypass por score.
-            # O Visão é a última linha de defesa antes do capital ser arriscado.
-            vision_context = {
-                "lib_dna": lib_dna,
-                "active_slots_count": active_slots_count
-            }
-            vision_result = await vision_agent.confirm_entry(symbol, side, smc_score, context_data=vision_context)
-            vision_approved = vision_result.get("approved", True)
-            vision_confidence = vision_result.get("confidence", 50)
-            vision_thoughts = vision_result.get("thoughts", "")
+            # [V110.404] VISION BYPASS: Temporariamente desativado a pedido do usuário (Quota Excedida).
+            # O sistema confia 100% no sinal quantitativo e no score SMC para a execução.
+            vision_approved = True
+            vision_confidence = 100
+            vision_thoughts = "Bypass Temporário: Agente Visão desativado. Confiando nos dados quantitativos."
+            vision_result = {"approved": True, "reason": "Vision Offline - Bypass Ativo", "screenshot_url": None}
 
             
             logger.info(f"👁️ [FLEET-VISION] {symbol}: Approved={vision_approved} | Confidence={vision_confidence}%")

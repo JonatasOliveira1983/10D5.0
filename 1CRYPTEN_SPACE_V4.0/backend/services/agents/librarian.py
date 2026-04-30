@@ -246,18 +246,16 @@ class LibrarianAgent(AIOSAgent):
                         tactical_report.append(f"{symbol:12} | P3: NO_DEMAND | Standby 🔍")
                         continue
 
-                    logger.info(f"🎯 [PONTO-3-DETECTED] {symbol} {p3_trigger['side']}! Convocando Visão para aprovação final...")
+                    logger.info(f"🎯 [PONTO-3-DETECTED] {symbol} {p3_trigger['side']}! (Visão Bypass: Quota Excedida)")
                     
-                    # 1. Solicita Confirmação Visual de Alta Fidelidade
-                    vision_result = await vision_agent.confirm_entry(
-                        symbol, 
-                        p3_trigger["side"], 
-                        p3_trigger["confidence"], 
-                        context_data={
-                            "trigger_type": "POINT_3_ELITE",
-                            "active_slots_count": total_filled
-                        }
-                    )
+                    # 1. [V110.404] VISION BYPASS: Temporariamente desativado a pedido do usuário.
+                    vision_result = {
+                        "approved": True,
+                        "confidence": p3_trigger["confidence"],
+                        "slot_type": "BLITZ",
+                        "thoughts": "Bypass Temporário: Agente Visão offline. Confiando no gatilho P3 quantitativo.",
+                        "screenshot_url": None
+                    }
                     
                     if vision_result.get("approved"):
                         # 2. Se o Visão aprovar, injeta no Radar com prioridade máxima
