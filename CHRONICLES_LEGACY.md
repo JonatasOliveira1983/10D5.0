@@ -5,7 +5,16 @@ Este documento contém o registro de todas as versões anteriores à V110.100 Al
 
 ---
 
-## 🏗️ CHANGELOG LEGACY (V110.23 -> V110.144)
+## 🏗️ CHANGELOG LEGACY (V110.23 -> V110.405)
+
+*   **V110.406: SLOT SATURATION & VISION OPTIMIZATION 🧠🛡️ [MAY 01]**
+    *   **Slot Saturation Guard:** Implementação de trava no Bibliotecário: o sistema entra em standby de IA caso os 4 slots operacionais estejam preenchidos.
+    *   **Vision-Last Protocol:** O Agente Visão agora é invocado apenas como o validador final após todos os critérios matemáticos (ADX, Whale, DNA) serem aprovados, reduzindo o consumo de créditos em ~95%.
+
+*   **V110.405: GEMINI NATIVE SOVEREIGNTY & VISION FUNNEL 🧠👁️ [APR 30]**
+    *   **Native Gemini Integration:** Migração total de IA (Texto e Visão) para o Google Gemini Flash nativo via SDK, eliminando dependência do OpenRouter e reduzindo custos operacionais.
+    *   **Final Gate Vision Protocol:** Refatoração do funil de aprovação do Capitão. 
+    *   **Bypass Removal:** Reativação plena do Agente Visão, substituindo o modo bypass anterior por uma operação cirúrgica e econômica.
 
 *   **V110.175: RAILWAY SOVEREIGN EMANCIPATION 🚂🛡️ [APR 24]**
     *   **Firebase Purge:** Remoção total do `firebase-admin` e desativação de todas as rotas Firestore/RTDB.

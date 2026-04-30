@@ -201,6 +201,17 @@ class VisionAgent:
         """
         [LIBRARIAN STUDY] Realiza um estudo visual de contexto usando o Motor V5.
         """
+        # [V110.406] SLOT-CHECK: Evita gastos desnecessários com estudos se o sistema estiver cheio.
+        try:
+            from services.sovereign_service import sovereign_service
+            active_slots = await sovereign_service.get_active_slots()
+            filled_count = len([s for s in active_slots if s.get("symbol")])
+            if filled_count >= 4:
+                logger.info(f"⏭️ [VISION-STUDY-SKIP] {symbol}: Slots cheios. Ignorando estudo visual.")
+                return {"visual_context": "STANDBY: Slots Full (4/4)"}
+        except Exception as e:
+            logger.warning(f"Erro ao verificar slots no Vision Study: {e}")
+
         logger.info(f"📸 [VISION-CONTEXT-V5] Analisando contexto de {symbol}...")
         try:
             # Force UI capture

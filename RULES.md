@@ -1,4 +1,4 @@
-# RULES.md — 10D Sniper V110.403 "Industrial Process Vigilance"
+# RULES.md — 10D Sniper V110.406 "Slot Saturation Guard"
 # Invariantes Tecnicas Inegociaveis — [PERSISTÊNCIA ABSOLUTA]
 # Leia INTEIRO antes de tocar em qualquer arquivo.
 # Fonte da verdade: codigo real no Railway e PostgreSQL/WebSocket Nativo.
@@ -15,6 +15,27 @@
 15. **NORMALIZAÇÃO DE SIDE (V110.360):** Todas as comparações de lado de ordem (`side`) no frontend e backend devem ser normalizadas (`toUpperCase()`) para suportar variações de API (Buy/BUY/LONG).
 16. **INTELIGÊNCIA DO RADAR (V110.370):** O Radar deve operar de forma contextual. Se não houver slots disponíveis para um determinado tipo de estratégia (Blitz ou Swing), os sinais desse tipo devem ser filtrados na UI para evitar poluição visual e confusão operacional. O cabeçalho do Radar deve exibir a demanda ativa (ex: "VISÃO BUSCANDO 1 SWING").
 17. **VISUAL FLOW SENTINEL (V110.371):** A "Linha Vertical" de scan nos gráficos é o indicador visual do agente Flow Sentinel. Ela deve refletir o status do sistema (Verde/Branco = Ativo, Vermelho = Falha de Integridade/Offline). Marcadores de "ENTRY" devem ser baseados no timestamp real (`opened_at`) para garantir precisão absoluta na auditoria visual.
+
+---
+
+## 📜 LEI MÁXIMA DO SISTEMA (V110.406)
+
+## 1. SOBERANIA E INTELIGÊNCIA
+- **Motor de IA:** Uso exclusivo do **Google Gemini Nativo** (Custo Zero).
+- **Protocolo de Visão:** O Agente Visão atua como o **Gatilho Final (Last Gate)**.
+- **Guardião de Slots:** O sistema entra em modo **STANDBY TOTAL** (incluindo Visão e Estudos) quando os 4 slots estão ocupados.
+- **Visão-Last Protocol:** Nenhuma análise visual é realizada sem demanda real de slot ou score quantitativo de elite (Score >= 90).
+
+## 2. GESTÃO DE RISCO (BANKROLL)
+- **Slots:** 4 Slots simultâneos (2 Blitz + 2 Swing).
+- **Alavancagem:** 50x (Padrão Sniper).
+- **Risco por Operação:** 1% da Banca.
+
+## 3. PROTOCOLO DE EXECUÇÃO
+- **Quantitativo:** Primeiro filtro via SignalGenerator e Captain.
+- **Visual:** Segundo filtro via Vision Agent (OCR Dual + Contexto).
+- **Aprovação:** Apenas sinais com aprovação dupla (Math + Vision) são executados.
+- **Veto:** O Agente Visão tem poder de veto absoluto sobre qualquer sinal.
 
 ---
 
@@ -49,43 +70,6 @@
 
 ---
 
-## 2. GENESIS ID — PASSAPORTE DA ORDEM
-- **Geração Instantânea:** O `genesis_id` é gerado no momento do nascimento da ordem, inclusive em Paper Mode.
-- **Formato Atômico:** `BLZ-{UUID6}-{SYM4}` (Blitz) / `SWG-{UUID6}-{SYM4}` (Swing)
-- **REGRA:** O `genesis_id` é persistido no **PostgreSQL** e transmitido via **WebSocket** imediatamente.
-- **REGRA:** genesis_id deve acompanhar a ordem até o fechamento.
-
----
-
-## 3. SNIPER PONTO 3 & ELITE 20 FOCUS (V110.350)
-1. **Foco 20 Elite:** O sistema monitora exclusivamente os 20 melhores pares selecionados pelo Bibliotecário. Sinais fora dessa lista são ignorados para garantir foco absoluto.
-2. **Gatilho Sniper Ponto 3 (M30):** Todas as entradas são baseadas no padrão 1-2-3 em tempos gráficos de 30 minutos.
-3. **Paciência do Sniper (Vio-Hunter):** O `AmbushAgent` aguarda a rejeição no Ponto 3 (pavios longos) antes de disparar.
-4. **Deep Dive Logging:** A cada 10 minutos, o sistema emite um log detalhado (`📊 [ELITE-SCAN]`) com CVD, RSI, Trend e Regime de todos os 20 pares monitorados para auditoria completa.
-
----
-
-## 4. RADAR DE INTELIGÊNCIA — DASHBOARD V110.370
-- **MarketRadarWidget (UI):** O dashboard utiliza agora um container fixo de 5 slots para sinais de elite. Isso garante estabilidade visual (sem "pulos" de layout) tanto no Mobile quanto no Desktop.
-- **Deduplicação de Sinais:** O radar processa e consolida sinais duplicados do mesmo ativo, exibindo apenas o sinal mais recente e de maior score.
-- **Filtro de Demanda Ativa:** O Radar deve priorizar e exibir apenas sinais que correspondam aos slots vazios. Se não houver vaga para BLITZ, o Radar oculta sinais BLITZ.
-- **Blindagem contra Crashes:** Todos os símbolos na UI são tratados com `optional chaining` e fallbacks para evitar erros de renderização (`TypeError: undefined`).
-
----
-
-## 5. ORÁCULO DE MERCADO — ESTABILIZAÇÃO ÁGIL
-- **Boot Time:** Reduzido para **15-30 segundos** no Railway.
-- **Fallback ADX:** Se o Oráculo estiver estabilizando, o sistema usa o ADX bruto do WebSocket para não travar o Radar.
-
----
-
-## 6. GESTÃO DE RISCO — BANKROLL RAILWAY
-- **Banca Padrão:** **$100.00** (Simulado/Paper).
-- **Margem por slot:** **10% da banca** ($10.00 por ordem).
-- **Protocolo de Reset Nuclear:** O endpoint `/api/system/nuclear-reset` permite a limpeza total do banco, histórico e reset da banca para $100 em um único comando atômico.
-
----
-
 ## 7. HIERARQUIA DE AGENTES (SOBERANIA RAILWAY)
 ```
 Captain (Orquestrador Central)
@@ -107,44 +91,13 @@ Captain (Orquestrador Central)
 
 ---
 
-## 9. MAPA DE ESTADO SOBERANO
-| Componente | Localização Primária (SSOT) |
-|---|---|
-| **Slots Ativos** | Tabela `slots` (Postgres) |
-| **Moonbags** | Tabela `moonbags` (Postgres) |
-| **Histórico Vault** | Tabela `trade_history` (Postgres) |
-| **Motor Paper** | Tabela `system_state` (Postgres) |
-
----
-
-## 10. PROTOCOLO DE EXPURGO DE FANTASMAS & GENESIS GUARD (V4.0)
-- **Auto-Purge:** Ativos em erro de subscrição são filtrados na carga do estado Paper.
-- **Lixo Visual:** Registros com PNL $0 ou ID de recuperação são expurgados do histórico visual (`RECOVERY-%`).
-- **Genesis Guard:** Ordens sem DNA de inteligência (emergência) recebem telemetria padrão para evitar erro de "Relatório Inexistente" na UI.
-
----
-
-## 11. INTEGRIDADE DE ASSINATURA WEBSOCKET (BYBIT-WS)
-1. **Blocklist Guard:** Ativos na `settings.ASSET_BLOCKLIST` são ignorados no WS (exceto BTC).
-2. **Type Safety:** Handlers validam se a mensagem é um dicionário antes do processamento.
-
----
-
-## 12. INTELIGÊNCIA COLETIVA E AGENTE VISÃO (V110.403 — VIGILÂNCIA INDUSTRIAL & CACHE)
+## 12. INTELIGÊNCIA COLETIVA E AGENTE VISÃO (V110.406 — SLOT SATURATION GUARD)
 1. **Vision Gate Seletivo:** O Agente Visão só captura screenshots e aciona a IA se o sinal tiver **Score >= 95** (Captain) ou **Confidence >= 90** (Librarian). Sinais secundários são processados via quantitativo puro.
-2. **Protocolo de Demanda Ativa:** O Bibliotecário só invoca a Visão se houver slots livres para o tipo de estratégia (Blitz vs Swing). Se o sistema estiver 4/4, entra em **Standby de Inteligência**.
+2. **Protocolo de Demanda Ativa:** O Bibliotecário e o Visão só iniciam estudos se houver slots livres (filled < 4). Se o sistema estiver 4/4, entra em **Standby de Inteligência Visual**.
 3. **Análise de Cache (TTL 15m):** Resultados visuais são memorizados por 15 minutos por ativo. Se o sinal persistir sem mudança estrutural, o sistema reutiliza a decisão anterior para economizar quota.
 4. **Veto Obrigatório Universal:** Se o score for >= 95, o Visão tem poder de veto. Inclui backoff de 1h para quota excedida no Gemini.
 
 ---
 
-## 13. OBSERVATORY (VISUAL HQ) & VISION INTELLIGENCE (V5.6)
-1. **Motor Proprietário (S3):** O sistema utiliza uma engine de gráficos nativa (Lightweight Charts), eliminando 100% da dependência de iframes externos (TradingView) e resolvendo erros de CSP.
-2. **Master Context Layout:** O Observatório opera em uma arquitetura de 3 andares sincronizados.
-3. **Captura Autônoma:** O `ScreenshotService` captura exclusivamente o Hub Proprietário.
-
----
-
-*Versão: V110.403 "Industrial Process Vigilance" | Atualizado: 2026-04-30*
+*Versão: V110.406 "Slot Saturation Guard" | Atualizado: 2026-05-01*
 *Este arquivo é a ÚNICA FONTE DA VERDADE. Repositório Oficial: 10D5.0.*
-

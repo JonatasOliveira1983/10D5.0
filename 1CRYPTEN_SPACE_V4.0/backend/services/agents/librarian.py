@@ -756,11 +756,19 @@ class LibrarianAgent(AIOSAgent):
                         total_ghost_insights += len(result_entry["ghost_insights"])
                         
                         # [V1.0] AGENTE VISÃO: Contexto Visual (Apenas se for Elite ou SpecOps para otimizar)
-                        if "ELITE" in nectar_seal or "SpecOps" in seal:
+                        # [V110.406] Verificação de Slots antes de gastar com Visão
+                        active_slots = await sovereign_service.get_active_slots()
+                        total_filled = len([s for s in active_slots if s.get("symbol")])
+                        
+                        if ("ELITE" in nectar_seal or "SpecOps" in seal) and total_filled < 4:
                             logger.info(f"👁️ [LIBRARIAN-VISION] Solicitando contexto visual para {symbol}...")
                             vision_ctx = await vision_agent.analyze_market_context(symbol)
                             dna_entry["visual_context"] = vision_ctx.get("visual_context", "NEUTRAL")
                             result_entry["visual_thoughts"] = vision_ctx.get("visual_context")
+                        else:
+                            if total_filled >= 4:
+                                logger.info(f"⏭️ [LIBRARIAN-VISION-SKIP] {symbol}: Slots cheios. Pulando visão.")
+                            dna_entry["visual_context"] = "STANDBY: Slots Full"
 
                         all_results.append(result_entry)
                         
