@@ -948,8 +948,10 @@ class BybitREST:
         Increased default limit to 5 to avoid missing rapid-fire trades during sync.
         """
         if self.execution_mode == "PAPER":
-            # Filter history by symbol
-            relevant = [h for h in self.paper_orders_history if h["symbol"] == symbol]
+            # [V110.403] FIX: Normaliza símbolo antes de comparar para resolver POLUSDT vs POLUSDT.P
+            norm_target = self._strip_p(symbol).upper() if symbol else ""
+            relevant = [h for h in self.paper_orders_history
+                        if self._strip_p(h.get("symbol", "")).upper() == norm_target]
             # Return last N
             return relevant[-limit:] if relevant else []
 

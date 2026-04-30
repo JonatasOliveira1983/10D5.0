@@ -1019,6 +1019,16 @@ class CaptainAgent(AIOSAgent):
             
             # --- [V110.147] WHALE BYPASS (Aumentado de 15 para 20 para maior rigor) ---
             if current_btc_adx < 20:
+                # [V110.403 FIX] Garante que is_decorrelated e is_spring_vanguard estejam
+                # sempre definidas neste escopo, independente de btc_dir == "LATERAL".
+                # Evita NameError quando ADX < 20 mas mercado não foi classificado como LATERAL.
+                if "is_decorrelated" not in dir():
+                    is_decorrelated = best_signal.get("decorrelation_play", False) or \
+                                      best_signal.get("is_decorrelated", False) or \
+                                      best_signal.get("decorrelation", {}).get("is_active", False)
+                if "is_spring_vanguard" not in dir():
+                    is_spring_vanguard = best_signal.get("is_spring_strike", False) or \
+                                         best_signal.get("is_spring_moment", False)
                 # [V110.136] BLITZ BYPASS: Sinais M30 (Blitz) ignoram o bloqueio de mercado lateral.
                 # is_blitz unified from above
                 

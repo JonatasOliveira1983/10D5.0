@@ -769,7 +769,7 @@ class BankrollManager:
                                     "pnl_percent": pnl_percent,
                                     "close_time": close_time_str,
                                     "closed_at": close_time_str,
-                                    "pensamento": pensamiento,
+                                    "pensamento": pensamento,
                                     "reasoning_report": report,
                                     "final_roi": final_roi,
                                     "sl_phase_at_close": sl_phase,

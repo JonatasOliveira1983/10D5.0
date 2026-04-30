@@ -353,8 +353,22 @@ class SovereignService: # Nome atualizado para refletir a soberania Railway
         await self.update_radar_pulse(signals_list, [], {})
         return True
 
-    async def update_system_state(self, key: str, value: any): 
-        await database_service.update_system_state(key, value)
+    async def update_system_state(self, key: str, value: any = None, message: str = None, **kwargs):
+        """
+        [V110.403] Assinatura expandida para suportar chamadas do SignalGenerator.
+        Aceita: update_system_state("SCANNING", count, msg, protocol="...", last_reconciliation=lr)
+        **kwargs absorbe: protocol, last_reconciliation e quaisquer outros params futuros.
+        """
+        state_data = {"status": key}
+        if value is not None:
+            state_data["occupied_slots"] = value
+        if message is not None:
+            state_data["message"] = message
+        # Persiste kwargs enriquecidos (ex: protocol, last_reconciliation) sem quebrar o schema
+        for k, v in kwargs.items():
+            if v is not None:
+                state_data[k] = v
+        await database_service.update_system_state(key, state_data)
         return True
 
     async def update_signal_outcome(self, signal_id: str, outcome: str, metadata: dict = None):
