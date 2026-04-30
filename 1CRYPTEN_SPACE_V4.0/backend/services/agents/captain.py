@@ -194,16 +194,11 @@ class CaptainAgent(AIOSAgent):
             active_slots = await sovereign_service.get_active_slots(force_refresh=True)
             active_slots_count = len([s for s in active_slots if s.get("symbol")])
             
-            # 4. Agente Visão [V1.0] - O Filtro Final de Intenção
-            # [V110.404] VISION BYPASS: Temporariamente desativado a pedido do usuário (Quota Excedida).
-            # O sistema confia 100% no sinal quantitativo e no score SMC para a execução.
+            # 4. Defaults do Agente Visão (Será chamado apenas no final se aprovado)
             vision_approved = True
             vision_confidence = 100
-            vision_thoughts = "Bypass Temporário: Agente Visão desativado. Confiando nos dados quantitativos."
-            vision_result = {"approved": True, "reason": "Vision Offline - Bypass Ativo", "screenshot_url": None}
-
-            
-            logger.info(f"👁️ [FLEET-VISION] {symbol}: Approved={vision_approved} | Confidence={vision_confidence}%")
+            vision_thoughts = ""
+            vision_result = {"approved": True, "reason": "Not executed", "screenshot_url": None}
             
             # On-Chain Score (Extracted from Sentiment)
             on_chain_score = sentiment.get("data", {}).get("onchain_score", 50) if sentiment else 50
@@ -283,26 +278,7 @@ class CaptainAgent(AIOSAgent):
                     unified_score = 10 # Force low score if trap detected
                     logger.warning(f"🛡️ [V110.100] {symbol} {side} BLOCKED by ANTI-TRAP: {trap_reason}")
             
-            # [VISION BLOCK] Agente Visão Veto
-            if not vision_approved:
-                # [V4.2] Se o Visão está com IA offline (confidence=0), bloqueio é absoluto mesmo em PAPER
-                if vision_confidence == 0 and "SLOTS_FULL" not in vision_result.get("reason", ""):
-                    approved = False
-                    reasons.append(f"👁️🚫 VISION VETO TOTAL: IA Vision offline. {vision_result.get('reason')}")
-                    logger.warning(f"🛡️ [VISION-OFFLINE-BLOCK] {symbol} bloqueado: Agente Visão sem IA (quota/crédito). Lei Máxima V4.2.")
-                elif "SLOTS_FULL" in vision_result.get("reason", ""):
-                    approved = False
-                    reasons.append(f"🚫 SLOTS_FULL: {vision_result.get('reason')}")
-                    logger.info(f"⏭️ [CAPTAIN-GATE-SKIP] {symbol} ignorado por falta de slots.")
-                # Se a confiança for alta (>=70%), o Visão tem poder de VETO absoluto
-                elif vision_confidence >= 70:
-                    approved = False
-                    reasons.append(f"👁️🚫 VISION VETO: {vision_result.get('reason')}")
-                    logger.warning(f"🛡️ [VISION-VETO] {symbol} bloqueado pelo Agente Visão: {vision_result.get('reason')}")
-                else:
-                    # Confiança baixa: Apenas penaliza o score
-                    unified_score -= 20
-                    logger.info(f"⚠️ [VISION-WARNING] {symbol} Visão duvidoso. Penalidade de -20 pts aplicada.")
+            # [VISION BLOCK REMOVED FROM HERE - MOVED TO END]
 
             if risk_score > 8:
                 if bybit_rest_service.execution_mode == "PAPER":
@@ -341,7 +317,37 @@ class CaptainAgent(AIOSAgent):
                 approved = False
                 reasons.append(f"LOW_FLEET_CONFIDENCE: {unified_score:.1f}% < 50.0%")
                 logger.warning(f"🛡️ [V110.100] {symbol} {side} BLOQUEADO por Baixa Confiança ({unified_score:.1f}%). Sem bypass em PAPER ou REAL.")
-                
+
+            # --- [V110.405] VISION GATE (NOW EXECUTED LAST TO SAVE AI CREDITS) ---
+            if approved:
+                context = {
+                    "active_slots_count": active_slots_count,
+                    "lib_dna": lib_dna
+                }
+                vision_result = await vision_agent.confirm_entry(symbol, side, smc_score, context_data=context)
+                vision_approved = vision_result.get("approved", True)
+                vision_confidence = vision_result.get("confidence", 100)
+                vision_thoughts = vision_result.get("thoughts", "")
+
+                if not vision_approved:
+                    if vision_confidence == 0 and "SLOTS_FULL" not in vision_result.get("reason", ""):
+                        approved = False
+                        reasons.append(f"👁️🚫 VISION VETO TOTAL: IA Vision offline. {vision_result.get('reason')}")
+                        logger.warning(f"🛡️ [VISION-OFFLINE-BLOCK] {symbol} bloqueado: Agente Visão sem IA (quota/crédito).")
+                    elif "SLOTS_FULL" in vision_result.get("reason", ""):
+                        approved = False
+                        reasons.append(f"🚫 SLOTS_FULL: {vision_result.get('reason')}")
+                        logger.info(f"⏭️ [CAPTAIN-GATE-SKIP] {symbol} ignorado por falta de slots.")
+                    elif vision_confidence >= 70:
+                        approved = False
+                        reasons.append(f"👁️🚫 VISION VETO: {vision_result.get('reason')}")
+                        logger.warning(f"🛡️ [VISION-VETO] {symbol} bloqueado pelo Agente Visão: {vision_result.get('reason')}")
+                    else:
+                        unified_score -= 20
+                        logger.info(f"⚠️ [VISION-WARNING] {symbol} Visão duvidoso. Penalidade de -20 pts aplicada.")
+                        if unified_score < 50.0:
+                            approved = False
+                            reasons.append("LOW_FLEET_CONFIDENCE após penalidade do Visão.")
             # [V1.0] Decisão Final do Capitão
             try:
                 from services.sovereign_service import sovereign_service

@@ -1,4 +1,4 @@
-# 10D Sniper Operational Rules (V110.401)
+# 10D Sniper Operational Rules (V110.405)
 
 ## 1. Integridade de Timezone
 - **SSOT (Single Source of Truth):** Todas as datas e horários devem usar `datetime.now(datetime.timezone.utc)`.
@@ -19,7 +19,11 @@
 - **Protocolo de Limpeza:** Resets devem ser feitos via SQL (`nuclear_reset.sql`) ou scripts de wipe (`clear_paper_engine.py`) para garantir que o estado em memória e no banco sejam sincronizados.
 - **Bankroll Sync:** Após o reset, o loop de sincronização do `BankrollManager` deve ser o primeiro a rodar para limpar slots fantasmas remanescentes na UI.
 
-## 5. Git & Push
-- **Repositório Oficial:** `JonatasOliveira1983/10DBybityREAL`
+## 5. Gestão de IA e Visão (Funil de Custo Zero)
+- **Filtro de Funil (Final Gate):** O Agente Visão deve ser sempre a última etapa de aprovação. O Capitão só invoca a IA Visual se todos os critérios algorítmicos (DNA, Macro, ADX) forem aprovados.
+- **Soberania Gemini:** O sistema deve priorizar o uso nativo do Google Gemini (SDK `google.generativeai`) para todas as tarefas, minimizando o uso de intermediários como OpenRouter para reduzir custos e latência.
+
+## 6. Git & Push
+- **Repositório Oficial:** `JonatasOliveira1983/10D5.0`
 - **Branch:** `main`
 - **Push Obrigatório:** Toda correção de estabilidade deve ser commitada e enviada imediatamente.

@@ -88,88 +88,12 @@ class AIService:
 
     async def generate_content(self, prompt: str, system_instruction: str = "Você é um assistente de trading de elite."):
         """
-        Generates content using OpenRouter (DeepSeek) primarily, falling back to GLM/Gemini.
+        [V110.405] Generates content using Gemini exclusively as requested by the user.
         """
         now = time.time()
 
-        # 1. Primary: OpenRouter Cascade (Free Tier Models)
-        if self.openrouter_key and now > self.openrouter_backoff_until:
-            logger.debug(f"Attempting OpenRouter Cascade...")
-            
-            openrouter_models = [
-                "deepseek/deepseek-r1:free",
-                "meta-llama/llama-3.3-70b-instruct:free",
-                "mistralai/mistral-small-3.1-24b-instruct:free",
-                "qwen/qwen3-next-80b-a3b-instruct:free",
-                "nousresearch/hermes-3-llama-3.1-405b:free"
-            ]
-            
-            for or_model in openrouter_models:
-                try:
-                    logger.debug(f"OpenRouter trying model: {or_model}")
-                    async with httpx.AsyncClient(timeout=15.0) as client:
-                        response = await client.post(
-                            "https://openrouter.ai/api/v1/chat/completions",
-                            headers={
-                                "Authorization": f"Bearer {self.openrouter_key}",
-                                "HTTP-Referer": "https://1crypten.space", 
-                                "X-Title": "1CRYPTEN Space V4.0",
-                            },
-                            json={
-                                "model": or_model,
-                                "messages": [
-                                    {"role": "system", "content": system_instruction},
-                                    {"role": "user", "content": prompt}
-                                ],
-                                "temperature": 0.7
-                            }
-                        )
-                        if response.status_code == 200:
-                            data = response.json()
-                            if "error" in data:
-                                logger.warning(f"OpenRouter 200 OK Error with {or_model}: {data['error']}")
-                                continue
-                                
-                            text = data.get('choices', [{}])[0].get('message', {}).get('content')
-                            if text: 
-                                logger.info(f"✅ OpenRouter Success using {or_model}")
-                                return text.strip()
-                            else:
-                                logger.warning(f"OpenRouter 200 OK but empty text from {or_model}. Raw: {data}")
-                        else:
-                            logger.warning(f"OpenRouter HTTP {response.status_code} with {or_model}: {response.text}")
-                            if response.status_code == 429:
-                                # Se todos falharem com 429, aplicamos o backoff geral no ultimo
-                                if or_model == openrouter_models[-1]:
-                                    self.openrouter_backoff_until = now + 60
-                except Exception as e:
-                    logger.warning(f"OpenRouter Exception with {or_model}: {e}")
-                    if or_model == openrouter_models[-1]:
-                        self.openrouter_backoff_until = now + 60
-
-        # 2. Fallback: GLM
-        if self.glm_client and now > self.glm_backoff_until:
-            try:
-                logger.debug(f"Falling back to GLM...")
-                def _glm_sync():
-                    return self.glm_client.chat.completions.create(
-                        model="glm-4",
-                        messages=[
-                            {"role": "system", "content": system_instruction},
-                            {"role": "user", "content": prompt}
-                        ]
-                    )
-                response = await asyncio.to_thread(_glm_sync)
-                text = response.choices[0].message.content
-                if text: return text.strip()
-            except Exception as e:
-                logger.warning(f"GLM Fallback failed: {e}")
-                if "429" in str(e):
-                    self.glm_backoff_until = now + 60
-
-        # 3. Fallback: Gemini
         if self.gemini_model and now > self.gemini_backoff_until:
-            logger.debug(f"Falling back to Gemini...")
+            logger.debug(f"Attempting Native Gemini...")
             models_to_try = [
                 'gemini-2.0-flash',
                 'gemini-flash-latest',
@@ -195,18 +119,16 @@ class AIService:
                     if "404" in str(e): continue
                     logger.warning(f"Gemini error with {m_obj}: {e}")
                     if "429" in str(e):
-                        # Só entra em backoff se esgotar TUDO
                         if m_obj == models_to_try[-1]:
                             self.gemini_backoff_until = now + 120
                         continue
         
-        logger.error("❌ All AI providers failed or are in backoff.")
+        logger.error("❌ Gemini failed or is in backoff.")
         return None
 
     async def generate_vision_content(self, prompt: str, image_path: str, system_instruction: str = "Você é um analista técnico de trading especializado em Visão Computacional."):
         """
-        [V4.2 CASCATA FREE] Generates content based on an image and a prompt.
-        Uses a cascade of FREE models from OpenRouter to ensure no costs and high availability.
+        [V110.405] Generates content based on an image and a prompt using Gemini Natively.
         """
         if not os.path.exists(image_path):
             logger.error(f"❌ Image path not found: {image_path}")
@@ -214,112 +136,12 @@ class AIService:
 
         now = time.time()
         self.vision_requests_count += 1
-        # Broadcast initial "Checking" state
+        self.last_vision_model = "Native Gemini"
         asyncio.create_task(sovereign_service.update_ai_cascade(self.get_cascade_status()))
-        
-        # [V4.2] FREE VISION CASCADE MODELS (Ordered by quality)
-        # [V110.350] FREE VISION CASCADE MODELS (Final stable IDs)
-        FREE_VISION_MODELS = [
-            "google/gemma-3-27b-it:free",
-            "meta-llama/llama-3.2-11b-vision-instruct:free",
-            "google/gemini-2.0-flash-exp:free",
-            "google/gemma-3-12b-it:free",
-            "google/gemma-3-4b-it:free"
-        ]
 
-        if not self.openrouter_key:
-            logger.error("❌ No OpenRouter Key found for Vision Cascade.")
-            return None
-
-        # Encode image to base64 once
-        try:
-            with open(image_path, "rb") as f:
-                encoded_image = base64.b64encode(f.read()).decode('utf-8')
-            image_url = f"data:image/png;base64,{encoded_image}"
-        except Exception as e:
-            logger.error(f"❌ Failed to encode image for Vision: {e}")
-            return None
-
-        for idx, v_model in enumerate(FREE_VISION_MODELS):
-            # Skip if dead or in backoff
-            if v_model in self.vision_model_dead:
-                continue
-            if now < self.vision_model_backoffs.get(v_model, 0):
-                continue
-
-            self.last_vision_model = v_model.split('/')[-1]
-            asyncio.create_task(sovereign_service.update_ai_cascade(self.get_cascade_status()))
-
-            try:
-                logger.info(f"👁️ [VISION-CASCADE] Trying model {idx+1}/{len(FREE_VISION_MODELS)}: {v_model}...")
-                
-                async with httpx.AsyncClient(timeout=45.0) as client:
-                    response = await client.post(
-                        "https://openrouter.ai/api/v1/chat/completions",
-                        headers={
-                            "Authorization": f"Bearer {self.openrouter_key}",
-                            "HTTP-Referer": "https://1crypten.space", 
-                            "X-Title": "1CRYPTEN Vision Cascade",
-                        },
-                        json={
-                            "model": v_model,
-                            "messages": [
-                                {
-                                    "role": "user",
-                                    "content": [
-                                        {"type": "text", "text": f"{system_instruction}\n\n{prompt}"},
-                                        {
-                                            "type": "image_url",
-                                            "image_url": {"url": image_url}
-                                        }
-                                    ]
-                                }
-                            ],
-                            "temperature": 0.2
-                        }
-                    )
-                    
-                    if response.status_code == 200:
-                        data = response.json()
-                        # Check for internal OpenRouter error even with 200
-                        if "error" in data:
-                            err_msg = str(data["error"])
-                            logger.warning(f"⚠️ [VISION-CASCADE] Model {v_model} returned error: {err_msg}")
-                            if "429" in err_msg or "rate" in err_msg.lower():
-                                self.vision_model_backoffs[v_model] = now + 60
-                            elif "402" in err_msg or "credit" in err_msg.lower():
-                                logger.error(f"💀 [VISION-CASCADE] Model {v_model} requires payment. Marking as DEAD.")
-                                self.vision_model_dead.add(v_model)
-                            continue
-
-                        text = data.get('choices', [{}])[0].get('message', {}).get('content')
-                        if text:
-                            logger.info(f"✅ [VISION-CASCADE] Success using {v_model}")
-                            return text.strip()
-                        else:
-                            logger.warning(f"⚠️ [VISION-CASCADE] Model {v_model} returned empty response.")
-                    
-                    elif response.status_code == 429:
-                        logger.warning(f"⏳ [VISION-CASCADE] Rate limit (429) for {v_model}. Cooling down 60s.")
-                        self.vision_model_backoffs[v_model] = now + 60
-                    
-                    elif response.status_code == 402:
-                        logger.error(f"💀 [VISION-CASCADE] Payment Required (402) for {v_model}. Marking as DEAD.")
-                        self.vision_model_dead.add(v_model)
-                    
-                    else:
-                        logger.warning(f"❌ [VISION-CASCADE] HTTP {response.status_code} for {v_model}: {response.text}")
-
-            except Exception as e:
-                logger.warning(f"💥 [VISION-CASCADE] Exception with {v_model}: {e}")
-                self.vision_model_backoffs[v_model] = now + 30 # Short backoff on generic error
-                continue
-
-        # [V5.0] FINAL FALLBACK: Native Gemini (if key present)
         if self.gemini_model and now > self.gemini_backoff_until:
             try:
-                logger.info("👁️ [VISION-FALLBACK] Trying Native Gemini Flash...")
-                # We need to load the image into a generative ai part
+                logger.info("👁️ [VISION] Using Native Gemini Flash...")
                 import google.generativeai as genai
                 from PIL import Image
                 img = Image.open(image_path)
@@ -329,16 +151,15 @@ class AIService:
                     [f"{system_instruction}\n\n{prompt}", img]
                 )
                 if response and hasattr(response, 'text'):
-                    logger.info("✅ [VISION-FALLBACK] Success using Native Gemini")
+                    logger.info("✅ [VISION] Success using Native Gemini")
                     return response.text.strip()
             except Exception as ge:
-                logger.warning(f"❌ [VISION-FALLBACK] Native Gemini failed: {ge}")
+                logger.warning(f"❌ [VISION] Native Gemini failed: {ge}")
                 if "429" in str(ge) or "quota" in str(ge).lower():
-                    # [V4.2.1] Long backoff on quota exceeded (1 hour)
                     self.gemini_backoff_until = now + 3600
-                    logger.error("🛑 [VISION-FALLBACK] Gemini Quota Exceeded. Cooling down for 1 hour.")
+                    logger.error("🛑 [VISION] Gemini Quota Exceeded. Cooling down for 1 hour.")
 
-        logger.error("❌ [VISION-CASCADE] All vision models (OpenRouter + Native) failed.")
+        logger.error("❌ [VISION] Native Gemini failed or in backoff.")
         asyncio.create_task(sovereign_service.update_ai_cascade(self.get_cascade_status()))
         return None
 
